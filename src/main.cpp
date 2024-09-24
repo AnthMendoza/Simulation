@@ -4,11 +4,14 @@
 #include <math.h>
 #include <thread>
 #include <algorithm> 
+#include <vectorMath.cpp>
 
 
 
 
 
 int main(){
-
+    int vec[3] = {1,1,1};
+    printf("f/n",vectorMag(vec));
+    return 0;
 }
