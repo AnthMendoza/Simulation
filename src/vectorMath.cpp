@@ -3,8 +3,8 @@
 
 
 
-float vectorMag(float (&vector1)[3]){
-    return sqrt(vector1[0]*vector1[0] + vector1[1]*vector1[1] + vector1[2]*vector1[2]);
+float vectorMag(float (&vector)[3]){
+    return sqrt(vector[0]*vector[0] + vector[1]*vector[1] + vector[2]*vector[2]);
 }
 
 

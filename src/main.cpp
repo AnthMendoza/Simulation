@@ -13,6 +13,6 @@
 
 int main(){
     float vec[3] = {1,1,1};
-    printf("f/n",vectorMag(vec));
+    printf("%f",vectorMag(vec));
     return 0;
 }
