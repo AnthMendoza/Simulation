@@ -2,7 +2,6 @@
 #define VEHICLE_H
 
 
-#include <iostream>  // Include necessary libraries
 
 
 
@@ -11,9 +10,9 @@ class Vehicle{
         float   Xposition , Yposition , Zposition;     // position
         float    roll , pitch, yaw ;    // rotation
 
-    Vehicle(float x, float y, float z, float mroll, float mpitch, float myaw);
+        Vehicle(float x, float y, float z, float mroll, float mpitch, float myaw);
 
-    void display();
+        void display();
 
 
 };
