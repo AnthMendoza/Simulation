@@ -24,16 +24,14 @@ void testVectorCrossProduct() {
     float vec2[3] = {0.0, 1.0, 0.0}; // Cross product should be {0, 0, 1}
     float result[3] = {0.0, 0.0, 0.0};
     vectorCrossProduct(vec1, vec2, result);
-    std::cout << "Test vectorCrossProduct: Expected {0.0, 0.0, 1.0}, Got {"
-              << result[0] << ", " << result[1] << ", " << result[2] << "}" << std::endl;
+    std::cout << "Test vectorCrossProduct: Expected {0.0, 0.0, 1.0}, Got {" << result[0] << ", " << result[1] << ", " << result[2] << "}" << std::endl;
 }
 
 void testVectorAngleBetween() {
     float vec1[3] = {1.0, 0.0, 0.0};
     float vec2[3] = {0.0, 1.0, 0.0}; // Angle should be 90 degrees (π/2 radians)
     float result = vectorAngleBetween(vec1, vec2);
-    std::cout << std::setprecision(4) << "Test vectorAngleBetween: Expected 1.5708 radians, Got " 
-              << result << " radians" << std::endl;
+    std::cout << std::setprecision(4) << "Test vectorAngleBetween: Expected 1.5708 radians, Got " << result << " radians" << std::endl;
 }
 
 int main() {
