@@ -6,13 +6,14 @@
 #include <thread>
 #include <algorithm> 
 #include "../include/vectorMath.h"
+#include "../include/vehicle.h"
 
 
 
 
 
 int main(){
-    float vec[3] = {1,1,1};
-    printf("%f",vectorMag(vec));
+    Vehicle myVehicle(0.0f, 1.0f, 2.0f, 0.5f, 0.1f, 1.57f);
+    myVehicle.display();
     return 0;
 }
