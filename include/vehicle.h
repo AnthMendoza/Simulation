@@ -9,11 +9,13 @@ class Vehicle{
     public:
         float   Xposition , Yposition , Zposition;     // position
         float    roll , pitch, yaw ;    // rotation
+        float MOI[3];   
 
-        Vehicle(float x, float y, float z, float mroll, float mpitch, float myaw);
+        Vehicle(float x, float y, float z, float mroll, float mpitch, float myaw, float mMOI[3]);
 
         void display();
 
+        void updateState();
 
 };
 

@@ -3,6 +3,7 @@
         "algorithm": "cpp",
         "thread": "cpp",
         "cmath": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "array": "cpp"
     }
 }
