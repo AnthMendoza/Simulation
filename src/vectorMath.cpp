@@ -34,7 +34,6 @@ float vectorAngleBetween(float (&vector1)[3], float (&vector2)[3]) {
     
     float mag1 = vectorMag(vector1);
     float mag2 = vectorMag(vector2);
-    
     float dot = vectorDotProduct(vector1, vector2);
     
 

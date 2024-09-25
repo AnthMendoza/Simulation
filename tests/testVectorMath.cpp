@@ -1,5 +1,5 @@
 #include <iostream>
-#include <iomanip> // For controlling output precision
+#include <iomanip>
 #include "../include/vectorMath.h"
 
 void testVectorMag() {

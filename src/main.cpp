@@ -25,7 +25,7 @@ void iterator(Vehicle &rocket){
 
 int main(){
     float MOI[3] = {.2,.2,.2};
-    Vehicle rocket(0,0,500,0,1,0,MOI);
+    Vehicle rocket(0,0,50000,0,1,0,MOI,10);
     iterator(rocket);
     return 0;
 }
