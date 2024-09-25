@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include<iostream>
 #include <cstdio>
 #include <stdlib.h>
 #include <stdbool.h>  
@@ -10,12 +11,21 @@
 #include "../include/odeIterator.h"
 
 
+void iterator(Vehicle &rocket){
+    int iterations = 0;
+    float timeStep = .001;
+    while(rocket.Zposition > 0){
+        rocket.updateState();
+        iterations++;
+    }
+    std::cout<< "Time in seconds to hit ground in free fall " << iterations * timeStep;
+}
+
+
 
 int main(){
-    float val[3] = {1,2,4};
-
-    Vehicle myVehicle(0.0f, 0.0f, 0.0f, 0.5f, 0.1f, 1.57f, val);
-    Ode(10.0f,5.0f,.05f,myVehicle.Xvelocity, myVehicle.Xposition);
-    myVehicle.display();
+    float MOI[3] = {.2,.2,.2};
+    Vehicle rocket(0,0,500,0,1,0,MOI);
+    iterator(rocket);
     return 0;
 }
