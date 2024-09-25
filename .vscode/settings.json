@@ -4,6 +4,7 @@
         "thread": "cpp",
         "cmath": "cpp",
         "iostream": "cpp",
-        "array": "cpp"
+        "array": "cpp",
+        "ostream": "cpp"
     }
 }
