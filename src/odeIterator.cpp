@@ -23,7 +23,7 @@ void Ode(float force , float mass , float timeStep ,float &velocity ,float &posi
 //take the sum of moments 
 
 
-void rotationOde(float moment , float MOI , float timeStep ,float &angularVelocity ,float &rotationalPosition){
+void rotationalOde(float moment , float MOI , float timeStep ,float &angularVelocity ,float &rotationalPosition){
 
     float deltaAngularAcceleration = moment/MOI;
 

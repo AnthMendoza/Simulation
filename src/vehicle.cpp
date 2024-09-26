@@ -49,6 +49,10 @@ void Vehicle::updateState(){
     Ode(sumOfForces[1] , mass , constant::timeStep , Yvelocity,Yposition);
     Ode(sumOfForces[2] , mass , constant::timeStep , Zvelocity,Zposition);
 
+
+    rotationalOde(sumOfMoments[0] , MOI[0], constant::timeStep , );
+    rotationalOde(sumOfMoments[1] , MOI[0], constant::timeStep , );
+    rotationalOde(sumOfMoments[2] , MOI[0], constant::timeStep , );
     sumOfForces[0] = 0; //reset forces to zero for next iteration
     sumOfForces[1] = 0;
     sumOfForces[2] = 0;
