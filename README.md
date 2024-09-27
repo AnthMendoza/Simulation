@@ -26,6 +26,13 @@
 - Any noteworthy functionality?
 
 ## Technologies Used
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2b70f480-5148-4344-83a5-a2cae98a985b" width="400" />
+</p>
+
+
+
+
 
 - List the programming languages, frameworks, libraries, or tools you used. For example:
   - C++ for backend logic
