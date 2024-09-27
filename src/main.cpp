@@ -1,11 +1,5 @@
-#include <stdio.h>
 #include<iostream>
-#include <cstdio>
-#include <stdlib.h>
-#include <stdbool.h>  
 #include <math.h>
-#include <thread>
-#include <algorithm> 
 #include <chrono>
 #include "../include/vectorMath.h"
 #include "../include/vehicle.h"

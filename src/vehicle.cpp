@@ -3,6 +3,8 @@
 #include "../include/vehicle.h"
 #include "../include/odeIterator.h"
 #include "../include/constants.h"
+#include "../include/vectorMath.h"
+#include "../include/aero.h"
 
 
 
@@ -36,6 +38,22 @@ void Vehicle::display() {
               << "Orientation (Roll, Pitch, Yaw): (" << roll << ", " << pitch << ", " << yaw << ")\n"<< MOI[2] << ", " << Xvelocity;
 }   
 
+float Vehicle::drag(){
+    float velocityVector[3];
+    float vehicleVector[3];
+    velocityVector[0] = Xvelocity;
+    velocityVector[1] = Yvelocity;
+    velocityVector[2] = Zvelocity;
+
+    vehicleVector[0] = Xposition;
+    vehicleVector[1] = Yposition;
+    vehicleVector[2] = Zposition;
+    float absVelocity = vectorMag(velocityVector);
+    float dragAngle = vectorAngleBetween(velocityVector , vehicleVector);
+    float drag = .5 * (absVelocity * absVelocity) * area *coeDrag * airDensity(Zposition);
+    return drag;
+}
+
 void  Vehicle::addForce(float stateVector[3] , float forceIncident , float forceVector[3]){
     sumOfForces[0] += forceVector[0];
     sumOfForces[1] += forceVector[1];
@@ -51,9 +69,16 @@ void Vehicle::updateState(){
 
 
     rotationalOde(sumOfMoments[0] , MOI[0], constant::timeStep , );
-    rotationalOde(sumOfMoments[1] , MOI[0], constant::timeStep , );
-    rotationalOde(sumOfMoments[2] , MOI[0], constant::timeStep , );
+    rotationalOde(sumOfMoments[1] , MOI[1], constant::timeStep , );
+    rotationalOde(sumOfMoments[2] , MOI[2], constant::timeStep , );
+
     sumOfForces[0] = 0; //reset forces to zero for next iteration
     sumOfForces[1] = 0;
     sumOfForces[2] = 0;
+    
+    sumOfMoments[0] = 0;
+    sumOfMoments[1] = 0;
+    sumOfMoments[2] = 0;
+
+    
 }

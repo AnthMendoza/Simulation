@@ -20,6 +20,8 @@ class Vehicle{
 
         void includeForce();
 
+        float drag();
+
         void addForce(float stateVector[3] , float forceIncident , float forceVector[3]);
 
         void updateState();
