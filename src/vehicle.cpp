@@ -48,10 +48,13 @@ float Vehicle::drag(){
     vehicleVector[0] = Xposition;
     vehicleVector[1] = Yposition;
     vehicleVector[2] = Zposition;
-    
+
     float absVelocity = vectorMag(velocityVector);
     float dragAngle = vectorAngleBetween(velocityVector , vehicleVector);
-    float drag = .5 * (absVelocity * absVelocity) * area *coeDrag * airDensity(Zposition);
+    float drag = .5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition);
+
+    float direc
+
     return drag;
 }
 
@@ -69,9 +72,9 @@ void Vehicle::updateState(){
     Ode(sumOfForces[2] , mass , constant::timeStep , Zvelocity,Zposition);
 
 
-    rotationalOde(sumOfMoments[0] , MOI[0], constant::timeStep , );
-    rotationalOde(sumOfMoments[1] , MOI[1], constant::timeStep , );
-    rotationalOde(sumOfMoments[2] , MOI[2], constant::timeStep , );
+    //rotationalOde(sumOfMoments[0] , MOI[0], constant::timeStep , );
+    //rotationalOde(sumOfMoments[1] , MOI[1], constant::timeStep , );
+    //rotationalOde(sumOfMoments[2] , MOI[2], constant::timeStep , );
 
     sumOfForces[0] = 0; //reset forces to zero for next iteration
     sumOfForces[1] = 0;

@@ -3,4 +3,8 @@
 
     float airDensity(float Zposition);
 
+    float aeroArea(float angle);
+
+    float coefOfDrag(float angle);
+
 #endif

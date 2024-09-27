@@ -1,4 +1,5 @@
 #include <math.h>
+#include <array>
 #include "../include/vectorMath.h"
 
 
@@ -22,7 +23,7 @@ float vectorDotProduct(float (&vector1)[3], float (&vector2)[3]) {
 
 
 void vectorCrossProduct(float (&vector1)[3], float (&vector2)[3], float (&result)[3]) {
-    
+
     result[0] = vector1[1] * vector2[2] - vector1[2] * vector2[1]; 
     result[1] = vector1[2] * vector2[0] - vector1[0] * vector2[2]; 
     result[2] = vector1[0] * vector2[1] - vector1[1] * vector2[0]; 
@@ -39,4 +40,17 @@ float vectorAngleBetween(float (&vector1)[3], float (&vector2)[3]) {
     
 
     return acos(dot / (mag1 * mag2)); // Result is in radians
+}
+
+
+
+std::array<float,3> normalizeVector(float (&vector1)[3]){
+    std::array<float,3> normalVector;
+    float mag = vectorMag(vector1);
+    
+    for(int i = 0 ; i< 3 ; i++) {
+        normalVector[i] = vector1[i]/mag;
+    }
+    
+    return normalVector;
 }
