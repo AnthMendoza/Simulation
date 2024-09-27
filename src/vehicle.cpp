@@ -48,6 +48,7 @@ float Vehicle::drag(){
     vehicleVector[0] = Xposition;
     vehicleVector[1] = Yposition;
     vehicleVector[2] = Zposition;
+    
     float absVelocity = vectorMag(velocityVector);
     float dragAngle = vectorAngleBetween(velocityVector , vehicleVector);
     float drag = .5 * (absVelocity * absVelocity) * area *coeDrag * airDensity(Zposition);

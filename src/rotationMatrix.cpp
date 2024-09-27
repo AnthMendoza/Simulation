@@ -8,7 +8,7 @@ using namespace std;
 
 Matrix3x3::Matrix3x3() {
     m = {{{1.0f, 0.0f, 0.0f},
-          {0.0f, 1.0f, 0.0f},
+          {0.0f, 1.0f, 0.0f}, 
           {0.0f, 0.0f, 1.0f}}};
 }
 
