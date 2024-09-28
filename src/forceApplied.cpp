@@ -3,6 +3,7 @@
 
 void force(){
 
+
     
 }
 
@@ -11,6 +12,8 @@ void force(){
 
 void finForce(){
 
+
+
 }
 
 
@@ -18,5 +21,7 @@ void finForce(){
 
 void thrustForce(){
     
+    
+
 }
 

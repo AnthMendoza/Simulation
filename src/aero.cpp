@@ -3,7 +3,7 @@
 
 
 
-float airDensity(float Zposition) {
+float airDensity(float Zposition) {  //Zposition in meters, returned in kg/m^3
     float temp = 0;
     float pressure = 0;
 

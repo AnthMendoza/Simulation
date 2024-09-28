@@ -1,10 +1,10 @@
 #include <iostream>
 #include <array>
 #include "../include/vehicle.h"
-#include "../include/odeIterator.h"
 #include "../include/vectorMath.h"
 #include "../include/aero.h"
 #include "../include/constants.h"
+#include "../include/RungeKutta.h"
 
 
 
@@ -86,9 +86,10 @@ void Vehicle::updateState(){
     //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
     sumOfForces[2] = sumOfForces[2] + constants::gravitationalAcceleration * mass; 
     
-    Ode(sumOfForces[0] , mass , constants::timeStep , Xvelocity,Xposition);
-    Ode(sumOfForces[1] , mass , constants::timeStep , Yvelocity,Yposition);
-    Ode(sumOfForces[2] , mass , constants::timeStep , Zvelocity,Zposition);
+
+    RungeKutta4th(sumOfForces[0] , mass , constants::timeStep , Xvelocity,Xposition);
+    RungeKutta4th(sumOfForces[1] , mass , constants::timeStep , Yvelocity,Yposition);
+    RungeKutta4th(sumOfForces[2] , mass , constants::timeStep , Zvelocity,Zposition);
 
 
     //rotationalOde(sumOfMoments[0] , MOI[0], constant::timeStep , );

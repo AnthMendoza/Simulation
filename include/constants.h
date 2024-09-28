@@ -1,6 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 #include <array>
+
     namespace constants{
         float gravitationalAcceleration = -9.81; //
 
