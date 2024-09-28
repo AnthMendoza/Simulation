@@ -8,13 +8,15 @@
 class Vehicle{
     public:
         float   Xposition , Yposition , Zposition;     // position
-        float vehicleState[3];
-        float MOI[3], mass;   
+        std::array<float,3> vehicleState;
+        std::array<float,3> MOI;
+        float mass;   
         float Xvelocity , Yvelocity , Zvelocity;
         float rollvelocity , pitchvelocity , yawvelocity;
-        float sumOfForces[3] , sumOfMoments[3];
+        std::array<float,3> sumOfForces;
+        std::array<float,3> sumOfMoments;
 
-        Vehicle(float x, float y, float z, float mMOI[3] , float mMass);
+        Vehicle(float x, float y, float z, std::array<float, 3> mMOI , float mMass);
 
         void display();
 

@@ -1,6 +1,7 @@
 #include<iostream>
 #include <math.h>
 #include <chrono>
+#include <array>
 #include "../include/vectorMath.h"
 #include "../include/vehicle.h"
 #include "../include/odeIterator.h"
@@ -12,6 +13,7 @@ void iterator(Vehicle &rocket){
     while(rocket.Zposition > 0){
         rocket.drag();
         rocket.updateState();
+        //rocket.display();
         iterations++;
     }
     std::cout<< "Time in seconds to hit ground in free fall " << iterations * timeStep;
@@ -22,7 +24,8 @@ void iterator(Vehicle &rocket){
 int main(){
     auto start = std::chrono::high_resolution_clock::now();
 
-    float MOI[3] = {.2,.2,.2};
+    std::array<float , 3> MOI = {.2,.2,.2};
+
     Vehicle rocket(0,0,5000,MOI, 42000);
     iterator(rocket);
 

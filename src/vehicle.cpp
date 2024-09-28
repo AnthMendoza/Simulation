@@ -1,6 +1,5 @@
 #include <iostream>
 #include <array>
-#include <thread>
 #include "../include/vehicle.h"
 #include "../include/odeIterator.h"
 #include "../include/vectorMath.h"
@@ -11,9 +10,9 @@
 
 
 
-Vehicle::Vehicle(float x, float y, float z,float mMOI[3],float mMass)
+Vehicle::Vehicle(float x, float y, float z,std::array<float, 3> mMOI ,float mMass)
     : Xposition(x), Yposition(y), Zposition(z), mass(mMass){
-    memcpy(MOI, mMOI, 3 * sizeof(float));
+    std::copy(mMOI.begin(), mMOI.end(), MOI.begin());
 
     // roll pitch yaw (x,y,z) defines the direction vector, heading. ex. (0,0,1) is rocket pointing straight up.
 
@@ -51,24 +50,23 @@ void Vehicle::display() {
 
 void Vehicle::drag(){
     
-    std::array<float,3> velocityVector;
-    std::array<float,3> vehicleVector;
+    std::array<float,3> airVelocityVector;
 
-    velocityVector[0] = Xvelocity + constants::wind[0];
-    velocityVector[1] = Yvelocity + constants::wind[1];
-    velocityVector[2] = Zvelocity + constants::wind[2];
+    airVelocityVector[0] = Xvelocity + constants::wind[0];
+    airVelocityVector[1] = Yvelocity + constants::wind[1];
+    airVelocityVector[2] = Zvelocity + constants::wind[2];
 
-    vehicleVector[0] = Xposition;
-    vehicleVector[1] = Yposition;
-    vehicleVector[2] = Zposition;
 
-    float absVelocity = vectorMag(velocityVector);
-    float dragAngle = vectorAngleBetween(velocityVector , vehicleVector);
-    
+    float absVelocity = vectorMag(airVelocityVector);
+    float dragAngle = vectorAngleBetween(airVelocityVector , vehicleState);
+
+    //std::cout  << velocityVector[0]<< " " << velocityVector[1]<<  " " << velocityVector[2]<<  std::endl;
+    //std::cout  << "Vehicle"<< vehicleVector[0]<< " " << vehicleVector[1]<<  " " << vehicleVector[2]<<  std::endl;
+
     float drag = -.5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition); //calculating abs drag 
     
     std::array<float,3> dragVector;
-    std::array<float,3> normalVelocityVector = normalizeVector(velocityVector);
+    std::array<float,3> normalVelocityVector = normalizeVector(airVelocityVector);
     
     dragVector[0] = drag * normalVelocityVector[0];
     dragVector[1] = drag * normalVelocityVector[1];
