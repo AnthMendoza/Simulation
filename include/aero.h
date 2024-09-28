@@ -7,4 +7,5 @@
 
     float coefOfDrag(float angle);
 
+    
 #endif

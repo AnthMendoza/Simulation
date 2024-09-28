@@ -2,13 +2,15 @@
 #define VECTOR_MATH_H
 
 
-float vectorMag(float (&vector)[3]);
+float vectorMag(std::array<float,3> &vector);
 
-float vectorDotProduct(float (&vector1)[3], float (&vector2)[3]);
+float vectorDotProduct(std::array<float,3> &vector1, std::array<float,3> &vector2);
 
-void vectorCrossProduct(float (&vector1)[3], float (&vector2)[3], float (&result)[3]);
+void vectorCrossProduct(std::array<float,3> &vector1, std::array<float,3> vector2, std::array<float,3> result);
 
-float vectorAngleBetween(float (&vector1)[3], float (&vector2)[3]);
+float vectorAngleBetween(std::array<float,3> &vector1, std::array<float,3> &vector2);
+
+std::array<float,3> normalizeVector(std::array<float,3> &vector1);
 
 
 #endif

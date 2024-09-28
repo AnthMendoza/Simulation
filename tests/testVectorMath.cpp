@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <array>
 #include "../include/vectorMath.h"
 
 void testVectorMag() {
@@ -34,6 +35,14 @@ void testVectorAngleBetween() {
     std::cout << std::setprecision(4) << "Test vectorAngleBetween: Expected 1.5708 radians, Got " << result << " radians" << std::endl;
 }
 
+
+
+void testNormalize(){
+    std::array<float,3> vec1 = {10,2,3};
+    std::array<float,3> vec2 = normalizeVector(vec1);
+    std::cout<< vec2[0] << " " << vec2[1] << " " << vec2[2] ;
+}
+
 int main() {
     std::cout << "Running tests" << std::endl;
     
@@ -41,6 +50,7 @@ int main() {
     testVectorDotProduct();
     testVectorCrossProduct();
     testVectorAngleBetween();
+    testNormalize();
     
     std::cout << "All tests completed." << std::endl;
     return 0;

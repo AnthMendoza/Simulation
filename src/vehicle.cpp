@@ -1,24 +1,35 @@
 #include <iostream>
-
+#include <array>
+#include <thread>
 #include "../include/vehicle.h"
 #include "../include/odeIterator.h"
-#include "../include/constants.h"
 #include "../include/vectorMath.h"
 #include "../include/aero.h"
+#include "../include/constants.h"
 
 
 
 
 
-Vehicle::Vehicle(float x, float y, float z, float mroll, float mpitch, float myaw , float mMOI[3],float mMass)
-    : Xposition(x), Yposition(y), Zposition(z), roll(mroll), pitch(mpitch), yaw(myaw) , mass(mMass){
+Vehicle::Vehicle(float x, float y, float z,float mMOI[3],float mMass)
+    : Xposition(x), Yposition(y), Zposition(z), mass(mMass){
     memcpy(MOI, mMOI, 3 * sizeof(float));
 
+    // roll pitch yaw (x,y,z) defines the direction vector, heading. ex. (0,0,1) is rocket pointing straight up.
+
+    //(x,y,z)positon defines its location reltaive to an orgin
+
+
+    vehicleState[0] = constants::initVehicleState[0];
+    vehicleState[1] = constants::initVehicleState[1];  //setting init value for vehicle state, logged in constants.h
+    vehicleState[2] = constants::initVehicleState[2];
+
     Xvelocity = 0;
-    Yvelocity = 0;
+    Yvelocity = 0;   // Velocity vector , direction of movment relative to the ground
     Zvelocity = 0;
+    
     rollvelocity = 0;
-    pitchvelocity = 0;
+    pitchvelocity = 0;  // rate at which the vehicle is rotating about its axis
     yawvelocity = 0;
 
     sumOfForces[0] = 0;
@@ -35,15 +46,17 @@ Vehicle::Vehicle(float x, float y, float z, float mroll, float mpitch, float mya
 // Method implementation to display the vehicle's state
 void Vehicle::display() {
     std::cout << "Position: (" << Xposition << ", " << Yposition << ", " << Zposition << ")\n"
-              << "Orientation (Roll, Pitch, Yaw): (" << roll << ", " << pitch << ", " << yaw << ")\n"<< MOI[2] << ", " << Xvelocity;
+              << "Orientation (Roll, Pitch, Yaw): (" << vehicleState[0] << ", " << vehicleState[1]  << ", " << vehicleState[2]  << ")\n";
 }   
 
-float Vehicle::drag(){
-    float velocityVector[3];
-    float vehicleVector[3];
-    velocityVector[0] = Xvelocity;
-    velocityVector[1] = Yvelocity;
-    velocityVector[2] = Zvelocity;
+void Vehicle::drag(){
+    
+    std::array<float,3> velocityVector;
+    std::array<float,3> vehicleVector;
+
+    velocityVector[0] = Xvelocity + constants::wind[0];
+    velocityVector[1] = Yvelocity + constants::wind[1];
+    velocityVector[2] = Zvelocity + constants::wind[2];
 
     vehicleVector[0] = Xposition;
     vehicleVector[1] = Yposition;
@@ -51,25 +64,33 @@ float Vehicle::drag(){
 
     float absVelocity = vectorMag(velocityVector);
     float dragAngle = vectorAngleBetween(velocityVector , vehicleVector);
-    float drag = .5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition);
+    
+    float drag = -.5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition); //calculating abs drag 
+    
+    std::array<float,3> dragVector;
+    std::array<float,3> normalVelocityVector = normalizeVector(velocityVector);
+    
+    dragVector[0] = drag * normalVelocityVector[0];
+    dragVector[1] = drag * normalVelocityVector[1];
+    dragVector[2] = drag * normalVelocityVector[2];
 
-    float direc
-
-    return drag;
+    addForce(dragVector);
 }
 
-void  Vehicle::addForce(float stateVector[3] , float forceIncident , float forceVector[3]){
+
+void  Vehicle::addForce(std::array<float,3> forceVector){
     sumOfForces[0] += forceVector[0];
     sumOfForces[1] += forceVector[1];
     sumOfForces[2] += forceVector[2];
 }
 
-void Vehicle::updateState(){       
-    sumOfForces[2] = sumOfForces[2] + constant::gravitationalAcceleration * mass; //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
+void Vehicle::updateState(){    
+    //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
+    sumOfForces[2] = sumOfForces[2] + constants::gravitationalAcceleration * mass; 
     
-    Ode(sumOfForces[0] , mass , constant::timeStep , Xvelocity,Xposition);
-    Ode(sumOfForces[1] , mass , constant::timeStep , Yvelocity,Yposition);
-    Ode(sumOfForces[2] , mass , constant::timeStep , Zvelocity,Zposition);
+    Ode(sumOfForces[0] , mass , constants::timeStep , Xvelocity,Xposition);
+    Ode(sumOfForces[1] , mass , constants::timeStep , Yvelocity,Yposition);
+    Ode(sumOfForces[2] , mass , constants::timeStep , Zvelocity,Zposition);
 
 
     //rotationalOde(sumOfMoments[0] , MOI[0], constant::timeStep , );
