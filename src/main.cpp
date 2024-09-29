@@ -26,7 +26,7 @@ int main(){
 
     std::array<float , 3> MOI = {.2,.2,.2};
 
-    Vehicle rocket(0,0,500000,MOI, 42000);
+    Vehicle rocket(0,0,5000,MOI, 42000);
     iterator(rocket);
 
     auto end = std::chrono::high_resolution_clock::now();

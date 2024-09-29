@@ -5,6 +5,8 @@
 #include "../include/aero.h"
 #include "../include/constants.h"
 #include "../include/RungeKutta.h"
+#include "../include/odeIterator.h"
+
 
 
 
@@ -18,6 +20,9 @@ Vehicle::Vehicle(float x, float y, float z,std::array<float, 3> mMOI ,float mMas
 
     //(x,y,z)positon defines its location reltaive to an orgin
 
+    angularVelocity = {0,0,0};
+
+    centerOfPressure = 6; //meters
 
     vehicleState[0] = constants::initVehicleState[0];
     vehicleState[1] = constants::initVehicleState[1];  //setting init value for vehicle state, logged in constants.h
@@ -27,9 +32,6 @@ Vehicle::Vehicle(float x, float y, float z,std::array<float, 3> mMOI ,float mMas
     Yvelocity = 0;   // Velocity vector , direction of movment relative to the ground
     Zvelocity = 0;
     
-    rollvelocity = 0;
-    pitchvelocity = 0;  // rate at which the vehicle is rotating about its axis
-    yawvelocity = 0;
 
     sumOfForces[0] = 0;
     sumOfForces[1] = 0;
@@ -75,6 +77,10 @@ void Vehicle::drag(){
     addForce(dragVector);
 }
 
+void Vehicle::lift(){
+    
+}   
+
 
 void  Vehicle::addForce(std::array<float,3> forceVector){
     sumOfForces[0] += forceVector[0];
@@ -92,9 +98,9 @@ void Vehicle::updateState(){
     RungeKutta4th(sumOfForces[2] , mass , constants::timeStep , Zvelocity,Zposition);
 
 
-    //rotationalOde(sumOfMoments[0] , MOI[0], constant::timeStep , );
-    //rotationalOde(sumOfMoments[1] , MOI[1], constant::timeStep , );
-    //rotationalOde(sumOfMoments[2] , MOI[2], constant::timeStep , );
+    //rotationalOde(sumOfMoments[0] , MOI[0], constants::timeStep ,angularVelocity[0]);
+    //rotationalOde(sumOfMoments[1] , MOI[1], constants::timeStep ,angularVelocity[0]);
+    //rotationalOde(sumOfMoments[2] , MOI[2], constants::timeStep , angularVelocity[0]);
 
     sumOfForces[0] = 0; //reset forces to zero for next iteration
     sumOfForces[1] = 0;

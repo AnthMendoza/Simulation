@@ -4,7 +4,7 @@
 
 void RungeKutta4th(float force, float mass, float timeStep, float &velocity, float &position) {
 
-    auto acceleration = [force, mass](float /* v */) -> float {
+    auto acceleration = [force, mass](float) -> float {
         return force / mass;
     };
 
@@ -24,7 +24,7 @@ void RungeKutta4th(float force, float mass, float timeStep, float &velocity, flo
     float k4v = acceleration( velocity + k3v) * timeStep;
     float k4x = (velocity + k3v) * timeStep;
 
-    // Update velocity and position using weighted sum of k1, k2, k3, and k4
+    // weighted averge of the samples
     velocity = velocity + (k1v + 2 * k2v + 2 * k3v + k4v) / 6.0f;
     position = position + (k1x + 2 * k2x + 2 * k3x + k4x) / 6.0f;
 }
