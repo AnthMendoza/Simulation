@@ -10,6 +10,6 @@ void appendRowToCSV(const std::string& row);
 
 void closeCSV();
 
-void logRocketPosition(Vehicle &rocket);
+void logRocketPosition(Vehicle &rocket , int iterations);
 
 #endif 

@@ -1,5 +1,6 @@
 #include "../include/vehicle.h"
 #include "../include/logs.h"
+
 #include <fstream>
 #include <string>
 
@@ -10,7 +11,7 @@ void initializeCSV() {
     if (!outputFile.is_open()) {
         throw std::runtime_error("Unable to open file: " );
     }
-    std::string headers = "Xposition,Yposition,Zposition,XVehicleState,YVehicleState,ZVehicleState";
+    std::string headers = "DeltaTime,Xposition,Yposition,Zposition,XVehicleState,YVehicleState,ZVehicleState";
     appendRowToCSV(headers);
 }
 
@@ -28,9 +29,10 @@ void closeCSV() {
 }
 
 
-void logRocketPosition(Vehicle &rocket) {
+void logRocketPosition(Vehicle &rocket , int iterations) {
 
-    std::string row = std::to_string(rocket.Xposition) + "," + 
+    std::string row = std::to_string(iterations * .001f) + "," + 
+                    std::to_string(rocket.Xposition) + "," + 
                     std::to_string(rocket.Yposition) + "," +
                     std::to_string(rocket.Zposition) + "," + 
                     std::to_string(rocket.vehicleState[0])+ "," +

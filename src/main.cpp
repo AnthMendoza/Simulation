@@ -10,14 +10,12 @@
 
 void iterator(Vehicle &rocket){
     int iterations = 0;
-    float timeStep = .001;
     while(rocket.Zposition > 0){
         rocket.drag();
         rocket.updateState();
-        if(iterations%20 == 0)logRocketPosition(rocket);
+        if(iterations%20 == 0)logRocketPosition(rocket , iterations);
         iterations++;
     }
-    std::cout<< "Time in seconds to hit ground in free fall " << iterations * timeStep;
 }
 
 
@@ -27,7 +25,7 @@ int main(){
     initializeCSV();
     std::array<float , 3> MOI = {.2,.2,.2}; //get rid of this 
 
-    Vehicle rocket(0,0,5000,MOI, 42000);
+    Vehicle rocket(0,0,500,MOI, 42000);
     iterator(rocket);
 
     auto end = std::chrono::high_resolution_clock::now();
