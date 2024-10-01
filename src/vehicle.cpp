@@ -79,6 +79,30 @@ void Vehicle::drag(){
 
 void Vehicle::lift(){
     
+    std::array<float,3> airVelocityVector;
+
+    airVelocityVector[0] = Xvelocity + constants::wind[0];
+    airVelocityVector[1] = Yvelocity + constants::wind[1];
+    airVelocityVector[2] = Zvelocity + constants::wind[2];
+
+
+    float absVelocity = vectorMag(airVelocityVector);
+    float dragAngle = vectorAngleBetween(airVelocityVector , vehicleState);
+
+    //std::cout  << velocityVector[0]<< " " << velocityVector[1]<<  " " << velocityVector[2]<<  std::endl;
+    //std::cout  << "Vehicle"<< vehicleVector[0]<< " " << vehicleVector[1]<<  " " << vehicleVector[2]<<  std::endl;
+
+    float drag = -.5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition); //calculating abs drag 
+    
+    std::array<float,3> dragVector;
+    std::array<float,3> normalVelocityVector = normalizeVector(airVelocityVector);
+    
+    dragVector[0] = drag * normalVelocityVector[0];
+    dragVector[1] = drag * normalVelocityVector[1];
+    dragVector[2] = drag * normalVelocityVector[2];
+
+    addForce(dragVector);
+    
 }   
 
 
@@ -98,9 +122,9 @@ void Vehicle::updateState(){
     RungeKutta4th(sumOfForces[2] , mass , constants::timeStep , Zvelocity,Zposition);
 
 
-    //rotationalOde(sumOfMoments[0] , MOI[0], constants::timeStep ,angularVelocity[0]);
-    //rotationalOde(sumOfMoments[1] , MOI[1], constants::timeStep ,angularVelocity[0]);
-    //rotationalOde(sumOfMoments[2] , MOI[2], constants::timeStep , angularVelocity[0]);
+    rotationalOde(sumOfMoments[0] , MOI[0], constants::timeStep ,angularVelocity[0]);
+    rotationalOde(sumOfMoments[1] , MOI[1], constants::timeStep ,angularVelocity[0]);
+    rotationalOde(sumOfMoments[2] , MOI[2], constants::timeStep , angularVelocity[0]);
 
     sumOfForces[0] = 0; //reset forces to zero for next iteration
     sumOfForces[1] = 0;

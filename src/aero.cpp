@@ -30,7 +30,7 @@ float airDensity(float Zposition) {  //Zposition in meters, returned in kg/m^3
 
 
 float aeroArea(float angle){  //cross sectional aera dependent on the orientation of the vehicle. This will be estamited based on a cylindrical body
-    // cross section of a circle when head on transforms into the cross section of a rectangle when in slide slip.
+    // cross section of a circle when head-on, cross section of a rectangle when in slide slip.
     //coef of drag
     return sin(angle) * 141.687 + 10.75;
 }
