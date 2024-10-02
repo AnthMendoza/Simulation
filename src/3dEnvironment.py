@@ -1,4 +1,5 @@
 import pybullet as pb
+import numpy as np
 import time
 import csv
 
@@ -30,17 +31,29 @@ headers, columns = read_csv_columns(file_path)
 
 
 
-        
 
-# Start PyBullet in GUI mode
+
+
+def directionVectorToEuler(vector):
+    x, y, z = vector
+    pitch = np.arcsin(-y)
+    yaw = np.arctan2(x, z)
+    roll = 0
+    pitch_deg = np.degrees(pitch)
+    yaw_deg = np.degrees(yaw)
+    roll_deg = np.degrees(roll)
+    
+    return pitch_deg, yaw_deg, roll_deg
+
+
+
+
 physicsClient = pb.connect(pb.GUI)
 
-
-# Create a cylinder
 cylinderStartPos = [columns[1][0], columns[2][0], columns[3][0]]
-cylinderStartOrientation = pb.getQuaternionFromEuler([0, 1.5708, 0])
+cylinderStartOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[4][0], columns[5][0], columns[6][0]]))
 
-# Create the collision shape for the cylinder
+
 cylinderCollisionShapeId = pb.createCollisionShape(pb.GEOM_CYLINDER, radius=1, height=1)
 
 # Optionally, create a visual shape for the cylinder (to render it)
@@ -53,15 +66,12 @@ cylinderId = pb.createMultiBody(baseMass=1,
                                 basePosition=cylinderStartPos, 
                                 baseOrientation=cylinderStartOrientation)
 
-# Set an initial camera distance and position
 cameraDistance = 40
 cameraYaw = 50
 cameraPitch = -60
 
-# Enable real-time simulation (optional)
 pb.setRealTimeSimulation(1)
 
-# Get the starting time of the simulation
 start_time = time.time()
 
 # Run the simulation for a certain time
@@ -74,8 +84,9 @@ while True:
         count = count + 1
 
     new_cylinder_pos = [columns[1][count], columns[2][count],columns[3][count]]  
-    
-    pb.resetBasePositionAndOrientation(cylinderId, new_cylinder_pos, cylinderStartOrientation)
+    newCylinderOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[4][count], columns[5][count], columns[6][count]]))
+
+    pb.resetBasePositionAndOrientation(cylinderId, new_cylinder_pos, newCylinderOrientation)
     
     # Get the current position of the cylinder
     cylinderPos, _ = pb.getBasePositionAndOrientation(cylinderId)

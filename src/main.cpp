@@ -13,7 +13,7 @@ void iterator(Vehicle &rocket){
     while(rocket.Zposition > 0){
         rocket.drag();
         rocket.updateState();
-        if(iterations%20 == 0)logRocketPosition(rocket , iterations);
+        if(iterations%4 == 0)logRocketPosition(rocket , iterations);
         iterations++;
     }
 }
@@ -23,9 +23,8 @@ void iterator(Vehicle &rocket){
 int main(){
     auto start = std::chrono::high_resolution_clock::now();
     initializeCSV();
-    std::array<float , 3> MOI = {.2,.2,.2}; //get rid of this 
 
-    Vehicle rocket(0,0,500,MOI, 42000);
+    Vehicle rocket;
     iterator(rocket);
 
     auto end = std::chrono::high_resolution_clock::now();

@@ -12,13 +12,15 @@
 
 
 
-Vehicle::Vehicle(float x, float y, float z,std::array<float, 3> mMOI ,float mMass)
-    : Xposition(x), Yposition(y), Zposition(z), mass(mMass){
-    std::copy(mMOI.begin(), mMOI.end(), MOI.begin());
-
+Vehicle::Vehicle(){
     // roll pitch yaw (x,y,z) defines the direction vector, heading. ex. (0,0,1) is rocket pointing straight up.
 
     //(x,y,z)positon defines its location reltaive to an orgin
+    mass = constants::mass;
+    MOI = constants::MOI;
+    Xposition = constants::initPosition[0];
+    Yposition = constants::initPosition[1];
+    Zposition = constants::initPosition[2];
 
     angularVelocity = {0,0,0};
 

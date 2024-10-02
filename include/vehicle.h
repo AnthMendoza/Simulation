@@ -7,13 +7,12 @@
 
 class Vehicle{
     public:
-        float   Xposition , Yposition , Zposition;     // position
-        float mass;   
+        float   Xposition , Yposition , Zposition;     // position 
         float Xvelocity , Yvelocity , Zvelocity;
         
         //distance between the center of gravity to the center of pressure, this allows us to not have COG defined explicitly.
         //all forces will be in refrance to the Center of gravity
-
+        float mass;  
         float centerOfPressure;
 
         std::array<float,3> angularVelocity;
@@ -22,7 +21,7 @@ class Vehicle{
         std::array<float,3> sumOfForces;
         std::array<float,3> sumOfMoments;
 
-        Vehicle(float x, float y, float z, std::array<float, 3> mMOI , float mMass);
+        Vehicle();
 
         void display();
 

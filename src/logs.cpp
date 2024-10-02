@@ -1,5 +1,6 @@
 #include "../include/vehicle.h"
 #include "../include/logs.h"
+#include "../include/vectorMath.h"
 
 #include <fstream>
 #include <string>
@@ -30,7 +31,7 @@ void closeCSV() {
 
 
 void logRocketPosition(Vehicle &rocket , int iterations) {
-
+    rocket.vehicleState = normalizeVector(rocket.vehicleState);
     std::string row = std::to_string(iterations * .001f) + "," + 
                     std::to_string(rocket.Xposition) + "," + 
                     std::to_string(rocket.Yposition) + "," +
