@@ -13,9 +13,7 @@ std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array
     }
 
     moments[0] = normalMomentArm[1] * forceVector[2] - normalMomentArm[2] * forceVector[1];
-
     moments[1] = normalMomentArm[2] * forceVector[0] - normalMomentArm[0] * forceVector[2];
-
     moments[2] = normalMomentArm[0] * forceVector[1] - normalMomentArm[1] * forceVector[0];
 
 

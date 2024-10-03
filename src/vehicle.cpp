@@ -80,10 +80,6 @@ void Vehicle::drag(){
 
     addForce(dragVector);
 
-    std::array<float,3> moments;
-
-
-
     addMoment(forceToMoment(dragVector, vehicleState , centerOfPressure));
 
 }
@@ -152,6 +148,7 @@ void Vehicle::updateState(){
     sumOfForces[0] = 0; //reset forces to zero for next iteration
     sumOfForces[1] = 0;
     sumOfForces[2] = 0;
+    
     
     sumOfMoments[0] = 0;
     sumOfMoments[1] = 0;

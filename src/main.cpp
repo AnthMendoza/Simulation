@@ -12,8 +12,9 @@ void iterator(Vehicle &rocket){
     int iterations = 0;
     while(rocket.Zposition > 0){
         rocket.drag();
-        rocket.updateState();
         if(iterations%4 == 0)logRocketPosition(rocket , iterations);
+        rocket.updateState();
+
         iterations++;
     }
 }
@@ -27,9 +28,11 @@ int main(){
     Vehicle rocket;
     iterator(rocket);
 
-    auto end = std::chrono::high_resolution_clock::now();
+    
 
     closeCSV();
+
+    auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
     std::cout << "Runtime: " << duration.count() << " seconds" << std::endl;
 

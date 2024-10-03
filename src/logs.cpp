@@ -32,13 +32,15 @@ void closeCSV() {
 
 void logRocketPosition(Vehicle &rocket , int iterations) {
     rocket.vehicleState = normalizeVector(rocket.vehicleState);
-    std::string row = std::to_string(iterations * .001f) + "," + 
+    std::string row = std::to_string(iterations * .0001f) + "," + 
                     std::to_string(rocket.Xposition) + "," + 
                     std::to_string(rocket.Yposition) + "," +
                     std::to_string(rocket.Zposition) + "," + 
                     std::to_string(rocket.vehicleState[0])+ "," +
                     std::to_string(rocket.vehicleState[1])+ "," +
-                    std::to_string(rocket.vehicleState[2])+ "," ;
+                    std::to_string(rocket.vehicleState[2])+ "," +
+                    std::to_string(rocket.sumOfMoments[0])+ "," +
+                    std::to_string(rocket.sumOfMoments[1])+ "," ;
 
     appendRowToCSV(row);
 }

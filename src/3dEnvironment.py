@@ -39,11 +39,8 @@ def directionVectorToEuler(vector):
     pitch = np.arcsin(-y)
     yaw = np.arctan2(x, z)
     roll = 0
-    pitch_deg = np.degrees(pitch)
-    yaw_deg = np.degrees(yaw)
-    roll_deg = np.degrees(roll)
     
-    return pitch_deg, yaw_deg, roll_deg
+    return pitch, yaw, roll
 
 
 
