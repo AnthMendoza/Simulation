@@ -25,16 +25,17 @@ void Ode(float force , float mass , float timeStep ,float &velocity ,float &posi
 //take the sum of moments 
 
 
-void rotationalOde(float moment , float MOI , float timeStep ,float &angularVelocity){
+float rotationalOde(float moment , float MOI , float timeStep ,float &angularVelocity){
 
-    float deltaAngularAcceleration = moment/MOI;
+    float AngularAcceleration = moment / MOI;
 
-    float deltaAngularVelocity = deltaAngularAcceleration * timeStep;
+    float deltaAngularVelocity = AngularAcceleration * timeStep;
 
     angularVelocity = angularVelocity + deltaAngularVelocity;
 
     float deltaAngularPosition = deltaAngularVelocity * timeStep;
 
-    
-
+    return deltaAngularPosition;
 }
+
+

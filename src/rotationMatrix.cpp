@@ -41,9 +41,9 @@ void Matrix3x3::printMatrix() const {
 
 
 // Rotation matrix for rotation around X-axis
-Matrix3x3 rotationMatrixX(float angleDegrees) {
+Matrix3x3 rotationMatrixX(float angleRadians) {
 
-    float angleRadians = angleDegrees * 3.14159265f / 180.0f;
+    
 
     Matrix3x3 rotation;
 
@@ -56,9 +56,7 @@ Matrix3x3 rotationMatrixX(float angleDegrees) {
 }
 
 // Rotation matrix for rotation around Y-axis
-Matrix3x3 rotationMatrixY(float angleDegrees) {
-
-    float angleRadians = angleDegrees * 3.14159265f / 180.0f;
+Matrix3x3 rotationMatrixY(float angleRadians) {
 
     Matrix3x3 rotation;
 
@@ -71,9 +69,7 @@ Matrix3x3 rotationMatrixY(float angleDegrees) {
 }
 
 // Rotation matrix for rotation around Z-axis
-Matrix3x3 rotationMatrixZ(float angleDegrees) {
-
-    float angleRadians = angleDegrees * 3.14159265f / 180.0f;
+Matrix3x3 rotationMatrixZ(float angleRadians) {
 
     Matrix3x3 rotation;
 

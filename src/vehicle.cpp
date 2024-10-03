@@ -1,11 +1,13 @@
 #include <iostream>
 #include <array>
+#include "../include/forceApplied.h"
 #include "../include/vehicle.h"
 #include "../include/vectorMath.h"
 #include "../include/aero.h"
 #include "../include/constants.h"
 #include "../include/RungeKutta.h"
 #include "../include/odeIterator.h"
+#include "../include/rotationMatrix.h"
 
 
 
@@ -24,7 +26,7 @@ Vehicle::Vehicle(){
 
     angularVelocity = {0,0,0};
 
-    centerOfPressure = 6; //meters
+    centerOfPressure = constants::centerOfPressure; //meters
 
     vehicleState[0] = constants::initVehicleState[0];
     vehicleState[1] = constants::initVehicleState[1];  //setting init value for vehicle state, logged in constants.h
@@ -77,6 +79,13 @@ void Vehicle::drag(){
     dragVector[2] = drag * normalVelocityVector[2];
 
     addForce(dragVector);
+
+    std::array<float,3> moments;
+
+
+
+    addMoment(forceToMoment(dragVector, vehicleState , centerOfPressure));
+
 }
 
 void Vehicle::lift(){
@@ -114,6 +123,14 @@ void  Vehicle::addForce(std::array<float,3> forceVector){
     sumOfForces[2] += forceVector[2];
 }
 
+
+
+void  Vehicle::addMoment(std::array<float,3> moments){
+    sumOfMoments[0] += moments[0];
+    sumOfMoments[1] += moments[1];
+    sumOfMoments[2] += moments[2];
+}
+
 void Vehicle::updateState(){    
     //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
     sumOfForces[2] = sumOfForces[2] + constants::gravitationalAcceleration * mass; 
@@ -124,9 +141,13 @@ void Vehicle::updateState(){
     RungeKutta4th(sumOfForces[2] , mass , constants::timeStep , Zvelocity,Zposition);
 
 
-    rotationalOde(sumOfMoments[0] , MOI[0], constants::timeStep ,angularVelocity[0]);
-    rotationalOde(sumOfMoments[1] , MOI[1], constants::timeStep ,angularVelocity[0]);
-    rotationalOde(sumOfMoments[2] , MOI[2], constants::timeStep , angularVelocity[0]);
+
+    Matrix3x3 rotX = rotationMatrixX(rotationalOde(sumOfMoments[0] , MOI[0], constants::timeStep ,angularVelocity[0]));
+    Matrix3x3 rotY = rotationMatrixY(rotationalOde(sumOfMoments[1] , MOI[1], constants::timeStep ,angularVelocity[1]));
+    Matrix3x3 rotZ = rotationMatrixZ(rotationalOde(sumOfMoments[2] , MOI[2], constants::timeStep ,angularVelocity[2]));
+
+    Matrix3x3 combined = rotX * rotY *rotZ;
+    vehicleState = combined.rotate(vehicleState);
 
     sumOfForces[0] = 0; //reset forces to zero for next iteration
     sumOfForces[1] = 0;

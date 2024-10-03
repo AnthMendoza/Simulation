@@ -31,6 +31,8 @@ class Vehicle{
 
         void addForce(std::array<float,3> forceVector);
 
+        void  addMoment(std::array<float,3> moments);
+
         void updateState();
 
 };

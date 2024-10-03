@@ -18,9 +18,9 @@ public:
 };
 
 
-Matrix3x3 rotationMatrixX(float angleDegrees);
-Matrix3x3 rotationMatrixY(float angleDegrees);
-Matrix3x3 rotationMatrixZ(float angleDegrees);
+Matrix3x3 rotationMatrixX(float angleRadians);
+Matrix3x3 rotationMatrixY(float angleRadians);
+Matrix3x3 rotationMatrixZ(float angleRadians);
 
 
 #endif
