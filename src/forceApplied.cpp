@@ -25,7 +25,7 @@ std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array
 
 void finForce(){
 
-
+    
 
 }
 

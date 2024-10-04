@@ -12,6 +12,7 @@ void iterator(Vehicle &rocket){
     int iterations = 0;
     while(rocket.Zposition > 0){
         rocket.drag();
+        rocket.lift();
         if(iterations%4 == 0)logRocketPosition(rocket , iterations);
         rocket.updateState();
 

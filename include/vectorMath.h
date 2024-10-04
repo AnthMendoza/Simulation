@@ -14,4 +14,6 @@ float vectorAngleBetween(std::array<float,3> &vector1, std::array<float,3> &vect
 std::array<float,3> normalizeVector(std::array<float,3> &vector1);
 
 
+
+
 #endif

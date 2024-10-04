@@ -2,6 +2,7 @@ import pybullet as pb
 import numpy as np
 import time
 import csv
+import plotly.graph_objects as go
 
 
 def read_csv_columns(file_path):
@@ -28,6 +29,55 @@ def read_csv_columns(file_path):
 
 file_path = 'data.csv'
 headers, columns = read_csv_columns(file_path)
+
+
+
+
+
+
+# Create a figure with a line plot
+columns[7] = [-value for value in columns[7]]
+
+fig = go.Figure(data=go.Scatter(x=columns[3], y=columns[7], mode='lines'))
+
+# Add title and labels
+fig.update_layout(
+    title='Atmospheric effect',
+    xaxis_title='Zposition',
+    yaxis_title='ZVelocity'
+)
+
+# Show the plot
+fig.show()
+
+
+#timestep = 0.0004  # Example: set to your desired time step value
+#
+## Compute acceleration (approximate derivative of velocity with respect to time)
+## Assuming columns[3] is time, and columns[7] is velocity
+#velocity_diff = np.diff(columns[7])  # Velocity differences
+#
+## Compute acceleration using the given timestep
+#acceleration = velocity_diff / timestep
+#
+## Z-position needs to have one fewer value as well due to the derivative
+#z_position = columns[3][1:]  # Corresponding Z-position values (excluding the first one)
+#
+## Create the plot
+#fig = go.Figure(data=go.Scatter(x=z_position, y=acceleration, mode='lines'))
+#
+## Add title and labels
+#fig.update_layout(
+#    title='Acceleration vs Z-position',
+#    xaxis_title='Z-position',
+#    yaxis_title='Acceleration'
+#)
+#
+## Show the plot
+#fig.show()
+#
+
+
 
 
 
@@ -74,7 +124,7 @@ start_time = time.time()
 # Run the simulation for a certain time
 count = 0
 while True:
-    # Get the real-time simulation clock
+    
     elapsed_time = time.time() - start_time  # Real-time clock (seconds)
     
     while(elapsed_time > columns[0][count]):
@@ -87,9 +137,17 @@ while True:
     
     # Get the current position of the cylinder
     cylinderPos, _ = pb.getBasePositionAndOrientation(cylinderId)
+
+    
     
     # Update the camera view to lock onto the cylinder
     pb.resetDebugVisualizerCamera(cameraDistance, cameraYaw, cameraPitch, cylinderPos)
     
     # Sleep for a short duration to prevent excessive CPU usage
     time.sleep(1./240.)
+
+
+
+
+
+

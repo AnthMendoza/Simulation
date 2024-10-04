@@ -6,6 +6,8 @@
     float aeroArea(float angle);
 
     float coefOfDrag(float angle);
+    
+    float coefOfLift(float angle);
 
     
 #endif

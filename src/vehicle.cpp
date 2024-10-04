@@ -54,6 +54,9 @@ void Vehicle::display() {
               << "Orientation (Roll, Pitch, Yaw): (" << vehicleState[0] << ", " << vehicleState[1]  << ", " << vehicleState[2]  << ")\n";
 }   
 
+
+
+
 void Vehicle::drag(){
     
     std::array<float,3> airVelocityVector;
@@ -84,8 +87,15 @@ void Vehicle::drag(){
 
 }
 
+
+
+
+
+
 void Vehicle::lift(){
-    
+
+    //lift acting on the center of pressure.
+
     std::array<float,3> airVelocityVector;
 
     airVelocityVector[0] = Xvelocity + constants::wind[0];
@@ -94,23 +104,51 @@ void Vehicle::lift(){
 
 
     float absVelocity = vectorMag(airVelocityVector);
-    float dragAngle = vectorAngleBetween(airVelocityVector , vehicleState);
 
-    //std::cout  << velocityVector[0]<< " " << velocityVector[1]<<  " " << velocityVector[2]<<  std::endl;
-    //std::cout  << "Vehicle"<< vehicleVector[0]<< " " << vehicleVector[1]<<  " " << vehicleVector[2]<<  std::endl;
+    // Project vector V onto the plane with normal N: V_proj_plane = V - ((V • N) / (N • N)) * N (subtracting the projection onto N).
+    //using normilzed vectors N • N is removed becuase it equals 1, this may or may not be faster than the equation abouve
 
-    float drag = -.5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition); //calculating abs drag 
+
+    std::array<float , 3> normalAirVelocityVector = normalizeVector(airVelocityVector);
+    std::array<float , 3> normalVehicleState = normalizeVector(vehicleState);
+
+    float projection = vectorDotProduct( normalVehicleState , normalAirVelocityVector );
+    std::array<float , 3> projectedVector;
+
+    for(int i = 0 ; i < 3 ; i++){
+        projectedVector[i] = projection * normalAirVelocityVector[i];
+    }
+
+    for(int i = 0 ; i < 3 ; i++){
+        projectedVector[i] =  normalVehicleState[i] - projectedVector[i];
+    }
+
+    //we normilized this vector so that we can multiply it by a scalar with expected results
+    projectedVector = normalizeVector(projectedVector); 
+
+
+    float liftAngle = vectorAngleBetween(airVelocityVector , vehicleState); 
+
+    //create a mapping function for lift to force, this is a crude esimate.
     
-    std::array<float,3> dragVector;
+
+    float lift = .5 * (absVelocity * absVelocity) * aeroArea(liftAngle) * coefOfDrag(liftAngle) * airDensity(Zposition); //calculating abs drag 
+    
+    std::array<float,3> liftVector;
     std::array<float,3> normalVelocityVector = normalizeVector(airVelocityVector);
     
-    dragVector[0] = drag * normalVelocityVector[0];
-    dragVector[1] = drag * normalVelocityVector[1];
-    dragVector[2] = drag * normalVelocityVector[2];
+    liftVector[0] = lift * normalVelocityVector[0];
+    liftVector[1] = lift * normalVelocityVector[1];
+    liftVector[2] = lift * normalVelocityVector[2];
 
-    addForce(dragVector);
+    addForce(liftVector);
+
+    addMoment(forceToMoment(liftVector, vehicleState , centerOfPressure));
+
     
 }   
+
+
 
 
 void  Vehicle::addForce(std::array<float,3> forceVector){
@@ -149,7 +187,7 @@ void Vehicle::updateState(){
     sumOfForces[1] = 0;
     sumOfForces[2] = 0;
     
-    
+
     sumOfMoments[0] = 0;
     sumOfMoments[1] = 0;
     sumOfMoments[2] = 0;

@@ -39,8 +39,8 @@ void logRocketPosition(Vehicle &rocket , int iterations) {
                     std::to_string(rocket.vehicleState[0])+ "," +
                     std::to_string(rocket.vehicleState[1])+ "," +
                     std::to_string(rocket.vehicleState[2])+ "," +
-                    std::to_string(rocket.sumOfMoments[0])+ "," +
-                    std::to_string(rocket.sumOfMoments[1])+ "," ;
+                    std::to_string(rocket.Zvelocity)+ "," ;
+
 
     appendRowToCSV(row);
 }
