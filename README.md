@@ -20,8 +20,9 @@
 
 
 
+
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/f3e8b907-a218-4fd7-82fc-08b83c0ffc31" width="400" />
+  <img src="https://github.com/user-attachments/assets/549ca65d-7eda-442a-82b2-91f8be5e544e" width="400" />
 </p>
 
  
