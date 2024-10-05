@@ -13,6 +13,7 @@ void iterator(Vehicle &rocket){
     while(rocket.Zposition > 0){
         rocket.drag();
         rocket.lift();
+        
         if(iterations%4 == 0)logRocketPosition(rocket , iterations);
         rocket.updateState();
 
@@ -28,8 +29,6 @@ int main(){
 
     Vehicle rocket;
     iterator(rocket);
-
-    
 
     closeCSV();
 

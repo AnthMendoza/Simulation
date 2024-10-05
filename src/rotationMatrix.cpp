@@ -1,6 +1,6 @@
-#include <iostream>
 #include <cmath>
 #include <array>
+#include <iostream>
 #include "../include/rotationMatrix.h"
 
 using namespace std;

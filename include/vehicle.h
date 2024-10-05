@@ -14,13 +14,14 @@ class Vehicle{
         //all forces will be in refrance to the Center of gravity
         float mass;  
         float centerOfPressure;
+        float liftAngleLog;
 
         std::array<float,3> angularVelocity;
         std::array<float,3> vehicleState;
         std::array<float,3> MOI;
         std::array<float,3> sumOfForces;
         std::array<float,3> sumOfMoments;
-
+        
         Vehicle();
 
         void display();

@@ -1,5 +1,6 @@
 #include <math.h>
 #include <array>
+#include <stdexcept>
 #include "../include/vectorMath.h"
 
 
@@ -37,9 +38,13 @@ float vectorAngleBetween(std::array<float,3> &vector1, std::array<float,3> &vect
     float mag1 = vectorMag(vector1);
     float mag2 = vectorMag(vector2);
     float dot = vectorDotProduct(vector1, vector2);
-    
+
+  
     if(mag1 == 0 || mag2 == 0) return 0;
-    return acos(dot / (mag1 * mag2)); // Result is in radians
+    float dotOverMags = dot / (mag1 * mag2);
+    if(dotOverMags < -1) return 3.1415;
+    if(dotOverMags > 1) return 0;
+    return acos(dotOverMags); // Result is in radians
 }
 
 

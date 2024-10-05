@@ -32,9 +32,9 @@ Vehicle::Vehicle(){
     vehicleState[1] = constants::initVehicleState[1];  //setting init value for vehicle state, logged in constants.h
     vehicleState[2] = constants::initVehicleState[2];
 
-    Xvelocity = 0;
-    Yvelocity = 0;   // Velocity vector , direction of movment relative to the ground
-    Zvelocity = 0;
+    Xvelocity = constants::initVelocity[0];
+    Yvelocity = constants::initVelocity[1];   // Velocity vector , direction of movment relative to the ground
+    Zvelocity = constants::initVelocity[2];
     
 
     sumOfForces[0] = 0;
@@ -67,13 +67,12 @@ void Vehicle::drag(){
 
 
     float absVelocity = vectorMag(airVelocityVector);
+
     float dragAngle = vectorAngleBetween(airVelocityVector , vehicleState);
 
-    //std::cout  << velocityVector[0]<< " " << velocityVector[1]<<  " " << velocityVector[2]<<  std::endl;
-    //std::cout  << "Vehicle"<< vehicleVector[0]<< " " << vehicleVector[1]<<  " " << vehicleVector[2]<<  std::endl;
-
-    float drag = -.5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition); //calculating abs drag 
     
+    float drag = -.5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition);
+
     std::array<float,3> dragVector;
     std::array<float,3> normalVelocityVector = normalizeVector(airVelocityVector);
     
@@ -113,33 +112,33 @@ void Vehicle::lift(){
     std::array<float , 3> normalVehicleState = normalizeVector(vehicleState);
 
     float projection = vectorDotProduct( normalVehicleState , normalAirVelocityVector );
+
     std::array<float , 3> projectedVector;
 
-    for(int i = 0 ; i < 3 ; i++){
-        projectedVector[i] = projection * normalAirVelocityVector[i];
-    }
 
     for(int i = 0 ; i < 3 ; i++){
-        projectedVector[i] =  normalVehicleState[i] - projectedVector[i];
+        projectedVector[i] =  normalVehicleState[i] - projection * normalAirVelocityVector[i];
     }
 
     //we normilized this vector so that we can multiply it by a scalar with expected results
     projectedVector = normalizeVector(projectedVector); 
 
+    std::array<float,3> reverseVehicleState;
 
-    float liftAngle = vectorAngleBetween(airVelocityVector , vehicleState); 
+    for(int i = 0 ; i < 3 ; i++) reverseVehicleState[i] = -vehicleState[i];
+
+
+    float liftAngle = vectorAngleBetween(airVelocityVector , reverseVehicleState); 
 
     //create a mapping function for lift to force, this is a crude esimate.
     
-
-    float lift = .5 * (absVelocity * absVelocity) * aeroArea(liftAngle) * coefOfDrag(liftAngle) * airDensity(Zposition); //calculating abs drag 
+    float lift = -.5 * (absVelocity * absVelocity) * aeroArea(liftAngle) * coefOfLift(liftAngle) * airDensity(Zposition); //calculating abs drag 
     
     std::array<float,3> liftVector;
-    std::array<float,3> normalVelocityVector = normalizeVector(airVelocityVector);
-    
-    liftVector[0] = lift * normalVelocityVector[0];
-    liftVector[1] = lift * normalVelocityVector[1];
-    liftVector[2] = lift * normalVelocityVector[2];
+
+    liftVector[0] = lift * projectedVector[0];
+    liftVector[1] = lift * projectedVector[1];
+    liftVector[2] = lift * projectedVector[2];
 
     addForce(liftVector);
 

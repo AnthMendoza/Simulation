@@ -44,6 +44,7 @@ float coefOfDrag(float angle){
 }
 
 float coefOfLift(float angle){
+    // more is needed to properlly estmiate this
 
-    return sin(angle) * .38 + .82;
+    return angle * 1.4;
 }

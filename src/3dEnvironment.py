@@ -80,10 +80,6 @@ fig.show()
 
 
 
-
-
-
-
 def directionVectorToEuler(vector):
     x, y, z = vector
     pitch = np.arcsin(-y)
@@ -101,17 +97,22 @@ cylinderStartPos = [columns[1][0], columns[2][0], columns[3][0]]
 cylinderStartOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[4][0], columns[5][0], columns[6][0]]))
 
 
-cylinderCollisionShapeId = pb.createCollisionShape(pb.GEOM_CYLINDER, radius=1, height=1)
 
-# Optionally, create a visual shape for the cylinder (to render it)
 cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_CYLINDER, radius=1.85, length=41.2)
 
-# Create the multi-body object with the visual and collision shapes
-cylinderId = pb.createMultiBody(baseMass=1, 
-                                baseCollisionShapeIndex=cylinderCollisionShapeId,
-                                baseVisualShapeIndex=cylinderVisualShapeId,
+cylinderId = pb.createMultiBody(baseVisualShapeIndex=cylinderVisualShapeId,
                                 basePosition=cylinderStartPos, 
                                 baseOrientation=cylinderStartOrientation)
+
+
+
+
+cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_CYLINDER, radius=.3, length=40)
+
+#cylinderId2 = pb.createMultiBody(baseVisualShapeIndex=cylinderVisualShapeId,
+#                                basePosition=cylinderStartPos, 
+#                                baseOrientation=cylinderStartOrientation)
+
 
 cameraDistance = 40
 cameraYaw = 50
@@ -123,6 +124,8 @@ start_time = time.time()
 
 # Run the simulation for a certain time
 count = 0
+
+
 while True:
     
     elapsed_time = time.time() - start_time  # Real-time clock (seconds)
@@ -134,7 +137,17 @@ while True:
     newCylinderOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[4][count], columns[5][count], columns[6][count]]))
 
     pb.resetBasePositionAndOrientation(cylinderId, new_cylinder_pos, newCylinderOrientation)
+
+
+    #new_cylinder_pos = [columns[1][count], columns[2][count],columns[3][count]]  
+    #newCylinderOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[7][count], columns[8][count], columns[9][count]]))
+
+
+
     
+
+
+    #pb.resetBasePositionAndOrientation(cylinderId2, new_cylinder_pos, newCylinderOrientation)
     # Get the current position of the cylinder
     cylinderPos, _ = pb.getBasePositionAndOrientation(cylinderId)
 
