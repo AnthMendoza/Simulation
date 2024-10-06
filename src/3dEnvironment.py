@@ -5,6 +5,9 @@ import csv
 import plotly.graph_objects as go
 
 
+# this works but performance was really bad at high velocities 
+
+
 def read_csv_columns(file_path):
     with open(file_path, 'r') as csvfile:
         reader = csv.reader(csvfile)
@@ -35,20 +38,20 @@ headers, columns = read_csv_columns(file_path)
 
 
 
-# Create a figure with a line plot
-columns[7] = [-value for value in columns[7]]
-
-fig = go.Figure(data=go.Scatter(x=columns[3], y=columns[7], mode='lines'))
-
-# Add title and labels
-fig.update_layout(
-    title='Atmospheric effect',
-    xaxis_title='Zposition',
-    yaxis_title='ZVelocity'
-)
-
-# Show the plot
-fig.show()
+## Create a figure with a line plot
+#columns[7] = [-value for value in columns[7]]
+#
+#fig = go.Figure(data=go.Scatter(x=columns[3], y=columns[7], mode='lines'))
+#
+## Add title and labels
+#fig.update_layout(
+#    title='Atmospheric effect',
+#    xaxis_title='Zposition',
+#    yaxis_title='ZVelocity'
+#)
+#
+## Show the plot
+#fig.show()
 
 
 #timestep = 0.0004  # Example: set to your desired time step value
@@ -78,8 +81,6 @@ fig.show()
 #
 
 
-
-
 def directionVectorToEuler(vector):
     x, y, z = vector
     pitch = np.arcsin(-y)
@@ -90,7 +91,6 @@ def directionVectorToEuler(vector):
 
 
 
-
 physicsClient = pb.connect(pb.GUI)
 
 cylinderStartPos = [columns[1][0], columns[2][0], columns[3][0]]
@@ -98,7 +98,8 @@ cylinderStartOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([col
 
 
 
-cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_CYLINDER, radius=1.85, length=41.2)
+cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_MESH, fileName="../falcon.obj")
+#cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_CYLINDER, radius=3.6/2, length=48)
 
 cylinderId = pb.createMultiBody(baseVisualShapeIndex=cylinderVisualShapeId,
                                 basePosition=cylinderStartPos, 
@@ -107,7 +108,7 @@ cylinderId = pb.createMultiBody(baseVisualShapeIndex=cylinderVisualShapeId,
 
 
 
-cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_CYLINDER, radius=.3, length=40)
+#cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_CYLINDER, radius=.3, length=40)
 
 #cylinderId2 = pb.createMultiBody(baseVisualShapeIndex=cylinderVisualShapeId,
 #                                basePosition=cylinderStartPos, 
@@ -153,11 +154,10 @@ while True:
 
     
     
-    # Update the camera view to lock onto the cylinder
     pb.resetDebugVisualizerCamera(cameraDistance, cameraYaw, cameraPitch, cylinderPos)
     
-    # Sleep for a short duration to prevent excessive CPU usage
-    time.sleep(1./240.)
+
+    time.sleep(1/30)
 
 
 
