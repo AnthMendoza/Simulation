@@ -19,7 +19,7 @@
 
     let startTime = null; // Declare startTime here
     let allValues = []; // Declare allValues outside the fetch block
-    const staticDuration = 5; 
+    const staticDuration = 0; 
 
 fetch('../data.csv')
     .then(response => response.text())
@@ -96,7 +96,7 @@ fetch('../data.csv')
     );
 
     // Create the floor
-    const floorGeometry = new THREE.PlaneGeometry(50, 50);  // Size of the floor (50x50 units)
+    const floorGeometry = new THREE.PlaneGeometry(500, 500);  // Size of the floor (50x50 units)
     const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x3f9b0b, side: THREE.DoubleSide });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
@@ -110,12 +110,11 @@ fetch('../data.csv')
     function updateObjectByTime(currentTime) {
       if (!object) return;  // Wait until the object is loaded
       
-      while(count <= allValues[0].length && currentTime > parseFloat(allValues[0][count])){
+      while(count < allValues[0].length -2 && currentTime > parseFloat(allValues[0][count])){
         count +=1;
       }
       
       // Ensure count doesn't exceed bounds
-      if (count >= allValues[0].length) count = allValues[0].length - 1;
 
       // Set the object's position and rotation
       object.position.set(
