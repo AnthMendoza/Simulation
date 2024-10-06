@@ -98,7 +98,7 @@ cylinderStartOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([col
 
 
 
-cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_MESH, fileName="../falcon.obj")
+cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_MESH, fileName="../3d/falcon.obj")
 #cylinderVisualShapeId = pb.createVisualShape(pb.GEOM_CYLINDER, radius=3.6/2, length=48)
 
 cylinderId = pb.createMultiBody(baseVisualShapeIndex=cylinderVisualShapeId,

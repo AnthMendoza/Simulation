@@ -76,7 +76,7 @@ fetch('../data.csv')
     // Load the OBJ model
     const loader = new THREE.OBJLoader();
     loader.load(
-      '../falcon.obj',  // Replace with your .obj file path
+      '../3d/falcon.obj',  // Replace with your .obj file path
       function (loadedObject) {
         object = loadedObject;
         object.position.y = 1; // Start position of the object
