@@ -54,6 +54,20 @@ void Vehicle::display() {
               << "Orientation (Roll, Pitch, Yaw): (" << vehicleState[0] << ", " << vehicleState[1]  << ", " << vehicleState[2]  << ")\n";
 }   
 
+float Vehicle::getVelocity(){
+    std::array<float ,3> vector = {Xvelocity , Yvelocity , Zvelocity};
+    return vectorMag( vector );
+}
+
+
+
+float Vehicle::getGForce(){
+    
+    std::array<float ,3> vector = {sumOfForces[0]/mass,sumOfForces[1]/mass,sumOfForces[2]/mass};
+
+    return vectorMag(vector)/9.8;
+}
+
 
 
 

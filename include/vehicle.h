@@ -26,6 +26,10 @@ class Vehicle{
 
         void display();
 
+        float getVelocity();
+
+        float getGForce();
+
         void drag();
 
         void lift();
