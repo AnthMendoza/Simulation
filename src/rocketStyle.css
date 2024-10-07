@@ -1,0 +1,14 @@
+body { margin: 0; }
+
+canvas { display: block; }
+
+#controls { position: absolute; top: 10px; left: 10px; z-index: 1; }
+
+#overlay-text { 
+  position: absolute; 
+  top: 14px; 
+  left: 14px; 
+  color: white; 
+  font-size: 24px; 
+  z-index: 1; 
+}
