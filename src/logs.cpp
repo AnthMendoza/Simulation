@@ -40,6 +40,9 @@ void logRocketPosition(Vehicle &rocket , int iterations) {
                     std::to_string(rocket.vehicleState[2])+ "," +
                     std::to_string(rocket.getVelocity())+ "," +
                     std::to_string(rocket.getGForce())+ "," ;
+                    //std::to_string(rocket.logEngineVector[0])+ "," +
+                    //std::to_string(rocket.logEngineVector[1])+ "," +
+                    //std::to_string(rocket.logEngineVector[2])+ ",";
 
 
 

@@ -3,24 +3,25 @@
 #include <array>
 
 namespace constants{
-    float gravitationalAcceleration = -9.81; 
+    extern float gravitationalAcceleration; 
 
-    std::array<float,3> initPosition = {0,295528.164398,110000};
+    extern std::array<float,3> initPosition;
     //std::array<float,3> initPosition = {0,0,1000};
-    std::array<float,3> wind = {0,0,0}; //  m/s x,y,z  this will be stacked on top of whatever the current velocity is on an absolute cordinate system.
-    std::array<float,3> initVehicleState = {0,1,0}; // this the vehicle vector, its direction is the directionthe nose points. it will be normilized, magnatiude is meain
-    std::array<float , 3> MOI = {25,25,25};
-    std::array<float,3> initVelocity = {0,-2000,0}; // m/s
+    extern std::array<float,3> wind; //  m/s x,y,z  this will be stacked on top of whatever the current velocity is on an absolute cordinate system.
+    extern std::array<float,3> initVehicleState; // this the vehicle vector, its direction is the directionthe nose points. it will be normilized, magnatiude is meain
+    extern std::array<float , 3> MOI;
+    extern std::array<float,3> initVelocity; // m/s
     
-    float centerOfPressure = 1;
-    float timeStep = .0001; //seconds
-    float maxThrust = 981000;//netwons
-    float minThrust = maxThrust *.4; //newtons, 40 percent of max;
-    float mass = 22000; //kg booster mass
-    float maxGimbleAngle = 20;// degrees
+    extern float centerOfPressure;
+    extern float timeStep; //seconds
+    extern float maxThrust;//netwons
+    extern float minThrust; //newtons, 65 percent of max;
+    extern float mass; //kg booster mass
+    extern float maxGimbleAngle;// degrees
+    extern float cogToEngine;
 
 
-    std::array<float,3> LandingTarget = {};
+    extern std::array<float,3> LandingTarget;
 }
 
 #endif

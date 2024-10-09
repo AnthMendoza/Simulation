@@ -13,8 +13,6 @@ void finForce();
 
 
 
-void thrustForce();
-
 
 
 

@@ -2,6 +2,7 @@
 #include <array>
 #include <iostream>
 #include "../include/rotationMatrix.h"
+#include "../include/vectorMath.h"
 
 using namespace std;
 
@@ -12,6 +13,7 @@ Matrix3x3::Matrix3x3() {
           {0.0f, 0.0f, 1.0f}}};
 }
 
+// this allows us to multiply matracies 
 Matrix3x3 Matrix3x3::operator*(const Matrix3x3& other) const {
     Matrix3x3 result;
     for (int i = 0; i < 3; ++i) {
@@ -80,3 +82,16 @@ Matrix3x3 rotationMatrixZ(float angleRadians) {
 
     return rotation;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

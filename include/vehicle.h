@@ -14,13 +14,20 @@ class Vehicle{
         //all forces will be in refrance to the Center of gravity
         float mass;  
         float centerOfPressure;
+        float cogToEngine;
+
         float liftAngleLog;
+        bool reenetryBurn;
+
+
+
 
         std::array<float,3> angularVelocity;
         std::array<float,3> vehicleState;
         std::array<float,3> MOI;
         std::array<float,3> sumOfForces;
         std::array<float,3> sumOfMoments;
+        std::array<float,3> logEngineVector;
         
         Vehicle();
 
@@ -34,11 +41,15 @@ class Vehicle{
 
         void lift();
 
+        void applyEngineForce(std::array<float,2> twoDEngineRadians , float thrust);
+
         void addForce(std::array<float,3> forceVector);
 
-        void  addMoment(std::array<float,3> moments);
+        void addMoment(std::array<float,3> moments);
 
         void updateState();
+
+        void reentryBurn();
 
 };
 

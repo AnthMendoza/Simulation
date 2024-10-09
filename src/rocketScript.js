@@ -1,4 +1,3 @@
-
 let startTime = null; // Declare startTime here
 let allValues = []; // Declare allValues outside the fetch block
   const staticDuration = 0; 

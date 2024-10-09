@@ -15,6 +15,7 @@ public:
     std::array<float, 3> rotate(const std::array<float, 3>& v) const;
 
     void printMatrix() const;
+
 };
 
 
