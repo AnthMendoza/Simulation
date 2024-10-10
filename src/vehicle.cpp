@@ -18,6 +18,7 @@
 
 
 
+
 Vehicle::Vehicle(){
     // roll pitch yaw (x,y,z) defines the direction vector, heading. ex. (0,0,1) is rocket pointing straight up.
 
@@ -27,11 +28,13 @@ Vehicle::Vehicle(){
     Xposition = constants::initPosition[0];
     Yposition = constants::initPosition[1];
     Zposition = constants::initPosition[2];
+    reentry = false;
+    iterations = 0;
 
+    engineState = 0;
+    gForce = 0;
 
     angularVelocity = {0,0,0};
-
-    reenetryBurn = false;
 
     centerOfPressure = constants::centerOfPressure; //meters
     cogToEngine = constants::cogToEngine;
@@ -171,6 +174,7 @@ void Vehicle::lift(){
 
 void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thrust){
 
+    engineState = thrust;
 
 
     Matrix3x3 rotX = rotationMatrixX(twoDEngineRadians[0]);
@@ -261,6 +265,8 @@ void Vehicle::updateState(){
     vehicleState = combined.rotate(vehicleState);
     vehicleState = normalizeVector(vehicleState);
 
+    gForce = getGForce();
+
     sumOfForces[0] = 0; //reset forces to zero for next iteration
     sumOfForces[1] = 0;
     sumOfForces[2] = 0;
@@ -270,19 +276,24 @@ void Vehicle::updateState(){
     sumOfMoments[1] = 0;
     sumOfMoments[2] = 0;
 
+    engineState = 0;
+
     
 }
 
 
 
 
-void Vehicle::reentryBurn(){
-
-    std::array<float,2> direction = {0,0};
-        
-    applyEngineForce(direction , constants::maxThrust * .9 * 3);
 
 
+
+
+void Vehicle::finForce(){
+
+
+    std::array<float,3> Xfin = {1,0,0};
+    std::array<float,3> Yfin = {0,1,0};
+    std::array<float,3> zrefrance = {0,0,1};
 
 
 }

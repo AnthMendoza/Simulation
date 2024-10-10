@@ -11,14 +11,17 @@ namespace constants{
     extern std::array<float,3> initVehicleState; // this the vehicle vector, its direction is the directionthe nose points. it will be normilized, magnatiude is meain
     extern std::array<float , 3> MOI;
     extern std::array<float,3> initVelocity; // m/s
+
     
+    extern float maxGAllowedEntry;
     extern float centerOfPressure;
-    extern float timeStep; //seconds
+    extern const float timeStep; //seconds
     extern float maxThrust;//netwons
     extern float minThrust; //newtons, 65 percent of max;
     extern float mass; //kg booster mass
     extern float maxGimbleAngle;// degrees
     extern float cogToEngine;
+ 
 
 
     extern std::array<float,3> LandingTarget;

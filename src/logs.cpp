@@ -1,6 +1,7 @@
 #include "../include/vehicle.h"
 #include "../include/logs.h"
 #include "../include/vectorMath.h"
+#include "../include/constants.h"
 #include <fstream>
 #include <string>
 
@@ -29,9 +30,9 @@ void closeCSV() {
 }
 
 
-void logRocketPosition(Vehicle &rocket , int iterations) {
+void logRocketPosition(Vehicle &rocket) {
     rocket.vehicleState = normalizeVector(rocket.vehicleState);
-    std::string row = std::to_string(iterations * .0001f) + "," + 
+    std::string row = std::to_string(rocket.iterations * constants::timeStep) + "," + 
                     std::to_string(rocket.Xposition) + "," + 
                     std::to_string(rocket.Yposition) + "," +
                     std::to_string(rocket.Zposition) + "," + 
@@ -39,7 +40,8 @@ void logRocketPosition(Vehicle &rocket , int iterations) {
                     std::to_string(rocket.vehicleState[1])+ "," +
                     std::to_string(rocket.vehicleState[2])+ "," +
                     std::to_string(rocket.getVelocity())+ "," +
-                    std::to_string(rocket.getGForce())+ "," ;
+                    std::to_string(rocket.gForce)+ "," +
+                    std::to_string(rocket.engineState)+ "," ;
                     //std::to_string(rocket.logEngineVector[0])+ "," +
                     //std::to_string(rocket.logEngineVector[1])+ "," +
                     //std::to_string(rocket.logEngineVector[2])+ ",";

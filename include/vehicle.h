@@ -17,9 +17,12 @@ class Vehicle{
         float cogToEngine;
 
         float liftAngleLog;
-        bool reenetryBurn;
+        bool reentry;
+        float engineState;
 
+        int iterations;
 
+        float gForce;
 
 
         std::array<float,3> angularVelocity;
@@ -49,7 +52,7 @@ class Vehicle{
 
         void updateState();
 
-        void reentryBurn();
+        void finForce();
 
 };
 

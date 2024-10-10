@@ -38,20 +38,20 @@ headers, columns = read_csv_columns(file_path)
 
 
 
-## Create a figure with a line plot
-#columns[7] = [-value for value in columns[7]]
-#
-#fig = go.Figure(data=go.Scatter(x=columns[3], y=columns[7], mode='lines'))
-#
-## Add title and labels
-#fig.update_layout(
-#    title='Atmospheric effect',
-#    xaxis_title='Zposition',
-#    yaxis_title='ZVelocity'
-#)
-#
-## Show the plot
-#fig.show()
+# Create a figure with a line plot
+
+
+fig = go.Figure(data=go.Scatter(x=columns[3], y=columns[7], mode='lines'))
+
+# Add title and labels
+fig.update_layout(
+    title='Atmospheric effect',
+    xaxis_title='Zposition',
+    yaxis_title='ZVelocity'
+)
+
+# Show the plot
+fig.show()
 
 
 #timestep = 0.0004  # Example: set to your desired time step value
@@ -142,11 +142,7 @@ while True:
 
     #new_cylinder_pos = [columns[1][count], columns[2][count],columns[3][count]]  
     #newCylinderOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[7][count], columns[8][count], columns[9][count]]))
-
-
-
     
-
 
     #pb.resetBasePositionAndOrientation(cylinderId2, new_cylinder_pos, newCylinderOrientation)
     # Get the current position of the cylinder
