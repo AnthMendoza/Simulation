@@ -12,7 +12,6 @@ namespace constants{
     extern std::array<float , 3> MOI;
     extern std::array<float,3> initVelocity; // m/s
 
-    
     extern float maxGAllowedEntry;
     extern float centerOfPressure;
     extern const float timeStep; //seconds

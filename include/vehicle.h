@@ -18,7 +18,8 @@ class Vehicle{
 
         float liftAngleLog;
         bool reentry;
-        float engineState;
+        bool glidePhase;
+        std::array<float,3> engineState;
 
         int iterations;
 

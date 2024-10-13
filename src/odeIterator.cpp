@@ -1,4 +1,3 @@
-#include <vector>
 #include "../include/odeIterator.h"
 
 //this can be done at all at once by adding the forces. then run this for each component 
@@ -29,7 +28,7 @@ float rotationalOde(float moment , float MOI , float timeStep ,float &angularVel
 
     float AngularAcceleration = moment / MOI;
 
-    float deltaAngularVelocity = AngularAcceleration * timeStep;
+    float deltaAngularVelocity = AngularAcceleration;
 
     angularVelocity = angularVelocity + deltaAngularVelocity;
 

@@ -9,7 +9,9 @@ Vehicle &lookAhead(Vehicle &rocket, float lookAheadTime);
 
 void reentryBurn(Vehicle &rocket);
 
-void glidToTarget();
+void glidToTarget(Vehicle &rocket);
+
+void landingBurn(Vehicle &rocket);
 
 
 #endif

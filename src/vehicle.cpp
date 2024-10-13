@@ -29,9 +29,10 @@ Vehicle::Vehicle(){
     Yposition = constants::initPosition[1];
     Zposition = constants::initPosition[2];
     reentry = false;
+    glidePhase = false; //false means yet to happen, true means already happened
     iterations = 0;
 
-    engineState = 0;
+    engineState = {0,0,0};
     gForce = 0;
 
     angularVelocity = {0,0,0};
@@ -174,7 +175,7 @@ void Vehicle::lift(){
 
 void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thrust){
 
-    engineState = thrust;
+    
 
 
     Matrix3x3 rotX = rotationMatrixX(twoDEngineRadians[0]);
@@ -206,8 +207,8 @@ void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thr
     std::array<float,3> vehicleStateAngles = {static_cast<float>(rotation(0)) , static_cast<float>(rotation(1)) , static_cast<float>(rotation(2))};
 
     Matrix3x3 rotXVehicle = rotationMatrixX(vehicleStateAngles[0]); 
-    Matrix3x3 rotYVehicle = rotationMatrixX(vehicleStateAngles[1]); 
-    Matrix3x3 rotZVehicle = rotationMatrixX(vehicleStateAngles[2]); 
+    Matrix3x3 rotYVehicle = rotationMatrixY(vehicleStateAngles[1]); 
+    Matrix3x3 rotZVehicle = rotationMatrixZ(vehicleStateAngles[2]); 
 
 
     Matrix3x3 realign = rotXVehicle * rotYVehicle * rotZVehicle;
@@ -225,6 +226,8 @@ void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thr
     addForce(engineVector);
 
     addMoment(forceToMoment(engineVector, vehicleState , cogToEngine));
+
+    engineState = engineVector;
 
 }
 
@@ -271,12 +274,11 @@ void Vehicle::updateState(){
     sumOfForces[1] = 0;
     sumOfForces[2] = 0;
     
-
     sumOfMoments[0] = 0;
     sumOfMoments[1] = 0;
     sumOfMoments[2] = 0;
 
-    engineState = 0;
+    engineState = {0,0,0};
 
     
 }
@@ -294,6 +296,29 @@ void Vehicle::finForce(){
     std::array<float,3> Xfin = {1,0,0};
     std::array<float,3> Yfin = {0,1,0};
     std::array<float,3> zrefrance = {0,0,1};
+
+    Eigen::Vector3d v1( zrefrance[0],
+                        zrefrance[1],
+                        zrefrance[2]);
+
+
+    Eigen::Vector3d v2( vehicleState[0],
+                        vehicleState[1],
+                        vehicleState[2]);
+    
+    Eigen::Vector3d rotation = getRotationAngles(v1, v2);
+
+
+    std::array<float,3> vehicleStateAngles = {static_cast<float>(rotation(0)) , static_cast<float>(rotation(1)) , static_cast<float>(rotation(2))};
+
+
+    Matrix3x3 rotX = rotationMatrixX(vehicleStateAngles[0]);
+    Matrix3x3 rotY = rotationMatrixY(vehicleStateAngles[1]);
+    Matrix3x3 rotZ = rotationMatrixZ(vehicleStateAngles[2]);
+
+
+
+    
 
 
 }

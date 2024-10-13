@@ -41,13 +41,13 @@ headers, columns = read_csv_columns(file_path)
 # Create a figure with a line plot
 
 
-fig = go.Figure(data=go.Scatter(x=columns[3], y=columns[7], mode='lines'))
+fig = go.Figure(data=go.Scatter(x=columns[3], y=columns[8], mode='lines'))
 
 # Add title and labels
 fig.update_layout(
     title='Atmospheric effect',
     xaxis_title='Zposition',
-    yaxis_title='ZVelocity'
+    yaxis_title='Acceleration'
 )
 
 # Show the plot
