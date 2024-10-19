@@ -14,16 +14,18 @@
 
 void iterator(Vehicle &rocket){
 
-    while(rocket.Zposition > 0){
+    while(rocket.Zposition > 0 && rocket.iterations < 1000000){
         rocket.drag();
         rocket.lift();
         reentryBurn(rocket);
+        rocket.finVectors = rocket.getFinForceVectors();
+        
+        landingBurn(rocket);
 
         if(rocket.iterations%40 == 0)logRocketPosition(rocket);
 
 
         rocket.updateState();
-
         rocket.iterations++;
     }
 }

@@ -39,12 +39,11 @@ float aeroArea(float angle){  //cross sectional aera dependent on the orientatio
 float coefOfDrag(float angle){
     //coef of drag for a "long" cylinder is .82 with blunt/square ends. 
     // for an infintly long cylinder, the sideways coef drag is 1.095
-    return sin(angle) * .38 + .82;
-
+    return sin(angle) * .7 + .82;
 }
 
 float coefOfLift(float angle){
     // more is needed to properlly estmiate this
 
-    return angle * 1.4;
+    return angle * 2.1;
 }

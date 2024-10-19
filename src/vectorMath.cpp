@@ -1,5 +1,6 @@
 #include <math.h>
 #include <array>
+#include <iostream>
 #include <stdexcept>
 #include "../include/vectorMath.h"
 
@@ -57,6 +58,36 @@ std::array<float,3> normalizeVector(std::array<float,3> &vector1){
         normalVector[i] = vector1[i]/mag;
     }
     return normalVector;
+}
+
+
+
+float twodAngleDiffrence(std::array<float , 2> &vector1 , std::array<float , 2> &vector2){
+
+    float vectDot = vector1[0] * vector2[0] + vector1[1] * vector2[1];
+
+    float mag1 = sqrtf(vector1[0] * vector1[0] + vector1[1] * vector1[1]);
+    float mag2 = sqrtf(vector2[0] * vector2[0] + vector2[1] * vector2[1]);
+
+    if(mag1 == 0 || mag2 == 0) return 0;
+
+    float insideCos = (vectDot)/(mag1 * mag2);
+
+    if(insideCos > 1){
+        insideCos = 1;
+    }else if(insideCos < -1){
+        insideCos = -1;
+    }
+
+    float angle = acosf(insideCos);
+
+    float cross = (vector1[0] * vector2[1] - vector1[1] * vector2[0]);
+    //std::cout<< angle <<" " << cross << std::endl;
+    if(cross < 0){
+        return -angle;
+    }
+    return angle;
+
 }
 
 

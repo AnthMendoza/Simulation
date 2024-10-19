@@ -5,6 +5,7 @@
 
 
 std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array<float,3> vehicleState , float appliedForceDistanceToCg){
+    
     std::array<float,3> normalMomentArm = normalizeVector(vehicleState);
     std::array<float,3> moments;
     //here we are creating a vector that repsents the length of moment arm, first we normilize our vehicle vector then we multiply it by the scaler 

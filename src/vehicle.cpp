@@ -25,17 +25,32 @@ Vehicle::Vehicle(){
     //(x,y,z)positon defines its location reltaive to an orgin
     mass = constants::mass;
     MOI = constants::MOI;
+
+    targetLandingPosition = constants::LandingTarget;
+
     Xposition = constants::initPosition[0];
     Yposition = constants::initPosition[1];
     Zposition = constants::initPosition[2];
+
     reentry = false;
-    glidePhase = false; //false means yet to happen, true means already happened
+    glidePhase = true; //false means yet to happen, true means already happened
+
     iterations = 0;
 
     engineState = {0,0,0};
+    appliedVector = {0,0,0};
+    error = 0;
+    twoDAngle = {0,0};
+
+    sumOFGimbalXError = 0; 
+    gimbalXError = 0;
+    sumOFGimbalYError = 0;
+    gimbalYError = 0;
+
     gForce = 0;
 
     angularVelocity = {0,0,0};
+    
 
     centerOfPressure = constants::centerOfPressure; //meters
     cogToEngine = constants::cogToEngine;
@@ -56,6 +71,8 @@ Vehicle::Vehicle(){
     sumOfMoments[0] = 0;
     sumOfMoments[1] = 0;
     sumOfMoments[2] = 0;
+
+    logMoment = {0,0,0};
     }
 
 
@@ -175,7 +192,8 @@ void Vehicle::lift(){
 
 void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thrust){
 
-    
+    thrust = -thrust;
+
 
 
     Matrix3x3 rotX = rotationMatrixX(twoDEngineRadians[0]);
@@ -194,7 +212,7 @@ void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thr
     // reverses the vector so that we can apply a thrust in the oposite direction
 
     for(int i = 0; i<3 ; i++){
-        vehicleStateAntiparallel[i] = -vehicleStateAntiparallel[i]; 
+        vehicleStateAntiparallel[i] = vehicleStateAntiparallel[i]; 
     } 
 
     Eigen::Vector3d v2( vehicleStateAntiparallel[0],
@@ -224,8 +242,19 @@ void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thr
     
     
     addForce(engineVector);
+    
+    
 
-    addMoment(forceToMoment(engineVector, vehicleState , cogToEngine));
+
+
+    if(twoDEngineRadians[0] != 0 && twoDEngineRadians[1]  != 0){
+        //addMoment(forceToMoment(engineVector, vehicleState , cogToEngine));
+        //logMoment = forceToMoment(engineVector, vehicleState , cogToEngine);
+    }
+    
+    appliedVector[0] = vehicleState[0] * cogToEngine;
+    appliedVector[1] = vehicleState[1] * cogToEngine;
+    appliedVector[2] = vehicleState[2] * cogToEngine;
 
     engineState = engineVector;
 
@@ -252,6 +281,7 @@ void  Vehicle::addMoment(std::array<float,3> moments){
 void Vehicle::updateState(){    
     //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
     sumOfForces[2] = sumOfForces[2] + constants::gravitationalAcceleration * mass; 
+
     
 
     RungeKutta4th(sumOfForces[0] , mass , constants::timeStep , Xvelocity,Xposition);
@@ -280,6 +310,12 @@ void Vehicle::updateState(){
 
     engineState = {0,0,0};
 
+    appliedVector = {0,0,0};
+
+    //reset finVectors::: might remove 
+    finVectors[0] =  {0,0,0};
+    finVectors[1] =  {0,0,0};
+
     
 }
 
@@ -290,7 +326,7 @@ void Vehicle::updateState(){
 
 
 
-void Vehicle::finForce(){
+std::array<std::array<float , 3> , 2> Vehicle::getFinForceVectors(){
 
 
     std::array<float,3> Xfin = {1,0,0};
@@ -308,6 +344,8 @@ void Vehicle::finForce(){
     
     Eigen::Vector3d rotation = getRotationAngles(v1, v2);
 
+    //get vehicle rotation relative to a refrance vector then alter our preset force application vectors
+
 
     std::array<float,3> vehicleStateAngles = {static_cast<float>(rotation(0)) , static_cast<float>(rotation(1)) , static_cast<float>(rotation(2))};
 
@@ -317,8 +355,47 @@ void Vehicle::finForce(){
     Matrix3x3 rotZ = rotationMatrixZ(vehicleStateAngles[2]);
 
 
+    Matrix3x3 realign = rotX * rotY * rotZ;
+
+
+    Xfin = realign.rotate(Xfin);
+    Yfin = realign.rotate(Yfin);
+
+
+    std::array<std::array<float , 3> , 2> finVectors = {Xfin , Yfin};
+
+    return finVectors;
+
+}
+
+
+void Vehicle::applyFinForce(std::array<std::array<float,3>,2> forceVectors){
+
+    if(forceVectors[0][0] != 0 && forceVectors[0][1] != 0 && forceVectors[0][2] != 0){
+        addForce(forceVectors[0]);
+        addMoment(forceToMoment(forceVectors[0], vehicleState , centerOfPressure));
+    }          
+
+
+    if(forceVectors[1][0] != 0 && forceVectors[1][1] != 0 && forceVectors[1][2] != 0){
+        addForce(forceVectors[1]);
+        addMoment(forceToMoment(forceVectors[1], vehicleState , centerOfPressure));
+    }          
+
+}
+
+
+
+float Vehicle::getCurvature(){
+    
+    std::array<float ,3> velocity = {Xvelocity , Yvelocity , Zvelocity};
+    std::array<float ,3> acceleration = {sumOfForces[0]/mass , sumOfForces[1]/mass , sumOfForces[2]/mass};
+    std::array<float,3> veloCrossAccel = {0,0,0};
+
+    //vectorCrossProduct(velocity , acceleration , veloCrossAccel);
+    
+    //return vectorMag(veloCrossAccel) / pow( vectorMag(velocity) , 3 );
+    return 0;
 
     
-
-
 }

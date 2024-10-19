@@ -12,7 +12,7 @@ void initializeCSV() {
     if (!outputFile.is_open()) {
         throw std::runtime_error("Unable to open file: " );
     }
-    std::string headers = "DeltaTime,Xposition,Yposition,Zposition,XVehicleState,YVehicleState,ZVehicleState,Velocity,Acceleration";
+    std::string headers = "Time,Xposition,Yposition,Zposition,XVehicleState,YVehicleState,ZVehicleState,Velocity,Acceleration,XengineState,YengineState,ZengineState,gimalXerror,error,xtwodAngle,ytwodangle";
     appendRowToCSV(headers);
 }
 
@@ -32,7 +32,7 @@ void closeCSV() {
 
 void logRocketPosition(Vehicle &rocket) {
     rocket.vehicleState = normalizeVector(rocket.vehicleState);
-    std::string row = std::to_string(rocket.iterations * constants::timeStep) + "," + 
+    std::string row = std::to_string(rocket.iterations * constants::timeStep/4) + "," + 
                     std::to_string(rocket.Xposition) + "," + 
                     std::to_string(rocket.Yposition) + "," +
                     std::to_string(rocket.Zposition) + "," + 
@@ -41,12 +41,17 @@ void logRocketPosition(Vehicle &rocket) {
                     std::to_string(rocket.vehicleState[2])+ "," +
                     std::to_string(rocket.getVelocity())+ "," +
                     std::to_string(rocket.gForce)+ "," +
+
                     std::to_string(rocket.engineState[0])+ "," +
                     std::to_string(rocket.engineState[1])+ "," +
-                    std::to_string(rocket.engineState[2])+ "," ;
-                    //std::to_string(rocket.logEngineVector[0])+ "," +
-                    //std::to_string(rocket.logEngineVector[1])+ "," +
-                    //std::to_string(rocket.logEngineVector[2])+ ",";
+                    std::to_string(rocket.engineState[2])+ "," +
+
+                    std::to_string(rocket.gimbalXError)+ "," +
+
+                    std::to_string(rocket.error)+ "," +
+                    std::to_string(rocket.gimbalYError)+ "," +
+                    std::to_string(rocket.twoDAngle[1])+ "," ;
+
 
 
 

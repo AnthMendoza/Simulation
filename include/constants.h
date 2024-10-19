@@ -20,6 +20,7 @@ namespace constants{
     extern float mass; //kg booster mass
     extern float maxGimbleAngle;// degrees
     extern float cogToEngine;
+    extern float landingVelocity;
  
 
 

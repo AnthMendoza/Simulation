@@ -41,7 +41,7 @@ headers, columns = read_csv_columns(file_path)
 # Create a figure with a line plot
 
 
-fig = go.Figure(data=go.Scatter(x=columns[3], y=columns[8], mode='lines'))
+fig = go.Figure(data=go.Scatter(x=columns[2], y=columns[3], mode='lines'))
 
 # Add title and labels
 fig.update_layout(
@@ -91,7 +91,7 @@ def directionVectorToEuler(vector):
 
 
 
-physicsClient = pb.connect(pb.GUI)
+#physicsClient = pb.connect(pb.GUI)
 
 cylinderStartPos = [columns[1][0], columns[2][0], columns[3][0]]
 cylinderStartOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[4][0], columns[5][0], columns[6][0]]))
@@ -115,45 +115,45 @@ cylinderId = pb.createMultiBody(baseVisualShapeIndex=cylinderVisualShapeId,
 #                                baseOrientation=cylinderStartOrientation)
 
 
-cameraDistance = 40
-cameraYaw = 50
-cameraPitch = -60
-
-pb.setRealTimeSimulation(1)
-
-start_time = time.time()
+#cameraDistance = 40
+#cameraYaw = 50
+#cameraPitch = -60
+#
+#pb.setRealTimeSimulation(1)
+#
+#start_time = time.time()
 
 # Run the simulation for a certain time
 count = 0
 
 
-while True:
-    
-    elapsed_time = time.time() - start_time  # Real-time clock (seconds)
-    
-    while(elapsed_time > columns[0][count]):
-        count = count + 1
-
-    new_cylinder_pos = [columns[1][count], columns[2][count],columns[3][count]]  
-    newCylinderOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[4][count], columns[5][count], columns[6][count]]))
-
-    pb.resetBasePositionAndOrientation(cylinderId, new_cylinder_pos, newCylinderOrientation)
-
-
-    #new_cylinder_pos = [columns[1][count], columns[2][count],columns[3][count]]  
-    #newCylinderOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[7][count], columns[8][count], columns[9][count]]))
-    
-
-    #pb.resetBasePositionAndOrientation(cylinderId2, new_cylinder_pos, newCylinderOrientation)
-    # Get the current position of the cylinder
-    cylinderPos, _ = pb.getBasePositionAndOrientation(cylinderId)
-
-    
-    
-    pb.resetDebugVisualizerCamera(cameraDistance, cameraYaw, cameraPitch, cylinderPos)
-    
-
-    time.sleep(1/30)
+#while True:
+#    
+#    elapsed_time = time.time() - start_time  # Real-time clock (seconds)
+#    
+#    while(elapsed_time > columns[0][count]):
+#        count = count + 1
+#
+#    new_cylinder_pos = [columns[1][count], columns[2][count],columns[3][count]]  
+#    newCylinderOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[4][count], columns[5][count], columns[6][count]]))
+#
+#    pb.resetBasePositionAndOrientation(cylinderId, new_cylinder_pos, newCylinderOrientation)
+#
+#
+#    #new_cylinder_pos = [columns[1][count], columns[2][count],columns[3][count]]  
+#    #newCylinderOrientation = pb.getQuaternionFromEuler(directionVectorToEuler([columns[7][count], columns[8][count], columns[9][count]]))
+#    
+#
+#    #pb.resetBasePositionAndOrientation(cylinderId2, new_cylinder_pos, newCylinderOrientation)
+#    # Get the current position of the cylinder
+#    cylinderPos, _ = pb.getBasePositionAndOrientation(cylinderId)
+#
+#    
+#    
+#    pb.resetDebugVisualizerCamera(cameraDistance, cameraYaw, cameraPitch, cylinderPos)
+#    
+#
+#    time.sleep(1/30)
 
 
 
