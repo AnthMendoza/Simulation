@@ -34,14 +34,24 @@ void iterator(Vehicle &rocket){
 
 
 
-int main(){
+int main(int argc, char* argv[]){
     auto start = std::chrono::high_resolution_clock::now();
-    initializeCSV();
+
+    #ifdef __linux__
+        initializeVectors(10000);
+    #else
+        initializeCSV();
+    #endif
+
 
     Vehicle rocket;
     iterator(rocket);
 
-    closeCSV();
+    #ifdef __linux__
+        dataToRam(argv[1]);
+    #else
+        closeCSV();
+    #endif
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;

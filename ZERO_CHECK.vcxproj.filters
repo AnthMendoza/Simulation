@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\super\RocketLanding\CMakeFiles\5c0faf29c18cb36340dd1c9408647059\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{5F2EA165-3DC6-33C0-AFE6-BD3EAFBB7811}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

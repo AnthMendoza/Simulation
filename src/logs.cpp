@@ -4,8 +4,19 @@
 #include "../include/constants.h"
 #include <fstream>
 #include <string>
+#include <vector>
 
 std::ofstream outputFile;
+
+std::vector<float> Xposition;
+std::vector<float> Yposition;
+std::vector<float> Zposition;
+std::vector<float> vehicleState0;
+std::vector<float> vehicleState1;
+std::vector<float> vehicleState2;
+std::vector<float> absVelocity;
+std::vector<float> gForce;
+
 
 void initializeCSV() {
     outputFile.open("data.csv");
@@ -29,31 +40,117 @@ void closeCSV() {
     }
 }
 
+void initializeVectors(int preset){
+    #ifdef __linux__
+        Xposition.reserve(preset);
+        Yposition.reserve(preset);
+        Zposition.reserve(preset);
+        vehicleState0.reserve(preset);
+        vehicleState1.reserve(preset);
+        vehicleState2.reserve(preset);
+        absVelocity.reserve(preset);
+        gForce.reserve(preset);
+    #endif
+}
+
+
+
 
 void logRocketPosition(Vehicle &rocket) {
-    rocket.vehicleState = normalizeVector(rocket.vehicleState);
-    std::string row = std::to_string(rocket.iterations * constants::timeStep/4) + "," + 
-                    std::to_string(rocket.Xposition) + "," + 
-                    std::to_string(rocket.Yposition) + "," +
-                    std::to_string(rocket.Zposition) + "," + 
-                    std::to_string(rocket.vehicleState[0])+ "," +
-                    std::to_string(rocket.vehicleState[1])+ "," +
-                    std::to_string(rocket.vehicleState[2])+ "," +
-                    std::to_string(rocket.getVelocity())+ "," +
-                    std::to_string(rocket.gForce)+ "," +
+    if(constants::isLinux == true){
 
-                    std::to_string(rocket.engineState[0])+ "," +
-                    std::to_string(rocket.engineState[1])+ "," +
-                    std::to_string(rocket.engineState[2])+ "," +
+        Xposition.push_back(rocket.Xposition);
+        Yposition.push_back(rocket.Xposition);
+        Zposition.push_back(rocket.Xposition);
 
-                    std::to_string(rocket.gimbalXError)+ "," +
+        vehicleState0.push_back(rocket.vehicleState[0]);
+        vehicleState1.push_back(rocket.vehicleState[1]);
+        vehicleState2.push_back(rocket.vehicleState[2]);
 
-                    std::to_string(rocket.error)+ "," +
-                    std::to_string(rocket.gimbalYError)+ "," +
-                    std::to_string(rocket.twoDAngle[1])+ "," ;
+        absVelocity.push_back(rocket.getVelocity());
+        gForce.push_back(rocket.gForce);
 
 
 
+    }else{
 
-    appendRowToCSV(row);
+        rocket.vehicleState = normalizeVector(rocket.vehicleState);
+        std::string row = std::to_string(rocket.iterations * constants::timeStep*1.4) + "," + 
+                        std::to_string(rocket.Xposition) + "," + 
+                        std::to_string(rocket.Yposition) + "," +
+                        std::to_string(rocket.Zposition) + "," + 
+                        std::to_string(rocket.vehicleState[0])+ "," +
+                        std::to_string(rocket.vehicleState[1])+ "," +
+                        std::to_string(rocket.vehicleState[2])+ "," +
+                        std::to_string(rocket.getVelocity())+ "," +
+                        std::to_string(rocket.gForce)+ "," +
+
+                        std::to_string(rocket.engineState[0])+ "," +
+                        std::to_string(rocket.engineState[1])+ "," +
+                        std::to_string(rocket.engineState[2])+ "," +
+
+                        std::to_string(rocket.gimbalXError)+ "," +
+
+                        std::to_string(rocket.error)+ "," +
+                        std::to_string(rocket.gimbalYError)+ "," +
+                        std::to_string(rocket.twoDAngle[1])+ "," ;
+
+        appendRowToCSV(row);
+
+    }
 }
+
+#ifdef __linux__
+
+#include <iostream>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstring>
+
+
+void dataToRam(char* unique_id){
+
+    const char *shm_name = unique_id;
+    const size_t SIZE = 1024 * 500; // 10 KB of shared memory
+    int shm_fd = shm_open(shm_name, O_CREAT | O_RDWR, 0666);
+
+    if (shm_fd == -1) {
+        std::cerr << "Failed to open shared memory." << std::endl;
+        return 1;
+    }
+
+    // Set the size of the shared memory object
+    ftruncate(shm_fd, SIZE);
+
+    // Map shared memory object
+    void *ptr = mmap(0, SIZE, PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    if (ptr == MAP_FAILED) {
+        std::cerr << "Failed to map shared memory." << std::endl;
+        return 1;
+    }
+
+    // Example arrays to send
+    std::vector<int> array1 = Xposition;
+    std::vector<int> array2 = Yposition;
+
+    // Write the lengths of the arrays
+    int *int_ptr = static_cast<int*>(ptr);
+    int_ptr[0] = array1.size();
+    int_ptr[1] = array2.size();
+
+    // Write the contents of the arrays
+    std::memcpy(&int_ptr[2], array1.data(), array1.size() * sizeof(int));
+    std::memcpy(&int_ptr[2 + array1.size()], array2.data(), array2.size() * sizeof(int));
+
+    std::cout << "Data written to shared memory." << std::endl;
+
+    // Clean up
+    munmap(ptr, SIZE);
+    close(shm_fd);
+
+}
+
+
+#endif

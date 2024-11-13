@@ -21,6 +21,10 @@ namespace constants{
     extern float maxGimbleAngle;// degrees
     extern float cogToEngine;
     extern float landingVelocity;
+    extern float consumptionRateAtFullPowerPerEngine;
+    extern float dryMass;
+    extern float initFuel;
+    extern bool isLinux;
  
 
 

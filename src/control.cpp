@@ -60,7 +60,7 @@ void reentryBurn(Vehicle &rocket){
         std::array<float,2> direction = {0,0};
         while(currentMaxGForce > constants::maxGAllowedEntry){
             Vehicle lookAheadRocket = rocket;
-            std::vector<float> gForces = lookAhead(lookAheadRocket , 105 , [](Vehicle &r) { return r.gForce; }); 
+            std::vector<float> gForces = lookAhead(lookAheadRocket , 105 , [](Vehicle &r) { return r.gForce; }); // 105 is the lookahead time in seconds. this may be stoppped earlier if the vehicle hits the ground
             
             currentMaxGForce = *std::max_element(gForces.begin(),gForces.end());
             std::cout<<currentMaxGForce<< std::endl;
@@ -94,10 +94,12 @@ void lookAheadGlide(Vehicle &rocket ,float* log , int logSize){
         rocket.updateState();
         log[initalIterations - rocket.iterations] = rocket.Xvelocity; 
         rocket.iterations++;
+
+        logSize = 1;
     }
     
-
 }
+
 
 
 
@@ -127,17 +129,19 @@ void landingBurn(Vehicle &rocket){
 
     if(rocket.reentry == false || rocket.glidePhase == false || rocket.Zposition > 4600) return;
         
-    float vehicleNormalForce = -constants::gravitationalAcceleration * constants::mass;
+    float vehicleNormalForce = -constants::gravitationalAcceleration * rocket.mass;
 
     std::array<float,3> velo =  {rocket.Xvelocity, rocket.Yvelocity , rocket.Zvelocity};
 
     velo = normalizeVector(velo);
+    
+    float enginePowerMinusNormalForce = constants::maxThrust - vehicleNormalForce; 
 
-    velo[0] = velo[0] * 600000;
+    velo[0] = velo[0] * enginePowerMinusNormalForce;
 
-    velo[1] = velo[1] * 600000;
+    velo[1] = velo[1] * enginePowerMinusNormalForce;
 
-    velo[2] = velo[2] * 600000 + vehicleNormalForce;
+    velo[2] = velo[2] * enginePowerMinusNormalForce + vehicleNormalForce;
 
 
     std::array<float , 3> directionVector = normalizeVector(velo);
@@ -191,6 +195,7 @@ void landingBurn(Vehicle &rocket){
 
 
     rocket.applyEngineForce(direction , vectorMag(velo));
+    
     
 
 

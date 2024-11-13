@@ -37,6 +37,10 @@ class Vehicle{
 
         float gForce;
 
+        float engineForce;
+
+        float dryMass , fuel;
+
         std::array<float , 3> appliedVector;
 
 
@@ -76,6 +80,8 @@ class Vehicle{
         void applyFinForce(std::array<std::array<float,3>,2>);
 
         float getCurvature();
+
+        void fuelConsumption();
 
 };
 

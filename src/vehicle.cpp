@@ -23,7 +23,7 @@ Vehicle::Vehicle(){
     // roll pitch yaw (x,y,z) defines the direction vector, heading. ex. (0,0,1) is rocket pointing straight up.
 
     //(x,y,z)positon defines its location reltaive to an orgin
-    mass = constants::mass;
+    mass = constants::dryMass + constants::initFuel;
     MOI = constants::MOI;
 
     targetLandingPosition = constants::LandingTarget;
@@ -73,6 +73,7 @@ Vehicle::Vehicle(){
     sumOfMoments[2] = 0;
 
     logMoment = {0,0,0};
+    fuel = constants::initFuel;
     }
 
 
@@ -258,6 +259,8 @@ void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thr
 
     engineState = engineVector;
 
+    engineForce = abs(thrust);
+
 }
 
 
@@ -398,4 +401,17 @@ float Vehicle::getCurvature(){
     return 0;
 
     
+}
+
+
+
+void Vehicle::fuelConsumption(){
+    
+    if(fuel > 0 && engineForce > 0){
+        float deltaFuel = (constants::consumptionRateAtFullPowerPerEngine * engineForce / constants::maxThrust) * constants::timeStep;
+        fuel = fuel - deltaFuel;
+
+        if(mass - deltaFuel > 0) mass = mass - deltaFuel;
+
+    }
 }

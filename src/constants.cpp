@@ -2,10 +2,16 @@
 
 
 namespace constants{
+    #ifdef __linux__
+        bool isLinux = true;
+    #else
+        bool isLinux = false;
+    #endif
+
     float gravitationalAcceleration = -9.81; 
 
     //std::array<float,3> initPosition = {0,295528.164398,110000};
-    std::array<float,3> initPosition = {0,0,110000};
+   std::array<float,3> initPosition = {0,0,110000};
     std::array<float,3> wind = {0,0,0}; //  m/s x,y,z  this will be stacked on top of whatever the current velocity is on an absolute cordinate system.
     std::array<float,3> initVehicleState = {.5,0.8660254038,0}; // this the vehicle vector, its direction is the directionthe nose points. it will be normilized, magnatiude is meain
     std::array<float , 3> MOI = {3614090,3614090,3614090};
@@ -18,9 +24,11 @@ namespace constants{
     const float timeStep = .001; //seconds
     float maxThrust = 854000;//netwons
     float minThrust = maxThrust *.65; //newtons, 65 percent of max;
-    float mass = 25000; //kg booster mass
+    float dryMass = 22200; //kg booster mass
     float maxGimbleAngle = 10  * 3.1415926535f / 180.0f;// degrees
     float landingVelocity = 10;
+    float consumptionRateAtFullPowerPerEngine = 328.8; //kg/s this is lox plus RP1
+    float initFuel = 20000; //weight in kg
    
 
 
