@@ -118,7 +118,6 @@ void dataToRam(char* unique_id){
 
     if (shm_fd == -1) {
         std::cerr << "Failed to open shared memory." << std::endl;
-        return 1;
     }
 
     // Set the size of the shared memory object
@@ -128,7 +127,6 @@ void dataToRam(char* unique_id){
     void *ptr = mmap(0, SIZE, PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (ptr == MAP_FAILED) {
         std::cerr << "Failed to map shared memory." << std::endl;
-        return 1;
     }
 
 
