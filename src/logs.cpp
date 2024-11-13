@@ -136,10 +136,32 @@ void dataToRam(char* unique_id){
     int *int_ptr = static_cast<int*>(ptr);
     int_ptr[0] = Xposition.size();
     int_ptr[1] = Yposition.size();
+    int_ptr[2] = Zposition.size();
+
+    int_ptr[3] = vehicleState0.size();
+    int_ptr[4] = vehicleState1.size();
+    int_ptr[5] = vehicleState2.size();
+    int_ptr[6] = absVelocity.size();
+    int_ptr[7] = gForce.size();
+
 
     // Write the contents of the arrays
-    std::memcpy(&int_ptr[2], Xposition.data(), Xposition.size() * sizeof(float));
-    std::memcpy(&int_ptr[2 + Xposition.size()], Yposition.data(), Yposition.size() * sizeof(float));
+    int count = 8;
+    std::memcpy(&int_ptr[count], Xposition.data(), Xposition.size() * sizeof(float));
+    count += Xposition.size();
+    std::memcpy(&int_ptr[count], Yposition.data(), Yposition.size() * sizeof(float));
+    count += Yposition.size();
+    std::memcpy(&int_ptr[count], Zposition.data(), Zposition.size() * sizeof(float));
+    count += Zposition.size();
+    std::memcpy(&int_ptr[count], vehicleState0.data(), vehicleState0.size() * sizeof(float));
+    count += vehicleState0.size();
+    std::memcpy(&int_ptr[count], vehicleState1.data(), vehicleState1.size() * sizeof(float));
+    count += vehicleState1.size();
+    std::memcpy(&int_ptr[count], vehicleState2.data(), vehicleState2.size() * sizeof(float));
+    count += vehicleState2.size();
+    std::memcpy(&int_ptr[count], absVelocity.data(), absVelocity.size() * sizeof(float));
+    count += absVelocity.size();
+    std::memcpy(&int_ptr[count], gForce.data(), gForce.size() * sizeof(float));
 
     std::cout << "Data written to shared memory." << std::endl;
 
