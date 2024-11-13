@@ -135,7 +135,7 @@ void dataToRam(char* unique_id){
     // Write the lengths of the arrays
     int *int_ptr = static_cast<int*>(ptr);
     int_ptr[0] = Xposition.size();
-    int_ptr[1] = yposition.size();
+    int_ptr[1] = Yposition.size();
 
     // Write the contents of the arrays
     std::memcpy(&int_ptr[2], Xposition.data(), Xposition.size() * sizeof(int));
