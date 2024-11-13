@@ -136,8 +136,8 @@ void dataToRam(char* unique_id){
     int_ptr[1] = Yposition.size();
 
     // Write the contents of the arrays
-    std::memcpy(&int_ptr[2], Xposition.data(), Xposition.size() * sizeof(int));
-    std::memcpy(&int_ptr[2 + Xposition.size()], Yposition.data(), Yposition.size() * sizeof(int));
+    std::memcpy(&int_ptr[2], Xposition.data(), Xposition.size() * sizeof(float));
+    std::memcpy(&int_ptr[2 + Xposition.size()], Yposition.data(), Yposition.size() * sizeof(float));
 
     std::cout << "Data written to shared memory." << std::endl;
 

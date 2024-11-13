@@ -21,7 +21,7 @@ namespace constants{
     float maxGAllowedEntry = 4.5;
     float centerOfPressure = 15;
     float cogToEngine = -8; // meters use this to calculate the moment created by the engine this is negative becuase center of pressure on the opposite side of the COG is positive
-    const float timeStep = .001; //seconds
+    const float timeStep = .01; //seconds
     float maxThrust = 854000;//netwons
     float minThrust = maxThrust *.65; //newtons, 65 percent of max;
     float dryMass = 22200; //kg booster mass
