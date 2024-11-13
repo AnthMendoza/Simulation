@@ -131,18 +131,15 @@ void dataToRam(char* unique_id){
         return 1;
     }
 
-    // Example arrays to send
-    std::vector<int> array1 = Xposition;
-    std::vector<int> array2 = Yposition;
 
     // Write the lengths of the arrays
     int *int_ptr = static_cast<int*>(ptr);
-    int_ptr[0] = array1.size();
-    int_ptr[1] = array2.size();
+    int_ptr[0] = Xposition.size();
+    int_ptr[1] = yposition.size();
 
     // Write the contents of the arrays
-    std::memcpy(&int_ptr[2], array1.data(), array1.size() * sizeof(int));
-    std::memcpy(&int_ptr[2 + array1.size()], array2.data(), array2.size() * sizeof(int));
+    std::memcpy(&int_ptr[2], Xposition.data(), Xposition.size() * sizeof(int));
+    std::memcpy(&int_ptr[2 + Xposition.size()], Yposition.data(), Yposition.size() * sizeof(int));
 
     std::cout << "Data written to shared memory." << std::endl;
 
