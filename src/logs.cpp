@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <iostream>
 
 std::ofstream outputFile;
 
@@ -119,7 +120,8 @@ void dataToRam(char* unique_id){
     if (shm_fd == -1) {
         std::cerr << "Failed to open shared memory." << std::endl;
     }
-
+    std::cout<< "Xposition size : "<<Xposition.size()<< std::endl;
+    std::cout<<"Yposition size : "<< Yposition.size();
     // Set the size of the shared memory object
     ftruncate(shm_fd, SIZE);
 
