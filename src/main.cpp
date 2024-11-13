@@ -22,7 +22,7 @@ void iterator(Vehicle &rocket){
         
         landingBurn(rocket);
 
-        if(rocket.iterations == 0)logRocketPosition(rocket);
+        logRocketPosition(rocket);
 
 
         rocket.updateState();

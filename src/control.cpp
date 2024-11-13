@@ -71,7 +71,7 @@ void reentryBurn(Vehicle &rocket){
                 rocket.lift();
                 rocket.applyEngineForce(direction , constants::maxThrust * .6 * 3); 
                 rocket.finVectors = rocket.getFinForceVectors();
-                if(rocket.iterations == 0)logRocketPosition(rocket);
+                logRocketPosition(rocket);
                 rocket.updateState();
                 rocket.iterations++;
             }
