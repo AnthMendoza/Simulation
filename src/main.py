@@ -111,18 +111,16 @@ def simulation():
 
                     array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 , array8 = getSimulationFromMemory(str(unique_id))
                     simulationData = {
-                    "VectorTimeStamp": array0,
-                    "Xpsoition": array1,
+                    "vectorTimeStamp": array0,
+                    "Xposition": array1,
                     "Yposition": array2,
                     "Zposition": array3,
-                    "VehicleState0": array4,
-                    "VehicleState1": array5,
-                    "VehicleState2": array6,
-                    "Velocity": array7,
+                    "vehicleState0": array4,
+                    "vehicleState1": array5,
+                    "vehicleState2": array6,
+                    "velocity": array7,
                     "gForce": array8
                     }
-                    json_data = json.dumps(simulationData)
-                    print(json_data)
                     return render_template("simulation.html" , simulationData = simulationData)
                 except FileNotFoundError:
                     message = "Shared memory block not found."
