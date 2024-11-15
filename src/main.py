@@ -4,7 +4,7 @@ from multiprocessing import shared_memory
 import numpy as np
 import os
 import uuid
-from flask import Flask, render_template, request ,jsonify
+from main import Flask, render_template, request ,jsonify
 from contextlib import contextmanager
 
 @contextmanager
@@ -82,6 +82,11 @@ def getSimulationFromMemory(unique_id):
 
 app = Flask(__name__)
 
+
+@app.route('/')
+def index():
+    return render_template('preset.html')
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     message = ""
@@ -92,7 +97,7 @@ def index():
         print(unique_id)
         try:
             return_code, stdout, stderr = run_cpp_executable(
-                "./build/main",
+                "../../main",
                 args=[str(unique_id)],
                 timeout=30
             )
@@ -121,8 +126,10 @@ def index():
         except Exception as e:
             message = f"Error: {str(e)}"
 
-    return render_template("preseta.html", message=message, arrays=arrays)
+    return render_template("simulation.html", message=message, arrays=arrays)
 
 if __name__ == "__main__":
     app.run(host="192.168.50.161", port=5000, debug=True)
+
+    
                                                           
