@@ -1,5 +1,4 @@
 let startTime = null; // Declare startTime here
-let allValues = []; // Declare allValues outside the fetch block
 const staticDuration = 0; 
 const speed = 1;
 
@@ -60,7 +59,7 @@ let object;
 // Load the OBJ model
 const loader = new THREE.OBJLoader();
 loader.load(
-  '../3d/falcon.obj',  // Replace with your .obj file path
+  '../../3d/falcon.obj',  // Replace with your .obj file path
   function (loadedObject) {
     object = loadedObject;
     object.position.y = 1; // Start position of the object
