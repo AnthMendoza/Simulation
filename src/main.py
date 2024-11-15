@@ -4,7 +4,8 @@ from multiprocessing import shared_memory
 import numpy as np
 import os
 import uuid
-from main import Flask, render_template, request ,jsonify
+from flask import Flask, render_template, request , jsonify
+#from main import Flask, render_template, request , jsonify
 from contextlib import contextmanager
 
 @contextmanager
