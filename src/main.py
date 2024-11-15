@@ -101,7 +101,7 @@ def simulation():
         print(unique_id)
         try:
             return_code, stdout, stderr = run_cpp_executable(
-                "../../main",
+                "../build/main",
                 args=[str(unique_id)],
                 timeout=30
             )
