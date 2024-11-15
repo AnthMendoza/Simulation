@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="preset.css">
+</head>
+<body>
+
+<h1>Preset Simulation Parameters</h1>
+
+<form method="post">
+  <label for="weight">Weight:</label>
+  <input type="text" id="weight" name="weight"><br><br>
+
+  <label for="altitude">Initial Altitude:</label>
+  <input type="text" id="altitude" name="altitude"><br><br>
+
+
+  <label>Initial Position (X,Y,Z):</label>
+  <div class="xyz-input">
+    <input type="text" id="Xposition" name="xposition" placeholder="X">
+    <input type="text" id="Yposition" name="yposition" placeholder="Y">
+    <input type="text" id="Zposition" name="zposition" placeholder="Z">
+  </div><br><br>
+
+  <label>Initial Velocity (X,Y,Z):</label>
+  <div class="xyz-input">
+    <input type="text" id="Xvelocity" name="Xvelocity" placeholder="X">
+    <input type="text" id="Yvelocity" name="Yvelocity" placeholder="Y">
+    <input type="text" id="Zvelocity" name="Zvelocity" placeholder="Z">
+  </div><br><br>
+
+  <label>Initial Orientation Vector (X,Y,Z):</label>
+  <div class="xyz-input">
+    <input type="text" id="Xstate" name="Xstate" placeholder="X">
+    <input type="text" id="Ystate" name="Ystate" placeholder="Y">
+    <input type="text" id="Zstate" name="Zstate" placeholder="Z">
+  </div><br><br>
+
+  <input type="submit" value="Generate Simulation">
+</form>
+
+</body>
+</html>

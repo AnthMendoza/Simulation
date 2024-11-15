@@ -114,7 +114,7 @@ void logRocketPosition(Vehicle &rocket) {
 void dataToRam(char* unique_id){
 
     const char *shm_name = unique_id;
-    const size_t SIZE = 1024 * 500; // 10 KB of shared memory
+    const size_t SIZE = 1024 * 3000; // 10 KB of shared memory
     int shm_fd = shm_open(shm_name, O_CREAT | O_RDWR, 0666);
 
     if (shm_fd == -1) {

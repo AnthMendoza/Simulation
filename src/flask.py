@@ -4,7 +4,7 @@ from multiprocessing import shared_memory
 import numpy as np
 import os
 import uuid
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request ,jsonify
 from contextlib import contextmanager
 
 @contextmanager
@@ -60,23 +60,25 @@ def run_cpp_executable(exe_path, args=None, timeout=None):
 
 def getSimulationFromMemory(unique_id):
     """Get simulation data from shared memory with proper cleanup"""
+
     with safe_shared_memory(str(unique_id)) as shm:
         buffer = shm.buf
-        # Read the lengths of the arrays
-        array1_size = int.from_bytes(buffer[:4], byteorder='little')
-        array2_size = int.from_bytes(buffer[4:8], byteorder='little')
 
-        # Calculate the offsets
-        array1_start = 8
-        array1_end = array1_start + array1_size * 4
-        array2_start = array1_end
-        array2_end = array2_start + array2_size * 4
+        sizes = [
+            int.from_bytes(buffer[i:i + 4], byteorder='little')
+            for i in range(0, 32, 4)
+        ]
 
-        # Create copies of the arrays to ensure they're not tied to the shared memory
-        array1 = np.array(np.frombuffer(buffer[array1_start:array1_end], dtype=np.int32))
-        array2 = np.array(np.frombuffer(buffer[array2_start:array2_end], dtype=np.int32))
+        current_offset = 32  # 4 bytes * 8 arrays for their sizes
+        arrays = []
 
-        return array1.tolist(), array2.tolist()
+        for size in sizes:
+            array_start = current_offset
+            array_end = array_start + size * 4  # Assuming float32 (4 bytes per element)
+            array_data = np.frombuffer(buffer[array_start:array_end], dtype=np.float32)
+            arrays.append(np.array(array_data))  # Create a copy of the array
+            current_offset = array_end
+        return [array.tolist() for array in arrays]
 
 app = Flask(__name__)
 
@@ -97,9 +99,18 @@ def index():
 
             if return_code == 0:
                 try:
-                    array1, array2 = getSimulationFromMemory(str(unique_id))
-                    arrays = {'array1': array1, 'array2': array2}
-                    message = "Simulation completed successfully " , arrays
+                    array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 = getSimulationFromMemory(str(unique_id))
+                    returnData = {
+                    "Xpsoition": array0,
+                    "Yposition": array1,
+                    "Zposition": array2,
+                    "Vehicle State 0": array3,
+                    "Vehicle State 1": array4,
+                    "Vehicle State 2": array5,
+                    "Velocity": array6,
+                    "gForce": array7
+                    }
+                    return jsonify(returnData) , render_template("simulation.html")
                 except FileNotFoundError:
                     message = "Shared memory block not found."
                 except Exception as e:
@@ -110,9 +121,8 @@ def index():
         except Exception as e:
             message = f"Error: {str(e)}"
 
-    return render_template("index.html", message=message, arrays=arrays)
+    return render_template("preseta.html", message=message, arrays=arrays)
 
 if __name__ == "__main__":
-    # It's recommended to use a production WSGI server in production
     app.run(host="192.168.50.161", port=5000, debug=True)
                                                           
