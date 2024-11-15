@@ -142,7 +142,10 @@ void dataToRam(char* unique_id){
     int_ptr[3] = Zposition.size();
 
     int_ptr[4] = vehicleState0.size();
-    int_ptr[5] = vehicleState1.size();                                                                                                                                                                                                  
+    int_ptr[5] = vehicleState1.size();  
+    int_ptr[6] = vehicleState2.size();  
+    int_ptr[7] = absVelocity.size();  
+    int_ptr[8] = gForce.size();                                                                                                                                                                                              
 
 
     // Write the contents of the arrays
