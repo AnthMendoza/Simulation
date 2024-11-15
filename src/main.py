@@ -86,7 +86,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template( "../preset.html")
+    return render_template( "preset.html")
 
 
 
@@ -131,7 +131,7 @@ def simulation():
         except Exception as e:
             message = f"Error: {str(e)}"
 
-    return render_template("../simulation.html", message=message, arrays=arrays)
+    return render_template("simulation.html", message=message, arrays=arrays)
 
 if __name__ == "__main__":
     app.run(host="192.168.50.161", port=5000, debug=True)
