@@ -137,7 +137,7 @@ def simulation():
 
 
 @app.route("/getSimulationData", methods=["GET"])
-def index():
+def getSimulation():
     return jsonify(simulationData)
 
 
