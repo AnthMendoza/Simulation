@@ -7,6 +7,8 @@ import uuid
 from flask import Flask, render_template, request , jsonify
 from contextlib import contextmanager
 
+simulationData = None
+
 @contextmanager
 def safe_shared_memory(name):
     """Context manager for safely handling shared memory"""
@@ -62,13 +64,12 @@ def getSimulationFromMemory(unique_id):
 
     with safe_shared_memory(str(unique_id)) as shm:
         buffer = shm.buf
-
+        current_offset = 4 * 9 # 9 arrays recieved
         sizes = [
             int.from_bytes(buffer[i:i + 4], byteorder='little')
-            for i in range(0, 32, 4)
+            for i in range(0, 36, 4)
         ]
 
-        current_offset = 32  # 4 bytes * 8 arrays for their sizes
         arrays = []
 
         for size in sizes:
@@ -108,17 +109,19 @@ def simulation():
             if return_code == 0:
                 try:
 
-                    array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 = getSimulationFromMemory(str(unique_id))
-                    returnData = {
-                    "Xpsoition": array0,
-                    "Yposition": array1,
-                    "Zposition": array2,
-                    "Vehicle State 0": array3,
-                    "Vehicle State 1": array4,
-                    "Vehicle State 2": array5,
-                    "Velocity": array6,
-                    "gForce": array7
+                    array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 , array8 = getSimulationFromMemory(str(unique_id))
+                    simulationData = {
+                    "Time Stamp": array0,
+                    "Xpsoition": array1,
+                    "Yposition": array2,
+                    "Zposition": array3,
+                    "Vehicle State 0": array4,
+                    "Vehicle State 1": array5,
+                    "Vehicle State 2": array6,
+                    "Velocity": array7,
+                    "gForce": array8
                     }
+
                     return render_template("simulation.html")
                 except FileNotFoundError:
                     message = "Shared memory block not found."
@@ -131,6 +134,12 @@ def simulation():
             message = f"Error: {str(e)}"
 
     return render_template("simulation.html")
+
+
+@app.route("/getSimulationData", methods=["GET"])
+def index():
+    return jsonify(simulationData)
+
 
 if __name__ == "__main__":
     app.run(host="192.168.50.161", port=5000, debug=True)

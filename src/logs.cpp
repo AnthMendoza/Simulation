@@ -43,6 +43,7 @@ void closeCSV() {
 
 void initializeVectors(int preset){
     #ifdef __linux__
+        timeStampVect.reserve(preset);
         Xposition.reserve(preset);
         Yposition.reserve(preset);
         Zposition.reserve(preset);
@@ -59,6 +60,7 @@ void initializeVectors(int preset){
 
 void logRocketPosition(Vehicle &rocket) {
     if(constants::isLinux == true){
+        timeStampVect.push_back(rocket.iterations * constants::timeStep);
 
         Xposition.push_back(rocket.Xposition);
         Yposition.push_back(rocket.Xposition);
@@ -134,19 +136,22 @@ void dataToRam(char* unique_id){
 
     // Write the lengths of the arrays
     int *int_ptr = static_cast<int*>(ptr);
-    int_ptr[0] = Xposition.size();
-    int_ptr[1] = Yposition.size();
-    int_ptr[2] = Zposition.size();
+    int_ptr[0] = timeStampVect.size();
+    int_ptr[1] = Xposition.size();
+    int_ptr[2] = Yposition.size();
+    int_ptr[3] = Zposition.size();
 
-    int_ptr[3] = vehicleState0.size();
-    int_ptr[4] = vehicleState1.size();
-    int_ptr[5] = vehicleState2.size();
-    int_ptr[6] = absVelocity.size();
-    int_ptr[7] = gForce.size();
+    int_ptr[4] = vehicleState0.size();
+    int_ptr[5] = vehicleState1.size();
+    int_ptr[6] = vehicleState2.size();
+    int_ptr[7] = absVelocity.size();
+    int_ptr[8] = gForce.size();
 
 
     // Write the contents of the arrays
-    int count = 8;
+    int count = 9;
+    std::memcpy(&int_ptr[count], timeStampVect.data(), timeStampVect.size() * sizeof(float));
+    count += timeStampVect.size();
     std::memcpy(&int_ptr[count], Xposition.data(), Xposition.size() * sizeof(float));
     count += Xposition.size();
     std::memcpy(&int_ptr[count], Yposition.data(), Yposition.size() * sizeof(float));
