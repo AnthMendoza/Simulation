@@ -4,6 +4,7 @@ from multiprocessing import shared_memory
 import numpy as np
 import os
 import uuid
+import json
 from flask import Flask, render_template, request , jsonify
 from contextlib import contextmanager
 
@@ -120,7 +121,8 @@ def simulation():
                     "Velocity": array7,
                     "gForce": array8
                     }
-
+                    json_data = json.dumps(simulationData)
+                    print(json_data)
                     return render_template("simulation.html" , simulationData = simulationData)
                 except FileNotFoundError:
                     message = "Shared memory block not found."

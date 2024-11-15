@@ -5,8 +5,8 @@ const speed = 1;
 
 console.log(data);
 
-console.log(data.Xposition(10))
-
+console.log(data.Xposition[10]);
+console.log(data.Time_Stamp[10]);
 // Create the scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000); // Light gray background 0xaaaaaa
