@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-extern std::vector<float> timeStampVect;
+extern std::vector<float> timeStepVect;
 extern std::vector<float> Xposition;
 extern std::vector<float> Yposition;
 extern std::vector<float> Zposition;
