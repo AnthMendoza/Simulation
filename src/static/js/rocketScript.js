@@ -5,7 +5,7 @@ const speed = 1;
 
 console.log(data);
 
-
+console.log(data.Xposition(10))
 
 // Create the scene
 const scene = new THREE.Scene();

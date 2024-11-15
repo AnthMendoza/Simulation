@@ -63,8 +63,8 @@ void logRocketPosition(Vehicle &rocket) {
         timeStampVect.push_back(rocket.iterations * constants::timeStep);
 
         Xposition.push_back(rocket.Xposition);
-        Yposition.push_back(rocket.Xposition);
-        Zposition.push_back(rocket.Xposition);
+        Yposition.push_back(rocket.Yposition);
+        Zposition.push_back(rocket.Zposition);
 
         vehicleState0.push_back(rocket.vehicleState[0]);
         vehicleState1.push_back(rocket.vehicleState[1]);
