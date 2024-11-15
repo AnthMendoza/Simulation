@@ -111,13 +111,13 @@ def simulation():
 
                     array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 , array8 = getSimulationFromMemory(str(unique_id))
                     simulationData = {
-                    "Time Stamp": array0,
+                    "VectorTimeStamp": array0,
                     "Xpsoition": array1,
                     "Yposition": array2,
                     "Zposition": array3,
-                    "Vehicle State 0": array4,
-                    "Vehicle State 1": array5,
-                    "Vehicle State 2": array6,
+                    "VehicleState0": array4,
+                    "VehicleState1": array5,
+                    "VehicleState2": array6,
                     "Velocity": array7,
                     "gForce": array8
                     }
