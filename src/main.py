@@ -5,11 +5,11 @@ import numpy as np
 import os
 import uuid
 from flask import Flask, render_template, request , jsonify
-#from main import Flask, render_template, request , jsonify
 from contextlib import contextmanager
 
 @contextmanager
 def safe_shared_memory(name):
+    """Context manager for safely handling shared memory"""
     shm = None
     try:
         shm = shared_memory.SharedMemory(name=name)
@@ -20,9 +20,7 @@ def safe_shared_memory(name):
                 shm.close()
             except BufferError:
                 import gc
-                # Force garbage collection
-                # shm.close was not properlly unlinked the memory, forced garbage collection was the only way ive found to properlly dealloc
-                gc.collect()  
+                gc.collect()  # Force garbage collection
                 try:
                     shm.close()
                 except BufferError:
@@ -50,7 +48,7 @@ def run_cpp_executable(exe_path, args=None, timeout=None):
 
         stdout, stderr = process.communicate(timeout=timeout)
         return_code = process.returncode
-       
+
         return return_code, stdout, stderr
 
     except subprocess.TimeoutExpired:
@@ -81,15 +79,19 @@ def getSimulationFromMemory(unique_id):
             current_offset = array_end
         return [array.tolist() for array in arrays]
 
+
+
 app = Flask(__name__)
 
 
-@app.route('/')
-def index():
-    return render_template('preset.html')
-
 @app.route("/", methods=["GET", "POST"])
 def index():
+    return render_template( "preset.html")
+
+
+
+@app.route("/simulation", methods=["GET", "POST"])
+def simulation():
     message = ""
     arrays = None
 
@@ -105,6 +107,7 @@ def index():
 
             if return_code == 0:
                 try:
+
                     array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 = getSimulationFromMemory(str(unique_id))
                     returnData = {
                     "Xpsoition": array0,
@@ -117,6 +120,7 @@ def index():
                     "gForce": array7
                     }
                     return jsonify(returnData)
+
                 except FileNotFoundError:
                     message = "Shared memory block not found."
                 except Exception as e:
@@ -131,6 +135,3 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="192.168.50.161", port=5000, debug=True)
-
-    
-                                                          
