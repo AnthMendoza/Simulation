@@ -1,12 +1,11 @@
 let startTime = null; // Declare startTime here
 const staticDuration = 0; 
 const speed = 1;
-const simulationData = None;
 
-console.log(simulationData);
 
-const Data = JSON.parse(simulationData);
-console.log(Data);
+console.log(data);
+
+
 
 // Create the scene
 const scene = new THREE.Scene();
