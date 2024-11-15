@@ -116,7 +116,7 @@ def index():
                     "Velocity": array6,
                     "gForce": array7
                     }
-                    return jsonify(returnData) , render_template("simulation.html")
+                    return jsonify(returnData)
                 except FileNotFoundError:
                     message = "Shared memory block not found."
                 except Exception as e:
