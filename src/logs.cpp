@@ -71,7 +71,7 @@ void logRocketPosition(Vehicle &rocket) {
         vehicleState2.push_back(rocket.vehicleState[2]);
 
         absVelocity.push_back(rocket.getVelocity());
-        gForce.push_back(rocket.gForce);
+        gForce.push_back(rocket.getGForce());
 
 
 
