@@ -5,7 +5,7 @@ const speed = 1;
 
 async function fetchSimulationData() {
   try {
-      const response = await fetch('/get-simulation-data');
+      const response = await fetch('/getSimulationData');
       const data = await response.json();
 
       console.log("Simulation Data:", data);
