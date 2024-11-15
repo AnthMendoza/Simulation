@@ -3,16 +3,6 @@
 
 #include <string>
 #include <vector>
-extern std::vector<float> timeStepVect;
-extern std::vector<float> Xposition;
-extern std::vector<float> Yposition;
-extern std::vector<float> Zposition;
-extern std::vector<float> vehicleState0;
-extern std::vector<float> vehicleState1;
-extern std::vector<float> vehicleState2;
-extern std::vector<float> absVelocity;
-extern std::vector<float> gForce;
-
 
 
 void initializeCSV();

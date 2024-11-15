@@ -8,7 +8,7 @@
 #include <iostream>
 
 std::ofstream outputFile;
-
+std::vector<float> timeStepVect;
 std::vector<float> Xposition;
 std::vector<float> Yposition;
 std::vector<float> Zposition;
