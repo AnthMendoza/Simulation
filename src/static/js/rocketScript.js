@@ -1,10 +1,10 @@
 let startTime = null; // Declare startTime here
 const staticDuration = 0; 
 const speed = 1;
+const simulationData = None
 
-const simData = simulationData
 
-const jsonSimData = JSON.parse(simData);
+const Data = JSON.parse(simulationData);
 
 
 // Create the scene
