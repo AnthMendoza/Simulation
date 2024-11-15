@@ -3,9 +3,10 @@ const staticDuration = 0;
 const speed = 1;
 const simulationData = None;
 
+console.log(simulationData);
 
 const Data = JSON.parse(simulationData);
-
+console.log(Data);
 
 // Create the scene
 const scene = new THREE.Scene();
@@ -19,7 +20,7 @@ const cameraOffset = new THREE.Vector3(30, 50, 10);  // Fixed offset relative to
 // Create the renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement)1;
+document.body.appendChild(renderer.domElement);
 
 // Add lighting to the scene
 const ambientLight = new THREE.AmbientLight(0x404040); // Soft light
