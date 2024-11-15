@@ -38,7 +38,7 @@ int main(int argc, char* argv[]){
     auto start = std::chrono::high_resolution_clock::now();
 
     #ifdef __linux__
-        initializeVectors(10000);
+        initializeVectors(20000);
     #else
         initializeCSV();
     #endif
