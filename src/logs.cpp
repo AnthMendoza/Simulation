@@ -71,7 +71,7 @@ void logRocketPosition(Vehicle &rocket) {
         vehicleState2.push_back(rocket.vehicleState[2]);
 
         absVelocity.push_back(rocket.getVelocity());
-        gForce.push_back(rocket.getGForce());
+        gForce.push_back(rocket.gForce);
 
 
 
@@ -149,7 +149,7 @@ void dataToRam(char* unique_id){
 
 
     // Write the contents of the arrays
-    int count = 8;
+    int count = 9;
     std::memcpy(&int_ptr[count], timeStepVect.data(), timeStepVect.size() * sizeof(float));
     count += timeStepVect.size();
     std::memcpy(&int_ptr[count], Xposition.data(), Xposition.size() * sizeof(float));
