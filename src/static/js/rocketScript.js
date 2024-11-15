@@ -2,33 +2,9 @@ let startTime = null; // Declare startTime here
 const staticDuration = 0; 
 const speed = 1;
 
-async function fetchSimulationData() {
-  try {
-      const response = await fetch('/getSimulationData');
-      const data = await response.json();
+const simData = simulationData
 
-      console.log("Simulation Data:", data);
-
-      // Display the data in the HTML
-      const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = `
-          <p>X Position: ${data.VectorTimeStamp}</p>
-          <p>X Position: ${data.Xposition}</p>
-          <p>Y Position: ${data.Yposition}</p>
-          <p>Z Position: ${data.Zposition}</p>
-          <p>Velocity: ${data.Velocity}</p>
-          <p>gForce: ${data.gForce}</p>
-          <p>Vehicle State 0: ${data.VehicleState0}</p>
-          <p>Vehicle State 1: ${data.VehicleState1}</p>
-          <p>Vehicle State 2: ${data.VehicleState2}</p>
-      `;
-  } catch (error) {
-      console.error("Error fetching simulation data:", error);
-  }
-}
-
-
-fetchSimulationData();
+const jsonSimData = JSON.parse(simData);
 
 
 // Create the scene
@@ -59,7 +35,7 @@ let object;
 // Load the OBJ model
 const loader = new THREE.OBJLoader();
 loader.load(
-  '../../3d/falcon.obj',  // Replace with your .obj file path
+  '../static/3d/falcon.obj',  // Replace with your .obj file path
   function (loadedObject) {
     object = loadedObject;
     object.position.y = 1; // Start position of the object

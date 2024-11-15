@@ -7,7 +7,6 @@ import uuid
 from flask import Flask, render_template, request , jsonify
 from contextlib import contextmanager
 
-simulationData = None
 
 @contextmanager
 def safe_shared_memory(name):
@@ -122,7 +121,7 @@ def simulation():
                     "gForce": array8
                     }
 
-                    return render_template("simulation.html")
+                    return render_template("simulation.html" , simulationData = simulationData)
                 except FileNotFoundError:
                     message = "Shared memory block not found."
                 except Exception as e:
@@ -133,13 +132,7 @@ def simulation():
         except Exception as e:
             message = f"Error: {str(e)}"
 
-    return render_template("simulation.html")
-
-
-@app.route("/getSimulationData", methods=["GET"])
-def getSimulation():
-    return jsonify(simulationData)
-
+    return render_template("preset.html" , message=message )
 
 if __name__ == "__main__":
     app.run(host="192.168.50.161", port=5000, debug=True)
