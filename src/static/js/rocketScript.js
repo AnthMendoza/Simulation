@@ -6,7 +6,6 @@ const speed = 1;
 console.log(data);
 
 console.log(data.Xposition[10]);
-console.log(data.Time_Stamp[10]);
 // Create the scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000); // Light gray background 0xaaaaaa
@@ -86,9 +85,9 @@ function updateObjectByTime(currentTime) {
   // Set the object's position and rotation
   object.position.set(currentX , currentZ , currentY);
   let directionVector = new THREE.Vector3(
-    parseFloat(data.VehicleState0[count]),  
-    parseFloat(data.VehicleState2[count]),  
-    parseFloat(data.VehicleState1[count])
+    parseFloat(data.vehicleState0[count]),  
+    parseFloat(data.vehicleState2[count]),  
+    parseFloat(data.vehicleState1[count])
   );  
   const targetPosition = object.position.clone().add(directionVector);
   object.lookAt(targetPosition); 
@@ -99,8 +98,8 @@ function updateObjectByTime(currentTime) {
   overlayText.innerHTML = `Position( meters ):<br>X=${object.position.x.toFixed(1)}
                                               <br>Y=${(-object.position.z+parseFloat(data.Zposition[0])).toFixed(1)}
                                               <br>altitude=${object.position.y.toFixed(1)} <br>
-                                              <br> Velocity( m/s , mph )<br>${parseFloat(data.Velocity[count]).toFixed(3)}
-                                              <br>${(parseFloat(data.Velocity[count])*2.237).toFixed(3)}<br>
+                                              <br> Velocity( m/s , mph )<br>${parseFloat(data.velocity[count]).toFixed(3)}
+                                              <br>${(parseFloat(data.velocity[count])*2.237).toFixed(3)}<br>
                                               <br> Acceleration( G )${parseFloat(data.gForce[count]).toFixed(3)}`;
 }
 
