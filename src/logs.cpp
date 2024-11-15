@@ -149,7 +149,7 @@ void dataToRam(char* unique_id){
 
 
     // Write the contents of the arrays
-    int count = 9;
+    int count = 8;
     std::memcpy(&int_ptr[count], timeStampVect.data(), timeStampVect.size() * sizeof(float));
     count += timeStampVect.size();
     std::memcpy(&int_ptr[count], Xposition.data(), Xposition.size() * sizeof(float));
