@@ -119,8 +119,7 @@ def simulation():
                     "Velocity": array6,
                     "gForce": array7
                     }
-                    return jsonify(returnData)
-
+                    return render_template("simulation.html")
                 except FileNotFoundError:
                     message = "Shared memory block not found."
                 except Exception as e:
@@ -131,7 +130,7 @@ def simulation():
         except Exception as e:
             message = f"Error: {str(e)}"
 
-    return render_template("simulation.html", message=message, arrays=arrays)
+    return render_template("simulation.html")
 
 if __name__ == "__main__":
     app.run(host="192.168.50.161", port=5000, debug=True)
