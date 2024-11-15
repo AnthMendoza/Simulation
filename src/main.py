@@ -111,7 +111,7 @@ def simulation():
 
                     array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 , array8 = getSimulationFromMemory(str(unique_id))
                     simulationData = {
-                    "ectorTimeStamp": array0,
+                    "VectorTimeStamp": array0,
                     "Xposition": array1,
                     "Yposition": array2,
                     "Zposition": array3,
