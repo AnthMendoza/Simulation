@@ -14,8 +14,21 @@
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/OBJLoader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.24.1/plotly.min.js"></script>
   <script>const data = {{ simulationData | tojson }};</script>
   <script src="static/js/rocketScript.js"></script>
+  <script src="static/js/graph.js"></script>
+
+
+  <div class="dashboard">
+    <div id="graph1" class="graph-container"></div>
+    <div id="graph2" class="graph-container"></div>
+    <div id="graph3" class="graph-container"></div>
+    <div id="graph4" class="graph-container"></div>
+    <div id="graph5" class="graph-container"></div>
+    <div id="graph6" class="graph-container"></div>
+  </div>
+ 
 
 </body>
 </html>

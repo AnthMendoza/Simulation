@@ -38,7 +38,21 @@ int main(int argc, char* argv[]){
     auto start = std::chrono::high_resolution_clock::now();
 
     #ifdef __linux__
-        initializeVectors(20000);
+        initializeVectors(20000); // argv[1] unique ID 
+        initParameters( argv[2], // dry mass
+                        argv[3], // Initial Position X
+                        argv[4], // Initial Position Y
+                        argv[5], // Initial Position Z
+                        argv[6], // Initial Velocity X
+                        argv[7], // Initial Velocity Y
+                        argv[8], // Initial Velocity Z
+                        argv[9], //Initial Orientation Vector X
+                        argv[10], //Initial Orientation Vector Y
+                        argv[11], //Initial Orientation Vector Z
+                        argv[12],
+                        argv[13],
+                        argv[14],
+                        argv[15],)
     #else
         initializeCSV();
     #endif
@@ -48,7 +62,7 @@ int main(int argc, char* argv[]){
     iterator(rocket);
 
     #ifdef __linux__
-        dataToRam(argv[1]);
+        dataToRam(argv[1]); // argv[1] unique ID 
     #else
         closeCSV();
     #endif
