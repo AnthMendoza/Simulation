@@ -4,6 +4,9 @@ const x = t.map(val => val - 5);
 const y = t.map(val => Math.sin(val) * 2);
 const z = t.map(val => Math.cos(val) * 2);
 
+
+
+
 const commonAxisStyle = {
     showgrid: true,
     gridwidth: 1,
@@ -67,9 +70,9 @@ Plotly.newPlot('graph2', [trace2], {
 const trace3 = {
     type: 'scatter3d',
     mode: 'lines',
-    x: x,
-    y: y,
-    z: z,
+    x: data.Xposition,
+    y: data.Yposition,
+    z: data.Zposition,
     line: {
         width: 6,
         color: '#2196F3'

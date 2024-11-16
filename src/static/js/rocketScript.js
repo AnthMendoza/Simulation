@@ -3,9 +3,7 @@ const staticDuration = 0;
 const speed = 1;
 
 
-console.log(data);
 
-console.log(data.Xposition[10]);
 // Create the scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000); // Light gray background 0xaaaaaa
@@ -34,7 +32,7 @@ let object;
 // Load the OBJ model
 const loader = new THREE.OBJLoader();
 loader.load(
-  '../static/3d/falcon.obj',  // Replace with your .obj file path
+  '../static/3d/falcon.obj',
   function (loadedObject) {
     object = loadedObject;
     object.position.y = 1; // Start position of the object
@@ -54,7 +52,7 @@ loader.load(
 );
 
 // Create the floor
-const floorGeometry = new THREE.PlaneGeometry(500, 500);  // Size of the floor (50x50 units)
+const floorGeometry = new THREE.PlaneGeometry(500, 500);
 const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x3f9b0b, side: THREE.DoubleSide });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
@@ -77,7 +75,6 @@ function updateObjectByTime(currentTime) {
   while(count < data.VectorTimeStamp.length -2 && currentTime > parseFloat(data.VectorTimeStamp[count])){
     count +=1;
   }
-  console.log(parseFloat(data.Xposition[count]),parseFloat(data.Yposition[count]),parseFloat(data.Zposition[count]));
   currentX = parseFloat(data.Xposition[count]);
   currentZ = parseFloat(data.Zposition[count]);
   currentY =  parseFloat(data.Yposition[count]);
@@ -121,7 +118,7 @@ for (let i = 0; i < particleCount; i++) {
       origin.y + (Math.random() - 0.5) * range, 
       origin.z + (Math.random() - 0.5) * range
     ),
-    direction: new THREE.Vector3(0,0,1), // Example: shoot along X axis
+    direction: new THREE.Vector3(0,0,1),
     lifetime: Math.random() * maxLifetime 
   };
   particlesData.push(particle);
@@ -141,7 +138,7 @@ function updateFire() {
   origin.x = currentX;
   origin.y = currentZ;
   origin.z = currentY;
-  console.log("fire pos ",origin.x, origin.y, origin.z);
+
 
   const positions = particles.geometry.attributes.position.array;
   

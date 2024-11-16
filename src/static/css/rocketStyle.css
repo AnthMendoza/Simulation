@@ -13,16 +13,19 @@ canvas { display: block; }
   z-index: 1; 
 }
 
+body {
+  margin: 0;
+  background-color: #121212;
+}
 .dashboard {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(2, 400px);
   gap: 20px;
   padding: 20px;
-  background-color: #ffffff;
+  background-color: #121212;
 }
 .graph-container {
-  background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
 }
