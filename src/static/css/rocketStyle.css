@@ -55,11 +55,6 @@ body {
     grid-template-columns: repeat(3, minmax(0, 550px));
     grid-template-rows: repeat(2, 550px);
   }
-  #simulationViewPort{
-    width: 100%;
-    max-width: 1850px;
-    max-height: 80%vh;
-  }
 }
 @media (min-width: 800px) and (max-width: 1199px){
   .dashboard{
