@@ -9,6 +9,8 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000); // Light gray background 0xaaaaaa
 
 // Set up the camera
+const simulationViewPort = document.getElementById('simulationViewPort');
+const canvas = document.getElementById('threeCanvas');
 const camera = new THREE.PerspectiveCamera(96, window.innerWidth / window.innerHeight, 0.001, 100000);
 const cameraOffset = new THREE.Vector3(30, 50, 10);  // Fixed offset relative to the object
 
