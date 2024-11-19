@@ -35,14 +35,18 @@ fetch('../data.csv')
   scene.background = new THREE.Color(0x000000); // Light gray background 0xaaaaaa
 
   // Set up the camera
+  const simulationViewPort = document.getElementById('simulationViewPort');
+  const canvas = document.getElementById('threeCanvas');
   const camera = new THREE.PerspectiveCamera(96, window.innerWidth / window.innerHeight, 0.001, 100000);
+  camera.aspect = simulationViewPort.clientWidth / simulationViewPort.clientHeight;
   const cameraOffset = new THREE.Vector3(30, 50, 10);  // Fixed offset relative to the object
 
 
   // Create the renderer
-  const renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas });
+  renderer.setSize(simulationViewPort.clientWidth, simulationViewPort.clientHeight);
+  camera.updateProjectionMatrix();
+  
 
   // Add lighting to the scene
   const ambientLight = new THREE.AmbientLight(0x404040); // Soft light
@@ -224,9 +228,8 @@ function updateFire() {
 
   // Handle window resizing
   window.addEventListener('resize', () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    renderer.setSize(width, height);
-    camera.aspect = width / height;
+    const simulationViewPort = document.getElementById('simulationViewPort');
+    renderer.setSize(simulationViewPort.clientWidth, simulationViewPort.clientHeight);
+    camera.aspect = simulationViewPort.clientWidth / simulationViewPort.clientHeight;
     camera.updateProjectionMatrix();
   });
