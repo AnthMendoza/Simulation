@@ -34,7 +34,7 @@ let object;
 // Load the OBJ model
 const loader = new THREE.OBJLoader();
 loader.load(
-  '../static/3d/falcon.obj',
+  '../static/3d/falcon9.glb',
   function (loadedObject) {
     object = loadedObject;
     object.position.y = 1; // Start position of the object
