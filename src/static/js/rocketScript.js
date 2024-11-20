@@ -30,26 +30,34 @@ scene.add(directionalLight);
 
 // Variables to hold the object once loaded
 let object;
-
+'../static/3d/falcon9.glb'
 // Load the OBJ model
-const loader = new THREE.OBJLoader();
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+const loader = new GLTFLoader();
 loader.load(
   '../static/3d/falcon9.glb',
-  function (loadedObject) {
-    object = loadedObject;
+  function (gltf) {
+    object = gltf.scene; // Important: Use gltf.scene instead of the entire loaded object
     object.position.y = 1; // Start position of the object
+    
     object.traverse(function (child) {
       if (child.isMesh) {
-        child.material = new THREE.MeshStandardMaterial({ color: 0x637ea8 }); // Set a default color
+        // Optional: Set material
+        //child.material = new THREE.MeshStandardMaterial({ color: 0x637ea8 });
+        child.material.needsUpdate = true;
+        // Optional: Enable shadows if needed
+        child.castShadow = true;
+        child.receiveShadow = true;
       }
     });
+    
     scene.add(object);
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total * 100) + '% loaded');
   },
   function (error) {
-    console.log('An error occurred while loading the OBJ file:', error);
+    console.log('An error occurred while loading the GLB file:', error);
   }
 );
 
