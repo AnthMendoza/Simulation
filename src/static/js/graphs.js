@@ -104,7 +104,8 @@ const trace3 = {
 Plotly.newPlot('graph3', [trace3], {
     ...commonLayout,
     title: '3D Visualization',
-    scene: { aspectmode: 'cube',
+    scene: {
+        aspectmode: 'cube',
         xaxis: {
             ...commonAxisStyle,
             title: 'X (meters)',
