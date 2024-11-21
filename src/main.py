@@ -100,9 +100,41 @@ def simulation():
         unique_id = uuid.uuid4()
         print(unique_id)
         try:
+            dryMass = request.form.get('dryMass') 
+            fuel = request.form.get('fuel') 
+            lox = request.form.get('LOX') 
+            fuelConsumption = request.form.get('fuelConsumption') 
+            LOXConsumption = request.form.get('LOXConsumption') 
+            reentryAccel = request.form.get('reentryAccel') 
+            XPosition = request.form.get('Xposition')
+            YPosition = request.form.get('Yposition')
+            ZPosition = request.form.get('Zposition')
+            XVelocity = request.form.get('Xvelocity')
+            YVelocity = request.form.get('Yvelocity')
+            ZVelocity = request.form.get('Zvelocity')
+            XinitState = request.form.get('Xstate')
+            YinitState = request.form.get('Ystate')
+            ZinitState = request.form.get('Zstate')
+
+
             return_code, stdout, stderr = run_cpp_executable(
                 "../build/main",
-                args=[str(unique_id)],
+                args=[str(unique_id),
+                      float(dryMass),
+                      float(lox),
+                      float(fuel),
+                      float(LOXConsumption),
+                      float(fuelConsumption),
+                      float(reentryAccel),
+                      float(XPosition),
+                      float(YPosition),
+                      float(ZPosition),
+                      float(XVelocity),
+                      float(YVelocity),
+                      float(ZVelocity),
+                      float(XinitState),
+                      float(YinitState),
+                      float(ZinitState),],
                 timeout=30
             )
 

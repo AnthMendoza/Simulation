@@ -9,39 +9,45 @@
 <h5>{{ message }}</h5>
 
 <form action="/simulation"  method="post">
-  <label for="weight">Dry Mass (kg):</label>
-  <input type="text" id="weight" name="weight" value="22000"><br><br>
-  <label for="weight">Fuel (kg):</label>
-  <input type="text" id="weight" name="weight" value="22000"><br><br>
-  <label for="weight">Liquid Oxygen (kg):</label>
-  <input type="text" id="weight" name="weight" value="22000"><br><br>
-  <label for="weight">Fuel Consumption Rate (kg/s):</label>
-  <input type="text" id="weight" name="weight" value="22000"><br><br>
-  <label for="weight">Liquid Oxygen Consumption Rate (kg/s):</label>
-  <input type="text" id="weight" name="weight" value="22000"><br><br>
-  <label for="weight">Max Allowed Acceleration on reentry (g):</label>
-  <input type="text" id="weight" name="weight" value="4.5"><br><br>
+
+  <label for="dryMass">Dry Mass (kg):</label>
+  <input type="text" id="dryMass" name="dryMass" value="22000"><br><br>
+
+  <label for="fuel">Fuel (kg):</label>
+  <input type="text" id="fuel" name="fuel" value="40000"><br><br>
+
+  <label for="LOX">Liquid Oxygen (kg):</label>
+  <input type="text" id="LOX" name="LOX" value="20000"><br><br>
+
+  <label for="fuelConsumption">Fuel Consumption Rate (kg/s):</label>
+  <input type="text" id="fuelConsumption" name="fuelConsumption" value="150"><br><br>
+
+  <label for="LOXConsumption">Liquid Oxygen Consumption Rate (kg/s):</label>
+  <input type="text" id="LOXConsumption" name="LOXConsumption" value="150"><br><br>
+
+  <label for="reentryAccel">Max Allowed Acceleration on reentry (g):</label>
+  <input type="text" id="reentryAccel" name="reentryAccel" value="4.5"><br><br>
 
 
   <label>Initial Position (X,Y,Z):</label>
   <div class="xyz-input">
-    <input type="text" id="Xposition" name="xposition" placeholder="X">
-    <input type="text" id="Yposition" name="yposition" placeholder="Y">
-    <input type="text" id="Zposition" name="zposition" placeholder="Z">
+    <input type="text" id="Xposition" name="xposition" placeholder="X" value="">
+    <input type="text" id="Yposition" name="yposition" placeholder="Y" value="">
+    <input type="text" id="Zposition" name="zposition" placeholder="Z" value="">
   </div><br><br>
   
   <label>Initial Velocity (X,Y,Z):</label>
   <div class="xyz-input">
-    <input type="text" id="Xvelocity" name="Xvelocity" placeholder="X">
-    <input type="text" id="Yvelocity" name="Yvelocity" placeholder="Y">
-    <input type="text" id="Zvelocity" name="Zvelocity" placeholder="Z">
+    <input type="text" id="Xvelocity" name="Xvelocity" placeholder="X" value="">
+    <input type="text" id="Yvelocity" name="Yvelocity" placeholder="Y" value="">
+    <input type="text" id="Zvelocity" name="Zvelocity" placeholder="Z" value="">
   </div><br><br>
 
   <label>Initial Orientation Vector (X,Y,Z):</label>
   <div class="xyz-input">
-    <input type="text" id="Xstate" name="Xstate" placeholder="X">
-    <input type="text" id="Ystate" name="Ystate" placeholder="Y">
-    <input type="text" id="Zstate" name="Zstate" placeholder="Z">
+    <input type="text" id="Xstate" name="Xstate" placeholder="X" value="">
+    <input type="text" id="Ystate" name="Ystate" placeholder="Y" value="">
+    <input type="text" id="Zstate" name="Zstate" placeholder="Z" value="">
   </div><br><br>
 
   <input type="submit" value="Generate Simulation">

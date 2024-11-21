@@ -37,6 +37,7 @@ void initParameters(float drymass,
                     float propellentMassFuel,
                     float consumtionRateLOX,
                     float consumtionRateFuel,
+                    float reentryAccel,
                     float initPositionX,
                     float initPositionY,
                     float initPositionZ,
@@ -50,8 +51,11 @@ void initParameters(float drymass,
     
     constants::dryMass = drymass;
 
+    constants::maxGAllowedEntry = reentryAccel;
+
     constants::initFuel = propellentMassFuel;
     constants::initLOX = propellentMassLOX;
+    
     constants::consumtionRateFuel = consumtionRateFuel;
     constants::consumtionRateLOX = consumtionRateLOX;
 
@@ -72,19 +76,21 @@ int main(int argc, char* argv[]){
     #ifdef __linux__
         initializeVectors(20000); // argv[1] unique ID 
         initParameters( argv[2], // dry mass
-                        argv[3], // Initial Position X
-                        argv[4], // Initial Position Y
-                        argv[5], // Initial Position Z
-                        argv[6], // Initial Velocity X
-                        argv[7], // Initial Velocity Y
-                        argv[8], // Initial Velocity Z
-                        argv[9], // Initial Orientation Vector X
-                        argv[10], // Initial Orientation Vector Y
-                        argv[11], // Initial Orientation Vector Z
-                        argv[12], 
-                        argv[13],
-                        argv[14],
-                        argv[15],)
+                        argv[3], // propellentMassLOX
+                        argv[4], // propellentMassFuel
+                        argv[5], // consumtionRateLOX
+                        argv[6], // consumtionRateFuel
+                        argv[7], // reentryAccel
+                        argv[8], // Initial Position X
+                        argv[9], // Initial Position Y
+                        argv[10], // Initial Position Z
+                        argv[11], // Initial Velocity X
+                        argv[12], // Initial Velocity Y
+                        argv[13], // Initial Velocity Z
+                        argv[14], // Initial Orientation Vector X
+                        argv[15], // Initial Orientation Vector Y
+                        argv[16], // Initial Orientation Vector Z
+                        )
     #else
         initializeCSV();
     #endif
