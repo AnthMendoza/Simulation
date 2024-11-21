@@ -55,7 +55,7 @@ void initParameters(float drymass,
 
     constants::initFuel = propellentMassFuel;
     constants::initLOX = propellentMassLOX;
-    
+
     constants::consumtionRateFuel = consumtionRateFuel;
     constants::consumtionRateLOX = consumtionRateLOX;
 
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]){
                         argv[14], // Initial Orientation Vector X
                         argv[15], // Initial Orientation Vector Y
                         argv[16], // Initial Orientation Vector Z
-                        )
+                        );
     #else
         initializeCSV();
     #endif
