@@ -129,8 +129,8 @@ Plotly.newPlot('graph3', [trace3], {
 
 // 4. Y-Z Plot (Bottom Left)
 const trace4 = {
-    x: x,
-    y: z,
+    x: data.VectorTimeStamp,
+    y: data.gimbalAngleX,
     mode: 'lines',
     line: {
         color: colors.purple,
