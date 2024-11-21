@@ -28,7 +28,6 @@ namespace constants{
     float maxGimbleAngle = 10  * 3.1415926535f / 180.0f;// degrees
     float landingVelocity = 10;
     float consumptionRateAtFullPowerPerEngine = 328.8; //kg/s this is lox plus RP1
-    float initFuel = 20000; //weight in kg
 
     float initFuel = 10000; // kg
     float initLOX = 10000; // kg
