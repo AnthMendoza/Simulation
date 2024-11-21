@@ -93,9 +93,9 @@ function updateObjectByTime(currentTime) {
   // Update camera to follow object with a static offset
   camera.position.copy(object.position).add(cameraOffset);
   camera.lookAt(object.position);
-  const overlayText = document.getElementById('overlay-text');
+  const overlayText = document.getElementById('overlay-text');//+parseFloat(data.Zposition[0])).toFixed(1)
   overlayText.innerHTML = `Position( meters ):<br>X=${object.position.x.toFixed(1)}
-                                              <br>Y=${(-object.position.z+parseFloat(data.Zposition[0])).toFixed(1)}
+                                              <br>Y=${(-object.position.z)}
                                               <br>altitude=${object.position.y.toFixed(1)} <br>
                                               <br> Velocity( m/s , mph )<br>${parseFloat(data.velocity[count]).toFixed(3)}
                                               <br>${(parseFloat(data.velocity[count])*2.237).toFixed(3)}<br>

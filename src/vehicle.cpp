@@ -10,6 +10,7 @@
 #include "../include/odeIterator.h"
 #include "../include/rotationMatrix.h"
 #include "../include/getRotation.h"
+#include "../include/control.h"
 
 
 
@@ -42,10 +43,23 @@ Vehicle::Vehicle(){
     error = 0;
     twoDAngle = {0,0};
 
-    sumOFGimbalXError = 0; 
-    gimbalXError = 0;
-    sumOFGimbalYError = 0;
-    gimbalYError = 0;
+    gimbalErrorX = 0;
+    gimbalErrorY = 0;
+    gimbalX = 0;
+    gimbalY = 0;
+    gimbalVelocityX = 0;
+    gimbalVelocityY = 0;
+
+    sumOfGimbalErrorX = 0;
+    sumOfGimbalErrorY = 0;
+
+    gimbalPGain = .3;
+    gimbalIGain = .3;
+    gimbalDGain = .3;
+
+    maxGimbalAcceleration = 20; // deg/s/s
+
+    maxGimbalVelocity = 85; // deg/s
 
     gForce = 0;
 
@@ -74,6 +88,14 @@ Vehicle::Vehicle(){
 
     logMoment = {0,0,0};
     fuel = constants::initFuel;
+
+
+    sumOFGimbalXError = 0;
+    sumOFGimbalYError = 0;
+    gimbalXError = 0;
+    gimbalYError = 0;
+
+
     }
 
 
@@ -405,7 +427,7 @@ float Vehicle::getCurvature(){
 
 
 
-void Vehicle::fuelConsumption(){
+void Vehicle::fuelConsumption(){ // THIS NEEDS TO CHANGE BASED ON lox 
     
     if(fuel > 0 && engineForce > 0){
         float deltaFuel = (constants::consumptionRateAtFullPowerPerEngine * engineForce / constants::maxThrust) * constants::timeStep;
@@ -414,4 +436,26 @@ void Vehicle::fuelConsumption(){
         if(mass - deltaFuel > 0) mass = mass - deltaFuel;
 
     }
+}
+
+
+
+
+void Vehicle::engineGimbal(float gimbalTagetX , float gimbalTagetY){
+
+    float YInput = PID(gimbalTagetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
+
+    float XInput = PID(gimbalTagetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
+
+    if(YInput > 1) YInput = 1;
+    if(YInput < -1) YInput = -1;
+    if(XInput > 1) XInput = 1;
+    if(XInput < 1) XInput = -1;
+
+    gimbalVelocityX += (XInput * maxGimbalAcceleration) * constants::timeStep;
+    gimbalVelocityY += (YInput * maxGimbalAcceleration) * constants::timeStep;  
+
+    gimbalX += gimbalVelocityX * constants::timeStep;
+    gimbalY += gimbalVelocityY * constants::timeStep;
+    
 }

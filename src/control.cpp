@@ -156,7 +156,6 @@ void landingBurn(Vehicle &rocket){
 
     float error = twodAngleDiffrence( twoDState, targetState); 
 
-    
     rocket.error = error;
 
     rocket.twoDAngle = twoDState;

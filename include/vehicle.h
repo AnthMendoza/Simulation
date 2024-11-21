@@ -10,9 +10,22 @@ class Vehicle{
         float   Xposition , Yposition , Zposition;     // position 
         float Xvelocity , Yvelocity , Zvelocity;
 
-        float sumOFGimbalXError ,  gimbalXError;
+        float gimbalErrorX;
+        float gimbalErrorY;
+        float gimbalX;
+        float gimbalY;
+        float sumOfGimbalErrorX;
+        float sumOfGimbalErrorY;
 
-        float sumOFGimbalYError ,  gimbalYError;
+        float gimbalVelocityX;
+        float gimbalVelocityY;
+
+        float gimbalPGain;
+        float gimbalIGain;
+        float gimbalDGain;
+
+        float maxGimbalAcceleration;
+        float maxGimbalVelocity;
 
         float error;
         std::array<float,2> twoDAngle;
@@ -40,6 +53,11 @@ class Vehicle{
         float engineForce;
 
         float dryMass , fuel;
+
+        float sumOFGimbalXError;
+        float sumOFGimbalYError;
+        float gimbalXError;
+        float gimbalYError;
 
         std::array<float , 3> appliedVector;
 
@@ -82,6 +100,9 @@ class Vehicle{
         float getCurvature();
 
         void fuelConsumption();
+
+        void engineGimbal(float gimbalTagetX , float gimbalTagetY);
+    
 
 };
 

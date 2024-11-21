@@ -64,10 +64,10 @@ def getSimulationFromMemory(unique_id):
 
     with safe_shared_memory(str(unique_id)) as shm:
         buffer = shm.buf
-        current_offset = 4 * 9 # 9 arrays recieved
+        current_offset = 4 * 11 # 9 arrays recieved
         sizes = [
             int.from_bytes(buffer[i:i + 4], byteorder='little')
-            for i in range(0, 36, 4)
+            for i in range(0, current_offset, 4)
         ]
 
         arrays = []
@@ -157,7 +157,7 @@ def simulation():
             if return_code == 0:
                 try:
 
-                    array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 , array8 = getSimulationFromMemory(str(unique_id))
+                    array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 , array8 , array9 , array10 = getSimulationFromMemory(str(unique_id))
                     simulationData = {
                     "VectorTimeStamp": array0,
                     "Xposition": array1,
@@ -167,7 +167,9 @@ def simulation():
                     "vehicleState1": array5,
                     "vehicleState2": array6,
                     "velocity": array7,
-                    "gForce": array8
+                    "gForce": array8,
+                    "gimbalAngleX": array9,
+                    "gimbalAngleY": array10
                     }
                     return render_template("simulation.html" , simulationData = simulationData)
                 except FileNotFoundError:
@@ -183,4 +185,5 @@ def simulation():
     return render_template("preset.html" , message=message )
 
 if __name__ == "__main__":
-    app.run(host="192.168.50.161", port=5000, debug=True)
+    #app.run(host="192.168.50.161", port=5000, debug=True)
+    app.run()

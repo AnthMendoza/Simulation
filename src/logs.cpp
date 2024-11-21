@@ -19,6 +19,9 @@ std::vector<float> vehicleState1;
 std::vector<float> vehicleState2;
 std::vector<float> absVelocity;
 std::vector<float> gForce;
+std::vector<float> gimbalXAngle;
+std::vector<float> gimbalYAngle;
+
 
 
 void initializeCSV() {
@@ -54,6 +57,8 @@ void initializeVectors(int preset){
         vehicleState2.reserve(preset);
         absVelocity.reserve(preset);
         gForce.reserve(preset);
+        gimbalXAngle.resever(preset);
+        gimbalYAngle.resever(preset);
     #endif
 }
 
@@ -74,6 +79,9 @@ void logRocketPosition(Vehicle &rocket) {
 
         absVelocity.push_back(rocket.getVelocity());
         gForce.push_back(rocket.gForce);
+
+        gimbalXAngle.push_back(rocket.gimbalX);
+        gimbalYAngle.push_back(rocket.gimbalY);
 
 
 
@@ -111,7 +119,7 @@ void lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData 
 
     float ratio  = data.size()/desiredResolution;
     int roundedRatio = std::floor(ratio);
-    
+
     if(roundedRatio < 2){
         returnData = data;
         return;
@@ -139,6 +147,12 @@ void lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData 
 
 
 void dataToRam(char* unique_id){
+
+    //reduce size
+    std::vector<float> gimbalXAngleReduced;
+    std::vector<float> gimbalYAngleReduced;
+    lowPrecisionData(gimbalXAngle , gimbalXAngleReduced , 500);
+    lowPrecisionData(gimbalYAngle , gimbalYAngleReduced , 500);
 
     const char *shm_name = unique_id;
     const size_t SIZE = 1024 * 6000; // 10 KB of shared memory
@@ -170,11 +184,13 @@ void dataToRam(char* unique_id){
     int_ptr[5] = vehicleState1.size();  
     int_ptr[6] = vehicleState2.size();  
     int_ptr[7] = absVelocity.size();  
-    int_ptr[8] = gForce.size();                                                                                                                                                                                              
+    int_ptr[8] = gForce.size();
+    int_ptr[9] =  gimbalXAngleReduced.size(); 
+    int_ptr[10] = gimbalYAngleReduced.size();                                                                                                                                                                                            
 
 
     // Write the contents of the arrays
-    int count = 9;
+    int count = 11;
     std::memcpy(&int_ptr[count], timeStepVect.data(), timeStepVect.size() * sizeof(float));
     count += timeStepVect.size();
     std::memcpy(&int_ptr[count], Xposition.data(), Xposition.size() * sizeof(float));
@@ -192,6 +208,11 @@ void dataToRam(char* unique_id){
     std::memcpy(&int_ptr[count], absVelocity.data(), absVelocity.size() * sizeof(float));
     count += absVelocity.size();
     std::memcpy(&int_ptr[count], gForce.data(), gForce.size() * sizeof(float));
+
+    count += gForce.size();
+    std::memcpy(&int_ptr[count], gimbalXAngleReduced.data(), gimbalXAngleReduced.size() * sizeof(float));
+    count += gimbalXAngleReduced.size();
+    std::memcpy(&int_ptr[count], gimbalYAngleReduced.data(), gimbalYAngleReduced.size() * sizeof(float));
 
     std::cout << "Data written to shared memory." << std::endl;
 
