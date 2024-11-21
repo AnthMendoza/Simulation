@@ -32,6 +32,38 @@ void iterator(Vehicle &rocket){
 
 
 
+void initParameters(float drymass,
+                    float propellentMassLOX,
+                    float propellentMassFuel,
+                    float consumtionRateLOX,
+                    float consumtionRateFuel,
+                    float initPositionX,
+                    float initPositionY,
+                    float initPositionZ,
+                    float initVelocityX,
+                    float initVelocityY,
+                    float initVelocityZ,
+                    float initVehicleStateX,
+                    float initVehicleStateY,
+                    float initVehicleStateZ
+                    ){
+    
+    constants::dryMass = drymass;
+
+    constants::initFuel = propellentMassFuel;
+    constants::initLOX = propellentMassLOX;
+    constants::consumtionRateFuel = consumtionRateFuel;
+    constants::consumtionRateLOX = consumtionRateLOX;
+
+    constants::initPosition = {initPositionX , initPositionY , initPositionZ};                
+
+    constants::initVelocity = {initVelocityX , initVelocityY ,initVelocityZ}; 
+
+    constants::initVehicleState = {initVehicleStateX , initVehicleStateY , initVehicleStateZ};
+}
+
+
+
 
 
 int main(int argc, char* argv[]){
@@ -46,10 +78,10 @@ int main(int argc, char* argv[]){
                         argv[6], // Initial Velocity X
                         argv[7], // Initial Velocity Y
                         argv[8], // Initial Velocity Z
-                        argv[9], //Initial Orientation Vector X
-                        argv[10], //Initial Orientation Vector Y
-                        argv[11], //Initial Orientation Vector Z
-                        argv[12],
+                        argv[9], // Initial Orientation Vector X
+                        argv[10], // Initial Orientation Vector Y
+                        argv[11], // Initial Orientation Vector Z
+                        argv[12], 
                         argv[13],
                         argv[14],
                         argv[15],)

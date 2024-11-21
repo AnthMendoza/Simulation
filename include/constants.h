@@ -22,8 +22,15 @@ namespace constants{
     extern float cogToEngine;
     extern float landingVelocity;
     extern float consumptionRateAtFullPowerPerEngine;
-    extern float dryMass;
-    extern float initFuel;
+    extern float dryMass; // kg
+    extern float initFuel; // kg
+    extern float initLOX; // kg
+    extern float consumtionRateLOX; //kg/s
+    extern float consumtionRateFuel; //kg/s
+
+
+
+
     extern bool isLinux;
  
 

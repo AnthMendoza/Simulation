@@ -29,8 +29,20 @@ namespace constants{
     float landingVelocity = 10;
     float consumptionRateAtFullPowerPerEngine = 328.8; //kg/s this is lox plus RP1
     float initFuel = 20000; //weight in kg
-   
+
+    float initFuel = 10000; // kg
+    float initLOX = 10000; // kg
+    float consumtionRateLOX = 100; //kg/s
+    float consumtionRateFuel = 100; //kg/s
 
 
     std::array<float,3> LandingTarget = {0,-257939.2813,0};
+
+
+
+    //bounds
+    
+
+
+
 }

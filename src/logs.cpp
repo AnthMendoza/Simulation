@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <stdexcept>
+#include <cmath>
 
 std::ofstream outputFile;
 std::vector<float> timeStepVect;
@@ -103,6 +105,27 @@ void logRocketPosition(Vehicle &rocket) {
     }
 }
 
+void lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData ,  int desiredResolution){
+
+    if(desiredResolution <= 0) throw std::invalid_argument ("desiredResolution cannot be zero");
+
+    float ratio  = data.size()/desiredResolution;
+    int roundedRatio = std::floor(ratio);
+    
+    if(roundedRatio < 2){
+        returnData = data;
+        return;
+    }
+
+    for(int i = 0 ; i < data.size() ; i++){
+        if( i % roundedRatio == 0 ){
+            returnData.push_back(data[i]);
+        }
+    }
+
+}
+
+
 #ifdef __linux__
 
 #include <iostream>
@@ -111,6 +134,8 @@ void logRocketPosition(Vehicle &rocket) {
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
+
+
 
 
 void dataToRam(char* unique_id){
