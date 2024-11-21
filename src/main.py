@@ -138,6 +138,7 @@ def simulation():
                 timeout=30
             )
 
+            print(stdout)
             if return_code == 0:
                 try:
 
