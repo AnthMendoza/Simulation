@@ -90,7 +90,6 @@ Plotly.newPlot('graph2', [trace2], {
 
 // 3. 3D Plot (Top Right)
 const trace3 = {
-    aspectmode: 'cube',
     type: 'scatter3d',
     mode: 'lines',
     x: data.Xposition,
@@ -105,7 +104,7 @@ const trace3 = {
 Plotly.newPlot('graph3', [trace3], {
     ...commonLayout,
     title: '3D Visualization',
-    scene: {
+    scene: { aspectmode: 'cube',
         xaxis: {
             ...commonAxisStyle,
             title: 'X (meters)',
