@@ -115,6 +115,21 @@ def simulation():
             XinitState = request.form.get('Xstate')
             YinitState = request.form.get('Ystate')
             ZinitState = request.form.get('Zstate')
+            print("dryMass:", dryMass)
+            print("lox:", lox)
+            print("fuel:", fuel)
+            print("LOXConsumption:", LOXConsumption)
+            print("fuelConsumption:", fuelConsumption)
+            print("reentryAccel:", reentryAccel)
+            print("XPosition:", XPosition)
+            print("YPosition:", YPosition)
+            print("ZPosition:", ZPosition)
+            print("XVelocity:", XVelocity)
+            print("YVelocity:", YVelocity)
+            print("ZVelocity:", ZVelocity)
+            print("XinitState:", XinitState)
+            print("YinitState:", YinitState)
+            print("ZinitState:", ZinitState)
 
 
             return_code, stdout, stderr = run_cpp_executable(
