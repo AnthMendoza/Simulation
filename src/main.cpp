@@ -8,6 +8,7 @@
 #include "../include/odeIterator.h"
 #include "../include/logs.h"
 #include "../include/control.h"
+#include <string>
 
 
 
@@ -75,26 +76,26 @@ int main(int argc, char* argv[]){
 
     #ifdef __linux__
         initializeVectors(20000); // argv[1] unique ID 
-        initParameters( argv[2], // dry mass
-                        argv[3], // propellentMassLOX
-                        argv[4], // propellentMassFuel
-                        argv[5], // consumtionRateLOX
-                        argv[6], // consumtionRateFuel
-                        argv[7], // reentryAccel
-                        argv[8], // Initial Position X
-                        argv[9], // Initial Position Y
-                        argv[10], // Initial Position Z
-                        argv[11], // Initial Velocity X
-                        argv[12], // Initial Velocity Y
-                        argv[13], // Initial Velocity Z
-                        argv[14], // Initial Orientation Vector X
-                        argv[15], // Initial Orientation Vector Y
-                        argv[16], // Initial Orientation Vector Z
-                        );
+        
+        initParameters( std::stof(argv[2]), // dry mass
+                    std::stof(argv[3]), // propellentMassLOX
+                    std::stof(argv[4]), // propellentMassFuel
+                    std::stof(argv[5]), // consumtionRateLOX
+                    std::stof(argv[6]), // consumtionRateFuel
+                    std::stof(argv[7]), // reentryAccel
+                    std::stof(argv[8]), // Initial Position X
+                    std::stof(argv[9]), // Initial Position Y
+                    std::stof(argv[10]), // Initial Position Z
+                    std::stof(argv[11]), // Initial Velocity X
+                    std::stof(argv[12]), // Initial Velocity Y
+                    std::stof(argv[13]), // Initial Velocity Z
+                    std::stof(argv[14]), // Initial Orientation Vector X
+                    std::stof(argv[15]), // Initial Orientation Vector Y
+                    std::stof(argv[16]) // Initial Orientation Vector Z
+                    );
     #else
         initializeCSV();
     #endif
-
 
     Vehicle rocket;
     iterator(rocket);
