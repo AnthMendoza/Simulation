@@ -53,7 +53,7 @@ Vehicle::Vehicle(){
     sumOfGimbalErrorX = 0;
     sumOfGimbalErrorY = 0;
 
-    gimbalPGain = .1;
+    gimbalPGain = .01;
     gimbalIGain = 0;
     gimbalDGain = 0;
 
