@@ -53,7 +53,7 @@ Vehicle::Vehicle(){
     sumOfGimbalErrorX = 0;
     sumOfGimbalErrorY = 0;
 
-    gimbalPGain = .1;
+    gimbalPGain = 1;
     gimbalIGain = 0;
     gimbalDGain = 0;
 
@@ -443,17 +443,17 @@ void Vehicle::fuelConsumption(){ // THIS NEEDS TO CHANGE BASED ON lox
 
 
 
-void Vehicle::engineGimbal(float gimbalTagetX , float gimbalTagetY){
+void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
+    gimbalTargetX  = 1;
+    if(gimbalTargetX > constants::maxGimbalAngle) gimbalTargetX = constants::maxGimbalAngle;
+    if(gimbalTargetX < -constants::maxGimbalAngle) gimbalTargetX = -constants::maxGimbalAngle;
+    if(gimbalTargetY > constants::maxGimbalAngle) gimbalTargetY = constants::maxGimbalAngle;
+    if(gimbalTargetY < -constants::maxGimbalAngle) gimbalTargetY = -constants::maxGimbalAngle;
 
-    if(gimbalTagetX > constants::maxGimbalAngle) gimbalTagetX = constants::maxGimbalAngle;
-    if(gimbalTagetX < -constants::maxGimbalAngle) gimbalTagetX = -constants::maxGimbalAngle;
-    if(gimbalTagetY > constants::maxGimbalAngle) gimbalTagetY = constants::maxGimbalAngle;
-    if(gimbalTagetY < -constants::maxGimbalAngle) gimbalTagetY = -constants::maxGimbalAngle;
 
+    float XInput = PID(gimbalTargetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
-    float XInput = PID(gimbalTagetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
-
-    float YInput = PID(gimbalTagetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
+    float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
     if(YInput > 1) YInput = 1;
     if(YInput < -1) YInput = -1;

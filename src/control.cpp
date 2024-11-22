@@ -176,12 +176,13 @@ void landingBurn(Vehicle &rocket){
 
     rocket.engineGimbal( PIDOutputY , -PIDOutputX );
     
+    
 
     direction[0] = rocket.gimbalY;
     direction[1] = rocket.gimbalX;
 
 
-    rocket.applyEngineForce(direction , vectorMag(velo)*3);
+    rocket.applyEngineForce(direction , vectorMag(velo));
     
     
 

@@ -104,7 +104,7 @@ class Vehicle{
 
         void fuelConsumption();
 
-        void engineGimbal(float gimbalTagetX , float gimbalTagetY);
+        void engineGimbal(float gimbalTargetX , float gimbalTargetY);
     
 
 };
