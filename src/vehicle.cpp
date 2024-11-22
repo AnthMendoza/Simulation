@@ -54,8 +54,8 @@ Vehicle::Vehicle(){
     sumOfGimbalErrorY = 0;
 
     gimbalPGain = .3;
-    gimbalIGain = .3;
-    gimbalDGain = .3;
+    gimbalIGain = 0;
+    gimbalDGain = 0;
 
     vehicleYError = 0;
     sumOfVehicleYError = 0;
@@ -451,14 +451,14 @@ void Vehicle::engineGimbal(float gimbalTagetX , float gimbalTagetY){
     if(gimbalTagetY < -constants::maxGimbalAngle) gimbalTagetY = -constants::maxGimbalAngle;
 
 
-    float YInput = PID(gimbalTagetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
+    float XInput = PID(gimbalTagetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
-    float XInput = PID(gimbalTagetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
+    float YInput = PID(gimbalTagetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
     if(YInput > 1) YInput = 1;
     if(YInput < -1) YInput = -1;
     if(XInput > 1) XInput = 1;
-    if(XInput < 1) XInput = -1;
+    if(XInput < -1) XInput = -1;
 
     gimbalVelocityX += (XInput * maxGimbalAcceleration) * constants::timeStep;
     gimbalVelocityY += (YInput * maxGimbalAcceleration) * constants::timeStep;  
