@@ -159,9 +159,8 @@ void landingBurn(Vehicle &rocket){
     rocket.error = error;
 
     rocket.twoDAngle = twoDState;
-    
-    
-    float PIDOutputY = PID(0,error,rocket.gimbalYError, rocket.sumOFGimbalYError, constants::timeStep , 25 ,3 , 3);
+
+    float PIDOutputY = PID(0,error,rocket.vehicleYError, rocket.sumOfVehicleYError, constants::timeStep , 25 ,3 , 3);
     
     //std::cout<< twoDState[0] << "," << twoDState[1] << "  " << targetState[0] << "," << targetState[1]<< "   "<< error  << "   " << PIDOutputY <<std::endl;
 
@@ -171,9 +170,7 @@ void landingBurn(Vehicle &rocket){
 
     error  = twodAngleDiffrence( twoDState, targetState);
 
-    
-
-    float PIDOutputX = PID(0,error,rocket.gimbalXError, rocket.sumOFGimbalXError, constants::timeStep , 25 ,3, 3);
+    float PIDOutputX = PID(0,error,rocket.vehicleXError, rocket.sumOfVehicleXError, constants::timeStep , 25 ,3, 3);
 
 
     if(PIDOutputX > constants::maxGimbleAngle){
@@ -187,10 +184,13 @@ void landingBurn(Vehicle &rocket){
     }else if(PIDOutputY < -constants::maxGimbleAngle){
         PIDOutputY = -constants::maxGimbleAngle;
     }
+
+
+    rocket.engineGimbal( PIDOutputY , -PIDOutputX );
     
 
-    direction[0] = PIDOutputY;
-    direction[1] = -PIDOutputX;
+    direction[0] = rocket.gimbalY;
+    direction[1] = rocket.gimbalX;
 
 
     rocket.applyEngineForce(direction , vectorMag(velo));

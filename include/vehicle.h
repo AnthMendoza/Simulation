@@ -54,10 +54,11 @@ class Vehicle{
 
         float dryMass , fuel;
 
-        float sumOFGimbalXError;
-        float sumOFGimbalYError;
-        float gimbalXError;
-        float gimbalYError;
+        float vehicleYError;
+        float sumOfVehicleYError;
+
+        float vehicleXError;
+        float sumOfVehicleXError;
 
         std::array<float , 3> appliedVector;
 

@@ -150,8 +150,8 @@ Plotly.newPlot('graph4', [trace4], {
 
 // 5. Phase Plot (Bottom Middle)
 const trace5 = {
-    x: y,
-    y: z.map((val, i) => y[i]),
+    x: data.VectorTimeStamp,
+    y: data.gimbalAngleY,
     mode: 'lines',
     line: {
         color: colors.orange,

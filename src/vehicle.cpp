@@ -57,9 +57,16 @@ Vehicle::Vehicle(){
     gimbalIGain = .3;
     gimbalDGain = .3;
 
-    maxGimbalAcceleration = 20; // deg/s/s
+    vehicleYError = 0;
+    sumOfVehicleYError = 0;
 
-    maxGimbalVelocity = 85; // deg/s
+    vehicleXError = 0;
+    sumOfVehicleXError = 0;
+
+
+    maxGimbalAcceleration = 0.35; // deg/s/s
+
+    maxGimbalVelocity = 1.5; // deg/s
 
     gForce = 0;
 
@@ -88,12 +95,6 @@ Vehicle::Vehicle(){
 
     logMoment = {0,0,0};
     fuel = constants::initFuel;
-
-
-    sumOFGimbalXError = 0;
-    sumOFGimbalYError = 0;
-    gimbalXError = 0;
-    gimbalYError = 0;
 
 
     }
