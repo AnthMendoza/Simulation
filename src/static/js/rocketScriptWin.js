@@ -3,7 +3,7 @@ let allValues = []; // Declare allValues outside the fetch block
 const staticDuration = 0; 
 const speed = 1;
 
-fetch('../data.csv')
+fetch('../../data.csv')
   .then(response => response.text())
   .then(data => {
       const rows = data.split('\n');
@@ -62,7 +62,7 @@ fetch('../data.csv')
   // Load the OBJ model
   const loader = new THREE.OBJLoader();
   loader.load(
-    '../3d/falcon.obj',  // Replace with your .obj file path
+    '../static/3d/falcon.obj',  // Replace with your .obj file path
     function (loadedObject) {
       object = loadedObject;
       object.position.y = 1; // Start position of the object
@@ -139,7 +139,7 @@ console.log(parseFloat(allValues[1][count]),parseFloat(allValues[2][count]),pars
                                                 <br> Acceleration( G )${parseFloat(allValues[8][count]).toFixed(3)}`;
   }
 
-const particleCount = 100000; // Maximum number of particles
+const particleCount = 0; // Maximum number of particles
 const particleGeometry = new THREE.BufferGeometry();
 const particleMaterial = new THREE.PointsMaterial({ color: 0xaa4203, size: .3 });
 const particlePositions = new Float32Array(particleCount * 3);
