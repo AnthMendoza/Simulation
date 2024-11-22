@@ -174,11 +174,11 @@ void landingBurn(Vehicle &rocket){
 
 
 
-    rocket.engineGimbal( PIDOutputY , -PIDOutputX );
+    rocket.engineGimbal( -PIDOutputY , PIDOutputX );
     
     
 
-    direction[0] = rocket.gimbalY;
+    //direction[0] = rocket.gimbalY;
     direction[1] = rocket.gimbalX;
 
 
