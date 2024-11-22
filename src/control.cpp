@@ -173,18 +173,6 @@ void landingBurn(Vehicle &rocket){
     float PIDOutputX = PID(0,error,rocket.vehicleXError, rocket.sumOfVehicleXError, constants::timeStep , 25 ,3, 3);
 
 
-    if(PIDOutputX > constants::maxGimbleAngle){
-        PIDOutputX = constants::maxGimbleAngle;
-    }else if(PIDOutputX < -constants::maxGimbleAngle){
-        PIDOutputX = -constants::maxGimbleAngle;
-    }
-
-    if(PIDOutputY > constants::maxGimbleAngle){
-        PIDOutputY = constants::maxGimbleAngle;
-    }else if(PIDOutputY < -constants::maxGimbleAngle){
-        PIDOutputY = -constants::maxGimbleAngle;
-    }
-
 
     rocket.engineGimbal( PIDOutputY , -PIDOutputX );
     
