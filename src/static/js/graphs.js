@@ -131,7 +131,7 @@ Plotly.newPlot('graph3', [trace3], {
 
 // 4. Y-Z Plot (Bottom Left)
 const trace4 = {
-    x: data.VectorTimeStamp,
+    x: data.VectorTimeStampReduced,
     y: data.gimbalAngleX,
     mode: 'lines',
     line: {
@@ -150,7 +150,7 @@ Plotly.newPlot('graph4', [trace4], {
 
 // 5. Phase Plot (Bottom Middle)
 const trace5 = {
-    x: data.VectorTimeStamp,
+    x: data.VectorTimeStampReduced,
     y: data.gimbalAngleY,
     mode: 'lines',
     line: {
