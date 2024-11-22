@@ -57,7 +57,7 @@ void initializeVectors(int preset){
         vehicleState2.reserve(preset);
         absVelocity.reserve(preset);
         gForce.reserve(preset);
-        gimbalXAngle.resreve(preset);
+        gimbalXAngle.reserve(preset);
         gimbalYAngle.reserve(preset);
     #endif
 }
