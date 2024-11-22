@@ -181,7 +181,7 @@ void landingBurn(Vehicle &rocket){
     direction[1] = rocket.gimbalX;
 
 
-    rocket.applyEngineForce(direction , vectorMag(velo));
+    rocket.applyEngineForce(direction , vectorMag(velo)*1.5);
     
     
 
