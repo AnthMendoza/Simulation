@@ -108,7 +108,7 @@ class Vehicle{
 
         float getCurvature();
 
-        bool Vehicle::fuelConsumption(float thrust);
+        bool fuelConsumption(float thrust);
 
         void engineGimbal(float gimbalTargetX , float gimbalTargetY);
     
