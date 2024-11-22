@@ -57,8 +57,8 @@ void initializeVectors(int preset){
         vehicleState2.reserve(preset);
         absVelocity.reserve(preset);
         gForce.reserve(preset);
-        gimbalXAngle.resever(preset);
-        gimbalYAngle.resever(preset);
+        gimbalXAngle.resreve(preset);
+        gimbalYAngle.reserve(preset);
     #endif
 }
 
@@ -102,10 +102,10 @@ void logRocketPosition(Vehicle &rocket) {
                         std::to_string(rocket.engineState[1])+ "," +
                         std::to_string(rocket.engineState[2])+ "," +
 
-                        std::to_string(rocket.gimbalXError)+ "," +
+                        std::to_string(rocket.gimbalErrorX)+ "," +
 
                         std::to_string(rocket.error)+ "," +
-                        std::to_string(rocket.gimbalYError)+ "," +
+                        std::to_string(rocket.gimbalErrorY)+ "," +
                         std::to_string(rocket.twoDAngle[1])+ "," ;
 
         appendRowToCSV(row);
