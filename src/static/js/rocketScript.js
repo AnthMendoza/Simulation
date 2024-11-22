@@ -102,7 +102,7 @@ function updateObjectByTime(currentTime) {
                                               <br> Acceleration( G )${parseFloat(data.gForce[count]).toFixed(3)}`;
 }
 
-const particleCount = 100000; // Maximum number of particles
+const particleCount = 0; // Maximum number of particles
 const particleGeometry = new THREE.BufferGeometry();
 const particleMaterial = new THREE.PointsMaterial({ color: 0xaa4203, size: .3 });
 const particlePositions = new Float32Array(particleCount * 3);

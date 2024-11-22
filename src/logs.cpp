@@ -88,7 +88,7 @@ void logRocketPosition(Vehicle &rocket) {
     }else{
 
         rocket.vehicleState = normalizeVector(rocket.vehicleState);
-        std::string row = std::to_string(rocket.iterations * constants::timeStep*1.4) + "," + 
+        std::string row = std::to_string(rocket.iterations * constants::timeStep) + "," + 
                         std::to_string(rocket.Xposition) + "," + 
                         std::to_string(rocket.Yposition) + "," +
                         std::to_string(rocket.Zposition) + "," + 

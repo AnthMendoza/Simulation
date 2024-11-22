@@ -16,6 +16,8 @@ const commonAxisStyle = {
     color: '#ffffff'
 };
 
+console.log(data);
+
 const commonLayout = {
     paper_bgcolor: '#2d2d2d',
     plot_bgcolor: '#2d2d2d',
@@ -128,8 +130,6 @@ Plotly.newPlot('graph3', [trace3], {
 });
 
 // 4. Y-Z Plot (Bottom Left)
-console.log(data.VectorTimeStamp);
-console.log(data.gimbalAngleX);
 const trace4 = {
     x: data.VectorTimeStamp,
     y: data.gimbalAngleX,
