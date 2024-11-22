@@ -53,7 +53,7 @@ Vehicle::Vehicle(){
     sumOfGimbalErrorX = 0;
     sumOfGimbalErrorY = 0;
 
-    gimbalPGain = .3;
+    gimbalPGain = .1;
     gimbalIGain = 0;
     gimbalDGain = 0;
 
@@ -460,8 +460,8 @@ void Vehicle::engineGimbal(float gimbalTagetX , float gimbalTagetY){
     if(XInput > 1) XInput = 1;
     if(XInput < -1) XInput = -1;
 
-    gimbalVelocityX += (-XInput * maxGimbalAcceleration) * constants::timeStep;
-    gimbalVelocityY += (-YInput * maxGimbalAcceleration) * constants::timeStep;  
+    gimbalVelocityX += (XInput * maxGimbalAcceleration) * constants::timeStep;
+    gimbalVelocityY += (YInput * maxGimbalAcceleration) * constants::timeStep;  
 
     gimbalX += gimbalVelocityX * constants::timeStep;
     gimbalY += gimbalVelocityY * constants::timeStep;
