@@ -18,7 +18,7 @@ namespace constants{
     extern float maxThrust;//netwons
     extern float minThrust; //newtons, 65 percent of max;
     extern float mass; //kg booster mass
-    extern float maxGimbleAngle;// degrees
+    extern float maxGimbalAngle;// rad
     extern float cogToEngine;
     extern float landingVelocity;
     extern float consumptionRateAtFullPowerPerEngine;

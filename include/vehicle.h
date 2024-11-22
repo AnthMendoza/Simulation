@@ -60,6 +60,8 @@ class Vehicle{
         float vehicleXError;
         float sumOfVehicleXError;
 
+        float maxGimbalAngle;
+
         std::array<float , 3> appliedVector;
 
 
