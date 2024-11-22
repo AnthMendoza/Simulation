@@ -76,7 +76,7 @@ int main(int argc, char* argv[]){
 
     #ifdef __linux__
         initializeVectors(20000); // argv[1] unique ID 
-        
+
         initParameters( std::stof(argv[2]), // dry mass
                     std::stof(argv[3]), // propellentMassLOX
                     std::stof(argv[4]), // propellentMassFuel

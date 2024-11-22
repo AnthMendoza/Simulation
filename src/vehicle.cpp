@@ -53,7 +53,7 @@ Vehicle::Vehicle(){
     sumOfGimbalErrorX = 0;
     sumOfGimbalErrorY = 0;
 
-    gimbalPGain = 1;
+    gimbalPGain = .001;
     gimbalIGain = 0;
     gimbalDGain = 0;
 
@@ -444,7 +444,7 @@ void Vehicle::fuelConsumption(){ // THIS NEEDS TO CHANGE BASED ON lox
 
 
 void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
-    gimbalTargetX  = .1;
+    gimbalTargetX  = 0;
     if(gimbalTargetX > constants::maxGimbalAngle) gimbalTargetX = constants::maxGimbalAngle;
     if(gimbalTargetX < -constants::maxGimbalAngle) gimbalTargetX = -constants::maxGimbalAngle;
     if(gimbalTargetY > constants::maxGimbalAngle) gimbalTargetY = constants::maxGimbalAngle;
@@ -460,8 +460,8 @@ void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
     if(XInput > 1) XInput = 1;
     if(XInput < -1) XInput = -1;
 
-    gimbalVelocityX += (-XInput * maxGimbalAcceleration) * constants::timeStep;
-    gimbalVelocityY += (-YInput * maxGimbalAcceleration) * constants::timeStep;  
+    gimbalVelocityX += (XInput * maxGimbalAcceleration) * constants::timeStep;
+    gimbalVelocityY += (YInput * maxGimbalAcceleration) * constants::timeStep;  
 
     gimbalX += gimbalVelocityX * constants::timeStep;
     gimbalY += gimbalVelocityY * constants::timeStep;
