@@ -24,7 +24,7 @@ Vehicle::Vehicle(){
     // roll pitch yaw (x,y,z) defines the direction vector, heading. ex. (0,0,1) is rocket pointing straight up.
 
     //(x,y,z)positon defines its location reltaive to an orgin
-    mass = constants::dryMass + constants::initFuel;
+    mass = constants::dryMass + constants::initFuel + constants::initLOX;
     MOI = constants::MOI;
 
     targetLandingPosition = constants::LandingTarget;
