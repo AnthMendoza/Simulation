@@ -169,8 +169,8 @@ Plotly.newPlot('graph5', [trace5], {
 
 // 6. Magnitude Plot (Bottom Right)
 const trace6 = {
-    x: t,
-    y: y.map((val, i) => Math.sqrt(y[i]*y[i] + z[i]*z[i])),
+    x: data.VectorTimeStampReduced,
+    y: data.mass,
     mode: 'lines',
     line: {
         color: colors.teal,

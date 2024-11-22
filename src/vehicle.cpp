@@ -100,7 +100,15 @@ Vehicle::Vehicle(){
     sumOfMoments[2] = 0;
 
     logMoment = {0,0,0};
+
+
+
     fuel = constants::initFuel;
+    LOX = constants::initLOX;
+
+    fuelConsumptionRate = constants::consumtionRateFuel;
+    LOXConsumptionRate = constants::consumtionRateLOX;
+
 
 
     }
@@ -221,6 +229,8 @@ void Vehicle::lift(){
 
 
 void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thrust){
+    
+    if(fuelConsumption(thrust) == false) return;
 
     thrust = -thrust;
 
@@ -434,15 +444,24 @@ float Vehicle::getCurvature(){
 
 
 
-void Vehicle::fuelConsumption(){ // THIS NEEDS TO CHANGE BASED ON lox 
-    
-    if(fuel > 0 && engineForce > 0){
-        float deltaFuel = (constants::consumptionRateAtFullPowerPerEngine * engineForce / constants::maxThrust) * constants::timeStep;
-        fuel = fuel - deltaFuel;
+bool Vehicle::fuelConsumption(float thrust){ 
+    //returns true if vehicle has enough fuel to apply requested force. false should stop force application
+    // numOfEngineOn can be fractional ex .8 is 80 percent thrust of 1 engine, or 3 is 3 engine at full power
 
-        if(mass - deltaFuel > 0) mass = mass - deltaFuel;
+    float numOfEngineOn = thrust / constants::maxThrust;
 
-    }
+    float consumptionDuringTimeFuel  = fuelConsumptionRate * numOfEngineOn * constants::timeStep;
+    float consumptionDuringTimeLOX  = LOXConsumptionRate * numOfEngineOn * constants::timeStep;
+
+    if(fuel - consumptionDuringTimeFuel < 0 || LOX - consumptionDuringTimeLOX < 0) return false;
+
+    fuel += -consumptionDuringTimeFuel;
+    LOX += -consumptionDuringTimeLOX;
+
+    mass = dryMass + fuel + LOX;
+
+    return true;
+
 }
 
 

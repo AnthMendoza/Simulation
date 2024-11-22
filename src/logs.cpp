@@ -21,6 +21,9 @@ std::vector<float> absVelocity;
 std::vector<float> gForce;
 std::vector<float> gimbalXAngle;
 std::vector<float> gimbalYAngle;
+std::vector<float> fuel;
+std::vector<float> mass;
+std::vector<float> LOX;
 
 
 
@@ -59,6 +62,9 @@ void initializeVectors(int preset){
         gForce.reserve(preset);
         gimbalXAngle.reserve(preset);
         gimbalYAngle.reserve(preset);
+        mass.reserve(preset);
+        fuel.reserve(preset);
+        LOX.reserve(preset);
     #endif
 }
 
@@ -82,6 +88,11 @@ void logRocketPosition(Vehicle &rocket) {
 
         gimbalXAngle.push_back(rocket.gimbalX);
         gimbalYAngle.push_back(rocket.gimbalY);
+        
+        mass.push_back(rocket.mass);
+        fuel.push_back(rocket.fuel);
+        LOX.push_back(rocket.LOX);
+
 
 
 
@@ -148,10 +159,21 @@ void lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData 
 void dataToRam(char* unique_id){
 
     //reduce size
+    std::vector<float> timeStepVectReduced;
     std::vector<float> gimbalXAngleReduced;
     std::vector<float> gimbalYAngleReduced;
-    lowPrecisionData(gimbalXAngle , gimbalXAngleReduced , 500);
-    lowPrecisionData(gimbalYAngle , gimbalYAngleReduced , 500);
+    std::vector<float> massReduced;
+    std::vector<float> fuelReduced;
+    std::vector<float> LOXReduced;
+
+    int lowRes = 500;
+
+    lowPrecisionData(timeStepVect , timeStepVectReduced , lowRes);
+    lowPrecisionData(gimbalXAngle , gimbalXAngleReduced , lowRes);
+    lowPrecisionData(gimbalYAngle , gimbalYAngleReduced , lowRes);
+    lowPrecisionData(mass , massReduced , lowRes);
+    lowPrecisionData(fuel , fuelReduced , lowRes);
+    lowPrecisionData(LOX , LOXReduced , lowRes);
 
     const char *shm_name = unique_id;
     const size_t SIZE = 1024 * 6000; // 10 KB of shared memory
@@ -181,15 +203,23 @@ void dataToRam(char* unique_id){
 
     int_ptr[4] = vehicleState0.size();
     int_ptr[5] = vehicleState1.size();  
-    int_ptr[6] = vehicleState2.size();  
+    int_ptr[6] = vehicleState2.size();
+
     int_ptr[7] = absVelocity.size();  
     int_ptr[8] = gForce.size();
+
     int_ptr[9] =  gimbalXAngleReduced.size(); 
-    int_ptr[10] = gimbalYAngleReduced.size();                                                                                                                                                                                            
+    int_ptr[10] = gimbalYAngleReduced.size();
+
+    int_ptr[11] = massReduced.size();                                                                                                                                                                                
+    int_ptr[12] = fuelReduced.size();
+    int_ptr[13] = LOXReduced.size();
+    int_ptr[14] = timeStepVectReduced.size();
+
 
 
     // Write the contents of the arrays
-    int count = 11;
+    int count = 15;
     std::memcpy(&int_ptr[count], timeStepVect.data(), timeStepVect.size() * sizeof(float));
     count += timeStepVect.size();
     std::memcpy(&int_ptr[count], Xposition.data(), Xposition.size() * sizeof(float));
@@ -207,11 +237,18 @@ void dataToRam(char* unique_id){
     std::memcpy(&int_ptr[count], absVelocity.data(), absVelocity.size() * sizeof(float));
     count += absVelocity.size();
     std::memcpy(&int_ptr[count], gForce.data(), gForce.size() * sizeof(float));
-
     count += gForce.size();
     std::memcpy(&int_ptr[count], gimbalXAngleReduced.data(), gimbalXAngleReduced.size() * sizeof(float));
     count += gimbalXAngleReduced.size();
     std::memcpy(&int_ptr[count], gimbalYAngleReduced.data(), gimbalYAngleReduced.size() * sizeof(float));
+    count += gimbalYAngleReduced.size();
+    std::memcpy(&int_ptr[count], massReduced.data(), massReduced.size() * sizeof(float));
+    count += massReduced.size();
+    std::memcpy(&int_ptr[count], fuelReduced.data(), fuelReduced.size() * sizeof(float));
+    count += fuelReduced.size();
+    std::memcpy(&int_ptr[count], LOXReduced.data(), LOXReduced.size() * sizeof(float));
+    count += LOXReduced.size();
+    std::memcpy(&int_ptr[count], timeStepVectReduced.data(), timeStepVectReduced.size() * sizeof(float));
 
     std::cout << "Data written to shared memory." << std::endl;
 

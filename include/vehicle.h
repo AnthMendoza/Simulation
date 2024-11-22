@@ -52,7 +52,7 @@ class Vehicle{
 
         float engineForce;
 
-        float dryMass , fuel;
+        float dryMass , fuel , LOX , fuelConsumptionRate , LOXConsumptionRate ;
 
         float vehicleYError;
         float sumOfVehicleYError;
@@ -108,7 +108,7 @@ class Vehicle{
 
         float getCurvature();
 
-        void fuelConsumption();
+        bool Vehicle::fuelConsumption(float thrust);
 
         void engineGimbal(float gimbalTargetX , float gimbalTargetY);
     
