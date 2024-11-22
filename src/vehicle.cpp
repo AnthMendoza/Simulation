@@ -65,9 +65,9 @@ Vehicle::Vehicle(){
 
     maxGimbalAngle = constants::maxGimbalAngle;
 
-    maxGimbalAcceleration = 0.35; // rad/s/s
+    maxGimbalAcceleration = 0.2; // rad/s/s
 
-    maxGimbalVelocity = 1.5; // rad/s
+    maxGimbalVelocity = 1; // rad/s
 
     gForce = 0;
 
@@ -444,7 +444,7 @@ void Vehicle::fuelConsumption(){ // THIS NEEDS TO CHANGE BASED ON lox
 
 
 void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
-    gimbalTargetX  = 1;
+    gimbalTargetX  = .1;
     if(gimbalTargetX > constants::maxGimbalAngle) gimbalTargetX = constants::maxGimbalAngle;
     if(gimbalTargetX < -constants::maxGimbalAngle) gimbalTargetX = -constants::maxGimbalAngle;
     if(gimbalTargetY > constants::maxGimbalAngle) gimbalTargetY = constants::maxGimbalAngle;
