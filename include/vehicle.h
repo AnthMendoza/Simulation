@@ -62,6 +62,12 @@ class Vehicle{
 
         float maxGimbalAngle;
 
+        float logXInput;
+        float logYInput;
+
+        float logPosX;
+        float logPosY;
+
         std::array<float , 3> appliedVector;
 
 

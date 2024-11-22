@@ -53,7 +53,7 @@ Vehicle::Vehicle(){
     sumOfGimbalErrorX = 0;
     sumOfGimbalErrorY = 0;
 
-    gimbalPGain = .001;
+    gimbalPGain = .1;
     gimbalIGain = 0;
     gimbalDGain = 0;
 
@@ -84,6 +84,11 @@ Vehicle::Vehicle(){
     Xvelocity = constants::initVelocity[0];
     Yvelocity = constants::initVelocity[1];   // Velocity vector , direction of movment relative to the ground
     Zvelocity = constants::initVelocity[2];
+
+    logXInput = 0;
+    logYInput = 0;
+    logPosX = 0;
+    logPosX = 0;
     
 
     sumOfForces[0] = 0;
@@ -444,7 +449,6 @@ void Vehicle::fuelConsumption(){ // THIS NEEDS TO CHANGE BASED ON lox
 
 
 void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
-    gimbalTargetX  = 0;
     if(gimbalTargetX > constants::maxGimbalAngle) gimbalTargetX = constants::maxGimbalAngle;
     if(gimbalTargetX < -constants::maxGimbalAngle) gimbalTargetX = -constants::maxGimbalAngle;
     if(gimbalTargetY > constants::maxGimbalAngle) gimbalTargetY = constants::maxGimbalAngle;
@@ -455,6 +459,8 @@ void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
 
     float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
+    logXInput = XInput;
+    logYInput = YInput;
     if(YInput > 1) YInput = 1;
     if(YInput < -1) YInput = -1;
     if(XInput > 1) XInput = 1;

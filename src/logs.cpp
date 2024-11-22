@@ -102,11 +102,10 @@ void logRocketPosition(Vehicle &rocket) {
                         std::to_string(rocket.engineState[1])+ "," +
                         std::to_string(rocket.engineState[2])+ "," +
 
-                        std::to_string(rocket.gimbalErrorX)+ "," +
-
-                        std::to_string(rocket.error)+ "," +
-                        std::to_string(rocket.gimbalErrorY)+ "," +
-                        std::to_string(rocket.twoDAngle[1])+ "," ;
+                        std::to_string(rocket.gimbalX)+ "," +
+                        std::to_string(rocket.gimbalY)+ "," +
+                        std::to_string(rocket.logXInput)+ "," +
+                        std::to_string(rocket.logYInput)+ "," ;
 
         appendRowToCSV(row);
 
