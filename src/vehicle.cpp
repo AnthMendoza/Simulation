@@ -108,7 +108,7 @@ Vehicle::Vehicle(){
 
     logMoment = {0,0,0};
 
-    
+    dragLog = {0,0,0};
 
 
     }
@@ -221,7 +221,7 @@ void Vehicle::lift(){
     liftVector[2] = lift * projectedVector[2];
 
     addForce(liftVector);
-
+    dragLog = liftVector;
     addMoment(forceToMoment(liftVector, vehicleState , centerOfPressure));
 
     

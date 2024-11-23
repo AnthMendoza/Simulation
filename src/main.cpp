@@ -65,6 +65,8 @@ void initParameters(float drymass,
     constants::initVelocity = {initVelocityX , initVelocityY ,initVelocityZ}; 
 
     constants::initVehicleState = {initVehicleStateX , initVehicleStateY , initVehicleStateZ};
+    
+    constants::initVehicleState = normalizeVector(constants::initVehicleState);
 }
 
 

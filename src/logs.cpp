@@ -116,7 +116,11 @@ void logRocketPosition(Vehicle &rocket) {
                         std::to_string(rocket.gimbalX)+ "," +
                         std::to_string(rocket.gimbalY)+ "," +
                         std::to_string(rocket.logXInput)+ "," +
-                        std::to_string(rocket.logYInput)+ "," ;
+                        std::to_string(rocket.logYInput)+ "," +
+                        std::to_string(rocket.dragLog[0])+ "," +
+                        std::to_string(rocket.dragLog[1])+ "," +
+                        std::to_string(rocket.dragLog[2])+ "," ;
+
 
         appendRowToCSV(row);
 

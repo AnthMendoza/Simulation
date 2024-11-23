@@ -68,6 +68,8 @@ class Vehicle{
         float logPosX;
         float logPosY;
 
+        std::array<float,3> dragLog;
+
         std::array<float , 3> appliedVector;
 
 
