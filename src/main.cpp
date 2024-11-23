@@ -16,7 +16,7 @@
 void iterator(Vehicle &rocket){
 
     while(rocket.Zposition > 0 && rocket.iterations < 1000000){
-        rocket.drag();
+        //rocket.drag();
         rocket.lift();
         reentryBurn(rocket);
         rocket.finVectors = rocket.getFinForceVectors();
@@ -65,7 +65,7 @@ void initParameters(float drymass,
     constants::initVelocity = {initVelocityX , initVelocityY ,initVelocityZ}; 
 
     constants::initVehicleState = {initVehicleStateX , initVehicleStateY , initVehicleStateZ};
-    
+
     constants::initVehicleState = normalizeVector(constants::initVehicleState);
 }
 
