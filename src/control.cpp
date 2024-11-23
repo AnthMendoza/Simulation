@@ -129,7 +129,7 @@ void glidToTarget(Vehicle &rocket){
 
 void landingBurn(Vehicle &rocket){
 
-    if(rocket.reentry == false || rocket.glidePhase == false || rocket.Zposition > 4600) return;
+    if(rocket.reentry == false || rocket.glidePhase == false || rocket.Zposition > 100) return;
         
     float vehicleNormalForce = -constants::gravitationalAcceleration * rocket.mass;
 

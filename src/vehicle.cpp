@@ -40,7 +40,7 @@ Vehicle::Vehicle(){
     Yposition = constants::initPosition[1];
     Zposition = constants::initPosition[2];
 
-    reentry = false;
+    reentry = true;
     glidePhase = true; //false means yet to happen, true means already happened
 
     iterations = 0;
