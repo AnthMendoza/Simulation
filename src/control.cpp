@@ -55,6 +55,7 @@ void reentryBurn(Vehicle &rocket){
 
         rocket.reentry = true;
         float currentMaxGForce = constants::maxGAllowedEntry + 1;
+        float lastMaxGForce = currentMaxGForce;
         //main loop moves forward 1 second every lookAHead cylce
         float stepInterval = 1;
         std::array<float,2> direction = {0,0};
@@ -65,6 +66,7 @@ void reentryBurn(Vehicle &rocket){
             currentMaxGForce = *std::max_element(gForces.begin(),gForces.end());
             std::cout<<currentMaxGForce<< std::endl;
             if(currentMaxGForce < constants::maxGAllowedEntry) return;
+            if(currentMaxGForce > lastMaxGForce) return;
             float currentIteration = rocket.iterations;
             while(rocket.iterations < currentIteration + stepInterval/constants::timeStep && rocket.Zposition > 0){
                 rocket.drag();

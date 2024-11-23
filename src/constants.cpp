@@ -24,24 +24,18 @@ namespace constants{
     const float timeStep = .01; //seconds
     float maxThrust = 854000;//netwons
     float minThrust = maxThrust *.65; //newtons, 65 percent of max;
-    float dryMass = 22200; //kg booster mass
+    float dryMass = 10000; //kg booster mass
     float maxGimbalAngle = 20  * 3.1415926535f / 180.0f;// degrees
     float landingVelocity = 10;
     float consumptionRateAtFullPowerPerEngine = 328.8; //kg/s this is lox plus RP1
 
-    float initFuel = 10000; // kg
-    float initLOX = 10000; // kg
-    float consumtionRateLOX = 100; //kg/s*engine
+    float initFuel = 8000; // kg
+    float initLOX = 8000; // kg
+    float consumtionRateLOX = 150; //kg/s*engine
     float consumtionRateFuel = 150; //kg/s*engine
 
 
     std::array<float,3> LandingTarget = {0,-257939.2813,0};
-
-
-
-    //bounds
-    
-
 
 
 }
