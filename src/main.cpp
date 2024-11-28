@@ -17,7 +17,7 @@ void iterator(Vehicle &rocket){
 
     while(rocket.Zposition > 0 && rocket.iterations < 1000000){
         rocket.drag();
-        //rocket.lift();
+        rocket.lift();
         reentryBurn(rocket);
         rocket.finVectors = rocket.getFinForceVectors();
         

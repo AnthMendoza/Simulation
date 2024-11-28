@@ -91,6 +91,25 @@ float twodAngleDiffrence(std::array<float , 2> &vector1 , std::array<float , 2> 
 }
 
 
+std::array<float , 3> addVectors(std::array<float , 3> &vec1 , std::array<float , 3> &vec2){
+    std::array<float , 3> addedVector= {vec1[0]+vec2[0],vec1[1]+vec2[1],vec1[2]+vec2[2]};
+    return addedVector;
+}
+
+
+
+bool directionality(std::array<float , 3> &refranceVector ,std::array<float , 3> &vector1){
+
+    std::array<float , 3> normalRefranceVector = normalizeVector(refranceVector);
+    std::array<float , 3> normalVector1 = normalizeVector(vector1);
+
+    float sqrtTwo = 1.414213562;
+
+    if( vectorMag(addVectors(normalRefranceVector,normalVector1)) > sqrtTwo) return false;
+    else return true;
+}
+
+
 
 
 
