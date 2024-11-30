@@ -139,6 +139,12 @@ img {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
+.content-paragraph {
+    display: block;
+    width: 85%;
+    margin: 0 auto; 
+}
+
 .content-div.active {
     display: block;
 }

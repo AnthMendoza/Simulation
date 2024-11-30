@@ -104,8 +104,10 @@ bool directionality(std::array<float , 3> &refranceVector ,std::array<float , 3>
     std::array<float , 3> normalVector1 = normalizeVector(vector1);
 
     float sqrtTwo = 1.414213562;
+    std::array<float,3> sumOfVect = addVectors(normalRefranceVector,normalVector1);
+    float chordLength = vectorMag(sumOfVect);
 
-    if( vectorMag(addVectors(normalRefranceVector,normalVector1)) > sqrtTwo) return false;
+    if( chordLength > sqrtTwo) return false;
     else return true;
 }
 
