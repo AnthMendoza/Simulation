@@ -4,6 +4,10 @@
     <link rel="stylesheet" href="static/css/preset.css">
 </head>
 <body>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 
 
 
@@ -18,17 +22,67 @@
 <div class="content-div" id="tab1">
   <h1>Physics Engine</h1>
     <p class="content-paragraph"> words</p>
-    <img src = "static/img/vectorRepresenation.png" >
+    <img src = "static/img/vectorRepresenation.png" alt="vehicle vector represenation">
+    <figcaption>Figure 1 : Vehicle Vector Represenation</figcaption>
     <p class="content-paragraph">more words</p>
-    <img src = "static/img/airDensity.gif">
+    <img src = "static/img/airDensity.gif" alt="Earth atmosphere model">
+    <figcaption>Figure 2 : Earth Atmosphere Model</figcaption>
     <p class="content-paragraph">Even More words</p>
     <h2>Control System</h2>
     <img src ="static/img/controlSystem.png">
+    <figcaption>Figure 3 : Feedforward Control</figcaption>
     <p class="content-paragraph">extra even more words</p>
     <h2>Drag Interpolation</h2>
     <img src = "static/img/drag.png">
     <h2>Entry Burn</h2>
-    <img src = "">
+    <p class="content-paragraph">The Falcon 9 entry burn is a strategic propulsive maneuver that reduces velocity, controls descent trajectory, and manages energy dissipation during atmospheric reentry, enabling precise and recoverable rocket landing.  A large reduction in velocity is required prior to hitting a wall of air. Air density increases exponentially as the vehicle decreases in altitude. The graph in Figure 5 shows this relationship between altitude and air density. </p>
+    <img src = "static/img/std-atmos-density.png" alt="Graph : Altitude VS Air Density">
+    <figcaption>Figure 5 : Altitude VS Air Density.</figcaption>
+    <p class="content-paragraph">A vehicle traveling at 2000 m/s tangentially to the atmosphere in a suborbital trajectory, more than 100 km above the Earth, will decelerate at a rate exceeding 90 m/s². The burn also reduces the amount of heat generated from aerodynamic drag/friction. If we assume that all drag is converted to heat energy (likely a poor assumption, but it helps paint a picture), we can use the following equations to see the relationship between vehicle velocity and heat generation. </p>
+    <div class="equation">
+      <div class="equation-text">
+          F<sub>d</sub> = ½ ρ v² C<sub>d</sub> A
+          <br>P = F<sub>d</sub>v
+          <br>\( \frac{dQ}{dt} \) = P = ½ ρ v³ C<sub>d</sub> A
+      </div>
+      <div class="variable-description">
+          F<sub>d</sub> = Drag Force<br>
+          ρ = Fluid Density<br>
+          v = Velocity<br>
+          C<sub>d</sub> = Drag Coefficient<br>
+          A = Cross-sectional Area
+          <br>P = Power
+          <br><i>Q</i> = Heat
+          <br><i>t</i> = time
+      </div>
+  </div>
+  <div class="content-paragraph">The rate of heat energy added is proportional to the cube of the velocity. Therefore, even a small reduction in velocity can result in a significant reduction in the required shielding. This mass savings can also extend to the structure of the vehicle due to the reduced forces associated with lower acceleration. However, the trade-off is a more prolonged acceleration period.</div>
+    <p class="content-paragraph">Another adverse effect of the reentry burn might be the increase of pressure at the engines of the vehicle. This pressure is called ram pressure, and it’s used in the blunt bodies of reentry spacecraft. The blunt body creates a boundary layer of air that pushes the heated shock layer forward (away from the vehicle). The pictures in figure 6 and 7 show the resemblance of the shock wave. This is speculative, as a more in-depth finite element or particle simulation would be needed to analyze low-level fluid dynamics. </p>
+
+    <div class="image-comparison">
+      <img src="static/img/bluntBody.jpg" alt="Blunt Object in Flow">
+      <img src="static/img/falcon reetnry.jpg" alt="Faclon Reentry Burn">
+  </div>
+  <div class="content-paragraph">The simulation sets a predetermined thrust force for the engines. A copy of the current vehicle object is then created at a designated altitude. This altitude is chosen just before the vehicle encounters an exponentially denser region of the atmosphere. At this altitude, the engines are ignited, if necessary, to slow the vehicle. The copy, or "probe" vehicle, takes the current state of the vehicle and simulates shutting the engines off to determine the maximum acceleration the vehicle will experience during freefall. If the acceleration exceeds the allowable limit, the vehicle keeps its engines on and probes the future state again. Once the maximum acceleration during freefall is less than the allowable limit, the engines are turned off. Figure 8 gives a rough visual representation.</div>
+
+    <div class="mermaid">
+      ---
+      config:
+        theme: neo
+        look: neo
+      ---
+      stateDiagram
+        direction TB
+        [*] --> CurrentState
+        CurrentState --> ProbeFuture
+        ProbeFuture --> EvaluateOutcome
+        EvaluateOutcome --> UpdateState
+        UpdateState --> CheckTermination
+        CheckTermination --> CurrentState: Continue Simulation
+        CheckTermination --> [*]: Terminate Reentry Burn
+
+    </div>
+    <figcaption>Figure 8 : Logic Flow Diagram</figcaption>
     <h2>Landing Burn</h2>
     <img src = "">
 </div>
