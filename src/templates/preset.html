@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="static/css/preset.css">
+    <link rel="stylesheet" href="../static/css/preset.css">
 </head>
 <body>
 <script type="text/javascript" async
@@ -21,22 +21,64 @@
 
 <div class="content-div" id="tab1">
   <h1>Physics Engine</h1>
-    <p class="content-paragraph"> words</p>
-    <img src = "static/img/vectorRepresenation.png" alt="vehicle vector represenation">
-    <figcaption>Figure 1 : Vehicle Vector Represenation</figcaption>
-    <p class="content-paragraph">more words</p>
-    <img src = "static/img/airDensity.gif" alt="Earth atmosphere model">
-    <figcaption>Figure 2 : Earth Atmosphere Model</figcaption>
-    <p class="content-paragraph">Even More words</p>
-    <h2>Control System</h2>
-    <img src ="static/img/controlSystem.png">
-    <figcaption>Figure 3 : Feedforward Control</figcaption>
-    <p class="content-paragraph">extra even more words</p>
-    <h2>Drag Interpolation</h2>
-    <img src = "static/img/drag.png">
-    <h2>Entry Burn</h2>
+  <img src = "../static/img/vectorRepresenation.png" alt="vehicle vector represenation">
+  <figcaption>Figure 1 : Vehicle Vector Represenation</figcaption>
+    <p class="content-paragraph">The vector representation shown in Figure 1 serves as the basis for the forces acting on the vehicle body. To fully determine the outcome of a force acting on the body, both linear acceleration and moments must be calculated. In Euclidean space, the simulation can be interpreted along three independent axes. First, the summation of all forces is computed to obtain a resultant force vector. This force is then applied to the body of the vehicle using the following series of equations.</p>
+    <div class="equation">
+      <div class="equation-text">
+        a<sub>(x,y,z)</sub> = F<sub>(x,y,z)</sub> R<sub>mass</sub><br>
+        \( \frac{dV}{dt} \) = a<sub>(x,y,z)</sub> dt<br>
+      </div>
+    <div class="variable-description">
+      F<sub>(x,y,z)</sub> = Force Vector<br>
+      a<sub>(x,y,z)</sub> = Acceleration Vector<br>
+      R<sub>mass</sub> = Vehicle Mass<br>
+      V = Velocity Vector<br>
+      t = time
+    </div>
+    </div>
+    <p class="content-paragraph">Using the change in velocity and the velocity vector of the previous timestep(n - 1), we can easily compute the next state.</p>
+    <div class="equation">
+      <div class="equation-text">
+        V<sub>n</sub> = \( \frac{dV}{dt} \) + V<sub>n-1</sub>
+      </div>
+    <div class="variable-description">
+
+    </div>
+    </div>
+    <p class="content-paragraph">Extending to a change in position.</p>
+    <div class="equation">
+      <div class="equation-text">
+        P<sub>n</sub> = V<sub>n</sub> dt + P<sub>n-1</sub>
+      </div>
+    <div class="variable-description">
+
+    </div>
+    </div>
+    <p class="content-paragraph">The simulation uses a Runge kutta method called RK4. Rk4 uses a weighted average of a defined set of discretized points to increase the precision of Euler's method. The image in figure x shows the increase in precision over an example differential equation.</p>
+    
+    <img src="../static/img/Comparison_of_the_Runge-Kutta_methods_for_the_differential_equation_(red_is_the_exact_solution).svg.png">
+    <figcaption>Figure 2 : Interpolation Comparison</figcaption>
+    <p class="content-paragraph">For the differential equation \( \frac{dy}{dt}\) = f(t,y) , where \( \frac{dy}{dt}\) is a function of t and y. The weighted average is defined by the following.</p>
+    <div class="equation">
+      <div class="equation-text">
+        y<sub>n+1</sub> = y<sub>n</sub> + (1/6)  (k<sub>1</sub> + 2k<sub>2</sub> + 2k<sub>3</sub> + k<sub>4</sub>)<br>
+
+        k<sub>1</sub> = f(t<sub>n</sub>, y<sub>n</sub>)<br>
+        k<sub>2</sub> = f(t<sub>n</sub> + h/2, y<sub>n</sub> + hk<sub>1</sub>/2)<br>
+        k<sub>3</sub> = f(t<sub>n</sub> + h/2, y<sub>n</sub> + hk<sub>2</sub>/2)<br>
+        k<sub>4</sub> = f(t<sub>n</sub> + h, y<sub>n</sub> + hk<sub>3</sub>)<br>
+      </div>
+    </div>
+    <p class="content-paragraph">y<sub>n+1</sub> is the estimation of the next step using the previous step y<sub>n</sub> as a foundation.</p>
+    <p class="content-paragraph"></p>
+    <h2>Aerodynamic Interpolation</h2>
+    <p class="content-paragraph">The aero model is a combination of two orthogonal vectors, lift and drag. The drag vector is antiparallel to the airstream relative to the vehicle. A rocket creates lift by using its body as a “lifting body”. The coefficient of lift is directly related to the angle of attack relative to the oncoming air. Although the body is cylindrical and doesn't have wings, the small coefficient of lift at high velocity makes the vehicle maneuverable. In the current state the cross sectional area and coefficient of drag and lift are crudely estimated. Both are augmentations from a circular cross section to a rectangular cross section. The image in figure 4 shows the drag coefficient for a square ended cylinder given a mach number.</p>
+    <img src = "../static/img/drag.png">
+    <figcaption>Figure 4 : Drag VS Mach</figcaption>
+    <h2>Reentry Burn</h2>
     <p class="content-paragraph">The Falcon 9 entry burn is a strategic propulsive maneuver that reduces velocity, controls descent trajectory, and manages energy dissipation during atmospheric reentry, enabling precise and recoverable rocket landing.  A large reduction in velocity is required prior to hitting a wall of air. Air density increases exponentially as the vehicle decreases in altitude. The graph in Figure 5 shows this relationship between altitude and air density. </p>
-    <img src = "static/img/std-atmos-density.png" alt="Graph : Altitude VS Air Density">
+    <img src = "../static/img/std-atmos-density.png" alt="Graph : Altitude VS Air Density">
     <figcaption>Figure 5 : Altitude VS Air Density.</figcaption>
     <p class="content-paragraph">A vehicle traveling at 2000 m/s tangentially to the atmosphere in a suborbital trajectory, more than 100 km above the Earth, will decelerate at a rate exceeding 90 m/s². The burn also reduces the amount of heat generated from aerodynamic drag/friction. If we assume that all drag is converted to heat energy (likely a poor assumption, but it helps paint a picture), we can use the following equations to see the relationship between vehicle velocity and heat generation. </p>
     <div class="equation">
@@ -60,8 +102,8 @@
     <p class="content-paragraph">Another adverse effect of the reentry burn might be the increase of pressure at the engines of the vehicle. This pressure is called ram pressure, and it’s used in the blunt bodies of reentry spacecraft. The blunt body creates a boundary layer of air that pushes the heated shock layer forward (away from the vehicle). The pictures in figure 6 and 7 show the resemblance of the shock wave. This is speculative, as a more in-depth finite element or particle simulation would be needed to analyze low-level fluid dynamics. </p>
 
     <div class="image-comparison">
-      <img src="static/img/bluntBody.jpg" alt="Blunt Object in Flow">
-      <img src="static/img/falcon reetnry.jpg" alt="Faclon Reentry Burn">
+      <img src="../static/img/bluntBody.jpg" alt="Blunt Object in Flow">
+      <img src="../static/img/falcon reetnry.jpg" alt="Faclon Reentry Burn">
   </div>
   <div class="content-paragraph">The simulation sets a predetermined thrust force for the engines. A copy of the current vehicle object is then created at a designated altitude. This altitude is chosen just before the vehicle encounters an exponentially denser region of the atmosphere. At this altitude, the engines are ignited, if necessary, to slow the vehicle. The copy, or "probe" vehicle, takes the current state of the vehicle and simulates shutting the engines off to determine the maximum acceleration the vehicle will experience during freefall. If the acceleration exceeds the allowable limit, the vehicle keeps its engines on and probes the future state again. Once the maximum acceleration during freefall is less than the allowable limit, the engines are turned off. Figure 8 gives a rough visual representation.</div>
 
@@ -84,8 +126,69 @@
     </div>
     <figcaption>Figure 8 : Logic Flow Diagram</figcaption>
     <h2>Landing Burn</h2>
-    <img src = "">
-</div>
+    <p class="content-paragraph">The landing control is currently being done with a feedforward control loop. Feedforward control anticipates the required control output based on the system's current state and desired outcome, rather than reacting to errors. A combination of feedforward and feedback control loops allow us to preemptively anticipate system variables while reacting to errors. A graphical representation is shown in figure 4. The simulation is using PID as a feedback controller. The feedforward controller uses the velocity vector of the vehicle to cancel any side slip of the vehicle. As a baseline the gravitational vector is also added to the engine force vector to cancel out gravity.</p>
+    <p class="content-paragraph"></p>
+    <div class="equation">
+      <div class="equation-text">
+        A<sub>(x,y,z)</sub> = - v<sub>(x,y,z)</sub> / |v|<br>
+        T<sub>(x,y,z)</sub> = (A<sub>(x)</sub>C , A<sub>(y)</sub>C , A<sub>(z)</sub>C + gR<sub>mass</sub>) 
+      </div>
+    <div class="variable-description">
+    v<sub>(x,y,z)</sub> = vehicle Velocity Vector<br>
+    A<sub>(x,y,z)</sub> = Vechicle Angle of Attack Vector<br>
+    T<sub>(x,y,z)</sub> = Thrust Vector<br>
+    R<sub>mass</sub> = Rocket Mass<br>
+    g = Gravitational Acceleration<br>
+    c = Coefficient of Decleration (not constant)
+    </div>
+    </div>
+    <p class="content-paragraph">Before the vehicle can begin to decelerate, a desired angle of attack (AOT) must be achieved. The desired AOT is represented as a vector that defines the target vehicle state, independent of its location. Using a series of control loops—each managing the engine gimbal angle, vehicle orientation, and thrust force—the vehicle can effectively reduce its sideslip velocity.</p>
+    <p class="content-paragraph">A potential improvement to this control stack would be to implement a feedforward version of the vehicle angle control loop. Currently, thrust is not integrated into the loop, meaning the gains of the rotation control loop are not scaled according to the engine's output power. The control loop should be linked to a moment request, as defined by the equation below.</p>
+    <div class="equation">
+      <div class="equation-text">
+        M = r x F
+      </div>
+    <div class="variable-description">
+      where:<br>
+      M = Moment in R3<br>
+      r = vector representation of the Lever <br>
+      F = Force Vector<br>
+
+    </div>
+    </div>
+    <p class="content-paragraph">In other words a small amount of thrust would demand a large gimbal movement. Conversely, a large thrust vector would demand a small movement. The current control loop is being corrected via the error in euler angles when comparing the vehicle vector and the angle of attack vector. </p>
+    <div class="mermaid" style="padding: 20px;">
+      ---
+      config:
+        theme: neo
+        look: neo
+      ---
+      stateDiagram-v2
+      state AOTControlLoop {
+          direction TB
+          [*] --> Setpoint: Define Target
+          Setpoint --> Error: Compare
+          SetPoint --> ControlOutput: feedfoward Thrust compensation
+          Error --> PIDController: 
+          PIDController --> ControlOutput: Requested Moment
+          ControlOutput --> Process: 
+          Process --> Measurement: 
+          Measurement --> Setpoint: 
+      }
+
+      state ControlFlow {
+          [*] --> EulerError: 
+          EulerError --> GimbalControl: 
+          GimbalControl --> AOTControl: 
+          AOTControl --> ThrustControl: 
+          ThrustControl --> [*]: 
+      }
+
+
+    </div>
+
+
+  </div>
 
 <div class="content-div" id="tab2">
   <h1>Preset Simulation Parameters</h1>
