@@ -51,7 +51,7 @@ void reentryBurn(Vehicle &rocket){
     if(rocket.reentry == true) return;
 
 
-    if(rocket.Zposition < 55000 && rocket.reentry == false){
+    if(rocket.Zposition < 55000){
 
         rocket.reentry = true;
         float currentMaxGForce = constants::maxGAllowedEntry + 1;
