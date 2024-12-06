@@ -20,7 +20,6 @@ void iterator(Vehicle &rocket){
         rocket.lift();
         reentryBurn(rocket);
         rocket.finVectors = rocket.getFinForceVectors();
-        
         landingBurn(rocket);
 
         logRocketPosition(rocket);

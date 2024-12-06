@@ -76,11 +76,15 @@
     <p class="content-paragraph">The aero model is a combination of two orthogonal vectors, lift and drag. The drag vector is antiparallel to the airstream relative to the vehicle. A rocket creates lift by using its body as a “lifting body”. The coefficient of lift is directly related to the angle of attack relative to the oncoming air. Although the body is cylindrical and doesn't have wings, the small coefficient of lift at high velocity makes the vehicle maneuverable. In the current state the cross sectional area and coefficient of drag and lift are crudely estimated. Both are augmentations from a circular cross section to a rectangular cross section. The image in figure 4 shows the drag coefficient for a square ended cylinder given a mach number.</p>
     <img src = "../static/img/drag.png">
     <figcaption>Figure 4 : Drag VS Mach</figcaption>
+    <p class="content-paragraph">To accurately estimate the vehicle's reentry, air density is a crucial variable. Using the vehicle's Z position and the chart in the figure . The stepwise functions were tested via an empirical lookup table. Much of the behavior in high altitude tests can be attributed to the variability of air densities well entering the atmosphere.</p>
+    <img src="../static/img/airDensity.gif">
+    <figcaption></figcaption>
     <h2>Reentry Burn</h2>
     <p class="content-paragraph">The Falcon 9 entry burn is a strategic propulsive maneuver that reduces velocity, controls descent trajectory, and manages energy dissipation during atmospheric reentry, enabling precise and recoverable rocket landing.  A large reduction in velocity is required prior to hitting a wall of air. Air density increases exponentially as the vehicle decreases in altitude. The graph in Figure 5 shows this relationship between altitude and air density. </p>
     <img src = "../static/img/std-atmos-density.png" alt="Graph : Altitude VS Air Density">
     <figcaption>Figure 5 : Altitude VS Air Density.</figcaption>
     <p class="content-paragraph">A vehicle traveling at 2000 m/s tangentially to the atmosphere in a suborbital trajectory, more than 100 km above the Earth, will decelerate at a rate exceeding 90 m/s². The burn also reduces the amount of heat generated from aerodynamic drag/friction. If we assume that all drag is converted to heat energy (likely a poor assumption, but it helps paint a picture), we can use the following equations to see the relationship between vehicle velocity and heat generation. </p>
+    
     <div class="equation">
       <div class="equation-text">
           F<sub>d</sub> = ½ ρ v² C<sub>d</sub> A

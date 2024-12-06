@@ -60,9 +60,9 @@ Vehicle::Vehicle(){
     sumOfGimbalErrorX = 0;
     sumOfGimbalErrorY = 0;
 
-    gimbalPGain = .1;
-    gimbalIGain = 0;
-    gimbalDGain = 0;
+    gimbalPGain = 17;
+    gimbalIGain = 2;
+    gimbalDGain = .5;
 
     vehicleYError = 0;
     sumOfVehicleYError = 0;
@@ -72,9 +72,8 @@ Vehicle::Vehicle(){
 
     maxGimbalAngle = constants::maxGimbalAngle;
 
-    maxGimbalAcceleration = 0.2; // rad/s/s
+    maxGimbalAcceleration = 10; // rad/s/s
 
-    maxGimbalVelocity = 1; // rad/s
 
     gForce = 0;
 
@@ -474,21 +473,27 @@ void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
     if(gimbalTargetX < -constants::maxGimbalAngle) gimbalTargetX = -constants::maxGimbalAngle;
     if(gimbalTargetY > constants::maxGimbalAngle) gimbalTargetY = constants::maxGimbalAngle;
     if(gimbalTargetY < -constants::maxGimbalAngle) gimbalTargetY = -constants::maxGimbalAngle;
-
+    
+    gimbalErrorX = gimbalTargetX - gimbalX;
+    gimbalErrorY = gimbalTargetY - gimbalY;
 
     float XInput = PID(gimbalTargetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
     float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
-
-    logXInput = XInput;
-    logYInput = YInput;
+    
     if(YInput > 1) YInput = 1;
     if(YInput < -1) YInput = -1;
     if(XInput > 1) XInput = 1;
     if(XInput < -1) XInput = -1;
 
-    gimbalVelocityX += (XInput * maxGimbalAcceleration) * constants::timeStep;
-    gimbalVelocityY += (YInput * maxGimbalAcceleration) * constants::timeStep;  
+    logXInput = ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX * gimbalVelocityX);
+    logYInput = ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX);
+    
+    if(gimbalVelocityX > 1) gimbalVelocityX += ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX * gimbalVelocityX) * constants::timeStep;
+    else gimbalVelocityX += ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX) * constants::timeStep;
+
+    if(gimbalVelocityY > 1) gimbalVelocityY += ((YInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityY * gimbalVelocityY) * constants::timeStep; 
+    else  gimbalVelocityY += ((YInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityY) * constants::timeStep; 
 
     gimbalX += gimbalVelocityX * constants::timeStep;
     gimbalY += gimbalVelocityY * constants::timeStep;

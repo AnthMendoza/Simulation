@@ -11,9 +11,9 @@ namespace constants{
     float gravitationalAcceleration = -9.81; 
 
     //std::array<float,3> initPosition = {0,295528.164398,110000};
-   std::array<float,3> initPosition = {0,0,5000};
+   std::array<float,3> initPosition = {0,0,300};
     std::array<float,3> wind = {0,0,0}; //  m/s x,y,z  this will be stacked on top of whatever the current velocity is on an absolute cordinate system.
-    std::array<float,3> initVehicleState = {0,1,-1}; // this the vehicle vector, its direction is the directionthe nose points. it will be normilized
+    std::array<float,3> initVehicleState = {0,0,-1}; // this the vehicle vector, its direction is the directionthe nose points. it will be normilized
     std::array<float , 3> MOI = {3614090,3614090,3614090};
     std::array<float,3> initVelocity = {0,0,0}; // m/s
 
@@ -33,6 +33,7 @@ namespace constants{
     float initLOX = 8000; // kg
     float consumtionRateLOX = 150; //kg/s*engine
     float consumtionRateFuel = 150; //kg/s*engine
+    float gimbalDamping = 21;
 
 
     std::array<float,3> LandingTarget = {0,-257939.2813,0};

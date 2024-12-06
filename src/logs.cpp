@@ -32,7 +32,7 @@ void initializeCSV() {
     if (!outputFile.is_open()) {
         throw std::runtime_error("Unable to open file: " );
     }
-    std::string headers = "Time,Xposition,Yposition,Zposition,XVehicleState,YVehicleState,ZVehicleState,Velocity,Acceleration,XengineState,YengineState,ZengineState,gimalXerror,error,xtwodAngle,ytwodangle";
+    std::string headers = "Time,Xposition,Yposition,Zposition,XVehicleState,YVehicleState,ZVehicleState,Velocity,Acceleration,XengineState,YengineState,ZengineState,gimbalX,gimbalY,gimbalInputX,gimbalInputY";
     appendRowToCSV(headers);
 }
 
@@ -116,11 +116,7 @@ void logRocketPosition(Vehicle &rocket) {
                         std::to_string(rocket.gimbalX)+ "," +
                         std::to_string(rocket.gimbalY)+ "," +
                         std::to_string(rocket.logXInput)+ "," +
-                        std::to_string(rocket.logYInput)+ "," +
-                        std::to_string(rocket.dragLog[0])+ "," +
-                        std::to_string(rocket.dragLog[1])+ "," +
-                        std::to_string(rocket.dragLog[2])+ "," ;
-
+                        std::to_string(rocket.logYInput);
 
         appendRowToCSV(row);
 

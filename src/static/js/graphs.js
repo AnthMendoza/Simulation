@@ -1,10 +1,4 @@
-// Generate data
-const t = Array.from({length: 101}, (_, i) => i * 0.1);
-const x = t.map(val => val - 5);
-const y = t.map(val => Math.sin(val) * 2);
-const z = t.map(val => Math.cos(val) * 2);
 
-// Common styling for dark theme
 const commonAxisStyle = {
     showgrid: true,
     gridwidth: 1,
