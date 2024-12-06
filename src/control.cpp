@@ -51,7 +51,7 @@ void reentryBurn(Vehicle &rocket){
     if(rocket.reentry == true) return;
 
 
-    if(rocket.Zposition < 55000){
+    if(rocket.Zposition < 55000 && rocket.reentry == false){
 
         rocket.reentry = true;
         float currentMaxGForce = constants::maxGAllowedEntry + 1;
@@ -59,20 +59,24 @@ void reentryBurn(Vehicle &rocket){
         //main loop moves forward 1 second every lookAHead cylce
         float stepInterval = 1;
         std::array<float,2> direction = {0,0};
+        float count = 0;
         while(currentMaxGForce > constants::maxGAllowedEntry){
             Vehicle lookAheadRocket = rocket;
             std::vector<float> gForces = lookAhead(lookAheadRocket , 105 , [](Vehicle &r) { return r.gForce; }); // 105 is the lookahead time in seconds. this may be stoppped earlier if the vehicle hits the ground
             
             currentMaxGForce = *std::max_element(gForces.begin(),gForces.end());
-            std::cout<<currentMaxGForce<< std::endl;
-            if(currentMaxGForce < constants::maxGAllowedEntry) return;
-            if(currentMaxGForce > lastMaxGForce) return;
+            std::cout<<currentMaxGForce<< ","<< lastMaxGForce<<std::endl;
+            if(currentMaxGForce < constants::maxGAllowedEntry && count > 0) return;
+            if(currentMaxGForce > lastMaxGForce && count > 0) return;
+            lastMaxGForce = currentMaxGForce;
             float currentIteration = rocket.iterations;
+            count++;
             while(rocket.iterations < currentIteration + stepInterval/constants::timeStep && rocket.Zposition > 0){
                 rocket.drag();
                 rocket.lift();
                 rocket.applyEngineForce(direction , constants::maxThrust * .6 * 3); 
                 rocket.finVectors = rocket.getFinForceVectors();
+                if(rocket.iterations == 0)logRocketPosition(rocket);
                 logRocketPosition(rocket);
                 rocket.updateState();
                 rocket.iterations++;
@@ -129,7 +133,7 @@ void glidToTarget(Vehicle &rocket){
 
 void landingBurn(Vehicle &rocket){
 
-    if(rocket.Zposition > 4600) return;
+    if(rocket.reentry == false || rocket.glidePhase == false || rocket.Zposition > 4600) return;
         
     float vehicleNormalForce = -constants::gravitationalAcceleration * rocket.mass;
 
