@@ -1,5 +1,6 @@
 #include "../include/rotationMatrix.h"
 #include <iostream>
+
 int main(){
 
     std::array<float , 3> forceVector = {1,0,0};
@@ -20,3 +21,4 @@ int main(){
 
     return 0;
 }
+

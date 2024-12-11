@@ -42,6 +42,7 @@ Vehicle::Vehicle(){
 
     reentry = false;
     glidePhase = false; //false means yet to happen, true means already happened
+    landing = false;
 
     iterations = 0;
 
@@ -469,10 +470,9 @@ bool Vehicle::fuelConsumption(float thrust){
 
 
 void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
-    if(gimbalTargetX > constants::maxGimbalAngle) gimbalTargetX = constants::maxGimbalAngle;
-    if(gimbalTargetX < -constants::maxGimbalAngle) gimbalTargetX = -constants::maxGimbalAngle;
-    if(gimbalTargetY > constants::maxGimbalAngle) gimbalTargetY = constants::maxGimbalAngle;
-    if(gimbalTargetY < -constants::maxGimbalAngle) gimbalTargetY = -constants::maxGimbalAngle;
+
+    setInBounds( gimbalTargetX , -constants::maxGimbalAngle , constants::maxGimbalAngle);
+    setInBounds( gimbalTargetY , -constants::maxGimbalAngle , constants::maxGimbalAngle);
     
     gimbalErrorX = gimbalTargetX - gimbalX;
     gimbalErrorY = gimbalTargetY - gimbalY;
@@ -480,11 +480,11 @@ void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
     float XInput = PID(gimbalTargetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
     float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
-    
-    if(YInput > 1) YInput = 1;
-    if(YInput < -1) YInput = -1;
-    if(XInput > 1) XInput = 1;
-    if(XInput < -1) XInput = -1;
+
+
+    setInBounds( XInput , -1.0f , 1.0f);
+    setInBounds( YInput , -1.0f , 1.0f);
+
 
     logXInput = ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX * gimbalVelocityX);
     logYInput = ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX);

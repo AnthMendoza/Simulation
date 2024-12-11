@@ -44,6 +44,8 @@ class Vehicle{
 
         bool glidePhase;
 
+        bool landing;
+
         std::array<float,3> engineState;
 
         int iterations;

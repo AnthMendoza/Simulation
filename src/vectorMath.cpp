@@ -116,5 +116,3 @@ bool directionality(std::array<float , 3> &refranceVector ,std::array<float , 3>
 
 
 
-
-

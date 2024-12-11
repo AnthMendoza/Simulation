@@ -133,11 +133,16 @@ void glidToTarget(Vehicle &rocket){
 
 void landingBurn(Vehicle &rocket){
 
-    if(rocket.reentry == false || rocket.Zposition > 4600) return;
+    if(rocket.reentry == false|| rocket.landing == true || rocket.Zposition > 4600) return;
         
     float vehicleNormalForce = -constants::gravitationalAcceleration * rocket.mass;
 
     std::array<float,3> velo =  {rocket.Xvelocity, rocket.Yvelocity , rocket.Zvelocity};
+    float groundVelocity  = vectorMag(velo);
+    if(groundVelocity < 2 && groundVelocity > 0 ){
+        rocket.landing = true;
+        return;
+    }
 
     velo = normalizeVector(velo);
     
@@ -152,7 +157,6 @@ void landingBurn(Vehicle &rocket){
 
     std::array<float , 3> directionVector = normalizeVector(velo);
 
-
     std::array<float,2> direction = {0,0};
         
     std::array<float,2> twoDState = {rocket.vehicleState[1] , rocket.vehicleState[2]};
@@ -166,7 +170,7 @@ void landingBurn(Vehicle &rocket){
 
     rocket.twoDAngle = twoDState;
 
-    float PIDOutputY = PID(0,error,rocket.vehicleYError, rocket.sumOfVehicleYError, constants::timeStep , 25 ,3 , 3);
+    float PIDOutputY = PID(0,error,rocket.vehicleYError, rocket.sumOfVehicleYError, constants::timeStep , 2 ,1 , 1);
     
     //std::cout<< twoDState[0] << "," << twoDState[1] << "  " << targetState[0] << "," << targetState[1]<< "   "<< error  << "   " << PIDOutputY <<std::endl;
 
@@ -176,13 +180,13 @@ void landingBurn(Vehicle &rocket){
 
     error  = twodAngleDiffrence( twoDState, targetState);
 
-    float PIDOutputX = PID(0,error,rocket.vehicleXError, rocket.sumOfVehicleXError, constants::timeStep , 5 ,3, 3);
+    float PIDOutputX = PID(0,error,rocket.vehicleXError, rocket.sumOfVehicleXError, constants::timeStep , 2 ,1, 1);
 
 
 
     rocket.engineGimbal( PIDOutputY , PIDOutputX );
-    
-    
+
+
 
     direction[1] = -rocket.gimbalY;
     direction[0] = rocket.gimbalX;

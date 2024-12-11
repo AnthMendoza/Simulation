@@ -1,7 +1,7 @@
 #ifndef VECTOR_MATH_H
 #define VECTOR_MATH_H
 
-
+#include <array>
 
 float vectorMag(std::array<float,3> &vector);
 
@@ -19,6 +19,13 @@ std::array<float , 3> addVectors(std::array<float , 3> &vec1 , std::array<float 
 
 bool directionality(std::array<float , 3> &refranceVector ,std::array<float , 3> &vector1);
 
+template <typename T>
+void setInBounds(T &value , const T &lower , const T &upper){
+    
+    if(value > upper) value = upper;
+    if(value < lower) value = lower;
+
+}
 
 
 #endif

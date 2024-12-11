@@ -16,11 +16,11 @@
 void iterator(Vehicle &rocket){
 
     while(rocket.Zposition > 0 && rocket.iterations < 1000000){
-        rocket.drag();
+        //rocket.drag();
         rocket.lift();
-        reentryBurn(rocket);
+        //reentryBurn(rocket);
         rocket.finVectors = rocket.getFinForceVectors();
-        landingBurn(rocket);
+        //landingBurn(rocket);
 
         logRocketPosition(rocket);
 
@@ -112,7 +112,5 @@ int main(int argc, char* argv[]){
     std::cout << "Runtime: " << duration.count() << " seconds" << std::endl;
 
     return 0;
-
-
 
 }
