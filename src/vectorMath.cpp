@@ -108,7 +108,7 @@ bool directionality(std::array<float , 3> &refranceVector ,std::array<float , 3>
     float chordLength = vectorMag(sumOfVect);
 
     if( chordLength > sqrtTwo) return false;
-    else return true;
+    return true;
 }
 
 

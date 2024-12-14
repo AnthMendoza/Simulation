@@ -20,10 +20,6 @@ class Vehicle{
         float gimbalVelocityX;
         float gimbalVelocityY;
 
-        float gimbalPGain;
-        float gimbalIGain;
-        float gimbalDGain;
-
         float maxGimbalAcceleration;
         float maxGimbalVelocity;
 

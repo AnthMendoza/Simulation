@@ -27,7 +27,11 @@ namespace constants{
     extern float initLOX; // kg
     extern float consumtionRateLOX; //kg/s
     extern float consumtionRateFuel; //kg/s
+    
     extern float gimbalDamping;
+    extern float gimbalPGain;
+    extern float gimbalIGain;
+    extern float gimbalDGain;
 
 
 

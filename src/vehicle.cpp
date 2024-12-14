@@ -48,8 +48,6 @@ Vehicle::Vehicle(){
 
     engineState = {0,0,0};
     appliedVector = {0,0,0};
-    error = 0;
-    twoDAngle = {0,0};
 
     gimbalErrorX = 0;
     gimbalErrorY = 0;
@@ -58,20 +56,17 @@ Vehicle::Vehicle(){
     gimbalVelocityX = 0;
     gimbalVelocityY = 0;
 
+    twoDAngle = {0,0};
+    error = 0;
+
     sumOfGimbalErrorX = 0;
     sumOfGimbalErrorY = 0;
-
-    gimbalPGain = 17;
-    gimbalIGain = 2;
-    gimbalDGain = .5;
 
     vehicleYError = 0;
     sumOfVehicleYError = 0;
 
     vehicleXError = 0;
     sumOfVehicleXError = 0;
-
-    maxGimbalAngle = constants::maxGimbalAngle;
 
     maxGimbalAcceleration = 10; // rad/s/s
 
@@ -221,6 +216,12 @@ void Vehicle::lift(){
     liftVector[0] = lift * projectedVector[0];
     liftVector[1] = lift * projectedVector[1];
     liftVector[2] = lift * projectedVector[2];
+
+    if(directionality(normalAirVelocityVector , vehicleState) == false){
+        liftVector[0] = -liftVector[0];
+        liftVector[1] = -liftVector[1];
+        liftVector[2] = -liftVector[2];
+    }
 
     addForce(liftVector);
 
@@ -477,9 +478,9 @@ void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
     gimbalErrorX = gimbalTargetX - gimbalX;
     gimbalErrorY = gimbalTargetY - gimbalY;
 
-    float XInput = PID(gimbalTargetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
+    float XInput = PID(gimbalTargetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , constants::gimbalPGain , constants::gimbalIGain , constants::gimbalDGain);
 
-    float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
+    float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , constants::gimbalPGain , constants::gimbalIGain , constants::gimbalDGain);
 
 
     setInBounds( XInput , -1.0f , 1.0f);
