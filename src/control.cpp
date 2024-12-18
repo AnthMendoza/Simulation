@@ -65,7 +65,7 @@ void reentryBurn(Vehicle &rocket){
             std::vector<float> gForces = lookAhead(lookAheadRocket , 105 , [](Vehicle &r) { return r.gForce; }); // 105 is the lookahead time in seconds. this may be stoppped earlier if the vehicle hits the ground
             
             currentMaxGForce = *std::max_element(gForces.begin(),gForces.end());
-            std::cout<<currentMaxGForce<< ","<< lastMaxGForce<<std::endl;
+            std::cout<<currentMaxGForce<< ","<< lastMaxGForce<<"\n";
             if(currentMaxGForce < constants::maxGAllowedEntry && count > 0) return;
             if(currentMaxGForce > lastMaxGForce && count > 0) return;
             lastMaxGForce = currentMaxGForce;
@@ -142,7 +142,9 @@ void landingBurn(Vehicle &rocket){
     float landingAccelX = rocket.Xvelocity / landingBurnDuration;
 
     float landingAccelY = rocket.Yvelocity / landingBurnDuration;
-    if(landingBurnDuration < .3f){
+    // as landing duration approches 0 landing acceleration X and Y grows rapidly 
+    // lim 1/x as x approches +0 is infinity 
+    if(landingBurnDuration < 1.0f){ 
         landingAccelX = 0;
         landingAccelY = 0;
     }
@@ -154,9 +156,19 @@ void landingBurn(Vehicle &rocket){
     float landingForceZ = landingAccelZ * rocket.mass;
 
     float requiredThrust = sqrtf(landingForceX * landingForceX + landingForceY * landingForceY + landingForceZ * landingForceZ);
-    if(requiredThrust <= constants::minThrust) return;
+
+    if(requiredThrust >= constants::landingThrust){
+        rocket.landingInProgress = true;
+    }
+    if(requiredThrust <= constants::minThrust || rocket.landingInProgress == false){
+        rocket.landingInProgress = false; 
+        return;
+    }
+
+
     if(requiredThrust > constants::maxThrust) requiredThrust = constants::maxThrust;
-    if(rocket.iterations % 20 == 0)std::cout<< landingAccelZ<< " , "<< rocket.gForce << " , "<< requiredThrust<< " , " << rocket.engineForce/rocket.mass << " , " << rocket.mass<< std::endl;
+
+    std::cout<< rocket.Xvelocity << " , " << rocket.Yvelocity << " , " << rocket.Zvelocity<< " , " << rocket.getVelocity() << "\n";
     
 
     std::array<float,3> forceVector = {landingForceX , landingForceY , landingForceZ};
@@ -179,7 +191,7 @@ void landingBurn(Vehicle &rocket){
 
     float PIDOutputY = PID(0,error,rocket.vehicleYError, rocket.sumOfVehicleYError, constants::timeStep , .2 ,0 , 1);
     
-    //std::cout<< twoDState[0] << "," << twoDState[1] << "  " << targetState[0] << "," << targetState[1]<< "   "<< error  << "   " << PIDOutputY <<std::endl;
+    //std::cout<< twoDState[0] << "," << twoDState[1] << "  " << targetState[0] << "," << targetState[1]<< "   "<< error  << "   " << PIDOutputY << "\n";
 
     twoDState = {rocket.vehicleState[0] , rocket.vehicleState[2]};
 
@@ -192,7 +204,6 @@ void landingBurn(Vehicle &rocket){
 
 
     rocket.engineGimbal( PIDOutputY , PIDOutputX );
-
 
 
     direction[1] = -rocket.gimbalY;

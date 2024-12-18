@@ -24,6 +24,21 @@ fetch('../../data.csv')
       });
 
       console.log(allValues); // Output all values from each column
+
+      const lastX = parseFloat(allValues[1][allValues[1].length - 1]);
+      const lastY = parseFloat(allValues[3][allValues[2].length - 1]);
+      const lastZ = parseFloat(allValues[2][allValues[3].length - 1]);
+      
+      // Create the floor
+      const floorGeometry = new THREE.PlaneGeometry(50, 50);  // Size of the floor (50x50 units)
+      const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x3f9b0b, side: THREE.DoubleSide });
+      const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+
+      // Position and rotate the floor
+      floor.rotation.x = Math.PI / 2;  // Rotate the plane to lie flat on the XZ plane
+      floor.position.set(lastX, lastY, lastZ);
+
+      scene.add(floor);  // Add the floor to the scene
   })
   .catch(error => {
       console.error('Error fetching CSV:', error);
@@ -81,16 +96,6 @@ fetch('../../data.csv')
     }
   );
 
-  // Create the floor
-  const floorGeometry = new THREE.PlaneGeometry(500, 500);  // Size of the floor (50x50 units)
-  const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x3f9b0b, side: THREE.DoubleSide });
-  const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-
-  // Position and rotate the floor
-  floor.rotation.x = Math.PI / 2;  // Rotate the plane to lie flat on the XZ plane
-  floor.position.y = 0;  // Set the floor at y = 0
-
-  scene.add(floor);  // Add the floor to the scene
 
     
 let  currentX = 0;

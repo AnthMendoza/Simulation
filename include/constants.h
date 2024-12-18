@@ -21,6 +21,7 @@ namespace constants{
     extern float maxGimbalAngle;// rad
     extern float cogToEngine;
     extern float landingVelocity;
+    extern float landingThrust;
     extern float consumptionRateAtFullPowerPerEngine;
     extern float dryMass; // kg
     extern float initFuel; // kg

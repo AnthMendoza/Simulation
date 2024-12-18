@@ -110,7 +110,7 @@ int main(int argc, char* argv[]){
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
-    std::cout << "Runtime: " << duration.count() << " seconds" << std::endl;
+    std::cout << "Runtime: " << duration.count() << " seconds" << "\n";
 
     return 0;
 

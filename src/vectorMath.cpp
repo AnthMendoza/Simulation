@@ -82,7 +82,7 @@ float twodAngleDiffrence(std::array<float , 2> &vector1 , std::array<float , 2> 
     float angle = acosf(insideCos);
 
     float cross = (vector1[0] * vector2[1] - vector1[1] * vector2[0]);
-    //std::cout<< angle <<" " << cross << std::endl;
+    
     if(cross < 0){
         return -angle;
     }

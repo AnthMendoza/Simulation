@@ -43,6 +43,7 @@ Vehicle::Vehicle(){
     reentry = false;
     glidePhase = false; //false means yet to happen, true means already happened
     landing = false;
+    landingInProgress = false;
 
     iterations = 0;
 

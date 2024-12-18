@@ -42,6 +42,8 @@ class Vehicle{
 
         bool landing;
 
+        bool landingInProgress;
+
         std::array<float,3> engineState;
 
         int iterations;
