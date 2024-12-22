@@ -148,7 +148,7 @@ void landingBurn(Vehicle &rocket){
         landingAccelX = 0;
         landingAccelY = 0;
     }
-
+    
     float landingForceX = landingAccelX * rocket.mass;
 
     float landingForceY = landingAccelY * rocket.mass;
@@ -160,11 +160,11 @@ void landingBurn(Vehicle &rocket){
     if(requiredThrust >= constants::landingThrust){
         rocket.landingInProgress = true;
     }
+
     if(requiredThrust <= constants::minThrust || rocket.landingInProgress == false){
         rocket.landingInProgress = false; 
         return;
     }
-
 
     if(requiredThrust > constants::maxThrust) requiredThrust = constants::maxThrust;
 

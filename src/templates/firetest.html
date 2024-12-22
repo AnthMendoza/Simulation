@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket Entry</title>
-    <link rel="styleSheet" href="../static/css/rocketStyle.css">
+    <title>3D Fire Effect in Three.js</title>
+    <link rel="stylesheet" >
 </head>
 
-
+<body>
     <script type="x-shader/x-vertex" id="vertex-shader">
         precision mediump float;
 
@@ -149,24 +149,7 @@
             }
         }
         </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.24.1/plotly.min.js"></script>
-    <script>const data = {{ simulationData | tojson }};</script>
-    <div id="simulationViewPort">
-      <div id="overlay-text">
-        Loading Assests...
-      </div>
-      <canvas id="threeCanvas"></canvas>
-      <script type="module" src="../static/js/rocketScriptWin.js"></script>  <!--linux path "static/js/rocketScript.js" -->
-    </div>
-  
-    <div class="dashboard">
-      <div id="graph1" class="graph-container"></div>
-      <div id="graph2" class="graph-container"></div>
-      <div id="graph3" class="graph-container"></div>
-      <div id="graph4" class="graph-container"></div>
-      <div id="graph5" class="graph-container"></div>
-      <div id="graph6" class="graph-container"></div>
-    </div>
-    <script src="../static/js/graphs.js"></script> <!--linux path "static/js/graphs.js" -->
-  </body>
-  </html>
+    <script type="module" src="../templates/test.js"></script>
+</body>
+
+</html>

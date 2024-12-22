@@ -64,7 +64,7 @@ def getSimulationFromMemory(unique_id):
 
     with safe_shared_memory(str(unique_id)) as shm:
         buffer = shm.buf
-        current_offset = 4 * 15 # 9 arrays recieved
+        current_offset = 4 * 19 # 19 arrays recieved
         sizes = [
             int.from_bytes(buffer[i:i + 4], byteorder='little')
             for i in range(0, current_offset, 4)
@@ -157,7 +157,7 @@ def simulation():
             if return_code == 0:
                 try:
 
-                    array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 , array8 , array9 , array10 , array11 , array12 , array13 , array14 = getSimulationFromMemory(str(unique_id))
+                    array0 , array1 , array2 , array3 , array4 , array5 , array6 , array7 , array8 , array9 , array10 , array11 , array12 , array13 , array14 , array15 , array16 , array17 , array18 = getSimulationFromMemory(str(unique_id))
                     simulationData = {
                     "VectorTimeStamp": array0,
                     "Xposition": array1,
@@ -174,6 +174,10 @@ def simulation():
                     "fuel": array12,
                     "LOX": array13,
                     "VectorTimeStampReduced": array14,
+                    "engineVector0": array15,
+                    "engineVector1": array16,
+                    "engineVector2": array17,
+                    "engineState":array18
                     }
                     return render_template("simulation.html" , simulationData = simulationData)
                 except FileNotFoundError:
