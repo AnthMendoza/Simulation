@@ -234,10 +234,10 @@ void dataToRam(char* unique_id){
     int_ptr[12] = fuelReduced.size();
     int_ptr[13] = LOXReduced.size();
     int_ptr[14] = timeStepVectReduced.size();
-    int_ptr[15] = engineVector0.size()
-    int_ptr[16] = engineVector1.size()
-    int_ptr[17] = engineVector2.size()
-    int_ptr[18] = enginePower.size()
+    int_ptr[15] = engineVector0.size();
+    int_ptr[16] = engineVector1.size();
+    int_ptr[17] = engineVector2.size();
+    int_ptr[18] = enginePower.size();
 
 
 
