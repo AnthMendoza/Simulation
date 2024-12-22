@@ -24,6 +24,10 @@ std::vector<float> gimbalYAngle;
 std::vector<float> fuel;
 std::vector<float> mass;
 std::vector<float> LOX;
+std::vector<float> engineVector0;
+std::vector<float> engineVector1;
+std::vector<float> engineVector2;
+std::vector<float> enginePower;
 
 
 
@@ -65,6 +69,10 @@ void initializeVectors(int preset){
         mass.reserve(preset);
         fuel.reserve(preset);
         LOX.reserve(preset);
+        engineVector0.reserve(preset);
+        engineVector1.reserve(preset);
+        engineVector2.reserve(preset);
+        enginePower.reserve(preset);
     #endif
 }
 
@@ -92,6 +100,13 @@ void logRocketPosition(Vehicle &rocket) {
         mass.push_back(rocket.mass);
         fuel.push_back(rocket.fuel);
         LOX.push_back(rocket.LOX);
+
+        engineVector0.push_back(rocket.engineState[0]);
+        engineVector1.push_back(rocket.engineState[1]);
+        engineVector2.push_back(rocket.engineState[1]);
+
+        //enginePower.push_back(rocket.enginePower); //number from 0 to 1
+
 
 
 
@@ -219,6 +234,10 @@ void dataToRam(char* unique_id){
     int_ptr[12] = fuelReduced.size();
     int_ptr[13] = LOXReduced.size();
     int_ptr[14] = timeStepVectReduced.size();
+    int_ptr[15] = engineVector0.size()
+    int_ptr[16] = engineVector1.size()
+    int_ptr[17] = engineVector2.size()
+    int_ptr[18] = enginePower.size()
 
 
 
@@ -253,6 +272,15 @@ void dataToRam(char* unique_id){
     std::memcpy(&int_ptr[count], LOXReduced.data(), LOXReduced.size() * sizeof(float));
     count += LOXReduced.size();
     std::memcpy(&int_ptr[count], timeStepVectReduced.data(), timeStepVectReduced.size() * sizeof(float));
+
+    count += timeStepVectReduced.size();
+    std::memcpy(&int_ptr[count], engineVector0.data(), engineVector0.size() * sizeof(float));
+    count += engineVector0.size();
+    std::memcpy(&int_ptr[count], engineVector1.data(), engineVector1.size() * sizeof(float));
+    count += engineVector1.size();
+    std::memcpy(&int_ptr[count], engineVector2.data(), engineVector2.size() * sizeof(float));
+    count += engineVector2.size();
+    std::memcpy(&int_ptr[count], enginePower.data(), enginePower.size() * sizeof(float));
 
     std::cout << "Data written to shared memory." << std::endl;
 
