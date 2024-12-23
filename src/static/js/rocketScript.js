@@ -152,7 +152,7 @@ let  currentY = 0;
     );  
 
 
-    if(parseFloat(data.enginePower[count]) = 0){
+    if(parseFloat(data.enginePower[count]) == 0){
       mesh1.visible = false;
       mesh2.visible = false;
     }else{1
