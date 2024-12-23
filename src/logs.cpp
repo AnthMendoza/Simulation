@@ -105,7 +105,7 @@ void logRocketPosition(Vehicle &rocket) {
         engineVector1.push_back(rocket.engineState[1]);
         engineVector2.push_back(rocket.engineState[1]);
 
-        //enginePower.push_back(rocket.enginePower); //number from 0 to 1
+        enginePower.push_back(rocket.enginePower); //number from 0 to 1
 
 
 
@@ -242,7 +242,7 @@ void dataToRam(char* unique_id){
 
 
     // Write the contents of the arrays
-    int count = 19;
+    int count = 19; // number of arrays being logged*****
     std::memcpy(&int_ptr[count], timeStepVect.data(), timeStepVect.size() * sizeof(float));
     count += timeStepVect.size();
     std::memcpy(&int_ptr[count], Xposition.data(), Xposition.size() * sizeof(float));
@@ -272,7 +272,6 @@ void dataToRam(char* unique_id){
     std::memcpy(&int_ptr[count], LOXReduced.data(), LOXReduced.size() * sizeof(float));
     count += LOXReduced.size();
     std::memcpy(&int_ptr[count], timeStepVectReduced.data(), timeStepVectReduced.size() * sizeof(float));
-
     count += timeStepVectReduced.size();
     std::memcpy(&int_ptr[count], engineVector0.data(), engineVector0.size() * sizeof(float));
     count += engineVector0.size();

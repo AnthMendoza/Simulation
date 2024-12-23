@@ -48,6 +48,7 @@ Vehicle::Vehicle(){
     iterations = 0;
 
     engineState = {0,0,0};
+    enginePower = 0;
     appliedVector = {0,0,0};
 
     gimbalErrorX = 0;
@@ -279,6 +280,11 @@ void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thr
 
     engineState = engineVector;
 
+    enginePower = constants::maxThrust / abs(thrust);
+
+    setInBounds(enginePower , 0.0f , 1.0f);
+    
+
     engineVector[0] = engineVector[0] *-thrust;
     engineVector[1] = engineVector[1] *-thrust;
     engineVector[2] = engineVector[2] *-thrust;
@@ -355,12 +361,14 @@ void Vehicle::updateState(){
     sumOfMoments[2] = 0;
 
     engineState = {0,0,0};
+    enginePower = 0;
 
     appliedVector = {0,0,0};
 
     //reset finVectors::: might remove 
     finVectors[0] =  {0,0,0};
     finVectors[1] =  {0,0,0};
+
 
     
 }

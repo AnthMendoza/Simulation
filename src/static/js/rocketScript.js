@@ -150,10 +150,18 @@ let  currentY = 0;
       parseFloat(data.vehicleState2[count]),  
       parseFloat(data.vehicleState1[count])
     );  
-    
-    let stateVectorX = parseFloat(data.vehicleState0);
-    let stateVectorY = parseFloat(data.vehicleState1);
-    let stateVectorZ = parseFloat(data.vehicleState2);
+
+
+    if(data.enginePower[count] = 0){
+      mesh1.visible = false;
+      mesh2.visible = false;
+    }else{
+      mesh1.visible = true;
+      mesh2.visible = true;
+    }
+    let stateVectorX = parseFloat(data.vehicleState0[count]);
+    let stateVectorY = parseFloat(data.vehicleState1[count]);
+    let stateVectorZ = parseFloat(data.vehicleState2[count]);
     let normalVector  = Math.sqrt(stateVectorX * stateVectorX + stateVectorY * stateVectorY + stateVectorZ * stateVectorZ );
     let distance = -36;
     let adjustedX = currentX + stateVectorX * normalVector * distance;
@@ -162,8 +170,8 @@ let  currentY = 0;
     mesh1.position.set(adjustedX , adjustedZ , adjustedY);
     mesh2.position.set(adjustedX , adjustedZ , adjustedY);
 
-    mesh1.lookAt(currentX + parseFloat(data.engineVector0) , currentZ + parseFloat(data.engineVector2) , currentY+ parseFloat(data.engineVector1));
-    mesh2.lookAt(currentX + parseFloat(data.engineVector0) , currentZ + parseFloat(data.engineVector2) , currentY+ parseFloat(data.engineVector1));
+    mesh1.lookAt(currentX + parseFloat(data.engineVector0[count]) , currentZ + parseFloat(data.engineVector2[count]) , currentY+ parseFloat(data.engineVector1[count]));
+    mesh2.lookAt(currentX + parseFloat(data.engineVector0[count]) , currentZ + parseFloat(data.engineVector2[count]) , currentY+ parseFloat(data.engineVector1[count]));
     mesh1.rotateX(Math.PI * 3 / 2); 
     mesh2.rotateX(Math.PI * 3 / 2);
 

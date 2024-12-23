@@ -51,6 +51,7 @@ class Vehicle{
         float gForce;
 
         float engineForce;
+        float enginePower; //used to send data to simulation for fire animation, no physics is done
 
         float dryMass , fuel , LOX , fuelConsumptionRate , LOXConsumptionRate ;
 
