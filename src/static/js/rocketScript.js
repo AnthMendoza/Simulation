@@ -124,7 +124,9 @@ let mesh2;
     console.error
 );
 
-
+console.log(data.engineVector0);
+console.log(data.engineVector1);
+console.log(data.engineVector2);
     
 let  currentX = 0;
 let  currentZ = 0;
@@ -184,11 +186,6 @@ let  currentY = 0;
                                                 <br> Acceleration( G )${parseFloat(data.gForce[count]).toFixed(3)}`;
   }
   
-
-
-
-
-
 
 
 
