@@ -151,14 +151,10 @@ let  currentY = 0;
       parseFloat(data.vehicleState1[count])
     );  
 
-
-    if(parseFloat(data.enginePower[count]) == 0){
-      mesh1.visible = false;
-      mesh2.visible = false;
-    }else{
-      mesh1.visible = true;
-      mesh2.visible = true;
-    }
+    const isVisible = parseFloat(data.enginePower[count]) !== 0;
+    mesh1.visible = isVisible;
+    mesh2.visible = isVisible;
+    
     let stateVectorX = parseFloat(data.vehicleState0[count]);
     let stateVectorY = parseFloat(data.vehicleState1[count]);
     let stateVectorZ = parseFloat(data.vehicleState2[count]);
