@@ -159,7 +159,9 @@ let  currentY = 0;
     mesh2.scale.set( 5 * parseFloat(data.enginePower[count]) + 5 , 10 * parseFloat(data.enginePower[count]) + 9 , 5 * parseFloat(data.enginePower[count]) + 5);
     let distance = -36;
 
-    
+    if(parseFloat(data.velocity[count]) > 400 ){
+      distance = -25
+    }
     
     let stateVectorX = parseFloat(data.vehicleState0[count]);
     let stateVectorY = parseFloat(data.vehicleState1[count]);
