@@ -179,7 +179,7 @@ let  currentY = 0;
 
     const overlayText = document.getElementById('overlay-text');//+parseFloat(data.Zposition[0])).toFixed(1)
     overlayText.innerHTML = `Position( meters ):<br>X=${object.position.x.toFixed(1)}
-                                                <br>Y=${(-object.position.z)}
+                                                <br>Y=${(-object.position.z.toFixed(1))}
                                                 <br>altitude=${object.position.y.toFixed(1)} <br>
                                                 <br> Velocity( m/s , mph )<br>${parseFloat(data.velocity[count]).toFixed(3)}
                                                 <br>${(parseFloat(data.velocity[count])*2.237).toFixed(3)}<br>

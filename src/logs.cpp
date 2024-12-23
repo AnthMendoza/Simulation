@@ -195,7 +195,7 @@ void dataToRam(char* unique_id){
     lowPrecisionData(LOX , LOXReduced , lowRes);
 
     const char *shm_name = unique_id;
-    const size_t SIZE = 1024 * 6000; // 10 KB of shared memory
+    const size_t SIZE = 1024 * 10000; // 10 KB of shared memory
     int shm_fd = shm_open(shm_name, O_CREAT | O_RDWR, 0666);
 
     if (shm_fd == -1) {
@@ -242,7 +242,7 @@ void dataToRam(char* unique_id){
 
 
     // Write the contents of the arrays
-    int count = 15;
+    int count = 19;
     std::memcpy(&int_ptr[count], timeStepVect.data(), timeStepVect.size() * sizeof(float));
     count += timeStepVect.size();
     std::memcpy(&int_ptr[count], Xposition.data(), Xposition.size() * sizeof(float));
