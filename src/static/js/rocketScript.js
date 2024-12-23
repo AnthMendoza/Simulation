@@ -155,8 +155,8 @@ let  currentY = 0;
     mesh1.visible = isVisible;
     mesh2.visible = isVisible;
 
-    mesh1.scale.set( 5 * data.enginePower[count] + 5 + 1 , 10 * enginePower[count] + 9 + 1 , 5 * data.enginePower[count] + 5 + 1);
-    mesh2.scale.set( 5 * data.enginePower[count] + 5 , 10 * enginePower[count] + 9 , 5 * data.enginePower[count] + 5);
+    mesh1.scale.set( 5 * parseFloat(data.enginePower[count]) + 5 + 1 , 10 * parseFloat(enginePower[count]) + 9 + 1 , 5 * parseFloat(data.enginePower[count]) + 5 + 1);
+    mesh2.scale.set( 5 * parseFloat(data.enginePower[count]) + 5 , 10 * parseFloat(enginePower[count]) + 9 , 5 * parseFloat(data.enginePower[count]) + 5);
     let distance = -36;
     if(parseFloat(data.velocity[count]) > 600 ){
       mesh1.rotateX(Math.PI / 2); 
