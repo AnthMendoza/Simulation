@@ -177,7 +177,7 @@ def simulation():
                     "engineVector0": array15,
                     "engineVector1": array16,
                     "engineVector2": array17,
-                    "engineState":array18
+                    "enginePower":array18
                     }
                     return render_template("simulation.html" , simulationData = simulationData)
                 except FileNotFoundError:
