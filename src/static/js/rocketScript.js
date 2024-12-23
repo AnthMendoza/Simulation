@@ -173,17 +173,9 @@ let  currentY = 0;
     mesh1.lookAt(currentX + parseFloat(data.engineVector0[count]) , currentZ + parseFloat(data.engineVector2[count]) , currentY+ parseFloat(data.engineVector1[count]));
     mesh2.lookAt(currentX + parseFloat(data.engineVector0[count]) , currentZ + parseFloat(data.engineVector2[count]) , currentY+ parseFloat(data.engineVector1[count]));
 
-    if(parseFloat(data.velocity[count]) > 600 ){
-      mesh1.rotateX(Math.PI / 2); 
-      mesh2.rotateX(Math.PI / 2);
 
-      mesh1.scale.set(15,10,15)
-      mesh2.scale.set(14,10,14);
-
-    }else{
       mesh1.rotateX(Math.PI * 3 / 2); 
       mesh2.rotateX(Math.PI * 3 / 2);
-    }
 
 
 
