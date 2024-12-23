@@ -186,7 +186,7 @@ void landingBurn(Vehicle &rocket){
 
     rocket.twoDAngle = twoDState;
 
-    float PIDOutputY = PID(0,error,rocket.vehicleYError, rocket.sumOfVehicleYError, constants::timeStep , .2 ,0 , 1);
+    float PIDOutputY = PID(0,error,rocket.vehicleYError, rocket.sumOfVehicleYError, constants::timeStep , 2 ,0 , 1);
     
     //std::cout<< twoDState[0] << "," << twoDState[1] << "  " << targetState[0] << "," << targetState[1]<< "   "<< error  << "   " << PIDOutputY << "\n";
 
@@ -196,7 +196,7 @@ void landingBurn(Vehicle &rocket){
 
     error  = twodAngleDiffrence( twoDState, targetState);
 
-    float PIDOutputX = PID(0,error,rocket.vehicleXError, rocket.sumOfVehicleXError, constants::timeStep , .2,0, 1);
+    float PIDOutputX = PID(0,error,rocket.vehicleXError, rocket.sumOfVehicleXError, constants::timeStep , 2,0, 1);
 
 
 

@@ -160,7 +160,7 @@ let  currentY = 0;
     let distance = -36;
 
     if(parseFloat(data.velocity[count]) > 400 ){
-      distance = -25
+      distance = -20
     }
     
     let stateVectorX = parseFloat(data.vehicleState0[count]);
