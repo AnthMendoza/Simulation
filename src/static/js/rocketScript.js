@@ -160,8 +160,8 @@ let  currentY = 0;
     mesh1.position.set(adjustedX , adjustedZ , adjustedY);
     mesh2.position.set(adjustedX , adjustedZ , adjustedY);
 
-    mesh1.lookAt(currentX + parseFloat(data.engineVector0) , currentZ + parseFloat(data.engineVector1) , currentY+ parseFloat(data.engineVector2));
-    mesh2.lookAt(currentX + parseFloat(data.engineVector0) , currentZ + parseFloat(data.engineVector1) , currentY+ parseFloat(data.engineVector2));
+    mesh1.lookAt(currentX + parseFloat(data.engineVector0) , currentZ + parseFloat(data.engineVector2) , currentY+ parseFloat(data.engineVector1));
+    mesh2.lookAt(currentX + parseFloat(data.engineVector0) , currentZ + parseFloat(data.engineVector2) , currentY+ parseFloat(data.engineVector1));
     mesh1.rotateX(Math.PI * 3 / 2); 
     mesh2.rotateX(Math.PI * 3 / 2);
 

@@ -65,7 +65,6 @@ void reentryBurn(Vehicle &rocket){
             std::vector<float> gForces = lookAhead(lookAheadRocket , 105 , [](Vehicle &r) { return r.gForce; }); // 105 is the lookahead time in seconds. this may be stoppped earlier if the vehicle hits the ground
             
             currentMaxGForce = *std::max_element(gForces.begin(),gForces.end());
-            std::cout<<currentMaxGForce<< ","<< lastMaxGForce<<"\n";
             if(currentMaxGForce < constants::maxGAllowedEntry && count > 0) return;
             if(currentMaxGForce > lastMaxGForce && count > 0) return;
             lastMaxGForce = currentMaxGForce;
@@ -167,8 +166,6 @@ void landingBurn(Vehicle &rocket){
     }
 
     if(requiredThrust > constants::maxThrust) requiredThrust = constants::maxThrust;
-
-    std::cout<< rocket.Xvelocity << " , " << rocket.Yvelocity << " , " << rocket.Zvelocity<< " , " << rocket.getVelocity() << "\n";
     
 
     std::array<float,3> forceVector = {landingForceX , landingForceY , landingForceZ};
