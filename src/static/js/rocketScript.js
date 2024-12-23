@@ -97,9 +97,9 @@ let mesh2;
 
         function render() {
             const elapsedTime = clock.getElapsedTime();
-            material1.uniforms.uAnimationProgress.value = (elapsedTime *.5) % 1;
+            material1.uniforms.uAnimationProgress.value = (elapsedTime *1) % 1;
             
-            material2.uniforms.uAnimationProgress.value =(elapsedTime *.5 + 0.2) % 1;
+            material2.uniforms.uAnimationProgress.value =(elapsedTime *1 + 0.2) % 1;
 
             material1.side = THREE.BackSide;
             material2.side = THREE.BackSide;
@@ -154,12 +154,27 @@ let  currentY = 0;
     const isVisible = parseFloat(data.enginePower[count]) !== 0;
     mesh1.visible = isVisible;
     mesh2.visible = isVisible;
+
+    mesh1.scale.set( 5 * data.enginePower + 5 + 1 , 10 * enginePower + 9 + 1 , 5 * data.enginePower + 5 + 1);
+    mesh2.scale.set( 5 * data.enginePower + 5 , 10 * enginePower + 9 , 5 * data.enginePower + 5);
+    let distance = -36;
+    if(parseFloat(data.velocity[count]) > 600 ){
+      mesh1.rotateX(Math.PI / 2); 
+      mesh2.rotateX(Math.PI / 2);
+
+      mesh1.scale.set(15,10,15)
+      mesh2.scale.set(14,10,14);
+
+    }else{
+      mesh1.rotateX(Math.PI * 3 / 2); 
+      mesh2.rotateX(Math.PI * 3 / 2);
+    }
+    
     
     let stateVectorX = parseFloat(data.vehicleState0[count]);
     let stateVectorY = parseFloat(data.vehicleState1[count]);
     let stateVectorZ = parseFloat(data.vehicleState2[count]);
     let normalVector  = Math.sqrt(stateVectorX * stateVectorX + stateVectorY * stateVectorY + stateVectorZ * stateVectorZ );
-    let distance = -36;
     let adjustedX = currentX + stateVectorX * normalVector * distance;
     let adjustedY = currentY + stateVectorY * normalVector * distance;
     let adjustedZ = currentZ + stateVectorZ * normalVector * distance;
@@ -168,8 +183,6 @@ let  currentY = 0;
 
     mesh1.lookAt(currentX + parseFloat(data.engineVector0[count]) , currentZ + parseFloat(data.engineVector2[count]) , currentY+ parseFloat(data.engineVector1[count]));
     mesh2.lookAt(currentX + parseFloat(data.engineVector0[count]) , currentZ + parseFloat(data.engineVector2[count]) , currentY+ parseFloat(data.engineVector1[count]));
-    mesh1.rotateX(Math.PI * 3 / 2); 
-    mesh2.rotateX(Math.PI * 3 / 2);
 
 
 
