@@ -162,7 +162,10 @@ let  currentY = 0;
     if(parseFloat(data.velocity[count]) > 400 ){
       distance = -20
     }
-    
+    if(count >= data.VectorTimeStamp.length - 1){
+      mesh1.visible = false;
+      mesh2.visible = false;
+    }
     let stateVectorX = parseFloat(data.vehicleState0[count]);
     let stateVectorY = parseFloat(data.vehicleState1[count]);
     let stateVectorZ = parseFloat(data.vehicleState2[count]);
