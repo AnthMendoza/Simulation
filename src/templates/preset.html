@@ -200,43 +200,43 @@
   <form action="/simulation"  method="post">
 
     <label for="dryMass">Dry Mass (kg):</label>
-    <input type="text" id="dryMass" name="dryMass" value="18000"><br><br>
+    <input type="number" id="dryMass" name="dryMass" min="0.0" max="30000" step="any" value="18000"><br><br>
 
     <label for="fuel">Fuel (kg):</label>
-    <input type="text" id="fuel" name="fuel" value="3000"><br><br>
+    <input type="number" id="fuel" name="fuel" min="0.0" max="30000" step="any"  value="3000"><br><br>
 
     <label for="LOX">Liquid Oxygen (kg):</label>
-    <input type="text" id="LOX" name="LOX" value="7050"><br><br>
+    <input type="number" id="LOX" name="LOX" min="0.0" max="30000" step="any"  value="7050"><br><br>
 
     <label for="fuelConsumption">Fuel Consumption Rate (kg/s):</label>
-    <input type="text" id="fuelConsumption" name="fuelConsumption" value="70"><br><br>
+    <input type="number" id="fuelConsumption" name="fuelConsumption" min="0.0" max="5000" step="any" value="70"><br><br>
 
     <label for="LOXConsumption">Liquid Oxygen Consumption Rate (kg/s):</label>
-    <input type="text" id="LOXConsumption" name="LOXConsumption" value="165"><br><br>
+    <input type="number" id="LOXConsumption" name="LOXConsumption" min="0.0" max="5000" step="any" value="165"><br><br>
 
     <label for="reentryAccel">Max Allowed Acceleration on reentry (g):</label>
-    <input type="text" id="reentryAccel" name="reentryAccel" value="4.5"><br><br>
+    <input type="number" id="reentryAccel" name="reentryAccel" min="0.0" max="500" step="any" value="4.5"><br><br>
 
 
     <label>Initial Position (X,Y,Z):</label>
     <div class="xyz-input">
-      <input type="text" id="Xposition" name="Xposition" placeholder="X" value="0">
-      <input type="text" id="Yposition" name="Yposition" placeholder="Y" value="0">
-      <input type="text" id="Zposition" name="Zposition" placeholder="Z" value="110000">
+      <input type="number" id="Xposition" name="Xposition" placeholder="X" min="-100000" max="100000" step="any" value="0">
+      <input type="number" id="Yposition" name="Yposition" placeholder="Y" min="-100000" max="100000" step="any" value="0">
+      <input type="number" id="Zposition" name="Zposition" placeholder="Z" min="-100000" max="100000" step="any" value="110000">
     </div><br><br>
 
     <label>Initial Velocity (X,Y,Z):</label>
     <div class="xyz-input">
-      <input type="text" id="Xvelocity" name="Xvelocity" placeholder="X" value="0">
-      <input type="text" id="Yvelocity" name="Yvelocity" placeholder="Y" value="-2000">
-      <input type="text" id="Zvelocity" name="Zvelocity" placeholder="Z" value="0">
+      <input type="number" id="Xvelocity" name="Xvelocity" placeholder="X" min="-100000" max="100000" step="any" value="0">
+      <input type="number" id="Yvelocity" name="Yvelocity" placeholder="Y" min="-100000" max="100000" step="any" value="-2000">
+      <input type="number" id="Zvelocity" name="Zvelocity" placeholder="Z" min="-100000" max="100000" step="any" value="0">
     </div><br><br>
 
     <label>Initial Orientation Vector (X,Y,Z):</label>
     <div class="xyz-input">
-      <input type="text" id="Xstate" name="Xstate" placeholder="X" value="0">
-      <input type="text" id="Ystate" name="Ystate" placeholder="Y" value="1">
-      <input type="text" id="Zstate" name="Zstate" placeholder="Z" value="0">
+      <input type="number" id="Xstate" name="Xstate" placeholder="X" min="-100000" max="100000" step="any" value="0">
+      <input type="number" id="Ystate" name="Ystate" placeholder="Y" min="-100000" max="100000" step="any" value="1">
+      <input type="number" id="Zstate" name="Zstate" placeholder="Z" min="-100000" max="100000" step="any" value="0">
     </div><br><br>
 
     <input type="submit" value="Generate Simulation">

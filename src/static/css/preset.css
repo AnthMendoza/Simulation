@@ -30,7 +30,7 @@ label {
 }
 
 
-input[type="text"] {
+input[type="number"] {
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
