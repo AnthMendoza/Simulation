@@ -239,16 +239,17 @@
       <input type="text" id="Zstate" name="Zstate" placeholder="Z" value="0">
     </div><br><br>
 
-    <input id="SimulationButton" type="submit" onclick="handleClick()" value="Generate Simulation">
+    <input type="submit" value="Generate Simulation" onclick="handleClick(this)">
     <h5>{{ message }}</h5>
   </form>
 
 </div>
 <script>
-  function handleClick() {
-    const button = document.getElementById('SimulationButton');
-    button.disabled = true; 
-    button.innerText = "Generating"; 
+  function handleClick(element) {
+   
+      element.disabled = true;
+
+      element.value = 'Generating...';
   }
 </script>
 
