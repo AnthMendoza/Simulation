@@ -7,6 +7,14 @@ let startTime = null; // Declare startTime here
 const staticDuration = 0; 
 const speed = 1;
 
+const floorGeometry = new THREE.PlaneGeometry(1000000, 1000000);
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x3f9b0b, side: THREE.DoubleSide });
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+
+
+floor.rotation.x = Math.PI / 2;
+floor.position.y = -36;  
+scene.add(floor); 
 
 
 
@@ -210,14 +218,6 @@ let  currentY = 0;
   }
 
 
-const floorGeometry = new THREE.PlaneGeometry(1000000, 1000000);
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x3f9b0b, side: THREE.DoubleSide });
-const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-
-
-floor.rotation.x = Math.PI / 2;
-floor.position.y = -36;  
-scene.add(floor); 
   
 
 
