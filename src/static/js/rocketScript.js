@@ -31,14 +31,7 @@ scene.add(ambientLight);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Increase intensity
 directionalLight.position.set(1, 1, 1).normalize();
 scene.add(directionalLight);
-const floorGeometry = new THREE.PlaneGeometry(1000000, 1000000);
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x3f9b0b, side: THREE.DoubleSide });
-const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
-
-floor.rotation.x = Math.PI / 2;
-floor.position.y = -36;  
-scene.add(floor); 
 // Variables to hold the object once loaded
 let object;
 // Load the OBJ model
@@ -155,6 +148,7 @@ let  currentY = 0;
     if(parseFloat(data.velocity[count]) > 400 ){
       distance = -20
     }
+    console.log( "count = " , count , "timestamp = " , data.VectorTimeStamp.length - 1);
     if(count >= data.VectorTimeStamp.length - 1){
       mesh1.visible = false;
       mesh2.visible = false;
