@@ -17,7 +17,7 @@ const speed = 1;
   // Set up the camera
   const simulationViewPort = document.getElementById('simulationViewPort');
   const canvas = document.getElementById('threeCanvas');
-  const camera = new THREE.PerspectiveCamera(96, window.innerWidth / window.innerHeight, 0.001, 100000);
+  const camera = new THREE.PerspectiveCamera(96, window.innerWidth / window.innerHeight, 0.001, 500);
   camera.aspect = simulationViewPort.clientWidth / simulationViewPort.clientHeight;
   const cameraOffset = new THREE.Vector3(30, 50, 10);  // Fixed offset relative to the object
 
@@ -54,9 +54,7 @@ const speed = 1;
       });
       scene.add(object);
     },
-    function (xhr) {
-      console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-    },
+    undefined,
     function (error) {
       console.log('An error occurred while loading the OBJ file:', error);
     }
@@ -189,6 +187,15 @@ let  currentY = 0;
 
     }
 
+
+const floorGeometry = new THREE.PlaneGeometry(1000000, 1000000);
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x3f9b0b, side: THREE.DoubleSide });
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+
+
+floor.rotation.x = Math.PI / 2;
+floor.position.y = -36;  
+scene.add(floor); 
 
 
     const targetPosition = object.position.clone().add(directionVector);
