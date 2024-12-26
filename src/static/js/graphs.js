@@ -55,14 +55,14 @@ const trace1 = {
         color: colors.blue,
         width: 3
     },
-    name: 'X-Y Projection'
+    name: 'Acceleration Vs Altiude'
 };
 
 Plotly.newPlot('graph1', [trace1], {
     ...commonLayout,
-    title: 'X-Y Projection',
-    xaxis: {...commonAxisStyle, title: 'X (meters)'},
-    yaxis: {...commonAxisStyle, title: 'Y (meters)'}
+    title: 'Acceleration Vs Altiude',
+    xaxis: {...commonAxisStyle, title: 'Altitude (meters)'},
+    yaxis: {...commonAxisStyle, title: 'Acceleration (G)'}
 });
 
 // 2. X-Z Plot (Top Middle)
@@ -99,7 +99,7 @@ const trace3 = {
 
 Plotly.newPlot('graph3', [trace3], {
     ...commonLayout,
-    title: '3D Visualization',
+    title: '3D Position',
     scene: {
         aspectmode: 'cube',
         xaxis: {
@@ -175,9 +175,9 @@ const trace6 = {
 
 Plotly.newPlot('graph6', [trace6], {
     ...commonLayout,
-    title: 'Combined Magnitude',
-    xaxis: {...commonAxisStyle, title: 'Time'},
-    yaxis: {...commonAxisStyle, title: 'Magnitude'}
+    title: 'Vehicle Mass',
+    xaxis: {...commonAxisStyle, title: 'Time (seconds) '},
+    yaxis: {...commonAxisStyle, title: 'Mass (kg)'}
 });
 
 const config = {
