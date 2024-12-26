@@ -7,6 +7,30 @@ let startTime = null; // Declare startTime here
 const staticDuration = 0; 
 const speed = 1;
 
+
+
+
+
+// Create the scene
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000); // Light gray background 0xaaaaaa
+// Set up the camera
+const simulationViewPort = document.getElementById('simulationViewPort');
+const canvas = document.getElementById('threeCanvas');
+const camera = new THREE.PerspectiveCamera(96, window.innerWidth / window.innerHeight, 0.001, 200);
+camera.aspect = simulationViewPort.clientWidth / simulationViewPort.clientHeight;
+const cameraOffset = new THREE.Vector3(30, 50, 10);  // Fixed offset relative to the object
+// Create the renderer
+const renderer = new THREE.WebGLRenderer({ canvas: canvas });
+renderer.setSize(simulationViewPort.clientWidth, simulationViewPort.clientHeight);
+camera.updateProjectionMatrix();
+
+// Add lighting to the scene
+const ambientLight = new THREE.AmbientLight(0x404040); // Soft light
+scene.add(ambientLight);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Increase intensity
+directionalLight.position.set(1, 1, 1).normalize();
+scene.add(directionalLight);
 const floorGeometry = new THREE.PlaneGeometry(1000000, 1000000);
 const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x3f9b0b, side: THREE.DoubleSide });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -15,73 +39,43 @@ const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = Math.PI / 2;
 floor.position.y = -36;  
 scene.add(floor); 
-
-
-
-  // Create the scene
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000); // Light gray background 0xaaaaaa
-
-  // Set up the camera
-  const simulationViewPort = document.getElementById('simulationViewPort');
-  const canvas = document.getElementById('threeCanvas');
-  const camera = new THREE.PerspectiveCamera(96, window.innerWidth / window.innerHeight, 0.001, 200);
-  camera.aspect = simulationViewPort.clientWidth / simulationViewPort.clientHeight;
-  const cameraOffset = new THREE.Vector3(30, 50, 10);  // Fixed offset relative to the object
-
-
-  // Create the renderer
-  const renderer = new THREE.WebGLRenderer({ canvas: canvas });
-  renderer.setSize(simulationViewPort.clientWidth, simulationViewPort.clientHeight);
-  camera.updateProjectionMatrix();
-  
-
-  // Add lighting to the scene
-  const ambientLight = new THREE.AmbientLight(0x404040); // Soft light
-  scene.add(ambientLight);
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Increase intensity
-  directionalLight.position.set(1, 1, 1).normalize();
-  scene.add(directionalLight);
-
-  // Variables to hold the object once loaded
-  let object;
-
-  // Load the OBJ model
-  const loader = new OBJLoader();
-  const GLTFloader = new GLTFLoader();
-  loader.load(
-    'https://raw.githubusercontent.com/AnthMendoza/RocketLanding/refs/heads/main/src/static/3d/falcon.obj',  // Replace with your .obj file path
-    function (loadedObject) {
-      object = loadedObject;
-      object.position.y = 1; // Start position of the object
-      object.traverse(function (child) {
-        if (child.isMesh) {
-          child.material = new THREE.MeshStandardMaterial({ color: 0x637ea8 }); // Set a default color
-        }
-      });
-      scene.add(object);
-    },
-    undefined,
-    function (error) {
-      console.log('An error occurred while loading the OBJ file:', error);
-    }
-  );
+// Variables to hold the object once loaded
+let object;
+// Load the OBJ model
+const loader = new OBJLoader();
+const GLTFloader = new GLTFLoader();
+loader.load(
+  'https://raw.githubusercontent.com/AnthMendoza/RocketLanding/refs/heads/main/src/static/3d/falcon.obj',  // Replace with your .obj file path
+  function (loadedObject) {
+    object = loadedObject;
+    object.position.y = 1; // Start position of the object
+    object.traverse(function (child) {
+      if (child.isMesh) {
+        child.material = new THREE.MeshStandardMaterial({ color: 0x637ea8 }); // Set a default color
+      }
+    });
+    scene.add(object);
+  },
+  undefined,
+  function (error) {
+    console.log('An error occurred while loading the OBJ file:', error);
+  }
+);
 
 const vertexShader = document.getElementById("vertex-shader").textContent;
 const fragShader = document.getElementById("fragment-shader").textContent;
 
-  const getMaterial = (color) =>
-    new THREE.ShaderMaterial({
-        fragmentShader: fragShader,
-        vertexShader: vertexShader,
-        glslVersion: THREE.GLSL3,
-        uniforms: {
-            uAnimationProgress: { value: (Date.now() / 2000) % 1 },
-            uColor: { value: color },
-        },
-        transparent: true,
-    });
+const getMaterial = (color) =>
+  new THREE.ShaderMaterial({
+      fragmentShader: fragShader,
+      vertexShader: vertexShader,
+      glslVersion: THREE.GLSL3,
+      uniforms: {
+          uAnimationProgress: { value: (Date.now() / 2000) % 1 },
+          uColor: { value: color },
+      },
+      transparent: true,
+  });
 
 const material1 = getMaterial([1, 0, 0]);
 const material2 = getMaterial([1, 1, 0]);
@@ -89,45 +83,38 @@ const material2 = getMaterial([1, 1, 0]);
 let mesh1;
 let mesh2;
 
-  GLTFloader.load(
-    "../static/3d/fire-template.glb",
-    function (gltf) {
-        const { geometry } = gltf.scene.children[0];
-        mesh1 = new THREE.Mesh(geometry, material1);
-
-        mesh2 = new THREE.Mesh(geometry, material2);
-        mesh1.scale.set(10.1,21,10.1)
-        mesh2.scale.set(10,20,10);
-
-        const clock = new THREE.Clock();
-
-        function render() {
-            const elapsedTime = clock.getElapsedTime();
-            material1.uniforms.uAnimationProgress.value = (elapsedTime *1) % 1;
-            
-            material2.uniforms.uAnimationProgress.value =(elapsedTime *1 + 0.2) % 1;
-
-            material1.side = THREE.BackSide;
-            material2.side = THREE.BackSide;
-            mesh1.renderOrder = 0;
-            mesh2.renderOrder = 1;
-
-            material2.side = THREE.FrontSide;
-            material1.side = THREE.FrontSide;
-            mesh1.renderOrder = 1;
-            mesh2.renderOrder = 0;
-            
-            renderer.render(scene, camera);
-            window.requestAnimationFrame(render);
-
-        }
-        scene.add(mesh1);
-        scene.add(mesh2);
-
-        render();
-    },
-    undefined,
-    console.error
+GLTFloader.load(
+  "../static/3d/fire-template.glb",
+  function (gltf) {
+      const { geometry } = gltf.scene.children[0];
+      mesh1 = new THREE.Mesh(geometry, material1);
+      mesh2 = new THREE.Mesh(geometry, material2);
+      mesh1.scale.set(10.1,21,10.1)
+      mesh2.scale.set(10,20,10);
+      const clock = new THREE.Clock();
+      function render() {
+          const elapsedTime = clock.getElapsedTime();
+          material1.uniforms.uAnimationProgress.value = (elapsedTime *1) % 1;
+          
+          material2.uniforms.uAnimationProgress.value =(elapsedTime *1 + 0.2) % 1;
+          material1.side = THREE.BackSide;
+          material2.side = THREE.BackSide;
+          mesh1.renderOrder = 0;
+          mesh2.renderOrder = 1;
+          material2.side = THREE.FrontSide;
+          material1.side = THREE.FrontSide;
+          mesh1.renderOrder = 1;
+          mesh2.renderOrder = 0;
+          
+          renderer.render(scene, camera);
+          window.requestAnimationFrame(render);
+      }
+      scene.add(mesh1);
+      scene.add(mesh2);
+      render();
+  },
+  undefined,
+  console.error
 );
 
 console.log(data.engineVector0);
