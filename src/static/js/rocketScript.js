@@ -43,7 +43,7 @@ const speed = 1;
   const loader = new OBJLoader();
   const GLTFloader = new GLTFLoader();
   loader.load(
-    '../static/3d/falcon.obj',  // Replace with your .obj file path
+    'https://raw.githubusercontent.com/AnthMendoza/RocketLanding/refs/heads/main/src/static/3d/falcon.obj',  // Replace with your .obj file path
     function (loadedObject) {
       object = loadedObject;
       object.position.y = 1; // Start position of the object
