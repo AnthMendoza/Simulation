@@ -38,7 +38,7 @@ const speed = 1;
 
 
 
-const floorGeometry = new THREE.PlaneGeometry(100000, 100000); 
+const floorGeometry = new THREE.PlaneGeometry(30, 30); 
 
 // Create a green material
 const floorMaterial = new THREE.MeshStandardMaterial({
@@ -51,7 +51,9 @@ const floorMaterial = new THREE.MeshStandardMaterial({
 
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = -Math.PI / 2;
-floor.position.y = 0;
+floor.position.y = -36;
+floor.position.x = data.Xposition[data.Xposition.length - 2 ];
+floor.position.z = data.Yposition[data.Yposition.length - 2 ];
 floor.receiveShadow = true;
 scene.add(floor);
 
@@ -211,6 +213,7 @@ let  currentY = 0;
       mesh2.scale.set(14,10,14);
 
     }
+
 
 
 
