@@ -68,20 +68,20 @@ Plotly.newPlot('graph1', [trace1], {
 // 2. X-Z Plot (Top Middle)
 const trace2 = {
     x: data.Zposition,
-    y: data.Velocity,
+    y: data.velocity,
     mode: 'lines',
     line: {
         color: colors.green,
         width: 3
     },
-    name: 'X-Z Projection'
+    name: 'Velocity Vs Altiude'
 };
 
 Plotly.newPlot('graph2', [trace2], {
     ...commonLayout,
-    title: 'X-Z Projection',
-    xaxis: {...commonAxisStyle, title: 'X (meters)'},
-    yaxis: {...commonAxisStyle, title: 'Z (meters)'}
+    title: 'Velocity Vs Altiude',
+    xaxis: {...commonAxisStyle, title: 'Altiude (meters)'},
+    yaxis: {...commonAxisStyle, title: 'Velocity (meters / second)'}
 });
 
 // 3. 3D Plot (Top Right)

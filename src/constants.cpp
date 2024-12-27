@@ -30,7 +30,7 @@ namespace constants{
     const float timeStep = .01; //seconds
     float maxThrust = 854000;//netwons
     float minThrust = maxThrust *.5; //newtons, 65 percent of max;
-    float landingThrust = maxThrust * 1 ;
+    float landingThrust = maxThrust * .85 ;
 
     float dryMass = 10000; //kg booster mass
     float maxGimbalAngle = 20  * 3.1415926535f / 180.0f;// degrees
