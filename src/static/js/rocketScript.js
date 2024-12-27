@@ -36,6 +36,29 @@ const speed = 1;
   directionalLight.position.set(1, 1, 1).normalize();
   scene.add(directionalLight);
 
+
+
+const floorGeometry = new THREE.PlaneGeometry(100000, 100000); 
+
+// Create a green material
+const floorMaterial = new THREE.MeshStandardMaterial({
+    color: 0x00ff00,
+    side: THREE.DoubleSide, 
+    roughness: 0.8, 
+    metalness: 0.2 
+});
+
+
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = 0;
+floor.receiveShadow = true;
+scene.add(floor);
+
+
+
+
+
   // Variables to hold the object once loaded
   let object;
 

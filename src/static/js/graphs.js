@@ -151,7 +151,7 @@ Plotly.newPlot('graph4', [trace4 , trace7], {
     yaxis: {...commonAxisStyle, title: 'Gimbal Angle X (Radians)'}
 });
 
-// 5. Phase Plot (Bottom Middle)
+
 const trace5 = {
     x: data.VectorTimeStamp,
     y: data.enginePower,
@@ -160,12 +160,12 @@ const trace5 = {
         color: colors.orange,
         width: 3
     },
-    name: 'Phase Plot'
+    name: 'Thrust / Max Thrust per Engine'
 };
 
 Plotly.newPlot('graph5', [trace5], {
     ...commonLayout,
-    title: 'Phase Plot (dY/dt vs Y)',
+    title: 'Thrust / Max Thrust per Engine',
     xaxis: {...commonAxisStyle, title: 'Time (seconds)'},
     yaxis: {...commonAxisStyle, title: 'Thrust / Max Thrust per Engine'}
 });
