@@ -123,7 +123,6 @@ Plotly.newPlot('graph3', [trace3], {
     }
 });
 
-// 4. Y-Z Plot (Bottom Left)
 const trace4 = {
     x: data.VectorTimeStampReduced,
     y: data.gimbalAngleX,
@@ -132,20 +131,30 @@ const trace4 = {
         color: colors.purple,
         width: 3
     },
-    name: 'Y-Z Projection'
+    name: 'Gimbal Angle X'
+};
+const trace7 = {
+    x: data.VectorTimeStampReduced,
+    y: data.gimbalAngleY,
+    mode: 'lines',
+    line: {
+        color: colors.red,
+        width: 3
+    },
+    name: 'Gimbal Angle Y'
 };
 
-Plotly.newPlot('graph4', [trace4], {
+Plotly.newPlot('graph4', [trace4 , trace7], {
     ...commonLayout,
-    title: 'Y-Z Projection',
-    xaxis: {...commonAxisStyle, title: 'Y (meters)'},
-    yaxis: {...commonAxisStyle, title: 'Z (meters)'}
+    title: 'Gimbal Angle',
+    xaxis: {...commonAxisStyle, title: 'Time (seconds)'},
+    yaxis: {...commonAxisStyle, title: 'Gimbal Angle X (Radians)'}
 });
 
 // 5. Phase Plot (Bottom Middle)
 const trace5 = {
-    x: data.VectorTimeStampReduced,
-    y: data.gimbalAngleY,
+    x: data.VectorTimeStamp,
+    y: data.enginePower,
     mode: 'lines',
     line: {
         color: colors.orange,
@@ -157,11 +166,11 @@ const trace5 = {
 Plotly.newPlot('graph5', [trace5], {
     ...commonLayout,
     title: 'Phase Plot (dY/dt vs Y)',
-    xaxis: {...commonAxisStyle, title: 'Y (meters)'},
-    yaxis: {...commonAxisStyle, title: 'dY/dt'}
+    xaxis: {...commonAxisStyle, title: 'Time (seconds)'},
+    yaxis: {...commonAxisStyle, title: 'Thrust / Max Thrust per Engine'}
 });
 
-// 6. Magnitude Plot (Bottom Right)
+
 const trace6 = {
     x: data.VectorTimeStampReduced,
     y: data.mass,
@@ -170,12 +179,12 @@ const trace6 = {
         color: colors.teal,
         width: 3
     },
-    name: 'Magnitude'
+    name: 'Vehicle Mas / Time'
 };
 
 Plotly.newPlot('graph6', [trace6], {
     ...commonLayout,
-    title: 'Vehicle Mass',
+    title: 'Vehicle Mas / Time',
     xaxis: {...commonAxisStyle, title: 'Time (seconds) '},
     yaxis: {...commonAxisStyle, title: 'Mass (kg)'}
 });
