@@ -51,7 +51,7 @@ const floorMaterial = new THREE.MeshStandardMaterial({
 
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = -Math.PI / 2;
-floor.position.y = -36;
+floor.position.y = -26;
 floor.position.x = data.Xposition[data.Xposition.length - 2 ];
 floor.position.z = data.Yposition[data.Yposition.length - 2 ];
 floor.receiveShadow = true;
