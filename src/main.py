@@ -85,11 +85,17 @@ def getSimulationFromMemory(unique_id):
 app = Flask(__name__)
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/simulation-presets")
 def index():
     return render_template( "preset.html")
 
+@app.route("/creatorCorner")
+def creatorCorner():
+    return render_template( "creatorCorner.html")
 
+@app.route("/")
+def landingPage():
+    return render_template( "landingPage.html")
 
 @app.route("/simulation", methods=["GET", "POST"])
 def simulation():

@@ -280,7 +280,7 @@ void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thr
 
     engineState = engineVector;
 
-    enginePower = constants::maxThrust / abs(thrust);
+    enginePower = abs(thrust) / constants::maxThrust;
 
     setInBounds(enginePower , 0.0f , 1.0f);
     
