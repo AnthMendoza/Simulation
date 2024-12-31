@@ -15,8 +15,8 @@
 
 
 <div class="tab-container">
-  <div class="tab" data-tab="tab1">Simulation</div>
-  <div class="tab" data-tab="tab2">Presets</div>
+  <div class="tab" data-tab="tab1">Overview</div>
+  <div class="tab" data-tab="tab2">Simulation</div>
 </div>
 
 <div class="content-div" id="tab1">
@@ -208,10 +208,10 @@
     <label for="LOX">Liquid Oxygen (kg):</label>
     <input type="number" id="LOX" name="LOX" min="0.0" max="30000" step="any"  value="7050"><br><br>
 
-    <label for="fuelConsumption">Fuel Consumption Rate (kg/s):</label>
+    <label for="fuelConsumption">Fuel Consumption Rate (kg * engine / s):</label>
     <input type="number" id="fuelConsumption" name="fuelConsumption" min="0.0" max="5000" step="any" value="70"><br><br>
 
-    <label for="LOXConsumption">Liquid Oxygen Consumption Rate (kg/s):</label>
+    <label for="LOXConsumption">Liquid Oxygen Consumption Rate (kg * engine / s):</label>
     <input type="number" id="LOXConsumption" name="LOXConsumption" min="0.0" max="5000" step="any" value="165"><br><br>
 
     <label for="reentryAccel">Max Allowed Acceleration on reentry (g):</label>
