@@ -145,16 +145,20 @@ void landingBurn(Vehicle &rocket){
     float landingAccelY = rocket.Yvelocity / landingBurnDuration;
     // as landing duration approches 0 landing acceleration X and Y grows rapidly 
     // lim 1/x as x approches +0 is infinity 
-    if(landingBurnDuration < 1.0f){ 
-        landingAccelX = 0;
-        landingAccelY = 0;
-    }
+
     
     float landingForceX = landingAccelX * rocket.mass;
 
     float landingForceY = landingAccelY * rocket.mass;
 
     float landingForceZ = landingAccelZ * rocket.mass;
+
+    if(landingBurnDuration < 1.0f && atanf(landingForceX / landingForceZ) > .1f){ 
+        landingForceX = 0;
+    }
+    if(landingBurnDuration < 1.0f && atanf(landingForceY / landingForceZ) > .1f){ 
+        landingForceY = 0;
+    }
 
     float requiredThrust = sqrtf(landingForceX * landingForceX + landingForceY * landingForceY + landingForceZ * landingForceZ);
 
