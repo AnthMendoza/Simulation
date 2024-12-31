@@ -130,23 +130,58 @@
     </div>
     <figcaption>Figure 8 : Logic Flow Diagram</figcaption>
     <h2>Landing Burn</h2>
-    <p class="content-paragraph">The landing control is currently being done with a feedforward control loop. Feedforward control anticipates the required control output based on the system's current state and desired outcome, rather than reacting to errors. A combination of feedforward and feedback control loops allow us to preemptively anticipate system variables while reacting to errors. A graphical representation is shown in figure 4. The simulation is using PID as a feedback controller. The feedforward controller uses the velocity vector of the vehicle to cancel any side slip of the vehicle. As a baseline the gravitational vector is also added to the engine force vector to cancel out gravity.</p>
-    <p class="content-paragraph"></p>
+    <p class="content-paragraph">The landing control is currently being done with a feedforward control loop. Feedforward control anticipates the required control output based on the system's current state and desired outcome, rather than reacting to errors. A combination of feedforward and feedback control loops allow us to preemptively anticipate system variables while reacting to errors. A graphical representation is shown in figure 4. The simulation is using PID as a feedback controller. The feedforward controller uses the required force to determine the angle of attack(AOT) of the vehicle.</p>
+    <p class="content-paragraph">In an ideal scenario, the horizontal and vertical velocities would come to rest simultaneously when the vehicle reaches a Z position of zero. Over the small time-step interval of the simulation, a linear acceleration assumption can be made. The deceleration of the X, Y, and Z components can be synchronized. First, the simulation calculates the required deceleration rate.</p>
     <div class="equation">
       <div class="equation-text">
-        A<sub>(x,y,z)</sub> = - v<sub>(x,y,z)</sub> / |v|<br>
-        T<sub>(x,y,z)</sub> = (A<sub>(x)</sub>C , A<sub>(y)</sub>C , A<sub>(z)</sub>C + gR<sub>mass</sub>) 
+      \( A_z = \frac{V_{z}}{2(P_z - P_{Target})} \)<BR>
+      <br>
+      \( T = \frac{V_{z}}{A_z} \)<BR>
       </div>
     <div class="variable-description">
-    v<sub>(x,y,z)</sub> = vehicle Velocity Vector<br>
-    A<sub>(x,y,z)</sub> = Vechicle Angle of Attack Vector<br>
-    T<sub>(x,y,z)</sub> = Thrust Vector<br>
-    R<sub>mass</sub> = Rocket Mass<br>
-    g = Gravitational Acceleration<br>
-    c = Coefficient of Decleration (not constant)
+    V<sub>(x,y,z)</sub> = Vehicle Velocity<br>
+    A<sub>(x,y,z)</sub> = Acceleration Vector<br>
+    T<sub></sub> = Time to Decelerate<br>
+    \(P_{(x,y,z)} \) = position <br>
     </div>
+    </div>
+    <p class="content-paragraph">Using the time required to decelerate the Z-axis velocity to zero, the X and Y accelerations can be interpolated.</p>
+    <div class="equation">
+      <div class="equation-text">
+      \( A_{(x,y)} = (\frac{V_{x}}{T} , \frac{V_{y}}{T} ) \text{ ; for } T > 1\)<BR>
+        <br>
+        \( A_{(x,y)} = (0,0) \text{ ; for } 0 ≤ T ≤ 1\)<br>
+        <br>
+      </div>
+    </div>
+    <p class="content-paragraph">As time to impact approaches 0, the feedforward calculation begins to break down. As the vehicle approaches landing, the control requests become erratic due to the rapid growth in the request acceleration.  </p>
+    <div class="equation">
+      <div class="equation-text">
+            \(\lim_{T \to 0^+} \frac{1}{T} = \infty\)<BR>
+            <br>
+      </div>
+    </div>
+    <p class="content-paragraph">Using the Acceleration the force request can be calculated.</p>
+    <div class="equation">
+      <div class="equation-text">
+            \(F_{(x,y,z)} = (R_{mass}A_x , R_{mass}A_y , R_{mass}A_z + gR_{mass}) \)<BR>
+          </div>
+      <div class="variable-description">
+        R<sub>mass</sub> = Rocket Mass<br>
+        g = Gravitational Acceleration<br>    
+      </div>
     </div>
     <p class="content-paragraph">Before the vehicle can begin to decelerate, a desired angle of attack (AOT) must be achieved. The desired AOT is represented as a vector that defines the target vehicle state, independent of its location. Using a series of control loops—each managing the engine gimbal angle, vehicle orientation, and thrust force—the vehicle can effectively reduce its sideslip velocity.</p>
+    <p class="content-paragraph">The ideal thrust force application is such that no additional parasitic moment is created. An off axis thrust force would inherently cause a vehicle moment.Therefore, the ideal angle of attack aligns with the antiparallel axis of the thrust force. The angle of attack can be defined as follows.</p>
+    <div class="equation">
+      <div class="equation-text">
+            \(AOT_{(x,y,z)} = \frac{-F_{(x,y,z)}}{|F_{(x,y,z)}|} \)<BR>
+          </div>
+      <div class="variable-description">
+        R<sub>mass</sub> = Rocket Mass<br>
+        g = Gravitational Acceleration<br>    
+      </div>
+    </div>
     <p class="content-paragraph">A potential improvement to this control stack would be to implement a feedforward version of the vehicle angle control loop. Currently, thrust is not integrated into the loop, meaning the gains of the rotation control loop are not scaled according to the engine's output power. The control loop should be linked to a moment request, as defined by the equation below.</p>
     <div class="equation">
       <div class="equation-text">
