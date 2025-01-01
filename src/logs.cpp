@@ -103,7 +103,7 @@ void logRocketPosition(Vehicle &rocket) {
 
         engineVector0.push_back(rocket.engineState[0]);
         engineVector1.push_back(rocket.engineState[1]);
-        engineVector2.push_back(rocket.engineState[1]);
+        engineVector2.push_back(rocket.engineState[2]);
 
         enginePower.push_back(rocket.enginePower); //number from 0 to 1
 

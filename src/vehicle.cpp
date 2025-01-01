@@ -277,10 +277,8 @@ void Vehicle::applyEngineForce(std::array<float,2> twoDEngineRadians , float thr
 
     engineVector = realign.rotate(engineVector);
 
+    engineState = engineVector;
 
-    engineState[0] = -engineVector[0];
-    engineState[1] = -engineVector[1];
-    engineState[2] = -engineVector[2];
 
     enginePower = abs(thrust) / constants::maxThrust;
 
