@@ -198,7 +198,7 @@ void landingBurn(Vehicle &rocket){
 
     error  = twodAngleDiffrence( twoDState, targetState);
 
-    float PIDOutputX = PID(0,error,rocket.vehicleXError, rocket.sumOfVehicleXError, constants::timeStep , 2,0, 1);
+    float PIDOutputX = PID(0,error,rocket.vehicleXError, rocket.sumOfVehicleXError, constants::timeStep , 2 ,0, 1);
 
 
 

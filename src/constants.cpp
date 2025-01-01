@@ -33,7 +33,7 @@ namespace constants{
     float landingThrust = maxThrust * .95 ;
 
     float dryMass = 10000; //kg booster mass
-    float maxGimbalAngle = 20  * 3.1415926535f / 180.0f;// degrees
+    float maxGimbalAngle = 40  * 3.1415926535f / 180.0f;// degrees
     float landingVelocity = 10;
     float consumptionRateAtFullPowerPerEngine = 328.8; //kg/s this is lox plus RP1
 
