@@ -116,6 +116,8 @@ let pivot2 = new THREE.Object3D();
         mesh1 = new THREE.Mesh(geometry, material1);
 
         mesh2 = new THREE.Mesh(geometry, material2);
+        pivot1.scale.set(10.1,21,10.1)
+        pivot2.scale.set(10,20,10);
 
         const clock = new THREE.Clock();
 
@@ -141,8 +143,8 @@ let pivot2 = new THREE.Object3D();
         }
         pivot1.add(mesh1);
         pivot2.add(mesh2);
-        mesh1.position.set(0, 15, 0);
-        mesh2.position.set(0, 15, 0);
+        mesh1.position.set(0, 1, 0);
+        mesh2.position.set(0, 1, 0);
         scene.add(pivot1);
         scene.add(pivot2);
 
