@@ -200,8 +200,8 @@ let  currentY = 0;
     let adjustedZ = currentZ + stateVectorZ * normalVector * distance;
     mesh1.position.set(adjustedX , adjustedZ , adjustedY);
     mesh2.position.set(adjustedX , adjustedZ , adjustedY);
-    mesh1.lookAt(adjustedX - parseFloat(data.engineVector0[count]) , adjustedZ - parseFloat(data.engineVector2[count]) , adjustedY - parseFloat(data.engineVector1[count]));
-    mesh2.lookAt(adjustedX - parseFloat(data.engineVector0[count]) , adjustedZ - parseFloat(data.engineVector2[count]) , adjustedY - parseFloat(data.engineVector1[count]));
+    mesh1.lookAt(adjustedX + parseFloat(data.engineVector0[count]) , adjustedZ + parseFloat(data.engineVector2[count]) , adjustedY+ parseFloat(data.engineVector1[count]));
+    mesh2.lookAt(adjustedX + parseFloat(data.engineVector0[count]) , adjustedZ + parseFloat(data.engineVector2[count]) , adjustedY+ parseFloat(data.engineVector1[count]));
     mesh1.rotateX(Math.PI * 3 / 2); 
     mesh2.rotateX(Math.PI * 3 / 2);
 
