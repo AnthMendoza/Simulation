@@ -107,7 +107,8 @@ const material2 = getMaterial([1, 1, 0]);
 
 let mesh1;
 let mesh2;
-
+let pivot1 = new THREE.Object3D();
+let pivot2 = new THREE.Object3D();
   GLTFloader.load(
     "../static/3d/fire-template.glb",
     function (gltf) {
@@ -140,8 +141,11 @@ let mesh2;
             window.requestAnimationFrame(render);
 
         }
-        scene.add(mesh1);
-        scene.add(mesh2);
+        pivot1.add(mesh1);
+        pivot2.add(mesh2);
+        object.position.set(new THREE.Vector3(0,15,0));
+        scene.add(pivot1);
+        scene.add(pivot2);
 
         render();
     },
@@ -158,6 +162,7 @@ let  currentZ = 0;
 let  currentY = 0;
 
   let count = 1;
+
   function updateObjectByTime(currentTime) {
     if (!object) return;  // Wait until the object is loaded
 
@@ -180,8 +185,8 @@ let  currentY = 0;
     mesh1.visible = isVisible;
     mesh2.visible = isVisible;
 
-    mesh1.scale.set( 2 * parseFloat(data.enginePower[count]) + 2+ .5 , 10 * parseFloat(data.enginePower[count]) + 9 + 1 , 2 * parseFloat(data.enginePower[count]) + 2+ .5);
-    mesh2.scale.set( 2 * parseFloat(data.enginePower[count]) + 2 , 10 * parseFloat(data.enginePower[count]) + 9 , 2 * parseFloat(data.enginePower[count]) + 2);
+    pivot1.scale.set( 2 * parseFloat(data.enginePower[count]) + 2+ .5 , 10 * parseFloat(data.enginePower[count]) + 9 + 1 , 2 * parseFloat(data.enginePower[count]) + 2+ .5);
+    pivot2.scale.set( 2 * parseFloat(data.enginePower[count]) + 2 , 10 * parseFloat(data.enginePower[count]) + 9 , 2 * parseFloat(data.enginePower[count]) + 2);
     let distance = -36;
 
     if(parseFloat(data.velocity[count]) > 400 ){
@@ -198,19 +203,19 @@ let  currentY = 0;
     let adjustedX = currentX + stateVectorX * normalVector * distance;
     let adjustedY = currentY + stateVectorY * normalVector * distance;
     let adjustedZ = currentZ + stateVectorZ * normalVector * distance;
-    mesh1.position.set(adjustedX , adjustedZ , adjustedY);
-    mesh2.position.set(adjustedX , adjustedZ , adjustedY);
-    mesh1.lookAt(adjustedX + parseFloat(data.engineVector0[count]) , adjustedZ + parseFloat(data.engineVector2[count]) , adjustedY+ parseFloat(data.engineVector1[count]));
-    mesh2.lookAt(adjustedX + parseFloat(data.engineVector0[count]) , adjustedZ + parseFloat(data.engineVector2[count]) , adjustedY+ parseFloat(data.engineVector1[count]));
-    mesh1.rotateX(Math.PI * 3 / 2); 
-    mesh2.rotateX(Math.PI * 3 / 2);
+
+    pivot1.position.set(adjustedX , adjustedZ , adjustedY);
+    pivot2.position.set(adjustedX , adjustedZ , adjustedY);
+    pivot1.lookAt(adjustedX + parseFloat(data.engineVector0[count]) , adjustedZ + parseFloat(data.engineVector2[count]) , adjustedY+ parseFloat(data.engineVector1[count]));
+    pivot2.lookAt(adjustedX + parseFloat(data.engineVector0[count]) , adjustedZ + parseFloat(data.engineVector2[count]) , adjustedY+ parseFloat(data.engineVector1[count]));
+    pivot1.rotateX(Math.PI * 3 / 2); 
+    pivot2.rotateX(Math.PI * 3 / 2);
 
     if(parseFloat(data.velocity[count]) > 400 ){
-      mesh1.rotateX(Math.PI); 
-      mesh2.rotateX(Math.PI );
-
-      mesh1.scale.set(15,10,15)
-      mesh2.scale.set(14,10,14);
+      pivot1.rotateX(Math.PI); 
+      pivot2.rotateX(Math.PI );
+      pivot1.scale.set(15,10,15)
+      pivot2.scale.set(14,10,14);
 
     }
 
