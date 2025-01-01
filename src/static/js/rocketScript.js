@@ -180,8 +180,8 @@ let  currentY = 0;
     mesh1.visible = isVisible;
     mesh2.visible = isVisible;
 
-    mesh1.scale.set( 5 * parseFloat(data.enginePower[count]) + 5 + 1 , 10 * parseFloat(data.enginePower[count]) + 9 + 1 , 5 * parseFloat(data.enginePower[count]) + 5 + 1);
-    mesh2.scale.set( 5 * parseFloat(data.enginePower[count]) + 5 , 10 * parseFloat(data.enginePower[count]) + 9 , 5 * parseFloat(data.enginePower[count]) + 5);
+    mesh1.scale.set( 2 * parseFloat(data.enginePower[count]) + 2+ .5 , 10 * parseFloat(data.enginePower[count]) + 9 + 1 , 2 * parseFloat(data.enginePower[count]) + 2+ .5);
+    mesh2.scale.set( 2 * parseFloat(data.enginePower[count]) + 2 , 10 * parseFloat(data.enginePower[count]) + 9 , 2 * parseFloat(data.enginePower[count]) + 2);
     let distance = -36;
 
     if(parseFloat(data.velocity[count]) > 400 ){
