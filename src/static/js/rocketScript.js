@@ -143,7 +143,8 @@ let pivot2 = new THREE.Object3D();
         }
         pivot1.add(mesh1);
         pivot2.add(mesh2);
-        object.position.set(new THREE.Vector3(0,15,0));
+        mesh1.position.set(new THREE.Vector3(0,15,0));
+        mesh2.position.set(new THREE.Vector3(0,15,0));
         scene.add(pivot1);
         scene.add(pivot2);
 
