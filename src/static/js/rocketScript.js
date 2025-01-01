@@ -116,8 +116,6 @@ let pivot2 = new THREE.Object3D();
         mesh1 = new THREE.Mesh(geometry, material1);
 
         mesh2 = new THREE.Mesh(geometry, material2);
-        mesh1.scale.set(10.1,21,10.1)
-        mesh2.scale.set(10,20,10);
 
         const clock = new THREE.Clock();
 
