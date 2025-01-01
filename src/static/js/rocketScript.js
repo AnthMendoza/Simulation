@@ -142,6 +142,8 @@ let pivot2 = new THREE.Object3D();
         pivot2.add(mesh2);
         mesh1.position.set(0, 1, 0);
         mesh2.position.set(0, 1, 0);
+        mesh1.visible = false;
+        mesh2.visible = false;
         scene.add(pivot1);
         scene.add(pivot2);
 
@@ -184,9 +186,9 @@ let  currentY = 0;
     mesh1.visible = isVisible;
     mesh2.visible = isVisible;
 
-    pivot1.scale.set( 2 * parseFloat(data.enginePower[count]) + 2+ .5 , 10 * parseFloat(data.enginePower[count]) + 9 + 1 , 2 * parseFloat(data.enginePower[count]) + 2+ .5);
-    pivot2.scale.set( 2 * parseFloat(data.enginePower[count]) + 2 , 10 * parseFloat(data.enginePower[count]) + 9 , 2 * parseFloat(data.enginePower[count]) + 2);
-    let distance = -26;
+    pivot1.scale.set( 4 * parseFloat(data.enginePower[count]) + 4+ .5 , 15 * parseFloat(data.enginePower[count]) + 18 + 1 , 4 * parseFloat(data.enginePower[count]) + 4+ .5);
+    pivot2.scale.set( 4 * parseFloat(data.enginePower[count]) + 4 , 15 * parseFloat(data.enginePower[count]) + 18 , 4 * parseFloat(data.enginePower[count]) + 4);
+    let distance = -17;
 
     if(parseFloat(data.velocity[count]) > 400 ){
       distance = -20
