@@ -12,6 +12,7 @@ void RungeKutta4th(float force, float mass, float timeStep, float &velocity, flo
 
 
     float deltaV = acceleration(force , mass) * timeStep;
+
     float k1x = (velocity + deltaV) * timeStep;
 
 
@@ -26,5 +27,6 @@ void RungeKutta4th(float force, float mass, float timeStep, float &velocity, flo
 
     // weighted averge of the samples
     velocity = velocity + deltaV;
+    
     position = position + (k1x + 2 * k2x + 2 * k3x + k4x) / 6.0f;
 }

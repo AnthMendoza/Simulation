@@ -197,8 +197,21 @@ figcaption {
     object-fit: cover;
 }
 
+.latex{
+    font-size: 18px;
+}
 
 
+@media (max-width: 770px){
+    .latex{
+        font-size: 13px;
+    }
+}
+@media (max-width: 600px){
+    .latex{
+        font-size: 11px;
+    }
+}
 
 
 
@@ -226,3 +239,4 @@ figcaption {
         width: 85%;
     }
 }
+

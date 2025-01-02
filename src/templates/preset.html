@@ -20,6 +20,10 @@
 </div>
 
 <div class="content-div" id="tab1">
+  <h1>Overview</h1>
+  <p class="content-paragraph" style="text-align: center;"> <strong>Feel free dive straight into the simulation via the simulation Tab.</strong> </p>
+  <p class="content-paragraph">The tech stack is self-hosted on an NVIDIA Jetson, as the original goal of the project was to achieve a real-time simulation capable of running on a vehicle. The simulation is developed in C++, with keyframe data passed to a Python Flask server via shared memory, utilizing the multiprocessing.shared_memory module introduced in Python 3.8. This approach significantly reduces overhead compared to traditional input/output methods by enabling efficient, memory-mapped data exchange between prgrams. Flask processes this data into JSON format, which is then transmitted to the JavaScript front end powered by Three.js for 3D visualization. Additionally, graphs displaying simulation data are dynamically compiled from the same keyframe JSON using Plotly.js.</p>
+  <p class="content-paragraph">On the current ARM processor from 2017, the simulation calculates a 3-minute scenario with a static timestep of 0.01 seconds per step—approximately 18,000 steps—in just 1.5 to 1.8 seconds. This computation time includes a significant number of steps that are discarded due to prediction vehicles being cast to evaluate the consequences in the future(over the horizon). The fast computation speed provides flexibility for error correction, allowing the system to proactively prevent future unwanted states based on these predictions.</p>
   <h1>Physics Engine</h1>
   <img src = "../static/img/vectorRepresenation.png" alt="vehicle vector represenation">
   <figcaption>Figure 1 : Vehicle Vector Represenation</figcaption>
@@ -51,12 +55,55 @@
       <div class="equation-text">
         P<sub>n</sub> = V<sub>n</sub> dt + P<sub>n-1</sub>
       </div>
-    <div class="variable-description">
+    </div>
+    <p class="content-paragraph">Rotation matrices are used to manipulate vectors and update the vehicle's orientation in 3D space. The following matrices can rotate a vector around the axis defined. </p>
+    <div class="equation">
+      <div class="equation-text">
+        \[
+        R_x(\theta) = \begin{pmatrix}
+        1 & 0 & 0 \\
+        0 & \cos\theta & -\sin\theta \\
+        0 & \sin\theta & \cos\theta
+        \end{pmatrix}
+        \]
+      
+        \[
+        R_y(\theta) = \begin{pmatrix}
+        \cos\theta & 0 & \sin\theta \\
+        0 & 1 & 0 \\
+        -\sin\theta & 0 & \cos\theta
+        \end{pmatrix}
+        \]
+      
+        \[
+        R_z(\theta) = \begin{pmatrix}
+        \cos\theta & -\sin\theta & 0 \\
+        \sin\theta & \cos\theta & 0 \\
+        0 & 0 & 1
+        \end{pmatrix}
+        \]
+      
+        \[
+        \vec{v}_{rotated} = R(\theta)\vec{v}
+        \]
+      </div>
+    </div>
+    <p class="content-paragraph"> Multiplying the matrices returns a resultant matrix that can rotate a vector in 𝑅<sup>3</sup>. </p>
 
+    <div class="equation">
+      <div class="latex">
+        \[R = R_z(\gamma)R_y(\beta)R_x(\alpha) =\]
+        \[
+        \begin{pmatrix}
+        \cos\beta\cos\gamma & \sin\alpha\sin\beta\cos\gamma-\cos\alpha\sin\gamma & \cos\alpha\sin\beta\cos\gamma+\sin\alpha\sin\gamma \\
+        \cos\beta\sin\gamma & \sin\alpha\sin\beta\sin\gamma+\cos\alpha\cos\gamma & \cos\alpha\sin\beta\sin\gamma-\sin\alpha\cos\gamma \\
+        -\sin\beta & \sin\alpha\cos\beta & \cos\alpha\cos\beta
+        \end{pmatrix}
+        \]
+      </div>
     </div>
-    </div>
+    <p class="content-paragraph">A potential improvement to the simulation could be the use of quaternions instead of rotation matrices for handling rotations. Quaternions offer better stability when dealing with floating-point errors, which can cause numerical instability in rotation matrices. They also avoid issues like gimbal lock and require less memory and computation. This could result in more efficient and accurate simulations of continuous rotations in 3D space, enhancing both performance and precision.</p>
     <p class="content-paragraph">The simulation uses a Runge kutta method called RK4. Rk4 uses a weighted average of a defined set of discretized points to increase the precision of Euler's method. The image in figure x shows the increase in precision over an example differential equation.</p>
-    
     <img src="../static/img/Comparison_of_the_Runge-Kutta_methods_for_the_differential_equation_(red_is_the_exact_solution).svg.png">
     <figcaption>Figure 2 : Interpolation Comparison</figcaption>
     <p class="content-paragraph">For the differential equation \( \frac{dy}{dt}\) = f(t,y) , where \( \frac{dy}{dt}\) is a function of t and y. The weighted average is defined by the following.</p>
