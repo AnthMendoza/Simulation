@@ -20,6 +20,7 @@ def safe_shared_memory(name):
     finally:
         if shm is not None:
             try:
+                shared_memory.SharedMemory.unlink()
                 shm.unlink()
             except BufferError:
                 gc.collect() 
