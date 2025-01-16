@@ -25,7 +25,6 @@ def safe_shared_memory(name):
                 gc.collect() 
                 try:
                     shm.unlink()
-                    shm.c
                 except BufferError:
                     print(f"Warning: Could not close shared memory {name} immediately")
             try:
