@@ -202,7 +202,7 @@ void dataToRam(char* unique_id){
         std::cerr << "Failed to open shared memory." << std::endl;
     }
     std::cout<< "Xposition size : "<<Xposition.size()<< std::endl;
-    std::cout<<"Yposition size : "<< Yposition.size();
+    std::cout<<"Yposition size : "<< Yposition.size()<< std::endl;
     // Set the size of the shared memory object
     ftruncate(shm_fd, SIZE);
 
@@ -280,7 +280,7 @@ void dataToRam(char* unique_id){
     std::memcpy(&int_ptr[count], engineVector2.data(), engineVector2.size() * sizeof(float));
     count += engineVector2.size();
     std::memcpy(&int_ptr[count], enginePower.data(), enginePower.size() * sizeof(float));
-    
+
     munmap(ptr, SIZE);
     close(shm_fd);
 

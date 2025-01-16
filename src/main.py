@@ -18,23 +18,25 @@ def safe_shared_memory(name):
     try:
         shm = shared_memory.SharedMemory(name=name)
         yield shm
-        
     finally:
         if shm is not None:
-            try:
-                shm.close()
-                shm.unlink()
-            except BufferError:
-                gc.collect() 
-                try:
-                    shm.close()
-                    shm.unlink()
-                except BufferError:
-                    print(f"Warning: Could not close shared memory {name} immediately")
-            try:
-                shm.unlink()
-            except FileNotFoundError:
-                pass
+            cleanup_shared_memory(shm, name)
+
+def cleanup_shared_memory(shm, name):
+    """Helper function for cleaning up shared memory"""
+    try:
+        shm.close()
+        shm.unlink()
+    except BufferError:
+        gc.collect()  # Handle lingering references
+        try:
+            shm.close()
+            shm.unlink()
+        except BufferError:
+            print(f"Warning: Could not close shared memory {name} immediately")
+    except FileNotFoundError:
+        pass
+
 
 def run_cpp_executable(exe_path, args=None, timeout=None):
     if not os.path.isfile(exe_path):
@@ -82,7 +84,6 @@ def getSimulationFromMemory(unique_id):
             array_data = np.frombuffer(buffer[array_start:array_end], dtype=np.float32)
             arrays.append(np.array(array_data))  # Create a copy of the array
             current_offset = array_end
-        time.sleep(.3)
         return [array.tolist() for array in arrays]
 
 
