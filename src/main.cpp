@@ -107,10 +107,6 @@ int main(int argc, char* argv[]){
         closeCSV();
     #endif
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end - start;
-    std::cout << "Runtime: " << duration.count() << " seconds" << "\n";
-
     return 0;
 
 }

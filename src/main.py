@@ -7,6 +7,7 @@ import uuid
 import json
 from flask import Flask, render_template, request , jsonify
 from contextlib import contextmanager
+import gc
 
 
 @contextmanager
@@ -19,12 +20,12 @@ def safe_shared_memory(name):
     finally:
         if shm is not None:
             try:
-                shm.close()
+                shm.unlink()
             except BufferError:
-                import gc
-                gc.collect()  # Force garbage collection
+                gc.collect() 
                 try:
-                    shm.close()
+                    shm.unlink()
+                    shm.c
                 except BufferError:
                     print(f"Warning: Could not close shared memory {name} immediately")
             try:
