@@ -280,12 +280,11 @@ void dataToRam(char* unique_id){
     std::memcpy(&int_ptr[count], engineVector2.data(), engineVector2.size() * sizeof(float));
     count += engineVector2.size();
     std::memcpy(&int_ptr[count], enginePower.data(), enginePower.size() * sizeof(float));
-
-    std::cout << "Data written to shared memory." << std::endl;
-
-    // Clean up
+    
     munmap(ptr, SIZE);
     close(shm_fd);
+
+    std::cout << "Data written to shared memory." << std::endl;
 
 }
 

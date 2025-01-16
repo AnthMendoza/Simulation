@@ -18,7 +18,6 @@ def safe_shared_memory(name):
     try:
         shm = shared_memory.SharedMemory(name=name)
         yield shm
-        time.sleep(2)
     finally:
         if shm is not None:
             try:
