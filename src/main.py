@@ -20,11 +20,12 @@ def safe_shared_memory(name):
     finally:
         if shm is not None:
             try:
-                shared_memory.SharedMemory.unlink()
+                shm.close()
                 shm.unlink()
             except BufferError:
                 gc.collect() 
                 try:
+                    shm.close()
                     shm.unlink()
                 except BufferError:
                     print(f"Warning: Could not close shared memory {name} immediately")
