@@ -1,11 +1,12 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H
 
-
+#pragma once
 #include <array>
-
-
-class Vehicle{
+#include <memory>
+#include "../include/sensors.h"
+class stateEstimation;
+class Vehicle : public stateEstimation {
     public:
         float   Xposition , Yposition , Zposition;     // position 
         float Xvelocity , Yvelocity , Zvelocity;
@@ -19,6 +20,15 @@ class Vehicle{
 
         float gimbalVelocityX;
         float gimbalVelocityY;
+        float gimbalDamping;
+        float gimbalPGain;
+        float gimbalIGain;
+        float gimbalDGain;
+
+        std::array<float ,2 > landingGimbalDirection;
+        float landingRequiredThrust;
+        float  PIDOutputY;
+        float  PIDOutputX; 
 
         float maxGimbalAcceleration;
         float maxGimbalVelocity;
@@ -80,16 +90,23 @@ class Vehicle{
         std::array<float,3> MOI;
         std::array<float,3> sumOfForces;
         std::array<float,3> sumOfMoments;
+        std::array<float,3> acceleration;
         std::array<float,3> logEngineVector;
         std::array<float,3> logMoment;
         
+        
+
         Vehicle();
+
+        Vehicle(const Vehicle& vehicle);
 
         void display();
 
         float getVelocity();
 
         float getGForce();
+
+        void getAccel(std::array<float,3> &accel);
 
         void drag();
 
@@ -112,6 +129,10 @@ class Vehicle{
         bool fuelConsumption(float thrust);
 
         void engineGimbal(float gimbalTargetX , float gimbalTargetY);
+
+        float getTime();
+
+        void initSensors();
     
 
 };

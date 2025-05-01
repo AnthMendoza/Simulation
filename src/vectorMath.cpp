@@ -50,7 +50,7 @@ float vectorAngleBetween(std::array<float,3> &vector1, std::array<float,3> &vect
 
 
 
-std::array<float,3> normalizeVector(std::array<float,3> &vector1){
+std::array<float,3> normalizeVector(std::array<float,3> vector1){
     std::array<float,3> normalVector;
     float mag = vectorMag(vector1);
     if(mag == 0) return normalVector = {0,0,0};
@@ -59,6 +59,7 @@ std::array<float,3> normalizeVector(std::array<float,3> &vector1){
     }
     return normalVector;
 }
+
 
 
 

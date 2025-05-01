@@ -2,36 +2,35 @@
 #include <math.h>
 #include <chrono>
 #include <array>
+#include <string>
 #include "../include/constants.h"
 #include "../include/vectorMath.h"
 #include "../include/vehicle.h"
 #include "../include/odeIterator.h"
 #include "../include/logs.h"
 #include "../include/control.h"
+#include "../include/sensors.h"
 #include <string>
 
 
-
-
-void iterator(Vehicle &rocket){
-
+void iterator(Vehicle &rocket ,loggedData *data){
     while(rocket.Zposition > 0 && rocket.iterations < 1000000){
         rocket.drag();
         rocket.lift();
-        reentryBurn(rocket);
+        reentryBurn(rocket,data);
         rocket.finVectors = rocket.getFinForceVectors();
         landingBurn(rocket);
-
-        logRocketPosition(rocket);
-
-
+        data->logRocketPosition(rocket);
         rocket.updateState();
         rocket.iterations++;
     }
+    data->writeCSV("output.csv",data->all());
+
+
 }
 
 
-
+ 
 void initParameters(float drymass,
                     float propellentMassLOX,
                     float propellentMassFuel,
@@ -73,39 +72,37 @@ void initParameters(float drymass,
 
 
 int main(int argc, char* argv[]){
-    auto start = std::chrono::high_resolution_clock::now();
+    if(argv[1] == nullptr){
+        std::cout<< "Specify vehicle config file path";
+        return 1;
+    }
+    constants::configFile = argv[1];
 
-    #ifdef __linux__
-        initializeVectors(20000); // argv[1] unique ID 
-
-        initParameters( std::stof(argv[2]), // dry mass
-                    std::stof(argv[3]), // propellentMassLOX
-                    std::stof(argv[4]), // propellentMassFuel
-                    std::stof(argv[5]), // consumtionRateLOX
-                    std::stof(argv[6]), // consumtionRateFuel
-                    std::stof(argv[7]), // reentryAccel
-                    std::stof(argv[8]), // Initial Position X
-                    std::stof(argv[9]), // Initial Position Y
-                    std::stof(argv[10]), // Initial Position Z
-                    std::stof(argv[11]), // Initial Velocity X
-                    std::stof(argv[12]), // Initial Velocity Y
-                    std::stof(argv[13]), // Initial Velocity Z
-                    std::stof(argv[14]), // Initial Orientation Vector X
-                    std::stof(argv[15]), // Initial Orientation Vector Y
-                    std::stof(argv[16]) // Initial Orientation Vector Z
-                    );
-    #else
-        initializeCSV();
-    #endif
-
+    //if(argc != NULL && argc > 0 ){
+    //    initializeVectors(20000); // argv[1] unique ID 
+    //    initParameters( std::stof(argv[2]), // dry mass
+    //                std::stof(argv[3]), // propellentMassLOX
+    //                std::stof(argv[4]), // propellentMassFuel
+    //                std::stof(argv[5]), // consumtionRateLOX
+    //                std::stof(argv[6]), // consumtionRateFuel
+    //                std::stof(argv[7]), // reentryAccel
+    //                std::stof(argv[8]), // Initial Position X
+    //                std::stof(argv[9]), // Initial Position Y
+    //                std::stof(argv[10]), // Initial Position Z
+    //                std::stof(argv[11]), // Initial Velocity X
+    //                std::stof(argv[12]), // Initial Velocity Y
+    //                std::stof(argv[13]), // Initial Velocity Z
+    //                std::stof(argv[14]), // Initial Orientation Vector X
+    //                std::stof(argv[15]), // Initial Orientation Vector Y
+    //                std::stof(argv[16]) // Initial Orientation Vector Z
+    //                );
+    //}
+    loggedData* data = new loggedData;
+    
     Vehicle rocket;
-    iterator(rocket);
-
-    #ifdef __linux__
-        dataToRam(argv[1]); // argv[1] unique ID 
-    #else
-        closeCSV();
-    #endif
+    iterator(rocket , data);
+    delete data;
+    
 
     return 0;
 

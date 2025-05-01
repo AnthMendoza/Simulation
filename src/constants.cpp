@@ -1,5 +1,5 @@
 #include "../include/constants.h"
-
+#include <string>
 
 namespace constants{
     #ifdef __linux__
@@ -9,6 +9,8 @@ namespace constants{
     #endif
 
     float gravitationalAcceleration = -9.81; 
+    
+    std::string configFile = "";
 
     //std::array<float,3> initPosition = {0,295528.164398,110000};
     std::array<float,3> initPosition = {0,0,2600};
@@ -27,7 +29,7 @@ namespace constants{
     float maxGAllowedEntry = 4.5;
     float centerOfPressure = 15;
     float cogToEngine = -8; // meters use this to calculate the moment created by the engine this is negative becuase center of pressure on the opposite side of the COG is positive
-    const float timeStep = .01; //seconds
+    const float timeStep = .001; //seconds
     float maxThrust = 854000;//netwons
     float minThrust = maxThrust *.5; //newtons, 65 percent of max;
     float landingThrust = maxThrust * .95 ;
@@ -42,14 +44,6 @@ namespace constants{
     float consumtionRateLOX = 150; //kg/s*engine
     float consumtionRateFuel = 150; //kg/s*engine
 
-
-    float gimbalDamping = 21;
-    float gimbalPGain = 17;
-    float gimbalIGain = 2;
-    float gimbalDGain = .5;
-
-
-    std::array<float,3> LandingTarget = {0,-257939.2813,0};
 
 
 }

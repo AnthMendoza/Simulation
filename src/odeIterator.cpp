@@ -9,11 +9,11 @@ void Ode(float force , float mass , float timeStep ,float &velocity ,float &posi
 
     float deltaVelocity = acceleration * timeStep;
 
-    velocity =+ deltaVelocity;
+    velocity += deltaVelocity;
 
     float deltaPosition = velocity * timeStep;
 
-    position =+ deltaPosition;
+    position += deltaPosition;
 
 
 }

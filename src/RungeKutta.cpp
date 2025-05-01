@@ -15,7 +15,6 @@ void RungeKutta4th(float force, float mass, float timeStep, float &velocity, flo
 
     float k1x = (velocity + deltaV) * timeStep;
 
-
    
     float k2x = (velocity + k1x / 2.0f) * timeStep;
 

@@ -1,8 +1,10 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 #include <array>
-
+#include <string>
 namespace constants{
+
+    extern std::string configFile;
     extern float gravitationalAcceleration; 
 
     extern std::array<float,3> initPosition;
@@ -28,11 +30,6 @@ namespace constants{
     extern float initLOX; // kg
     extern float consumtionRateLOX; //kg/s
     extern float consumtionRateFuel; //kg/s
-    
-    extern float gimbalDamping;
-    extern float gimbalPGain;
-    extern float gimbalIGain;
-    extern float gimbalDGain;
 
 
 
@@ -41,7 +38,6 @@ namespace constants{
  
 
 
-    extern std::array<float,3> LandingTarget;
 }
 
 #endif

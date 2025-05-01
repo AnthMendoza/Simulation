@@ -1,6 +1,7 @@
 #include <iostream>
 #include <array>
 #include <cmath>
+#include <memory>
 #include "../include/forceApplied.h"
 #include "../include/vehicle.h"
 #include "../include/vectorMath.h"
@@ -11,44 +12,107 @@
 #include "../include/rotationMatrix.h"
 #include "../include/getRotation.h"
 #include "../include/control.h"
+#include "../include/sensors.h"
+#include "../include/toml.hpp"
 
 
 
 
+void Vehicle::initSensors(){
+    
+    auto config = toml::parse(constants::configFile, toml::spec::v(1,1,0));
+    auto rocket = toml::find(config,"vehicle");
+    auto map = std::make_shared<std::unordered_map<std::string,std::shared_ptr<sensor>>>();
+    sensorMap = map;
+    auto stateMap = std::make_shared<std::unordered_map<std::string,std::shared_ptr<sensor>>>();
+    stateEstimationSensors = stateMap;
+    auto list = std::vector<std::shared_ptr<sensor>>();
+    sensorList = list;
+    
+    auto sensorConfig = toml::find(config , "sensors");
+    //NOTE:: this is not templeted for diffrences sensor to sensor
+    auto accelConfig= toml::find(sensorConfig , "accelerometer");
+    std::shared_ptr<accelerometer> accel = std::make_shared<accelerometer>( toml::find<float>(accelConfig , "frequency"),
+                                                                            toml::find<float>(accelConfig , "NoisePowerSpectralDensity"),
+                                                                            toml::find<float>(accelConfig , "bandwidth"),
+                                                                            toml::find<float>(accelConfig , "bias"));
+    
+    if(toml::find<bool>(accelConfig, "burst")){
+        accel->setBurst(toml::find<float>(accelConfig, "burstStdDeviation") , toml::find<float>(accelConfig, "maxBurstDuration"));
+    }
+    sensorMap->insert({"accelerometer",accel});
+    this->add(accel);
+
+    auto gpsConfig= toml::find(sensorConfig , "gps");
+    
+    std::shared_ptr<GNSS> gps = std::make_shared<GNSS>(   toml::find<float>(gpsConfig , "frequency"),
+                                                                            toml::find<float>(gpsConfig , "NoisePowerSpectralDensity"),
+                                                                            toml::find<float>(gpsConfig , "bandwidth"),
+                                                                            toml::find<float>(gpsConfig , "bias"));
+
+    if(toml::find<bool>(gpsConfig, "burst")){
+        gps->setBurst(toml::find<float>(gpsConfig, "burstStdDeviation") , toml::find<float>(gpsConfig, "maxBurstDuration"));
+    }
+    sensorMap->insert({"GNSS",gps});
+    this->add(gps);
+
+    auto gyroConfig= toml::find(sensorConfig , "gyro");
+
+    std::shared_ptr<gyroscope> gyro = std::make_shared<gyroscope>( toml::find<float>(gyroConfig , "frequency"),
+                                                                            toml::find<float>(gyroConfig , "NoisePowerSpectralDensity"),
+                                                                            toml::find<float>(gyroConfig , "bandwidth"),
+                                                                            toml::find<float>(gyroConfig , "bias"));
+
+    if(toml::find<bool>(gyroConfig, "burst")){
+        gyro->setBurst(toml::find<float>(gyroConfig, "burstStdDeviation") , toml::find<float>(gyroConfig, "maxBurstDuration"));
+    }
+    sensorMap->insert({"gyro",gyro});
+    this->add(gyro);
 
 
+    this->stateEstimationSensors = std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<sensor>>>(this->sensorMap);
+
+}
 
 
-
-Vehicle::Vehicle(){
+Vehicle::Vehicle() : stateEstimation(){
     // roll pitch yaw (x,y,z) defines the direction vector, heading. ex. (0,0,1) is rocket pointing straight up.
+    initSensors();
 
-    //(x,y,z)positon defines its location reltaive to an orgin
+    auto config = toml::parse(constants::configFile, toml::spec::v(1,1,0));
+    auto rocket = toml::find(config,"vehicle");
 
-    dryMass = constants::dryMass;
-    fuel = constants::initFuel;
-    LOX = constants::initLOX;
-    mass = constants::dryMass + constants::initFuel + constants::initLOX;
-    fuelConsumptionRate = constants::consumtionRateFuel;
-    LOXConsumptionRate = constants::consumtionRateLOX;
+    dryMass = toml::find<float>(rocket,"dryMass");
+    fuel = toml::find<float>(rocket,"initFuel");
+    LOX = toml::find<float>(rocket,"initLOX");
+    mass = dryMass + fuel + LOX;
+    fuelConsumptionRate = toml::find<float>(rocket,"consumptionRateFuel");
+    LOXConsumptionRate = toml::find<float>(rocket,"consumptionRateLOX");
 
-    MOI = constants::MOI;
+    MOI = toml::find<std::array<float,3>>(rocket,"MOI");
 
-    targetLandingPosition = constants::LandingTarget;
+    targetLandingPosition = toml::find<std::array<float,3>>(rocket , "targetLandingPosition");
 
-    Xposition = constants::initPosition[0];
-    Yposition = constants::initPosition[1];
-    Zposition = constants::initPosition[2];
+    std::vector<float> initPosition = toml::find<std::vector<float>>(rocket ,"initPosition");
 
-    reentry = false;
-    glidePhase = false; //false means yet to happen, true means already happened
-    landingInProgress = false;
+    Xposition = initPosition[0];
+    Yposition = initPosition[1];
+    Zposition = initPosition[2];
+
+    reentry = toml::find<bool>(rocket,"reentry");
+    glidePhase = toml::find<bool>(rocket,"glidePhase"); //false means yet to happen, true means already happened
+    landingInProgress = toml::find<bool>(rocket,"landingInProgress");
 
     iterations = 0;
 
     engineState = {0,0,0};
     enginePower = 0;
     appliedVector = {0,0,0};
+
+    gimbalDamping = toml::find<float>(rocket,"gimbalDamping");
+    gimbalPGain = toml::find<float>(rocket,"gimbalPGain");
+    gimbalIGain = toml::find<float>(rocket,"gimbalIGain");
+    gimbalDGain = toml::find<float>(rocket,"gimbalDGain");
 
     gimbalErrorX = 0;
     gimbalErrorY = 0;
@@ -69,7 +133,7 @@ Vehicle::Vehicle(){
     vehicleXError = 0;
     sumOfVehicleXError = 0;
 
-    maxGimbalAcceleration = 10; // rad/s/s
+    maxGimbalAcceleration = toml::find<float>(rocket,"maxGimbalAcceleration"); // rad/s/s
 
 
     gForce = 0;
@@ -80,13 +144,17 @@ Vehicle::Vehicle(){
     centerOfPressure = constants::centerOfPressure; //meters
     cogToEngine = constants::cogToEngine;
 
-    vehicleState[0] = constants::initVehicleState[0];
-    vehicleState[1] = constants::initVehicleState[1];  //setting init value for vehicle state, logged in constants.h
-    vehicleState[2] = constants::initVehicleState[2];
+    std::vector<float> initVehicleState = toml::find<std::vector<float>>(rocket ,"initVehicleState");
 
-    Xvelocity = constants::initVelocity[0];
-    Yvelocity = constants::initVelocity[1];   // Velocity vector , direction of movment relative to the ground
-    Zvelocity = constants::initVelocity[2];
+    vehicleState[0] = initVehicleState[0];
+    vehicleState[1] = initVehicleState[1];  //setting init value for vehicle state, logged in constants.h
+    vehicleState[2] = initVehicleState[2];
+
+    std::vector<float> initVelocity = toml::find<std::vector<float>>(rocket ,"initVelocity");
+
+    Xvelocity = initVelocity[0];
+    Yvelocity = initVelocity[1];   // Velocity vector , direction of movment relative to the ground
+    Zvelocity = initVelocity[2];
 
     logXInput = 0;
     logYInput = 0;
@@ -106,8 +174,11 @@ Vehicle::Vehicle(){
 
     dragLog = {0,0,0};
 
+    acceleration = {0,0,0};
 
     }
+
+Vehicle::Vehicle(const Vehicle& vehicle) = default;
 
 
 
@@ -129,6 +200,10 @@ float Vehicle::getGForce(){
     std::array<float ,3> vector = {sumOfForces[0]/mass,sumOfForces[1]/mass,sumOfForces[2]/mass};
 
     return vectorMag(vector)/9.8;
+}
+
+void Vehicle::getAccel(std::array<float,3> &accel){
+    for(int i = 0 ; i < 3 ; i++) accel[i] = sumOfForces[i] / mass;
 }
 
 
@@ -332,9 +407,12 @@ void  Vehicle::addMoment(std::array<float,3> moments){
 
 void Vehicle::updateState(){    
     //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
-    sumOfForces[2] = sumOfForces[2] + constants::gravitationalAcceleration * mass; 
+    updateSensors(this);
+    updateEstimation(constants::timeStep);
 
+    sumOfForces[2] = sumOfForces[2] + constants::gravitationalAcceleration * mass; 
     
+    acceleration = {sumOfForces[0]/mass , sumOfForces[1]/mass , sumOfForces[2]/mass};
 
     RungeKutta4th(sumOfForces[0] , mass , constants::timeStep , Xvelocity,Xposition);
     RungeKutta4th(sumOfForces[1] , mass , constants::timeStep , Yvelocity,Yposition);
@@ -352,6 +430,8 @@ void Vehicle::updateState(){
 
     gForce = getGForce();
 
+    getAccel(acceleration);
+
     sumOfForces[0] = 0; //reset forces to zero for next iteration
     sumOfForces[1] = 0;
     sumOfForces[2] = 0;
@@ -361,6 +441,7 @@ void Vehicle::updateState(){
     sumOfMoments[2] = 0;
 
     engineState = {0,0,0};
+
     enginePower = 0;
 
     appliedVector = {0,0,0};
@@ -368,6 +449,8 @@ void Vehicle::updateState(){
     //reset finVectors::: might remove 
     finVectors[0] =  {0,0,0};
     finVectors[1] =  {0,0,0};
+
+
 
 
     
@@ -423,6 +506,7 @@ std::array<std::array<float , 3> , 2> Vehicle::getFinForceVectors(){
 }
 
 
+
 void Vehicle::applyFinForce(std::array<std::array<float,3>,2> forceVectors){
 
     if(forceVectors[0][0] != 0 && forceVectors[0][1] != 0 && forceVectors[0][2] != 0){
@@ -443,7 +527,6 @@ void Vehicle::applyFinForce(std::array<std::array<float,3>,2> forceVectors){
 float Vehicle::getCurvature(){
     
     std::array<float ,3> velocity = {Xvelocity , Yvelocity , Zvelocity};
-    std::array<float ,3> acceleration = {sumOfForces[0]/mass , sumOfForces[1]/mass , sumOfForces[2]/mass};
     std::array<float,3> veloCrossAccel = {0,0,0};
 
     //vectorCrossProduct(velocity , acceleration , veloCrossAccel);
@@ -487,25 +570,32 @@ void Vehicle::engineGimbal(float gimbalTargetX , float gimbalTargetY){
     gimbalErrorX = gimbalTargetX - gimbalX;
     gimbalErrorY = gimbalTargetY - gimbalY;
 
-    float XInput = PID(gimbalTargetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , constants::gimbalPGain , constants::gimbalIGain , constants::gimbalDGain);
+    float XInput = PID(gimbalTargetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
-    float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , constants::gimbalPGain , constants::gimbalIGain , constants::gimbalDGain);
+    float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
 
     setInBounds( XInput , -1.0f , 1.0f);
     setInBounds( YInput , -1.0f , 1.0f);
 
 
-    logXInput = ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX * gimbalVelocityX);
-    logYInput = ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX);
+    logXInput = ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX * gimbalVelocityX);
+    logYInput = ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX);
     
-    if(gimbalVelocityX > 1) gimbalVelocityX += ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX * gimbalVelocityX) * constants::timeStep;
-    else gimbalVelocityX += ((XInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityX) * constants::timeStep;
+    if(gimbalVelocityX > 1) gimbalVelocityX += ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX * gimbalVelocityX) * constants::timeStep;
+    else gimbalVelocityX += ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX) * constants::timeStep;
 
-    if(gimbalVelocityY > 1) gimbalVelocityY += ((YInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityY * gimbalVelocityY) * constants::timeStep; 
-    else  gimbalVelocityY += ((YInput * maxGimbalAcceleration) - constants::gimbalDamping * gimbalVelocityY) * constants::timeStep; 
+    if(gimbalVelocityY > 1) gimbalVelocityY += ((YInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityY * gimbalVelocityY) * constants::timeStep; 
+    else  gimbalVelocityY += ((YInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityY) * constants::timeStep; 
 
     gimbalX += gimbalVelocityX * constants::timeStep;
     gimbalY += gimbalVelocityY * constants::timeStep;
     
 }
+
+
+float Vehicle::getTime(){
+    return iterations * constants::timeStep;
+}
+
+

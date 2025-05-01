@@ -2,147 +2,78 @@
 #include "../include/logs.h"
 #include "../include/vectorMath.h"
 #include "../include/constants.h"
+#include "../include/sensors.h"
 #include <fstream>
 #include <string>
 #include <vector>
 #include <iostream>
 #include <stdexcept>
 #include <cmath>
-
-std::ofstream outputFile;
-std::vector<float> timeStepVect;
-std::vector<float> Xposition;
-std::vector<float> Yposition;
-std::vector<float> Zposition;
-std::vector<float> vehicleState0;
-std::vector<float> vehicleState1;
-std::vector<float> vehicleState2;
-std::vector<float> absVelocity;
-std::vector<float> gForce;
-std::vector<float> gimbalXAngle;
-std::vector<float> gimbalYAngle;
-std::vector<float> fuel;
-std::vector<float> mass;
-std::vector<float> LOX;
-std::vector<float> engineVector0;
-std::vector<float> engineVector1;
-std::vector<float> engineVector2;
-std::vector<float> enginePower;
+#include <fstream>
 
 
+loggedData::loggedData( int preset){
 
-void initializeCSV() {
-    outputFile.open("data.csv");
-    if (!outputFile.is_open()) {
-        throw std::runtime_error("Unable to open file: " );
-    }
-    std::string headers = "Time,Xposition,Yposition,Zposition,XVehicleState,YVehicleState,ZVehicleState,Velocity,Acceleration,XengineState,YengineState,ZengineState,gimbalX,gimbalY,gimbalInputX,gimbalInputY";
-    appendRowToCSV(headers);
+    timeStepVect.reserve(preset);
+    Xposition.reserve(preset);
+    Yposition.reserve(preset);
+    Zposition.reserve(preset);
+    vehicleState0.reserve(preset);
+    vehicleState1.reserve(preset);
+    vehicleState2.reserve(preset);
+    absVelocity.reserve(preset);
+    gForce.reserve(preset);
+    gimbalXAngle.reserve(preset);
+    gimbalYAngle.reserve(preset);
+    mass.reserve(preset);
+    fuel.reserve(preset);
+    LOX.reserve(preset);
+    engineVector0.reserve(preset);
+    engineVector1.reserve(preset);
+    engineVector2.reserve(preset);
+    enginePower.reserve(preset);
+    
 }
-
-void appendRowToCSV(const std::string& row) {
-    if (!outputFile.is_open()) {
-        throw std::runtime_error("CSV file is not open. Call initializeCSV first.");
-    }
-    outputFile << row << "\n";
-}
-
-void closeCSV() {
-    if (outputFile.is_open()) {
-        outputFile.close();
-    }
-}
-
-void initializeVectors(int preset){
-    #ifdef __linux__
-        timeStepVect.reserve(preset);
-        Xposition.reserve(preset);
-        Yposition.reserve(preset);
-        Zposition.reserve(preset);
-        vehicleState0.reserve(preset);
-        vehicleState1.reserve(preset);
-        vehicleState2.reserve(preset);
-        absVelocity.reserve(preset);
-        gForce.reserve(preset);
-        gimbalXAngle.reserve(preset);
-        gimbalYAngle.reserve(preset);
-        mass.reserve(preset);
-        fuel.reserve(preset);
-        LOX.reserve(preset);
-        engineVector0.reserve(preset);
-        engineVector1.reserve(preset);
-        engineVector2.reserve(preset);
-        enginePower.reserve(preset);
-    #endif
-}
+loggedData::loggedData(){}
 
 
+void loggedData::logRocketPosition(Vehicle &rocket ) {
 
+    timeStepVect.push_back(rocket.iterations * constants::timeStep);
 
-void logRocketPosition(Vehicle &rocket) {
-    if(constants::isLinux == true){
-        timeStepVect.push_back(rocket.iterations * constants::timeStep);
+    Xposition.push_back(rocket.Xposition);
+    Yposition.push_back(rocket.Yposition);
+    Zposition.push_back(rocket.Zposition);
 
-        Xposition.push_back(rocket.Xposition);
-        Yposition.push_back(rocket.Yposition);
-        Zposition.push_back(rocket.Zposition);
+    vehicleState0.push_back(rocket.vehicleState[0]);
+    vehicleState1.push_back(rocket.vehicleState[1]);
+    vehicleState2.push_back(rocket.vehicleState[2]);
 
-        vehicleState0.push_back(rocket.vehicleState[0]);
-        vehicleState1.push_back(rocket.vehicleState[1]);
-        vehicleState2.push_back(rocket.vehicleState[2]);
+    absVelocity.push_back(rocket.getVelocity());
+    gForce.push_back(rocket.gForce);
 
-        absVelocity.push_back(rocket.getVelocity());
-        gForce.push_back(rocket.gForce);
-
-        gimbalXAngle.push_back(rocket.gimbalX);
-        gimbalYAngle.push_back(rocket.gimbalY);
+    gimbalXAngle.push_back(rocket.gimbalX);
+    gimbalYAngle.push_back(rocket.gimbalY);
         
-        mass.push_back(rocket.mass);
-        fuel.push_back(rocket.fuel);
-        LOX.push_back(rocket.LOX);
+    mass.push_back(rocket.mass);
+    fuel.push_back(rocket.fuel);
+    LOX.push_back(rocket.LOX);
 
-        engineVector0.push_back(rocket.engineState[0]);
-        engineVector1.push_back(rocket.engineState[1]);
-        engineVector2.push_back(rocket.engineState[2]);
+    engineVector0.push_back(rocket.engineState[0]);
+    engineVector1.push_back(rocket.engineState[1]);
+    engineVector2.push_back(rocket.engineState[2]);
 
-        enginePower.push_back(rocket.enginePower); //number from 0 to 1
+    enginePower.push_back(rocket.enginePower); //number from 0 to 1
+    stateEstimationVelocityX.push_back(rocket.getEstimatedVelocity()[0]);
+    stateEstimationVelocityY.push_back(rocket.getEstimatedVelocity()[1]);
+    stateEstimationVelocityZ.push_back(rocket.getEstimatedVelocity()[2]);
+    stateEstimationPositionX.push_back(rocket.getEstimatedPosition()[0]);
+    stateEstimationPositionY.push_back(rocket.getEstimatedPosition()[1]);
+    stateEstimationPositionZ.push_back(rocket.getEstimatedPosition()[2]);
 
-
-
-
-
-    }else{
-
-        rocket.vehicleState = normalizeVector(rocket.vehicleState);
-        std::string row = std::to_string(rocket.iterations * constants::timeStep) + "," + 
-                        std::to_string(rocket.Xposition) + "," + 
-                        std::to_string(rocket.Yposition) + "," +
-                        std::to_string(rocket.Zposition) + "," + 
-                        std::to_string(rocket.vehicleState[0])+ "," +
-                        std::to_string(rocket.vehicleState[1])+ "," +
-                        std::to_string(rocket.vehicleState[2])+ "," +
-                        std::to_string(rocket.getVelocity())+ "," +
-                        std::to_string(rocket.gForce)+ "," +
-
-                        std::to_string(rocket.engineState[0])+ "," +
-                        std::to_string(rocket.engineState[1])+ "," +
-                        std::to_string(rocket.engineState[2])+ "," +
-
-                        std::to_string(rocket.gimbalX)+ "," +
-                        std::to_string(rocket.gimbalY)+ "," +
-                        std::to_string(rocket.logXInput)+ "," +
-                        std::to_string(rocket.logYInput)+ "," +
-                        std::to_string(rocket.logYInput)+ "," +
-                        std::to_string(rocket.logYInput)+ "," +
-                        std::to_string(rocket.logYInput)+ "," +
-                        std::to_string(rocket.logYInput);
-
-        appendRowToCSV(row);
-
-    }
 }
-
-void lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData ,  int desiredResolution){
+    
+void loggedData::lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData ,  int desiredResolution){
 
     if(desiredResolution <= 0) throw std::invalid_argument ("desiredResolution cannot be zero");
 
@@ -163,8 +94,60 @@ void lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData 
 }
 
 
-#ifdef __linux__
+std::vector<std::vector<float>*> loggedData::all(){
+    return {&timeStepVect,
+            &Xposition,
+            &Yposition,
+            &Zposition,
+            &vehicleState0,
+            &vehicleState1,
+            &vehicleState2,
+            &absVelocity,
+            &gForce,
+            &gimbalXAngle,
+            &gimbalYAngle,
+            &fuel,
+            &mass,
+            &LOX,
+            &engineVector0,
+            &engineVector1,
+            &engineVector2,
+            &enginePower,
+            &stateEstimationVelocityX,
+            &stateEstimationVelocityY,
+            &stateEstimationVelocityZ,
+            &stateEstimationPositionX,
+            &stateEstimationPositionY,
+            &stateEstimationPositionZ
+        };
+}
 
+void loggedData::writeCSV( const std::string& filename,const std::vector<std::vector<float>*>& data) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Could not open file.\n";
+        return;
+    }
+    if(data.empty()) return;
+    if(!header.empty()) file << header << "\n";
+    int numRows = (*(data[0])).size();
+    for(int i = 0; i < numRows; ++i) {
+        for(int j = 0 ; j < data.size() ; j++){
+            if(j<data.size() - 1 )file << (*data[j])[i]<<",";
+            else file << (*data[j])[i];
+        }
+        file << "\n";
+    }
+
+    file.close();
+}
+
+
+
+
+
+
+/*
 #include <iostream>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -287,6 +270,4 @@ void dataToRam(char* unique_id){
     std::cout << "Data written to shared memory." << std::endl;
 
 }
-
-
-#endif
+*/

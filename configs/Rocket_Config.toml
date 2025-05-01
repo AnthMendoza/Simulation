@@ -1,0 +1,67 @@
+
+[environment]
+wind = [0.0,0.0,0.0]
+gravitationalAcceleration = -9.81
+
+[vehicle]
+initPosition = [0.0,0.0,260000.0]
+initVehicleState = [0.5,0.8660254038,0.0]
+MOI = [3614090.0,3614090.0,3614090.0]
+initVelocity = [-1000.0,-1732.050808,-1000.0]
+
+centerOfPressure = 15.0
+maxGAllowedEntry = 4.5
+cogToEngine = -8.0
+timeStep = 0.001
+maxThrust = 854000.0
+
+dryMass = 10000.0
+
+landingVelocity = 10.0
+consumptionRateAtFullPowerPerEngine = 328.8
+initFuel = 3000.0
+initLOX =  7050.0
+consumptionRateLOX = 165.0
+consumptionRateFuel = 70.0
+gimbalDamping = 21.0
+gimbalPGain = 17.0
+gimbalIGain = 2.0
+gimbalDGain = 0.5
+maxGimbalAcceleration = 10.0
+
+targetLandingPosition  = [0.0,0.0,0.0]
+
+reentry = false
+glidePhase = false
+landingInProgress = false
+
+# PowerSpectralDensity is variance per Hz
+[sensors]
+[sensors.accelerometer]
+frequency = 1000.0
+NoisePowerSpectralDensity = 3.0
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 2.0
+maxBurstDuration = 0.5
+
+
+[sensors.gps]
+frequency = 10.0
+NoisePowerSpectralDensity = 10.0
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 10.0
+maxBurstDuration = 3.0
+
+[sensors.gyro]
+frequency = 10.0
+NoisePowerSpectralDensity = 3.0
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 0.5
+maxBurstDuration = 0.4
+
