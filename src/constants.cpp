@@ -10,7 +10,8 @@ namespace constants{
 
     float gravitationalAcceleration = -9.81; 
     
-    std::string configFile = "";
+    std::string configFile = "../configs/Rocket_config.toml"; //default location
+    std::string outputFile = "../output.csv";
 
     //std::array<float,3> initPosition = {0,295528.164398,110000};
     std::array<float,3> initPosition = {0,0,2600};

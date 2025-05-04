@@ -112,19 +112,19 @@ class stateEstimation: public sensorSuite{
     
     void updateEstimation(float timeStep);
 
-    inline std::array<float,3> stateEstimation::getEstimatedPosition(){
+    inline std::array<float,3> getEstimatedPosition(){
         return position;
     }
     //rotation estimation is returned as a vector pointing in the direction of the vehicles state.
     //Currently no logic in rotation estimation. this is simply a noisy model of the current vector state.
     // Simulated drift should be introduced. This also allows us to correct bias.
     
-    inline std::array<float,3> stateEstimation::getEstimatedRotation(){
+    inline std::array<float,3> getEstimatedRotation(){
         return sensorMap->find("gyro")->second->read();
     }
     
-    inline std::array<float,3> stateEstimation::getEstimatedVelocity(){
-    return velocity;
+    inline std::array<float,3> getEstimatedVelocity(){
+        return velocity;
     }
     
 };

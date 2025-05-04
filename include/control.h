@@ -28,7 +28,7 @@ Vehicle &lookAhead(Vehicle &rocket, float lookAheadTime);
 float PID(float target , float currentState , float &previousError , float &sumOfError , float timeStep, float Pgain , float Igain , float Dgain);
 
 
-void reentryBurn(Vehicle &rocket , loggedData *data);
+void reentryBurn(Vehicle &rocket , loggedData *data = nullptr);
 
 void glidToTarget(Vehicle &rocket);
 

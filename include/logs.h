@@ -6,43 +6,43 @@
 #include "../include/sensors.h"
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 #pragma once
+using vecFloat = std::shared_ptr<std::vector<float>>;
+
 class loggedData{
     public:
-    std::vector<float> timeStepVect;
-    std::vector<float> Xposition;
-    std::vector<float> Yposition;
-    std::vector<float> Zposition;
-    std::vector<float> vehicleState0;
-    std::vector<float> vehicleState1;
-    std::vector<float> vehicleState2;
-    std::vector<float> absVelocity;
-    std::vector<float> gForce;
-    std::vector<float> gimbalXAngle;
-    std::vector<float> gimbalYAngle;
-    std::vector<float> fuel;
-    std::vector<float> mass;
-    std::vector<float> LOX;
-    std::vector<float> engineVector0;
-    std::vector<float> engineVector1;
-    std::vector<float> engineVector2;
-    std::vector<float> enginePower;
-
-    std::vector<float> stateEstimationVelocityX;
-    std::vector<float> stateEstimationVelocityY;
-    std::vector<float> stateEstimationVelocityZ;
-    std::vector<float> stateEstimationPositionX;
-    std::vector<float> stateEstimationPositionY;
-    std::vector<float> stateEstimationPositionZ;
+    vecFloat timeStepVect = std::make_shared<std::vector<float>>();
+    vecFloat Xposition = std::make_shared<std::vector<float>>();
+    vecFloat Yposition = std::make_shared<std::vector<float>>();
+    vecFloat Zposition = std::make_shared<std::vector<float>>();
+    vecFloat vehicleState0 = std::make_shared<std::vector<float>>();
+    vecFloat vehicleState1 = std::make_shared<std::vector<float>>();
+    vecFloat vehicleState2 = std::make_shared<std::vector<float>>();
+    vecFloat absVelocity = std::make_shared<std::vector<float>>();
+    vecFloat gForce = std::make_shared<std::vector<float>>();
+    vecFloat gimbalXAngle = std::make_shared<std::vector<float>>();
+    vecFloat gimbalYAngle = std::make_shared<std::vector<float>>();
+    vecFloat fuel = std::make_shared<std::vector<float>>();
+    vecFloat mass = std::make_shared<std::vector<float>>();
+    vecFloat LOX = std::make_shared<std::vector<float>>();
+    vecFloat engineVector0 = std::make_shared<std::vector<float>>();
+    vecFloat engineVector1 = std::make_shared<std::vector<float>>();
+    vecFloat engineVector2 = std::make_shared<std::vector<float>>();
+    vecFloat enginePower = std::make_shared<std::vector<float>>();
+    vecFloat stateEstimationVelocityX = std::make_shared<std::vector<float>>();
+    vecFloat stateEstimationVelocityY = std::make_shared<std::vector<float>>();
+    vecFloat stateEstimationVelocityZ = std::make_shared<std::vector<float>>();
+    vecFloat stateEstimationPositionX = std::make_shared<std::vector<float>>();
+    vecFloat stateEstimationPositionY = std::make_shared<std::vector<float>>();
+    vecFloat stateEstimationPositionZ = std::make_shared<std::vector<float>>();
 
     std::string header = "timeStepVect,Xposition,Yposition,Zposition,vehicleState0,vehicleState1,vehicleState2,absVelocity,gForce,gimbalXAngle,gimbalYAngle,fuel,mass,LOX,engineVector0,engineVector1,engineVector2,enginePower,stateEstimationVelocityX,stateEstimationVelocityY,stateEstimationVelocityZ,stateEstimationPositionX,stateEstimationPositionY,stateEstimationPositionZ";
 
-    loggedData(int preset);
-
-    loggedData();
+    loggedData(int preset = 10000);
     
-    std::vector<std::vector<float>*> all();
+    std::vector<std::shared_ptr<std::vector<float>>> all();
     
     void logRocketPosition(Vehicle &rocket);
 
@@ -50,7 +50,7 @@ class loggedData{
 
     void lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData ,  int desiredResolution);
 
-    void writeCSV(const std::string& filename,const std::vector<std::vector<float>*>& data);
+    void writeCSV(const std::string& filename,const std::vector<std::shared_ptr<std::vector<float>>>& data);
 
 };
 

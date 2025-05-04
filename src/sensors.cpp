@@ -195,17 +195,7 @@ void stateEstimation::updateEstimation(float timeStep){
 //gps cordiante and add IMU data from zero
 //use a filtering system to blend imu data and gps
 
-std::array<float,3> stateEstimation::getEstimatedPosition(){
-    return position;
-}
 
-std::array<float,3> stateEstimation::getEstimatedRotation(){
-    return sensorMap->find("gyro")->second->read();
-}
-
-std::array<float,3> stateEstimation::getEstimatedVelocity(){
-return velocity;
-}
 
 
  

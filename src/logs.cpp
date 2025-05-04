@@ -14,62 +14,61 @@
 
 loggedData::loggedData( int preset){
 
-    timeStepVect.reserve(preset);
-    Xposition.reserve(preset);
-    Yposition.reserve(preset);
-    Zposition.reserve(preset);
-    vehicleState0.reserve(preset);
-    vehicleState1.reserve(preset);
-    vehicleState2.reserve(preset);
-    absVelocity.reserve(preset);
-    gForce.reserve(preset);
-    gimbalXAngle.reserve(preset);
-    gimbalYAngle.reserve(preset);
-    mass.reserve(preset);
-    fuel.reserve(preset);
-    LOX.reserve(preset);
-    engineVector0.reserve(preset);
-    engineVector1.reserve(preset);
-    engineVector2.reserve(preset);
-    enginePower.reserve(preset);
+    timeStepVect->reserve(preset);
+    Xposition->reserve(preset);
+    Yposition->reserve(preset);
+    Zposition->reserve(preset);
+    vehicleState0->reserve(preset);
+    vehicleState1->reserve(preset);
+    vehicleState2->reserve(preset);
+    absVelocity->reserve(preset);
+    gForce->reserve(preset);
+    gimbalXAngle->reserve(preset);
+    gimbalYAngle->reserve(preset);
+    mass->reserve(preset);
+    fuel->reserve(preset);
+    LOX->reserve(preset);
+    engineVector0->reserve(preset);
+    engineVector1->reserve(preset);
+    engineVector2->reserve(preset);
+    enginePower->reserve(preset);
     
 }
-loggedData::loggedData(){}
 
 
 void loggedData::logRocketPosition(Vehicle &rocket ) {
 
-    timeStepVect.push_back(rocket.iterations * constants::timeStep);
+    timeStepVect->push_back(rocket.iterations * constants::timeStep);
 
-    Xposition.push_back(rocket.Xposition);
-    Yposition.push_back(rocket.Yposition);
-    Zposition.push_back(rocket.Zposition);
+    Xposition->push_back(rocket.Xposition);
+    Yposition->push_back(rocket.Yposition);
+    Zposition->push_back(rocket.Zposition);
 
-    vehicleState0.push_back(rocket.vehicleState[0]);
-    vehicleState1.push_back(rocket.vehicleState[1]);
-    vehicleState2.push_back(rocket.vehicleState[2]);
+    vehicleState0->push_back(rocket.vehicleState[0]);
+    vehicleState1->push_back(rocket.vehicleState[1]);
+    vehicleState2->push_back(rocket.vehicleState[2]);
 
-    absVelocity.push_back(rocket.getVelocity());
-    gForce.push_back(rocket.gForce);
+    absVelocity->push_back(rocket.getVelocity());
+    gForce->push_back(rocket.gForce);
 
-    gimbalXAngle.push_back(rocket.gimbalX);
-    gimbalYAngle.push_back(rocket.gimbalY);
+    gimbalXAngle->push_back(rocket.gimbalX);
+    gimbalYAngle->push_back(rocket.gimbalY);
         
-    mass.push_back(rocket.mass);
-    fuel.push_back(rocket.fuel);
-    LOX.push_back(rocket.LOX);
+    mass->push_back(rocket.mass);
+    fuel->push_back(rocket.fuel);
+    LOX->push_back(rocket.LOX);
 
-    engineVector0.push_back(rocket.engineState[0]);
-    engineVector1.push_back(rocket.engineState[1]);
-    engineVector2.push_back(rocket.engineState[2]);
+    engineVector0->push_back(rocket.engineState[0]);
+    engineVector1->push_back(rocket.engineState[1]);
+    engineVector2->push_back(rocket.engineState[2]);
 
-    enginePower.push_back(rocket.enginePower); //number from 0 to 1
-    stateEstimationVelocityX.push_back(rocket.getEstimatedVelocity()[0]);
-    stateEstimationVelocityY.push_back(rocket.getEstimatedVelocity()[1]);
-    stateEstimationVelocityZ.push_back(rocket.getEstimatedVelocity()[2]);
-    stateEstimationPositionX.push_back(rocket.getEstimatedPosition()[0]);
-    stateEstimationPositionY.push_back(rocket.getEstimatedPosition()[1]);
-    stateEstimationPositionZ.push_back(rocket.getEstimatedPosition()[2]);
+    enginePower->push_back(rocket.enginePower); //number from 0 to 1
+    stateEstimationVelocityX->push_back(rocket.getEstimatedVelocity()[0]);
+    stateEstimationVelocityY->push_back(rocket.getEstimatedVelocity()[1]);
+    stateEstimationVelocityZ->push_back(rocket.getEstimatedVelocity()[2]);
+    stateEstimationPositionX->push_back(rocket.getEstimatedPosition()[0]);
+    stateEstimationPositionY->push_back(rocket.getEstimatedPosition()[1]);
+    stateEstimationPositionZ->push_back(rocket.getEstimatedPosition()[2]);
 
 }
     
@@ -94,35 +93,35 @@ void loggedData::lowPrecisionData(std::vector<float> &data , std::vector<float> 
 }
 
 
-std::vector<std::vector<float>*> loggedData::all(){
-    return {&timeStepVect,
-            &Xposition,
-            &Yposition,
-            &Zposition,
-            &vehicleState0,
-            &vehicleState1,
-            &vehicleState2,
-            &absVelocity,
-            &gForce,
-            &gimbalXAngle,
-            &gimbalYAngle,
-            &fuel,
-            &mass,
-            &LOX,
-            &engineVector0,
-            &engineVector1,
-            &engineVector2,
-            &enginePower,
-            &stateEstimationVelocityX,
-            &stateEstimationVelocityY,
-            &stateEstimationVelocityZ,
-            &stateEstimationPositionX,
-            &stateEstimationPositionY,
-            &stateEstimationPositionZ
+std::vector<std::shared_ptr<std::vector<float>>> loggedData::all(){
+    return {timeStepVect,
+            Xposition,
+            Yposition,
+            Zposition,
+            vehicleState0,
+            vehicleState1,
+            vehicleState2,
+            absVelocity,
+            gForce,
+            gimbalXAngle,
+            gimbalYAngle,
+            fuel,
+            mass,
+            LOX,
+            engineVector0,
+            engineVector1,
+            engineVector2,
+            enginePower,
+            stateEstimationVelocityX,
+            stateEstimationVelocityY,
+            stateEstimationVelocityZ,
+            stateEstimationPositionX,
+            stateEstimationPositionY,
+            stateEstimationPositionZ
         };
 }
 
-void loggedData::writeCSV( const std::string& filename,const std::vector<std::vector<float>*>& data) {
+void loggedData::writeCSV( const std::string& filename,const std::vector<std::shared_ptr<std::vector<float>>>& data) {
     std::ofstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Could not open file.\n";

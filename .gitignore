@@ -23,7 +23,6 @@ cmake_install.cmake
 .vscode/
 
 
-
 # Logs and temporary files
 *.log
 *.tmp

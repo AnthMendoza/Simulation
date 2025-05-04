@@ -3,6 +3,7 @@
 #include <chrono>
 #include <array>
 #include <string>
+#include <cstdlib>  
 #include "../include/constants.h"
 #include "../include/vectorMath.h"
 #include "../include/vehicle.h"
@@ -24,7 +25,7 @@ void iterator(Vehicle &rocket ,loggedData *data){
         rocket.updateState();
         rocket.iterations++;
     }
-    data->writeCSV("output.csv",data->all());
+    data->writeCSV(constants::outputFile,data->all());
 
 
 }
@@ -97,12 +98,17 @@ int main(int argc, char* argv[]){
     //                std::stof(argv[16]) // Initial Orientation Vector Z
     //                );
     //}
+    
     loggedData* data = new loggedData;
     
     Vehicle rocket;
     iterator(rocket , data);
     delete data;
-    
+
+    std::string command = "python3 ../src/plot.py "+ constants::outputFile;
+    const char* com = command.c_str();
+
+    system(com);
 
     return 0;
 

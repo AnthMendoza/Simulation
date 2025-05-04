@@ -5,6 +5,7 @@
 namespace constants{
 
     extern std::string configFile;
+    extern std::string outputFile;
     extern float gravitationalAcceleration; 
 
     extern std::array<float,3> initPosition;
@@ -30,6 +31,7 @@ namespace constants{
     extern float initLOX; // kg
     extern float consumtionRateLOX; //kg/s
     extern float consumtionRateFuel; //kg/s
+
 
 
 
