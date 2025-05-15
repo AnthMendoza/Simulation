@@ -36,25 +36,25 @@ loggedData::loggedData( int preset){
 }
 
 
-void loggedData::logRocketPosition(Vehicle &rocket ) {
+void loggedData::logRocketPosition(Rocket &rocket ) {
 
-    timeStepVect->push_back(rocket.iterations * constants::timeStep);
-
-    Xposition->push_back(rocket.Xposition);
-    Yposition->push_back(rocket.Yposition);
-    Zposition->push_back(rocket.Zposition);
-
-    vehicleState0->push_back(rocket.vehicleState[0]);
-    vehicleState1->push_back(rocket.vehicleState[1]);
-    vehicleState2->push_back(rocket.vehicleState[2]);
+    timeStepVect->push_back(rocket.getIterations() * constants::timeStep);
+    auto pos = rocket.getPositionVector();
+    Xposition->push_back(pos[0]);
+    Yposition->push_back(pos[1]);
+    Zposition->push_back(pos[2]);
+    auto state = rocket.getState();
+    vehicleState0->push_back(state[0]);
+    vehicleState1->push_back(state[1]);
+    vehicleState2->push_back(state[2]);
 
     absVelocity->push_back(rocket.getVelocity());
-    gForce->push_back(rocket.gForce);
+    gForce->push_back(rocket.getGForce());
 
     gimbalXAngle->push_back(rocket.gimbalX);
     gimbalYAngle->push_back(rocket.gimbalY);
         
-    mass->push_back(rocket.mass);
+    mass->push_back(rocket.getMass());
     fuel->push_back(rocket.fuel);
     LOX->push_back(rocket.LOX);
 
@@ -69,6 +69,8 @@ void loggedData::logRocketPosition(Vehicle &rocket ) {
     stateEstimationPositionX->push_back(rocket.getEstimatedPosition()[0]);
     stateEstimationPositionY->push_back(rocket.getEstimatedPosition()[1]);
     stateEstimationPositionZ->push_back(rocket.getEstimatedPosition()[2]);
+
+    specificEnergy->push_back(rocket.getSpecificEnergy());
 
 }
     
@@ -117,7 +119,9 @@ std::vector<std::shared_ptr<std::vector<float>>> loggedData::all(){
             stateEstimationVelocityZ,
             stateEstimationPositionX,
             stateEstimationPositionY,
-            stateEstimationPositionZ
+            stateEstimationPositionZ,
+            specificEnergy
+            
         };
 }
 

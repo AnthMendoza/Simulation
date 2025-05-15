@@ -14,9 +14,9 @@ namespace constants{
     std::string outputFile = "../output.csv";
 
     //std::array<float,3> initPosition = {0,295528.164398,110000};
-    std::array<float,3> initPosition = {0,0,2600};
+    std::array<float,3> initPosition = {0,0,30000};
     std::array<float,3> wind = {0,0,0}; //  m/s x,y,z  this will be stacked on top of whatever the current velocity is on an absolute cordinate system.
-    std::array<float,3> initVehicleState = {.5,0.8660254038,0}; // this the vehicle vector, its direction is the directionthe nose points. it will be normilized, magnatiude is meain
+    std::array<float,3> initVehicleState = {1,0,0}; // this the vehicle vector, its direction is the directionthe nose points. it will be normilized, magnatiude is meain
     std::array<float , 3> MOI = {3614090,3614090,3614090};
     std::array<float,3> initVelocity = {-1000,-1732.050808,-1000}; // m/s
 
@@ -35,7 +35,7 @@ namespace constants{
     float minThrust = maxThrust *.5; //newtons, 65 percent of max;
     float landingThrust = maxThrust * .95 ;
 
-    float dryMass = 10000; //kg booster mass
+    float dryMass = 12000; //kg booster mass
     float maxGimbalAngle = 30  * 3.1415926535f / 180.0f;// degrees
     float landingVelocity = 10;
     float consumptionRateAtFullPowerPerEngine = 328.8; //kg/s this is lox plus RP1

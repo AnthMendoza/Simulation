@@ -20,16 +20,16 @@
 //this also may fail do to lack of a sample rocket configuration
 TEST(System , FreeFall){
     constants::configFile = "../configs/Rocket_Config.toml";
-    Vehicle vehicle;
+    Rocket vehicle;
     float freeFallDuration = 10000;
-    vehicle.Zposition = freeFallDuration; //10km freefall
-    vehicle.Zvelocity = 0;
-    float iterations = 0;
-    while(vehicle.Zposition > 0){
+    vehicle.setVelocity(0.0f,0.0f,0.0f);
+    vehicle.setPosition(0.0f,0.0f,freeFallDuration);
+    while(vehicle.getPositionVector()[2] > 0){
         vehicle.updateState();
-        iterations++;
+        vehicle++;
     }
-    float time = constants::timeStep * iterations;
+    float time = vehicle.getTime();
+    std::cout<<"the time: "<< time <<  "iterations"<< vehicle.getIterations();
     if(time < 45.16 *1.01 && time > 45.16 * .99 ) time = 45.16;
     EXPECT_FLOAT_EQ(time , 45.16f);
 }

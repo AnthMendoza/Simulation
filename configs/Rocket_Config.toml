@@ -4,10 +4,11 @@ wind = [0.0,0.0,0.0]
 gravitationalAcceleration = -9.81
 
 [vehicle]
-initPosition = [0.0,0.0,260000.0]
-initVehicleState = [0.5,0.8660254038,0.0]
+targetLandingPosition  = [400000.0,0.0,0.0]
+initPosition = [0.0,0.0,210000.0]
+initVehicleState = [1.0,0.0,0.0]
 MOI = [3614090.0,3614090.0,3614090.0]
-initVelocity = [-1000.0,-1732.050808,-1000.0]
+initVelocity = [2000.0,0.0,0.0]
 
 centerOfPressure = 15.0
 maxGAllowedEntry = 4.5
@@ -29,11 +30,19 @@ gimbalIGain = 2.0
 gimbalDGain = 0.5
 maxGimbalAcceleration = 10.0
 
-targetLandingPosition  = [0.0,0.0,0.0]
 
-reentry = false
+finDamping = 21.0
+finPGain = 17.0
+finIGain = 2.0
+finDGain = 10.0
+maxFinAcceleration = 10.0
+
+reentry = true
 glidePhase = false
 landingInProgress = false
+
+maxSteeringAngle = 1.0
+StanleyGain = 0.00001
 
 # PowerSpectralDensity is variance per Hz
 [sensors]

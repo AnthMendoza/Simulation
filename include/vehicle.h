@@ -4,125 +4,220 @@
 #pragma once
 #include <array>
 #include <memory>
-#include "../include/sensors.h"
+#include <cmath>
+#include "sensors.h"
+#include "constants.h"
+#include "vectorMath.h"
+#include "control.h"
+#include "logs.h"
+
 class stateEstimation;
-class Vehicle : public stateEstimation {
+class StanleyController;
+
+
+class Vehicle : public stateEstimation{
+    private:
+
+    protected:
+    float Xposition , Yposition , Zposition;     // position 
+    float Xvelocity , Yvelocity , Zvelocity;
+
+    int iterations;
+
+    float mass; 
+    float centerOfPressure;
+    float gForce;
+
+    std::array<float,3> angularVelocity;
+    std::array<float,3> vehicleState;
+    std::array<float,3> MOI;
+    std::array<float,3> sumOfForces;
+    std::array<float,3> sumOfMoments;
+    std::array<float,3> acceleration;
+
     public:
-        float   Xposition , Yposition , Zposition;     // position 
-        float Xvelocity , Yvelocity , Zvelocity;
+    Vehicle();
 
-        float gimbalErrorX;
-        float gimbalErrorY;
-        float gimbalX;
-        float gimbalY;
-        float sumOfGimbalErrorX;
-        float sumOfGimbalErrorY;
+    Vehicle(const Vehicle& vehicle);
 
-        float gimbalVelocityX;
-        float gimbalVelocityY;
-        float gimbalDamping;
-        float gimbalPGain;
-        float gimbalIGain;
-        float gimbalDGain;
+    virtual void init();
 
-        std::array<float ,2 > landingGimbalDirection;
-        float landingRequiredThrust;
-        float  PIDOutputY;
-        float  PIDOutputX; 
+    inline void display() {
+        std::cout << "Position: (" << Xposition << ", " << Yposition << ", " << Zposition << ")\n"
+                  << "Orientation (Roll, Pitch, Yaw): (" << vehicleState[0] << ", " << vehicleState[1]  << ", " << vehicleState[2]  << ")\n";
+    }   
 
-        float maxGimbalAcceleration;
-        float maxGimbalVelocity;
+    virtual void operator++(int);
 
-        float error;
-        std::array<float,2> twoDAngle;
-        
-        //distance between the center of gravity to the center of pressure, this allows us to not have COG defined explicitly.
-        //all forces will be in refrance to the Center of gravity
-        float mass;  
+    void addForce(std::array<float,3> forceVector);
 
-        float centerOfPressure;
+    void addMoment(std::array<float,3> moments);
 
-        float cogToEngine;
+    virtual void updateState();
 
-        float liftAngleLog;
+    virtual void drag();
 
-        bool reentry;
+    virtual void lift();
 
-        bool glidePhase;
+    virtual void initSensors();
 
-        bool landingInProgress;
+    float getVelocity();
 
-        std::array<float,3> engineState;
+    float getGForce();
 
-        int iterations;
+    void getAccel(std::array<float,3> &accel);
 
-        float gForce;
+    float PID(float target , float currentState , float &previousError , float &sumOfError , float timeStep, float Pgain , float Igain , float Dgain);
 
-        float engineForce;
-        float enginePower; //used to send data to simulation for fire animation, no physics is done
+    inline void updateAcceleration(){
+        acceleration = {sumOfForces[0]/mass , sumOfForces[1]/mass , sumOfForces[2]/mass};
+    }
 
-        float dryMass , fuel , LOX , fuelConsumptionRate , LOXConsumptionRate ;
+    //iteratoins * timestep
+    inline float getTime(){
+        return iterations * constants::timeStep;
+    }
+    //Not based off sensor data. Actual Simulation Position
+    inline std::array<float,3> getVelocityVector(){
+        return {Xvelocity,Yvelocity,Zvelocity};
+    }
+    inline std::array<float,3> getPositionVector(){
+        return {Xposition,Yposition,Zposition};
+    }
+    //Vehicle state is the direction vector of the vehicle. 
+    inline std::array<float,3> getState(){
+        return vehicleState;
+    }
+    inline int getIterations(){
+        return iterations;
+    }
+    inline void setIterations(int it){
+        if(it < 0) std::cout<<"Warning : Iterations Cannot be less than 0";
+        iterations = it;
+    }
 
-        float vehicleYError;
-        float sumOfVehicleYError;
-
-        float vehicleXError;
-        float sumOfVehicleXError;
-
-        float maxGimbalAngle;
-
-        float logXInput;
-        float logYInput;
-
-        float logPosX;
-        float logPosY;
-
-        std::array<float,3> dragLog;
-
-        std::array<float , 3> appliedVector;
+    inline float getMass(){
+        return mass;
+    }
 
 
-        std::array<std::array<float,3> , 2> finVectors;
 
-        std::array<float,3> targetLandingPosition;
-        std::array<float,3> angularVelocity;
-        std::array<float,3> vehicleState;
-        std::array<float,3> MOI;
-        std::array<float,3> sumOfForces;
-        std::array<float,3> sumOfMoments;
-        std::array<float,3> acceleration;
-        std::array<float,3> logEngineVector;
-        std::array<float,3> logMoment;
-        
-        
+};
 
-        Vehicle();
 
-        Vehicle(const Vehicle& vehicle);
+class Rocket : public Vehicle{
+    private:
 
-        void display();
+    float finErrorX;
+    float finErrorY;
+    float finX;
+    float finY;
+    float sumOfFinErrorX;
+    float sumOfFinErrorY;
+    
+    float finVelocityX;
+    float finVelocityY;
+    float finDamping;
+    float finPGain;
+    float finIGain;
+    float finDGain;
+    float maxFinAcceleration;
+
+
+    protected:
+    float gimbalErrorX;
+    float gimbalErrorY;
+
+    float sumOfGimbalErrorX;
+    float sumOfGimbalErrorY;
+
+    float gimbalVelocityX;
+    float gimbalVelocityY;
+    float gimbalDamping;
+    float gimbalPGain;
+    float gimbalIGain;
+    float gimbalDGain;
+    std::array<float ,2 > landingGimbalDirection;
+
+    float landingRequiredThrust;
+    float  PIDOutputY;
+    float  PIDOutputX; 
+
+    float maxGimbalAcceleration;
+    float maxGimbalVelocity;
+
+    float error;
+    std::array<float,2> twoDAngle;
+    
+    //distance between the center of gravity to the center of pressure, this allows us to not have COG defined explicitly.
+    //all forces will be in refrance to the Center of gravity 
+
+    float cogToEngine;
+
+    float liftAngleLog;
+
+    bool reentry;
+
+    bool glidePhase;
+
+    bool landingInProgress;
+
+
+    float vehicleYError;
+    float sumOfVehicleYError;
+
+    float vehicleXError;
+    float sumOfVehicleXError;
+
+    float maxGimbalAngle;
+
+    float logXInput;
+    float logYInput;
+
+    float logPosX;
+    float logPosY;
+
+    std::array<float , 3> appliedVector;
+
+
+    std::array<std::array<float,3> , 2> finVectors;
+
+    std::array<float,3> targetLandingPosition;
+    std::array<float,3> logEngineVector;
+    std::array<float,3> logMoment;
+    
+    std::shared_ptr<StanleyController> Stanley;
+    public:
+    float gimbalX;
+    float gimbalY;
+    float dryMass , fuel , LOX , fuelConsumptionRate , LOXConsumptionRate ;
+
+    std::array<float,3> engineState;
+    float engineForce;
+    //used to send data to simulation for fire animation, no physics is done
+    float enginePower;
+
+        Rocket();
+
+        Rocket(const Rocket& vehicle);
+
+        void init() override;
+
+        void operator++(int) override;
 
         float getVelocity();
 
-        float getGForce();
+        void drag() override;
 
-        void getAccel(std::array<float,3> &accel);
-
-        void drag();
-
-        void lift();
+        void lift() override;
 
         void applyEngineForce(std::array<float,2> twoDEngineRadians , float thrust);
 
-        void addForce(std::array<float,3> forceVector);
-
-        void addMoment(std::array<float,3> moments);
-
-        void updateState();
+        void updateState() override;
 
         std::array<std::array<float , 3> , 2> getFinForceVectors();
 
-        void applyFinForce(std::array<std::array<float,3>,2>);
+        void applyFinForce(float xForce , float yForce);
 
         float getCurvature();
 
@@ -130,12 +225,65 @@ class Vehicle : public stateEstimation {
 
         void engineGimbal(float gimbalTargetX , float gimbalTargetY);
 
-        float getTime();
+        void initSensors() override;
 
-        void initSensors();
-    
+        void updateFinPosition(std::pair<float,float> commands);
+
+        inline std::array<float,3> getRadarPosition(){
+            std::array<float,3> radar = {0,0,0};
+            return radar;
+        }
+        
+        //kenetic + potential energy per unit mass
+        inline float getSpecificEnergy(){
+            std::array<float,3> estimatedVelo =getEstimatedVelocity();
+            float velo = vectorMag(estimatedVelo);
+            return  (velo * velo)/2 + std::abs(constants::gravitationalAcceleration * Zposition);
+        }
+        // kenetic + potential energy per unit mass in vector form {x,y,z}
+        inline std::array<float,3> getVectorizedEnergy(){
+            std::array<float,3> estimatedVelo = getEstimatedVelocity();
+            return {estimatedVelo[0]*estimatedVelo[0]/2 , estimatedVelo[1]*estimatedVelo[1]/2 , (estimatedVelo[2]*estimatedVelo[2] / 2) + std::abs(constants::gravitationalAcceleration * getEstimatedPosition()[2])};
+        }
+
+
+    //Vehicle &lookAhead( float lookAheadTime);
+
+        
+    std::vector<float> lookAhead(Rocket &rocket,float lookAheadTime , std::function<float(Rocket&)> valueToLog);
+
+    void reentryBurn(loggedData *data = nullptr);
+
+    void glideToTarget();
+
+    void landingBurn();
+
+    //only use prior to simulation
+    //not a hard rule, wont be enforced
+    inline void setPosition(float Xpos,float Ypos,float Zpos){
+        Xposition = Xpos;
+        Yposition = Ypos;
+        Zposition = Zpos;
+    }
+    //only use prior to simulation
+    //not a hard rule, wont be enforced
+    inline void setVelocity(float Xvelo,float Yvelo,float Zvelo){
+        Xvelocity = Xvelo;
+        Yvelocity = Yvelo;
+        Zvelocity = Zvelo;
+    }
 
 };
+
+
+
+class drone :  public Vehicle{
+
+
+};
+
+
+
 
 
 

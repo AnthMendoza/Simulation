@@ -14,20 +14,19 @@
 #include <string>
 
 
-void iterator(Vehicle &rocket ,loggedData *data){
-    while(rocket.Zposition > 0 && rocket.iterations < 1000000){
+void iterator(Rocket &rocket ,loggedData *data){
+    while(rocket.getPositionVector()[2] > 0 && rocket.getIterations() < 1000000){
         rocket.drag();
         rocket.lift();
-        reentryBurn(rocket,data);
-        rocket.finVectors = rocket.getFinForceVectors();
-        landingBurn(rocket);
+        rocket.glideToTarget();
+        //reentryBurn(rocket,data);
+        //rocket.finVectors = rocket.getFinForceVectors();
+        //landingBurn(rocket);
         data->logRocketPosition(rocket);
         rocket.updateState();
-        rocket.iterations++;
+        rocket++;
     }
     data->writeCSV(constants::outputFile,data->all());
-
-
 }
 
 
@@ -79,9 +78,12 @@ int main(int argc, char* argv[]){
     }
     constants::configFile = argv[1];
 
-    //if(argc != NULL && argc > 0 ){
+    if(argc != NULL && argc > 0 ){
     //    initializeVectors(20000); // argv[1] unique ID 
-    //    initParameters( std::stof(argv[2]), // dry mass
+    //    constants::initPosition[2] = std::stof(argv[2]); // dry mass
+    //    constants::initVelocity[1] = std::stof(argv[3]);
+    //    constants::initVelocity[2] = std::stof(argv[4]);
+    //    constants::initVelocity[0] = 0;
     //                std::stof(argv[3]), // propellentMassLOX
     //                std::stof(argv[4]), // propellentMassFuel
     //                std::stof(argv[5]), // consumtionRateLOX
@@ -97,11 +99,11 @@ int main(int argc, char* argv[]){
     //                std::stof(argv[15]), // Initial Orientation Vector Y
     //                std::stof(argv[16]) // Initial Orientation Vector Z
     //                );
-    //}
+    }
     
     loggedData* data = new loggedData;
     
-    Vehicle rocket;
+    Rocket rocket;
     iterator(rocket , data);
     delete data;
 

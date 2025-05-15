@@ -15,7 +15,7 @@ def main():
         fig.add_trace(go.Scatter(x=x_data, y=y_data[column], mode='lines+markers', name=column))
     fig.update_layout(
         title="Multiple Data Columns vs Time",
-        xaxis_title="Time",
+        xaxis_title="Time(S)",
         yaxis_title="Values",
         legend_title="Variables"
     )
@@ -23,3 +23,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+ 

@@ -92,6 +92,25 @@ class gyroscope : public sensor{
 };
 
 
+class radar : public sensor{
+    private:
+    std::array<float,3> sensorOrigin;
+    std::vector<std::vector<std::array<float,3>>> points;
+    std::array<float,3> vehicleVector;
+    float quantization = .05;
+    const int rows = 16;           // vertical resolution
+    const int cols = 64;           // horizontal resolution
+    const float verticalFOV = 20;  // degrees
+    const float horizontalFOV = 90; // degrees
+    const float maxRange = 10.0f;   // meters
+    protected:
+
+    public:
+    void sample(Vehicle *Vehicle) override;
+        
+};
+
+
 
 class stateEstimation: public sensorSuite{
     private:
@@ -100,7 +119,7 @@ class stateEstimation: public sensorSuite{
     std::array<float,3> rotation;
     //relative positoin calculated by the most recent GPS position
     float alpha;
-
+    bool firstGPSSample = true;
     float lowPassFilter(float newData,float prevData);
     protected:
     std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<sensor>>> stateEstimationSensors;

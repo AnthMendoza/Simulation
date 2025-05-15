@@ -7,10 +7,11 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
-
+#include "vehicle.h"
 #pragma once
 using vecFloat = std::shared_ptr<std::vector<float>>;
 
+class Rocket;
 class loggedData{
     public:
     vecFloat timeStepVect = std::make_shared<std::vector<float>>();
@@ -37,14 +38,15 @@ class loggedData{
     vecFloat stateEstimationPositionX = std::make_shared<std::vector<float>>();
     vecFloat stateEstimationPositionY = std::make_shared<std::vector<float>>();
     vecFloat stateEstimationPositionZ = std::make_shared<std::vector<float>>();
+    vecFloat specificEnergy = std::make_shared<std::vector<float>>();
 
-    std::string header = "timeStepVect,Xposition,Yposition,Zposition,vehicleState0,vehicleState1,vehicleState2,absVelocity,gForce,gimbalXAngle,gimbalYAngle,fuel,mass,LOX,engineVector0,engineVector1,engineVector2,enginePower,stateEstimationVelocityX,stateEstimationVelocityY,stateEstimationVelocityZ,stateEstimationPositionX,stateEstimationPositionY,stateEstimationPositionZ";
+    std::string header = "timeStepVect,Xposition,Yposition,Zposition,vehicleState0,vehicleState1,vehicleState2,absVelocity,gForce,gimbalXAngle,gimbalYAngle,fuel,mass,LOX,engineVector0,engineVector1,engineVector2,enginePower,stateEstimationVelocityX,stateEstimationVelocityY,stateEstimationVelocityZ,stateEstimationPositionX,stateEstimationPositionY,stateEstimationPositionZ,specificEnergy";
 
     loggedData(int preset = 10000);
     
     std::vector<std::shared_ptr<std::vector<float>>> all();
     
-    void logRocketPosition(Vehicle &rocket);
+    void logRocketPosition(Rocket &rocket);
 
     void logRocketPosition();
 

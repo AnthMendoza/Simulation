@@ -15,7 +15,7 @@ struct unrealData{
 class unreal: public Vehicle{
     private:
     unrealData packet;
-    Vehicle unrealVehicle;
+    Rocket unrealVehicle;
     float updateFrequency;
     bool udpState;
     std::mutex packetMutex;

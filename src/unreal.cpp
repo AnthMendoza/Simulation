@@ -44,8 +44,6 @@ void unreal::sendUDP() {
         int sent_bytes = sendto(sockfd, message, sizeof(unrealData), 0 ,(struct sockaddr *)&serverAddr, sizeof(serverAddr));
         if (sent_bytes < 0) {
           perror("Failed to send packet");
-        } else {
-          std::cout << "Packet sent: " << message << std::endl;
         }
         usleep(1/updateFrequency * 1000000.0f); 
     }
@@ -58,18 +56,18 @@ void unreal::sendUDP() {
 bool unreal::setPacket(float time){
     std::lock_guard<std::mutex> lock(packetMutex);
     packet.timeStamp = time;
-
-    packet.velocity[0] = unrealVehicle.Xvelocity;
-    packet.velocity[1] = unrealVehicle.Yvelocity;
-    packet.velocity[2] = unrealVehicle.Zvelocity;
-
-    packet.position[0] = unrealVehicle.Xposition;
-    packet.position[1] = unrealVehicle.Yposition;
-    packet.position[2] = unrealVehicle.Zposition;
-
-    packet.rotation[0] = unrealVehicle.vehicleState[0];
-    packet.rotation[1] = unrealVehicle.vehicleState[1];
-    packet.rotation[2] = unrealVehicle.vehicleState[2]; 
+    auto velo = unrealVehicle.getVelocityVector();
+    packet.velocity[0] = velo[0];
+    packet.velocity[1] = velo[1];
+    packet.velocity[2] = velo[2];
+    auto pos =  unrealVehicle.getPositionVector();
+    packet.position[0] = pos[0];
+    packet.position[1] = pos[1];
+    packet.position[2] = pos[2];
+    auto state = getState();
+    packet.rotation[0] = state[0];
+    packet.rotation[1] = state[1];
+    packet.rotation[2] = state[2]; 
 
     return true;
 }
@@ -85,15 +83,15 @@ void unreal::iterator(){
     while(true){
         end = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed = end - start;
-        if(unrealVehicle.Zposition > 0 && unrealVehicle.getTime() <=  elapsed.count()){
+        if(unrealVehicle.getPositionVector()[2]> 0 && unrealVehicle.getTime() <=  elapsed.count()){
             unrealVehicle.drag();
             unrealVehicle.lift();
-            reentryBurn(unrealVehicle /*, data*/ );
-            unrealVehicle.finVectors = unrealVehicle.getFinForceVectors();
-            landingBurn(unrealVehicle);
+            unrealVehicle.reentryBurn();
+            unrealVehicle.landingBurn();
             //data->logRocketPosition(rocket); //future simulate in unreal and display logs. not logging for now
             unrealVehicle.updateState();
-            unrealVehicle.iterations++;
+            int iteration = unrealVehicle.getIterations();
+            setIterations(iteration++);
         }
     }
 }

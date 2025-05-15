@@ -108,15 +108,16 @@ GNSS::GNSS(float frequency , float NoisePowerSpectralDensity , float bandwidth, 
 void GNSS::sample(Vehicle *vehicle ) {
     float time =  vehicle->getTime();
     if(time - lastSample >= hz){
-        gpsPosition[0] = applyNoise(vehicle->Xposition, time );
-        gpsPosition[1] = applyNoise(vehicle->Yposition, time );
-        gpsPosition[2] = applyNoise(vehicle->Zposition, time );
+        auto pos = vehicle->getPositionVector();
+        gpsPosition[0] = applyNoise(pos[0], time );
+        gpsPosition[1] = applyNoise(pos[1], time );
+        gpsPosition[2] = applyNoise(pos[2], time );
         if(lastSample > 0 ){
             for(int i = 0 ; i < 3 ; i++) velocity[i] = (gpsPosition[i] - lastPosition[i])/ (time-lastSample);
         }
         lastSample = time;
         for (int i = 0; i < 3; i++) lastPosition[i] = gpsPosition[i];
-        vehicle->gpsUpdate();
+        vehicle->gpsUpdate(); 
     }
 }
 
@@ -138,9 +139,10 @@ void gyroscope::sample(Vehicle *vehicle){
     float time = vehicle->getTime();
     if(time - lastSample >= hz){
         float time = vehicle->getTime();
-        rotationVector[0] = applyNoise(vehicle->vehicleState[0] , time );
-        rotationVector[1] = applyNoise(vehicle->vehicleState[1] , time);
-        rotationVector[2] = applyNoise(vehicle->vehicleState[2] , time);
+        auto state = vehicle->getState();
+        rotationVector[0] = applyNoise(state[0] , time );
+        rotationVector[1] = applyNoise(state[1] , time);
+        rotationVector[2] = applyNoise(state[2] , time);
         rotationVector = normalizeVector(rotationVector);
         lastSample = time;
     }
@@ -157,9 +159,11 @@ accelerometer::accelerometer(float frequency , float NoisePowerSpectralDensity ,
 void accelerometer::sample(Vehicle *vehicle){
     float time = vehicle->getTime();
     if(time - lastSample >= hz){
-        accel[0] = applyNoise(vehicle->acceleration[0] , time);
-        accel[1] = applyNoise(vehicle->acceleration[1] , time);
-        accel[2] = applyNoise(vehicle->acceleration[2] , time);
+        std::array<float,3> accel;
+        vehicle->getAccel(accel);
+        accel[0] = applyNoise(accel[0] , time);
+        accel[1] = applyNoise(accel[1] , time);
+        accel[2] = applyNoise(accel[2] , time);
         lastSample = time;
     }
 }
@@ -172,8 +176,9 @@ stateEstimation::stateEstimation(){
     stateEstimationSensors = std::make_shared<std::unordered_map<std::string, std::shared_ptr<sensor>>>();
     alpha = .03;
 }
-
+//when used add statement that sets newData = prevData when no prevData exists(first sample)
 float stateEstimation::lowPassFilter(float newData,float prevData){
+
     return alpha * newData + (1 - alpha) * prevData;
 }
 
@@ -181,6 +186,14 @@ float stateEstimation::lowPassFilter(float newData,float prevData){
 void stateEstimation::gpsUpdate(){
     std::shared_ptr<GNSS> GPS = std::dynamic_pointer_cast<GNSS> (sensorMap->find("GNSS")->second);
     position = GPS->read();
+    if(firstGPSSample == true){
+        for(int i = 0 ; i < 3 ; i ++){
+            float velo =  GPS->getVelocity()[i];
+            velocity[i] = lowPassFilter(velo , velo);
+        }
+        firstGPSSample = false;
+        return;
+    }
     for(int i = 0 ; i < 3 ; i ++) velocity[i] = lowPassFilter(GPS->getVelocity()[i] , velocity[i]);
 }
 
@@ -195,7 +208,10 @@ void stateEstimation::updateEstimation(float timeStep){
 //gps cordiante and add IMU data from zero
 //use a filtering system to blend imu data and gps
 
+void radar::sample(Vehicle *vehicle){
+    //sensorOrigin = vehicle->getRadarPosition();
+    
+    //vehicleVector = vehicle->vehicleState;
 
-
-
+}
  
