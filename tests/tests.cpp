@@ -10,6 +10,7 @@
 #include "../include/control.h"
 #include "../include/sensors.h"
 #include "../include/constants.h"
+#include "../include/rocket.h"
 
 
 #include <array>

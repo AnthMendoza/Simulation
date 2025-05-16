@@ -7,7 +7,7 @@ def main():
         print("No file as argument")
         return
     data = pd.read_csv(sys.argv[1])
-    df = pd.DataFrame(data).iloc[::20]
+    df = pd.DataFrame(data).iloc[::100]
     x_data = df['timeStepVect']
     y_data = df.drop(columns=['timeStepVect'])
     fig = go.Figure()

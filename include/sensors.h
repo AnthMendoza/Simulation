@@ -5,6 +5,7 @@
 #pragma once
 
 #include <random>
+#include "vectorMath.h"
 
 class Vehicle;
 class sensor{
@@ -67,7 +68,12 @@ class GNSS : public sensor{
     GNSS(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
     void sample(Vehicle *vehicle) override; 
     std::array<float,3>  read() override;
-    std::array<float,3> getVelocity();
+    inline std::array<float,3> getVelocity(){
+        return velocity;
+    }
+    inline void setGNSSVelocity(std::array<float,3> velo){
+        velocity = velo;
+    }
 };
 
 class accelerometer : public sensor{
@@ -144,8 +150,10 @@ class stateEstimation: public sensorSuite{
     
     inline std::array<float,3> getEstimatedVelocity(){
         return velocity;
-    }
-    
+    }  
+    inline float getAbsEstimatedVelocity(){
+        return vectorMag(velocity);
+    }  
 };
 
 #endif

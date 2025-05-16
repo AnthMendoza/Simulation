@@ -11,6 +11,7 @@
 #include "../include/logs.h"
 #include "../include/control.h"
 #include "../include/sensors.h"
+#include "../include/rocket.h"
 #include <string>
 
 

@@ -21,6 +21,7 @@ add_executable(rocket
     src/aero.cpp
     src/RungeKutta.cpp
     src/sensors.cpp
+    src/rocket.cpp
 )
 
 add_executable(unreal
@@ -37,6 +38,7 @@ add_executable(unreal
     src/aero.cpp
     src/RungeKutta.cpp
     src/sensors.cpp
+    src/rocket.cpp
 )
 
 add_executable(tests
@@ -52,6 +54,7 @@ add_executable(tests
     src/aero.cpp
     src/RungeKutta.cpp
     src/sensors.cpp
+    src/rocket.cpp
     tests/tests.cpp
 )
 add_subdirectory(third_party/googletest)

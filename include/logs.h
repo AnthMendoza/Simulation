@@ -9,6 +9,7 @@
 #include <memory>
 #include "vehicle.h"
 #pragma once
+
 using vecFloat = std::shared_ptr<std::vector<float>>;
 
 class Rocket;
@@ -39,8 +40,9 @@ class loggedData{
     vecFloat stateEstimationPositionY = std::make_shared<std::vector<float>>();
     vecFloat stateEstimationPositionZ = std::make_shared<std::vector<float>>();
     vecFloat specificEnergy = std::make_shared<std::vector<float>>();
+    vecFloat absEstimatedVelocity = std::make_shared<std::vector<float>>();
 
-    std::string header = "timeStepVect,Xposition,Yposition,Zposition,vehicleState0,vehicleState1,vehicleState2,absVelocity,gForce,gimbalXAngle,gimbalYAngle,fuel,mass,LOX,engineVector0,engineVector1,engineVector2,enginePower,stateEstimationVelocityX,stateEstimationVelocityY,stateEstimationVelocityZ,stateEstimationPositionX,stateEstimationPositionY,stateEstimationPositionZ,specificEnergy";
+    std::string header = "timeStepVect,Xposition,Yposition,Zposition,vehicleState0,vehicleState1,vehicleState2,absVelocity,gForce,gimbalXAngle,gimbalYAngle,fuel,mass,LOX,engineVector0,engineVector1,engineVector2,enginePower,stateEstimationVelocityX,stateEstimationVelocityY,stateEstimationVelocityZ,stateEstimationPositionX,stateEstimationPositionY,stateEstimationPositionZ,specificEnergy,AbsEstimatedVelocity";
 
     loggedData(int preset = 10000);
     

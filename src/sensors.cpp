@@ -126,11 +126,6 @@ std::array<float,3> GNSS::read(){
 }
 
 
-std::array<float,3> GNSS::getVelocity(){
-    return velocity;
-}
-
-
 gyroscope::gyroscope(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias):sensor(frequency , NoisePowerSpectralDensity , bandwidth , bias){
     
 }

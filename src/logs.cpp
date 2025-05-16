@@ -3,6 +3,7 @@
 #include "../include/vectorMath.h"
 #include "../include/constants.h"
 #include "../include/sensors.h"
+#include "../include/rocket.h"
 #include <fstream>
 #include <string>
 #include <vector>
@@ -72,6 +73,8 @@ void loggedData::logRocketPosition(Rocket &rocket ) {
 
     specificEnergy->push_back(rocket.getSpecificEnergy());
 
+    absEstimatedVelocity->push_back(rocket.getAbsEstimatedVelocity());
+
 }
     
 void loggedData::lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData ,  int desiredResolution){
@@ -120,7 +123,8 @@ std::vector<std::shared_ptr<std::vector<float>>> loggedData::all(){
             stateEstimationPositionX,
             stateEstimationPositionY,
             stateEstimationPositionZ,
-            specificEnergy
+            specificEnergy,
+            absEstimatedVelocity
             
         };
 }
