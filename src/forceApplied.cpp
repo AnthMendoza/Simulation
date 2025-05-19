@@ -2,7 +2,7 @@
 #include <iostream>
 #include "../include/vectorMath.h"
 
-
+namespace SimCore{
 
 std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array<float,3> vehicleState , float appliedForceDistanceToCg){
     
@@ -23,7 +23,7 @@ std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array
 }
 
 
-
+}
 
 
 

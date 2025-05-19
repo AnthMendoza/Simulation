@@ -1,37 +1,36 @@
-#ifndef UNREAL_H
-#define UNREAL_H
+#ifndef MYSIM_H
+#define MYSIM_H
 #include "vehicle.h"
 #include "rocket.h"
 #include <mutex>
-#pragma pack(push,1)
+namespace SimCore{
+//#pragma pack(push,1)
 struct unrealData{
     float timeStamp;
     float position[3];
     float velocity[3];
     float rotation[3]; //format undecided
 };
-#pragma pack(pop)
+//#pragma pack(pop)
 
 
-class unreal: public Vehicle{
+class unreal{
     private:
     unrealData packet;
     Rocket unrealVehicle;
-    float updateFrequency;
-    bool udpState;
     std::mutex packetMutex;
-    bool setPacket(float time);
+    void setPacket();
     void getPacket(unrealData &dataPacket);
+    void iterator(float deltaTime);
     public:
-    void sendUDP();
-    unreal();
+    unreal(const char* ConfigPath);
     ~unreal();
-    void iterator();
+    unrealData* simFrameRequest(float deltaTime);
 
 
 };
 
-
+}
 
 
 #endif 

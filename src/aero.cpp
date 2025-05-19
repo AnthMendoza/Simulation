@@ -1,7 +1,7 @@
 #include "cmath"
 #include "../include/aero.h"
 
-
+namespace SimCore{
 
 float airDensity(float Zposition) {  //Zposition in meters, returned in kg/m^3
     float temp = 0;
@@ -46,4 +46,6 @@ float coefOfLift(float angle){
     // more is needed to properlly estmiate this
 
     return angle * 2.1;
+}
+
 }

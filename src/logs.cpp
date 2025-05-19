@@ -12,7 +12,7 @@
 #include <cmath>
 #include <fstream>
 
-
+namespace SimCore{
 loggedData::loggedData( int preset){
 
     timeStepVect->reserve(preset);
@@ -278,3 +278,5 @@ void dataToRam(char* unique_id){
 
 }
 */
+
+}

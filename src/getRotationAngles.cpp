@@ -2,7 +2,7 @@
 #include <cmath>
 #include "../include/Eigen/Eigen"
 #include "../include/Eigen/Dense"
-
+namespace SimCore{
 Eigen::Vector3d getRotationAngles(const Eigen::Vector3d& from, const Eigen::Vector3d& to) {
     Eigen::Vector3d v = from.cross(to);
     double s = v.norm();
@@ -30,4 +30,5 @@ Eigen::Vector3d getRotationAngles(const Eigen::Vector3d& from, const Eigen::Vect
     Eigen::Vector3d angles = R.eulerAngles(0, 1, 2);
 
     return angles;
+}
 }

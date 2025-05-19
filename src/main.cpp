@@ -14,7 +14,7 @@
 #include "../include/rocket.h"
 #include <string>
 
-
+namespace SimCore{
 void iterator(Rocket &rocket ,loggedData *data){
     while(rocket.getPositionVector()[2] > 0 && rocket.getIterations() < 1000000){
         rocket.drag();
@@ -69,7 +69,7 @@ void initParameters(float drymass,
 }
 
 
-
+}
 
 
 int main(int argc, char* argv[]){
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]){
         std::cout<< "Specify vehicle config file path";
         return 1;
     }
-    constants::configFile = argv[1];
+    SimCore::constants::configFile = argv[1];
 
     if(argc != NULL && argc > 0 ){
     //    initializeVectors(20000); // argv[1] unique ID 
@@ -102,13 +102,13 @@ int main(int argc, char* argv[]){
     //                );
     }
     
-    loggedData* data = new loggedData;
+    SimCore::loggedData* data = new SimCore::loggedData;
     
-    Rocket rocket;
+    SimCore::Rocket rocket;
     iterator(rocket , data);
     delete data;
 
-    std::string command = "python3 ../src/plot.py "+ constants::outputFile;
+    std::string command = "python3 ../src/plot.py "+ SimCore::constants::outputFile;
     const char* com = command.c_str();
 
     system(com);

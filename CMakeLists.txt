@@ -24,22 +24,6 @@ add_executable(rocket
     src/rocket.cpp
 )
 
-add_executable(unreal
-    src/unreal.cpp
-    src/vehicle.cpp
-    src/vectorMath.cpp
-    src/rotationMatrix.cpp
-    src/odeIterator.cpp
-    src/logs.cpp
-    src/getRotationAngles.cpp
-    src/forceApplied.cpp
-    src/control.cpp
-    src/constants.cpp
-    src/aero.cpp
-    src/RungeKutta.cpp
-    src/sensors.cpp
-    src/rocket.cpp
-)
 
 add_executable(tests
     src/vehicle.cpp
@@ -57,6 +41,24 @@ add_executable(tests
     src/rocket.cpp
     tests/tests.cpp
 )
+
+add_library(MySim STATIC
+    src/MySim.cpp
+    src/vehicle.cpp
+    src/vectorMath.cpp
+    src/rotationMatrix.cpp
+    src/odeIterator.cpp
+    src/logs.cpp
+    src/getRotationAngles.cpp
+    src/forceApplied.cpp
+    src/control.cpp
+    src/constants.cpp
+    src/aero.cpp
+    src/RungeKutta.cpp
+    src/sensors.cpp
+    src/rocket.cpp
+)
+
 add_subdirectory(third_party/googletest)
 
 include_directories(

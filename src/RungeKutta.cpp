@@ -1,7 +1,7 @@
 #include <cmath>
 #include "../include/RungeKutta.h"
 
-
+namespace SimCore{
 
 float acceleration(float force , float mass){
     return force / mass;
@@ -28,4 +28,5 @@ void RungeKutta4th(float force, float mass, float timeStep, float &velocity, flo
     velocity = velocity + deltaV;
     
     position = position + (k1x + 2 * k2x + 2 * k3x + k4x) / 6.0f;
+}
 }

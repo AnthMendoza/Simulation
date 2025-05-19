@@ -7,6 +7,7 @@
 #include "../include/vehicle.h"
 #include "vectorMath.h"
 
+namespace SimCore{
 //using the PSD to form a normal distabution 
 sensor::sensor(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias){
     hz = 1/frequency;
@@ -210,3 +211,4 @@ void radar::sample(Vehicle *vehicle){
 
 }
  
+}

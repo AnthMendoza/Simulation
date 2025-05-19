@@ -3,7 +3,7 @@
 
 #include "../include/vehicle.h"
 #include "../include/logs.h"
-
+namespace SimCore {
 class StanleyController {
     private:
 
@@ -36,7 +36,7 @@ class StanleyController {
 //};
     
 
-
+}
 
 
 #endif

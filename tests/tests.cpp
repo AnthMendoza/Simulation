@@ -15,7 +15,7 @@
 
 #include <array>
 #include <gtest/gtest.h>
-
+using namespace SimCore;
 //freefall, warning may fail if timestep is low as error will increase
 // looking for freefall plus or minus 2 percent of actual
 //this also may fail do to lack of a sample rocket configuration

@@ -6,7 +6,7 @@
 
 #include <random>
 #include "vectorMath.h"
-
+namespace SimCore{
 class Vehicle;
 class sensor{
     private:
@@ -156,4 +156,5 @@ class stateEstimation: public sensorSuite{
     }  
 };
 
+}
 #endif

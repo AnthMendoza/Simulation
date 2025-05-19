@@ -9,7 +9,7 @@
 #include <memory>
 #include "vehicle.h"
 #pragma once
-
+namespace SimCore{
 using vecFloat = std::shared_ptr<std::vector<float>>;
 
 class Rocket;
@@ -73,6 +73,6 @@ void appendRowToCSV(const std::string& row);
 void closeCSV();
 */
 
-
+}
 
 #endif 

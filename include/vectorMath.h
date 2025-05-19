@@ -2,6 +2,7 @@
 #define VECTOR_MATH_H
 
 #include <array>
+namespace SimCore{
 
 float vectorMag(std::array<float,3> &vector);
 
@@ -26,6 +27,6 @@ void setInBounds(T &value , const T &lower , const T &upper){
     if(value < lower) value = lower;
 
 }
-
+}
 
 #endif

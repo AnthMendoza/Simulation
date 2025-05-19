@@ -1,6 +1,6 @@
 #include "../include/constants.h"
 #include <string>
-
+namespace SimCore{
 namespace constants{
     #ifdef __linux__
         bool isLinux = true;
@@ -48,5 +48,5 @@ namespace constants{
 
 
 }
-
+}
 

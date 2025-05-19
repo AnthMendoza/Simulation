@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include "../include/vectorMath.h"
 
-
+namespace SimCore{
 
 float vectorMag(std::array<float,3> &vector){
     return sqrt(vector[0]*vector[0] + vector[1]*vector[1] + vector[2]*vector[2]);
@@ -114,6 +114,6 @@ bool directionality(std::array<float , 3> &refranceVector ,std::array<float , 3>
 
 
 
-
+}
 
 

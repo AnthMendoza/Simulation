@@ -17,7 +17,7 @@
 #include "../include/sensors.h"
 #include "../include/toml.hpp"
 
-
+namespace SimCore{
 Rocket::Rocket(const Rocket& Rocket) = default;
 
 Rocket::Rocket(){
@@ -567,4 +567,7 @@ void Rocket::reentryBurn(loggedData *data){
             }
         }
     }
+}
+
+
 }

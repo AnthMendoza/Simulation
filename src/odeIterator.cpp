@@ -1,7 +1,7 @@
 #include "../include/odeIterator.h"
 
 //this can be done at all at once by adding the forces. then run this for each component 
-
+namespace SimCore{
 
 void Ode(float force , float mass , float timeStep ,float &velocity ,float &position){
 
@@ -38,3 +38,4 @@ float rotationalOde(float moment , float MOI , float timeStep ,float &angularVel
 }
 
 
+}

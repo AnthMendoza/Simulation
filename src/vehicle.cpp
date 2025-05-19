@@ -16,7 +16,7 @@
 #include "../include/sensors.h"
 #include "../include/toml.hpp"
 
-
+namespace SimCore{
 void Vehicle::initSensors(){
     auto config = toml::parse(constants::configFile, toml::spec::v(1,1,0));
     auto rocket = toml::find(config,"vehicle");
@@ -315,5 +315,5 @@ float Vehicle::PID(float target , float currentState , float &previousError , fl
 
 
 
-
+}
 

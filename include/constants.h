@@ -2,6 +2,7 @@
 #define CONSTANTS_H
 #include <array>
 #include <string>
+namespace SimCore{
 namespace constants{
 
     extern std::string configFile;
@@ -40,6 +41,7 @@ namespace constants{
  
 
 
+}
 }
 
 #endif

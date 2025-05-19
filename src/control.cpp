@@ -16,6 +16,7 @@
 //initally stanley controller will be driving towards a becon regardless of z position. 
 //The becon being the landing spot defined by a line {xLandingPoint,yLandingPoint,z} where z is all reals.
 //After proof of concept the target should be a generated spline to the target.
+namespace SimCore{
 
 float StanleyController::computeSteering(float headingError, float crossTrackError, float velocity){
     velocity = std::max(velocity, 0.1f);  // Avoid division by zero
@@ -35,4 +36,4 @@ float StanleyController::computeSteering(float headingError, float crossTrackErr
 //
 //}
 
-
+}

@@ -3,7 +3,7 @@
 
 #pragma once
 #include "vehicle.h"
-
+namespace SimCore{
 class Rocket : public Vehicle{
     private:
 
@@ -170,5 +170,7 @@ class Rocket : public Vehicle{
     }
 
 };
+
+}
 
 #endif

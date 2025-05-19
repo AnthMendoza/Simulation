@@ -10,7 +10,7 @@
 #include "vectorMath.h"
 #include "control.h"
 #include "logs.h"
-
+namespace SimCore{
 class stateEstimation;
 class StanleyController;
 
@@ -103,9 +103,6 @@ class Vehicle : public stateEstimation{
 
 
 };
-
-
-
-
+}
 
 #endif

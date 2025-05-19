@@ -5,8 +5,7 @@
 #include "../include/vectorMath.h"
 
 using namespace std;
-
-
+namespace SimCore{
 Matrix3x3::Matrix3x3() {
     m = {{{1.0f, 0.0f, 0.0f},
           {0.0f, 1.0f, 0.0f}, 
@@ -83,6 +82,7 @@ Matrix3x3 rotationMatrixZ(float angleRadians) {
     return rotation;
 }
 
+}
 
 
 
