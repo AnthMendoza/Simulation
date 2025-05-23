@@ -6,7 +6,6 @@
 #include <memory>
 #include <cmath>
 #include "sensors.h"
-#include "constants.h"
 #include "vectorMath.h"
 #include "control.h"
 #include "logs.h"
@@ -17,37 +16,35 @@ class StanleyController;
 
 class Vehicle : public stateEstimation{
     private:
-
     protected:
     float Xposition , Yposition , Zposition;     // position 
     float Xvelocity , Yvelocity , Zvelocity;
-
+    float timeStep;
     int iterations;
 
     float mass; 
     float centerOfPressure;
     float gForce;
-
+    
+    std::array<float,3> wind;
     std::array<float,3> angularVelocity;
     std::array<float,3> vehicleState;
     std::array<float,3> MOI;
     std::array<float,3> sumOfForces;
     std::array<float,3> sumOfMoments;
     std::array<float,3> acceleration;
-
+    float gravitationalAcceleration;
     public:
+    std::string configFile;
+    std::string outputFile;
     Vehicle();
 
     Vehicle(const Vehicle& vehicle);
 
     virtual void init();
+ 
 
-    inline void display() {
-        std::cout << "Position: (" << Xposition << ", " << Yposition << ", " << Zposition << ")\n"
-                  << "Orientation (Roll, Pitch, Yaw): (" << vehicleState[0] << ", " << vehicleState[1]  << ", " << vehicleState[2]  << ")\n";
-    }   
-
-    virtual void operator++(int);
+    void operator++();
 
     void addForce(std::array<float,3> forceVector);
 
@@ -75,7 +72,7 @@ class Vehicle : public stateEstimation{
 
     //iteratoins * timestep
     inline float getTime(){
-        return iterations * constants::timeStep;
+        return iterations * timeStep;
     }
     //Not based off sensor data. Actual Simulation Position
     inline std::array<float,3> getVelocityVector(){
@@ -92,12 +89,14 @@ class Vehicle : public stateEstimation{
         return iterations;
     }
     inline void setIterations(int it){
-        if(it < 0) std::cout<<"Warning : Iterations Cannot be less than 0";
         iterations = it;
     }
 
     inline float getMass(){
         return mass;
+    }
+    inline float getTimeStep(){
+        return timeStep;
     }
 
 

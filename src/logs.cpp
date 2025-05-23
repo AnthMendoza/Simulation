@@ -1,13 +1,13 @@
 #include "../include/vehicle.h"
 #include "../include/logs.h"
 #include "../include/vectorMath.h"
-#include "../include/constants.h"
+
 #include "../include/sensors.h"
 #include "../include/rocket.h"
 #include <fstream>
 #include <string>
 #include <vector>
-#include <iostream>
+
 #include <stdexcept>
 #include <cmath>
 #include <fstream>
@@ -39,7 +39,7 @@ loggedData::loggedData( int preset){
 
 void loggedData::logRocketPosition(Rocket &rocket ) {
 
-    timeStepVect->push_back(rocket.getIterations() * constants::timeStep);
+    timeStepVect->push_back(rocket.getIterations() * rocket.getTimeStep());
     auto pos = rocket.getPositionVector();
     Xposition->push_back(pos[0]);
     Yposition->push_back(pos[1]);
@@ -132,7 +132,7 @@ std::vector<std::shared_ptr<std::vector<float>>> loggedData::all(){
 void loggedData::writeCSV( const std::string& filename,const std::vector<std::shared_ptr<std::vector<float>>>& data) {
     std::ofstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Could not open file.\n";
+        //handle error
         return;
     }
     if(data.empty()) return;

@@ -1,10 +1,11 @@
-#include<iostream>
+
 #include <math.h>
 #include <chrono>
 #include <array>
 #include <string>
-#include <cstdlib>  
-#include "../include/constants.h"
+#include <cstdlib> 
+#include <fstream>
+#include <sstream>
 #include "../include/vectorMath.h"
 #include "../include/vehicle.h"
 #include "../include/odeIterator.h"
@@ -25,48 +26,61 @@ void iterator(Rocket &rocket ,loggedData *data){
         //landingBurn(rocket);
         data->logRocketPosition(rocket);
         rocket.updateState();
-        rocket++;
+        ++rocket;
     }
-    data->writeCSV(constants::outputFile,data->all());
+    data->writeCSV(rocket.outputFile,data->all());
 }
 
 
  
-void initParameters(float drymass,
-                    float propellentMassLOX,
-                    float propellentMassFuel,
-                    float consumtionRateLOX,
-                    float consumtionRateFuel,
-                    float reentryAccel,
-                    float initPositionX,
-                    float initPositionY,
-                    float initPositionZ,
-                    float initVelocityX,
-                    float initVelocityY,
-                    float initVelocityZ,
-                    float initVehicleStateX,
-                    float initVehicleStateY,
-                    float initVehicleStateZ
-                    ){
-    
-    constants::dryMass = drymass;
+//void initParameters(float drymass,
+//                    float propellentMassLOX,
+//                    float propellentMassFuel,
+//                    float consumtionRateLOX,
+//                    float consumtionRateFuel,
+//                    float reentryAccel,
+//                    float initPositionX,
+//                    float initPositionY,
+//                    float initPositionZ,
+//                    float initVelocityX,
+//                    float initVelocityY,
+//                    float initVelocityZ,
+//                    float initVehicleStateX,
+//                    float initVehicleStateY,
+//                    float initVehicleStateZ
+//                    ){
+//    
+//    constants::dryMass = drymass;
+//
+//    constants::maxGAllowedEntry = reentryAccel;
+//
+//    constants::initFuel = propellentMassFuel;
+//    constants::initLOX = propellentMassLOX;
+//
+//    constants::consumtionRateFuel = consumtionRateFuel;
+//    constants::consumtionRateLOX = consumtionRateLOX;
+//
+//    constants::initPosition = {initPositionX , initPositionY , initPositionZ};                
+//
+//    constants::initVelocity = {initVelocityX , initVelocityY ,initVelocityZ}; 
+//
+//    constants::initVehicleState = {initVehicleStateX , initVehicleStateY , initVehicleStateZ};
+//
+//    constants::initVehicleState = normalizeVector(constants::initVehicleState);
+//}
 
-    constants::maxGAllowedEntry = reentryAccel;
 
-    constants::initFuel = propellentMassFuel;
-    constants::initLOX = propellentMassLOX;
 
-    constants::consumtionRateFuel = consumtionRateFuel;
-    constants::consumtionRateLOX = consumtionRateLOX;
 
-    constants::initPosition = {initPositionX , initPositionY , initPositionZ};                
 
-    constants::initVelocity = {initVelocityX , initVelocityY ,initVelocityZ}; 
-
-    constants::initVehicleState = {initVehicleStateX , initVehicleStateY , initVehicleStateZ};
-
-    constants::initVehicleState = normalizeVector(constants::initVehicleState);
+// Read TOML file into a string
+std::string readFileAsString(const std::string& filePath) {
+    std::ifstream inFile(filePath);
+    std::stringstream buffer;
+    buffer << inFile.rdbuf();
+    return buffer.str();
 }
+
 
 
 }
@@ -74,12 +88,11 @@ void initParameters(float drymass,
 
 int main(int argc, char* argv[]){
     if(argv[1] == nullptr){
-        std::cout<< "Specify vehicle config file path";
+        //std::cout<< "Specify vehicle config file path";
         return 1;
     }
-    SimCore::constants::configFile = argv[1];
 
-    if(argc != NULL && argc > 0 ){
+    if(argc > 0 ){
     //    initializeVectors(20000); // argv[1] unique ID 
     //    constants::initPosition[2] = std::stof(argv[2]); // dry mass
     //    constants::initVelocity[1] = std::stof(argv[3]);
@@ -103,12 +116,12 @@ int main(int argc, char* argv[]){
     }
     
     SimCore::loggedData* data = new SimCore::loggedData;
-    
-    SimCore::Rocket rocket;
+    std::string configFileData = SimCore::readFileAsString(argv[1]);
+    SimCore::Rocket rocket(configFileData);
     iterator(rocket , data);
     delete data;
-
-    std::string command = "python3 ../src/plot.py "+ SimCore::constants::outputFile;
+    std::string outputFile = "../output.csv";
+    std::string command = "python3 ../src/plot.py "+ outputFile;
     const char* com = command.c_str();
 
     system(com);

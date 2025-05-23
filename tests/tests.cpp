@@ -2,37 +2,56 @@
 #include "../include/vehicle.h"
 #include "../include/vectorMath.h"
 #include "../include/aero.h"
-#include "../include/constants.h"
 #include "../include/RungeKutta.h"
 #include "../include/odeIterator.h"
 #include "../include/rotationMatrix.h"
 #include "../include/getRotation.h"
 #include "../include/control.h"
 #include "../include/sensors.h"
-#include "../include/constants.h"
 #include "../include/rocket.h"
-
-
+#include "../include/toml.h"
+#include <fstream>
+#include <sstream>
 #include <array>
 #include <gtest/gtest.h>
+#include <iostream>
 using namespace SimCore;
 //freefall, warning may fail if timestep is low as error will increase
 // looking for freefall plus or minus 2 percent of actual
 //this also may fail do to lack of a sample rocket configuration
 TEST(System , FreeFall){
-    constants::configFile = "../configs/Rocket_Config.toml";
-    Rocket vehicle;
+    std::ifstream inFile("../configs/Rocket_Config.toml");
+    std::stringstream buffer;
+    buffer << inFile.rdbuf();
+    std::string config = buffer.str();
+    Rocket vehicle(config);
+    vehicle.init();
     float freeFallDuration = 10000;
     vehicle.setVelocity(0.0f,0.0f,0.0f);
     vehicle.setPosition(0.0f,0.0f,freeFallDuration);
     while(vehicle.getPositionVector()[2] > 0){
         vehicle.updateState();
-        vehicle++;
+        ++vehicle;
     }
     float time = vehicle.getTime();
     std::cout<<"the time: "<< time <<  "iterations"<< vehicle.getIterations();
     if(time < 45.16 *1.01 && time > 45.16 * .99 ) time = 45.16;
     EXPECT_FLOAT_EQ(time , 45.16f);
+}
+
+TEST(TOML,GetValue){
+    std::string configText = R"(
+    [vehicle]
+    dryMass = 100.0
+    MOI = [1.0, 2.0, 3.0]
+    gimbalDamping = 0.5
+    )";
+
+    toml::tomlParse parser;
+    parser.parseConfig(configText, "vehicle");
+    auto arr =parser.arrayValues["MOI"];
+    EXPECT_FLOAT_EQ(arr[1], 2.0f);
+
 }
 
 

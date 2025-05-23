@@ -2,7 +2,7 @@
 #define MYSIM_H
 #include "vehicle.h"
 #include "rocket.h"
-#include <mutex>
+#include <memory>
 namespace SimCore{
 //#pragma pack(push,1)
 struct unrealData{
@@ -17,17 +17,16 @@ struct unrealData{
 class unreal{
     private:
     unrealData packet;
-    Rocket unrealVehicle;
-    std::mutex packetMutex;
+    std::unique_ptr<Rocket> unrealVehicle;
+    std::string configFile;
     void setPacket();
     void getPacket(unrealData &dataPacket);
-    void iterator(float deltaTime);
+    void iterator(float totalTime);
+    float totalTime;
     public:
-    unreal(const char* ConfigPath);
+    unreal(const std::string tomlData);
     ~unreal();
     unrealData* simFrameRequest(float deltaTime);
-
-
 };
 
 }

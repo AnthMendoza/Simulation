@@ -1,6 +1,6 @@
 #include <math.h>
 #include <array>
-#include <iostream>
+
 #include <stdexcept>
 #include "../include/vectorMath.h"
 

@@ -1,4 +1,4 @@
-#include <iostream>
+
 #include <array>
 #include <cmath>
 #include <memory>
@@ -8,60 +8,81 @@
 #include "../include/vehicle.h"
 #include "../include/vectorMath.h"
 #include "../include/aero.h"
-#include "../include/constants.h"
 #include "../include/RungeKutta.h"
 #include "../include/odeIterator.h"
 #include "../include/rotationMatrix.h"
 #include "../include/getRotation.h"
 #include "../include/control.h"
 #include "../include/sensors.h"
-#include "../include/toml.hpp"
+#include "../include/toml.h"
 
 namespace SimCore{
 Rocket::Rocket(const Rocket& Rocket) = default;
 
-Rocket::Rocket(){
-    init();
-
+Rocket::Rocket(std::string config){
+    configFile = config;
 }
 
 
 
 
 void Rocket::init(){
-    Vehicle::init();
-    // roll pitch yaw (x,y,z) defines the direction vector, heading. ex. (0,0,1) is rocket pointing straight up.
+    toml::tomlParse vehicleParse;
+    vehicleParse.parseConfig( configFile,"vehicle");
 
     initSensors();
 
-    auto config = toml::parse(constants::configFile, toml::spec::v(1,1,0));
-    auto rocket = toml::find(config,"vehicle");
+    // Controller
+    Stanley = std::make_unique<StanleyController>(
+        vehicleParse.floatValues["StanleyGain"],
+        vehicleParse.floatValues["maxSteeringAngle"]
+    );
 
-    Stanley = std::make_shared<StanleyController> (toml::find<float>(rocket,"StanleyGain"), toml::find<float>(rocket,"maxSteeringAngle"));
-    dryMass = toml::find<float>(rocket,"dryMass");
-    fuel = toml::find<float>(rocket,"initFuel");
-    LOX = toml::find<float>(rocket,"initLOX");
+    // Mass parameters
+    dryMass = vehicleParse.floatValues["dryMass"];
+    fuel = vehicleParse.floatValues["initFuel"];
+    LOX = vehicleParse.floatValues["initLOX"];
     mass = dryMass + fuel + LOX;
-    fuelConsumptionRate = toml::find<float>(rocket,"consumptionRateFuel");
-    LOXConsumptionRate = toml::find<float>(rocket,"consumptionRateLOX");
 
-    MOI = toml::find<std::array<float,3>>(rocket,"MOI");
+    fuelConsumptionRate = vehicleParse.floatValues["consumptionRateFuel"];
+    LOXConsumptionRate = vehicleParse.floatValues["consumptionRateLOX"];
 
-    targetLandingPosition = toml::find<std::array<float,3>>(rocket , "targetLandingPosition");
+    // MOI
+    auto& moiArray = vehicleParse.arrayValues["MOI"];
+    MOI[0] = moiArray[0];
+    MOI[1] = moiArray[1];
+    MOI[2] = moiArray[2];
 
-    reentry = toml::find<bool>(rocket,"reentry");
-    glidePhase = toml::find<bool>(rocket,"glidePhase"); //false means yet to happen, true means already happened
-    landingInProgress = toml::find<bool>(rocket,"landingInProgress");
+    // Landing target
+    auto& landingPos = vehicleParse.arrayValues["targetLandingPosition"];
+    targetLandingPosition[0] = landingPos[0];
+    targetLandingPosition[1] = landingPos[1];
+    targetLandingPosition[2] = landingPos[2];
+    // Gimbal PID
+    gimbalDamping = vehicleParse.floatValues["gimbalDamping"];
+    gimbalPGain =   vehicleParse.floatValues["gimbalPGain"];
+    gimbalIGain =   vehicleParse.floatValues["gimbalIGain"];
+    gimbalDGain =   vehicleParse.floatValues["gimbalDGain"];
 
-    engineState = {0,0,0};
-    enginePower = 0;
-    appliedVector = {0,0,0};
+    // Fin PID
+    finDamping =            vehicleParse.floatValues["finDamping"];
+    finPGain =              vehicleParse.floatValues["finPGain"];
+    finIGain =              vehicleParse.floatValues["finIGain"];
+    finDGain =              vehicleParse.floatValues["finDGain"];
+    maxFinAcceleration =    vehicleParse.floatValues["maxFinAcceleration"];
+    maxGimbalAcceleration = vehicleParse.floatValues["maxGimbalAcceleration"];
 
-    gimbalDamping = toml::find<float>(rocket,"gimbalDamping");
-    gimbalPGain = toml::find<float>(rocket,"gimbalPGain");
-    gimbalIGain = toml::find<float>(rocket,"gimbalIGain");
-    gimbalDGain = toml::find<float>(rocket,"gimbalDGain");
+    maxGAllowedEntry = vehicleParse.floatValues["maxGAllowedEntry"];
+    centerOfPressure = vehicleParse.floatValues["centerOfPressure"];
+    cogToEngine = vehicleParse.floatValues["cogToEngine"];// meters use this to calculate the moment created by the engine this is negative becuase center of pressure on the opposite side of the COG is positive
+    maxThrust = vehicleParse.floatValues["maxThrust"];
+    minThrust = maxThrust *.5; //newtons, 65 percent of max;
+    landingThrust = maxThrust * .95 ;
+    maxGimbalAngle = 30  * 3.1415926535f / 180.0f;// degrees
+   
 
+
+    
     gimbalErrorX = 0;
     gimbalErrorY = 0;
     gimbalX = 0;
@@ -81,18 +102,10 @@ void Rocket::init(){
     vehicleXError = 0;
     sumOfVehicleXError = 0;
 
-    maxGimbalAcceleration = toml::find<float>(rocket,"maxGimbalAcceleration"); // rad/s/s
-
-    
-
-    centerOfPressure = constants::centerOfPressure; //meters
-    cogToEngine = constants::cogToEngine;
-
-
     logXInput = 0;
     logYInput = 0;
     logPosX = 0;
-    logPosX = 0;
+    logPosY = 0;
     
 
     logMoment = {0,0,0};
@@ -106,11 +119,8 @@ void Rocket::init(){
     
     finVelocityX = 0;
     finVelocityY = 0;
-    finDamping = toml::find<float>(rocket,"finDamping");
-    finPGain = toml::find<float>(rocket,"finPGain");
-    finIGain = toml::find<float>(rocket,"finIGain");
-    finDGain = toml::find<float>(rocket,"finDGain");
-    maxFinAcceleration  = toml::find<float>(rocket,"maxFinAcceleration");
+    Vehicle::init();
+
 }
 
 
@@ -120,9 +130,6 @@ void Rocket::drag(){
 }
 
 
-void Rocket::operator++(int){
-    iterations++;
-}
 
 void Rocket::initSensors(){
     
@@ -183,7 +190,7 @@ void Rocket::applyEngineForce(std::array<float,2> twoDEngineRadians , float thru
     engineState = engineVector;
 
 
-    enginePower = abs(thrust) / constants::maxThrust;
+    enginePower = abs(thrust) /  maxThrust;
 
     setInBounds(enginePower , 0.0f , 1.0f);
     
@@ -300,15 +307,15 @@ void Rocket::applyFinForce(float xForce , float yForce){
 }
 
 void Rocket::updateFinPosition(std::pair<float,float> commands){
-    setInBounds( commands.first , -constants::maxGimbalAngle , constants::maxGimbalAngle);
-    setInBounds( commands.second , -constants::maxGimbalAngle , constants::maxGimbalAngle);
+    setInBounds( commands.first , - maxGimbalAngle ,  maxGimbalAngle);
+    setInBounds( commands.second , - maxGimbalAngle ,  maxGimbalAngle);
     
     finErrorX = commands.first -  finX;
     finErrorY = commands.second - finY;
 
-    float XInput = PID(commands.first, finX , finErrorX , sumOfFinErrorX, constants::timeStep , finPGain , finIGain , finDGain);
+    float XInput = PID(commands.first, finX , finErrorX , sumOfFinErrorX,  timeStep , finPGain , finIGain , finDGain);
 
-    float YInput = PID(commands.second, finY , finErrorY , sumOfFinErrorY , constants::timeStep , finPGain , finIGain , finDGain);
+    float YInput = PID(commands.second, finY , finErrorY , sumOfFinErrorY ,  timeStep , finPGain , finIGain , finDGain);
 
 
     setInBounds( XInput , -1.0f , 1.0f);
@@ -318,14 +325,14 @@ void Rocket::updateFinPosition(std::pair<float,float> commands){
     logXInput = ((XInput * maxFinAcceleration) - finDamping * finVelocityX);
     logYInput = ((XInput * maxFinAcceleration) - finDamping * finVelocityX);
     
-    if (finVelocityX > 1)finVelocityX += ((XInput * maxFinAcceleration) - finDamping * finVelocityX * finVelocityX) * constants::timeStep;
-    else finVelocityX += ((XInput * maxFinAcceleration) - finDamping * finVelocityX) * constants::timeStep;
+    if (finVelocityX > 1)finVelocityX += ((XInput * maxFinAcceleration) - finDamping * finVelocityX * finVelocityX) *  timeStep;
+    else finVelocityX += ((XInput * maxFinAcceleration) - finDamping * finVelocityX) *  timeStep;
 
-    if (finVelocityY > 1)finVelocityY += ((YInput * maxFinAcceleration) - finDamping * finVelocityY * finVelocityY) * constants::timeStep;
-    else finVelocityY += ((YInput * maxFinAcceleration) - finDamping * finVelocityY) * constants::timeStep;
+    if (finVelocityY > 1)finVelocityY += ((YInput * maxFinAcceleration) - finDamping * finVelocityY * finVelocityY) *  timeStep;
+    else finVelocityY += ((YInput * maxFinAcceleration) - finDamping * finVelocityY) *  timeStep;
 
-    finX += finVelocityX * constants::timeStep;
-    finY += finVelocityY * constants::timeStep;
+    finX += finVelocityX *  timeStep;
+    finY += finVelocityY *  timeStep;
 }
 
 
@@ -348,10 +355,10 @@ bool Rocket::fuelConsumption(float thrust){
     //returns true if vehicle has enough fuel to apply requested force. false should stop force application
     // numOfEngineOn can be fractional ex .8 is 80 percent thrust of 1 engine, or 3 is 3 engine at full power
 
-    float numOfEngineOn = thrust / constants::maxThrust;
+    float numOfEngineOn = thrust /  maxThrust;
 
-    float consumptionDuringTimeFuel  = fuelConsumptionRate * numOfEngineOn * constants::timeStep;
-    float consumptionDuringTimeLOX  = LOXConsumptionRate * numOfEngineOn * constants::timeStep;
+    float consumptionDuringTimeFuel  = fuelConsumptionRate * numOfEngineOn *  timeStep;
+    float consumptionDuringTimeLOX  = LOXConsumptionRate * numOfEngineOn *  timeStep;
 
     if(fuel - consumptionDuringTimeFuel < 0 || LOX - consumptionDuringTimeLOX < 0) return false;
 
@@ -368,15 +375,15 @@ bool Rocket::fuelConsumption(float thrust){
 
 void Rocket::engineGimbal(float gimbalTargetX , float gimbalTargetY){
 
-    setInBounds( gimbalTargetX , -constants::maxGimbalAngle , constants::maxGimbalAngle);
-    setInBounds( gimbalTargetY , -constants::maxGimbalAngle , constants::maxGimbalAngle);
+    setInBounds( gimbalTargetX , - maxGimbalAngle ,  maxGimbalAngle);
+    setInBounds( gimbalTargetY , - maxGimbalAngle ,  maxGimbalAngle);
     
     gimbalErrorX = gimbalTargetX - gimbalX;
     gimbalErrorY = gimbalTargetY - gimbalY;
 
-    float XInput = PID(gimbalTargetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
+    float XInput = PID(gimbalTargetX , gimbalX , gimbalErrorX , sumOfGimbalErrorX ,  timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
-    float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY , constants::timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
+    float YInput = PID(gimbalTargetY , gimbalY , gimbalErrorY , sumOfGimbalErrorY ,  timeStep , gimbalPGain , gimbalIGain , gimbalDGain);
 
     
     setInBounds( XInput , -1.0f , 1.0f);
@@ -386,14 +393,14 @@ void Rocket::engineGimbal(float gimbalTargetX , float gimbalTargetY){
     logXInput = ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX);
     logYInput = ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX);
     
-    if(gimbalVelocityX > 1) gimbalVelocityX += ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX * gimbalVelocityX) * constants::timeStep;
-    else gimbalVelocityX += ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX) * constants::timeStep;
+    if(gimbalVelocityX > 1) gimbalVelocityX += ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX * gimbalVelocityX) *  timeStep;
+    else gimbalVelocityX += ((XInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityX) *  timeStep;
 
-    if(gimbalVelocityY > 1) gimbalVelocityY += ((YInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityY * gimbalVelocityY) * constants::timeStep; 
-    else  gimbalVelocityY += ((YInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityY) * constants::timeStep; 
+    if(gimbalVelocityY > 1) gimbalVelocityY += ((YInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityY * gimbalVelocityY) *  timeStep; 
+    else  gimbalVelocityY += ((YInput * maxGimbalAcceleration) - gimbalDamping * gimbalVelocityY) *  timeStep; 
 
-    gimbalX += gimbalVelocityX * constants::timeStep;
-    gimbalY += gimbalVelocityY * constants::timeStep;
+    gimbalX += gimbalVelocityX *  timeStep;
+    gimbalY += gimbalVelocityY *  timeStep;
     
 }
 
@@ -434,8 +441,7 @@ void Rocket::landingBurn(){
     std::array<float,3> velocity = getEstimatedVelocity();
     std::array<float,3> rotation = getEstimatedRotation();
     
-    float landingAccelZ = ((velocity[2] * velocity[2]) / (2 * Zposition)) - constants::gravitationalAcceleration;
-
+    float landingAccelZ = ((velocity[2] * velocity[2]) / (2 * Zposition)) - gravitationalAcceleration;
     float landingBurnDuration =  velocity[2] / landingAccelZ;
 
     float landingAccelX = velocity[0]/ landingBurnDuration;
@@ -456,16 +462,16 @@ void Rocket::landingBurn(){
 
     landingRequiredThrust = sqrtf(landingForceX * landingForceX + landingForceY * landingForceY + landingForceZ * landingForceZ);
 
-    if(landingRequiredThrust>= constants::landingThrust){
+    if(landingRequiredThrust>=  landingThrust){
         landingInProgress = true;
     }
 
-    if(landingRequiredThrust <= constants::minThrust || landingInProgress == false){
+    if(landingRequiredThrust <=  minThrust || landingInProgress == false){
         landingInProgress = false; 
         return;
     }
 
-    if(landingRequiredThrust > constants::maxThrust) landingRequiredThrust = constants::maxThrust;
+    if(landingRequiredThrust >  maxThrust) landingRequiredThrust =  maxThrust;
     
 
     std::array<float,3> forceVector = {landingForceX , landingForceY , landingForceZ};
@@ -486,7 +492,7 @@ void Rocket::landingBurn(){
 
     twoDAngle = twoDState;
 
-    PIDOutputY = PID(0,error,vehicleYError, sumOfVehicleYError, constants::timeStep , 2 ,0 , 1);
+    PIDOutputY = PID(0,error,vehicleYError, sumOfVehicleYError,  timeStep , 2 ,0 , 1);
     
     //std::cout<< twoDState[0] << "," << twoDState[1] << "  " << targetState[0] << "," << targetState[1]<< "   "<< error  << "   " << PIDOutputY << "\n";
 
@@ -496,7 +502,7 @@ void Rocket::landingBurn(){
 
     error  = twodAngleDiffrence( twoDState, targetState);
 
-    PIDOutputX = PID(0,error,vehicleXError, sumOfVehicleXError, constants::timeStep , 2 ,0, 1);
+    PIDOutputX = PID(0,error,vehicleXError, sumOfVehicleXError,  timeStep , 2 ,0, 1);
 
 
 
@@ -514,7 +520,7 @@ void Rocket::landingBurn(){
 std::vector<float> Rocket::lookAhead(Rocket &rocket,float lookAheadTime , std::function<float(Rocket&)> valueToLog){
     //make a copy of the rocket so that we can keep current conditions on the main vehicle and test parameters on the look ahead
     int initalIterations = rocket.iterations;
-    float limit = lookAheadTime/constants::timeStep;
+    float limit = lookAheadTime/ timeStep;
     std::vector<float> log;
     while(rocket.iterations - initalIterations < limit && rocket.Zposition > 0){
         
@@ -539,27 +545,27 @@ void Rocket::reentryBurn(loggedData *data){
     if(Zposition < 55000 && reentry == false){
 
         reentry = true;
-        float currentMaxGForce = constants::maxGAllowedEntry + 1;
+        float currentMaxGForce =  maxGAllowedEntry + 1;
         float lastMaxGForce = currentMaxGForce;
         //main loop moves forward 1 second every lookAHead cylce
         float stepInterval = 1;
         std::array<float,2> direction = {0,0};
         float count = 0;
-        while(currentMaxGForce > constants::maxGAllowedEntry){
+        while(currentMaxGForce >  maxGAllowedEntry){
             Rocket lookAheadRocket = *this;
             lookAheadRocket.initSensors();
             std::vector<float> gForces = lookAhead(lookAheadRocket , 105 , [](Rocket &r) { return r.gForce; }); // 105 is the lookahead time in seconds. this may be stoppped earlier if the vehicle hits the ground
             if(gForces.size()!= 0)currentMaxGForce = *std::max_element(gForces.begin(),gForces.end());
-            else currentMaxGForce = constants::maxGAllowedEntry + 1;
-            if(currentMaxGForce < constants::maxGAllowedEntry && count > 0) return;
+            else currentMaxGForce =  maxGAllowedEntry + 1;
+            if(currentMaxGForce <  maxGAllowedEntry && count > 0) return;
             if(currentMaxGForce > lastMaxGForce && count > 0) return;
             lastMaxGForce = currentMaxGForce;
             float currentIteration = iterations;
             count++;
-            while(iterations < currentIteration + stepInterval/constants::timeStep && Zposition > 0){
+            while(iterations < currentIteration + stepInterval/ timeStep && Zposition > 0){
                 drag();
                 lift();
-                applyEngineForce(direction , constants::maxThrust * .6 * 3); 
+                applyEngineForce(direction ,  maxThrust * .6 * 3); 
                 finVectors = getFinForceVectors();
                 if(data != nullptr) data->logRocketPosition(*this);
                 updateState();

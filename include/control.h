@@ -11,9 +11,7 @@ class StanleyController {
     float maxSteering;    // max steering angle in radians
 
     public:
-        StanleyController(float gain, float maxSteeringAngle): k(gain), maxSteering(maxSteeringAngle) {
-
-        }
+        StanleyController(float gain, float maxSteeringAngle);
 
         float computeSteering(float headingError, float crossTrackError, float velocity);
 };

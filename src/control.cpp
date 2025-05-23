@@ -2,12 +2,12 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
-#include <iostream>
+
 #include <cmath>
 #include <algorithm>
 #include "../include/control.h"
 #include "../include/vehicle.h"
-#include "../include/constants.h"
+
 #include "../include/logs.h"
 #include "../include/vectorMath.h"
 #include "../include/getRotation.h"
@@ -17,6 +17,7 @@
 //The becon being the landing spot defined by a line {xLandingPoint,yLandingPoint,z} where z is all reals.
 //After proof of concept the target should be a generated spline to the target.
 namespace SimCore{
+StanleyController::StanleyController(float gain, float maxSteeringAngle): k(gain), maxSteering(maxSteeringAngle){}
 
 float StanleyController::computeSteering(float headingError, float crossTrackError, float velocity){
     velocity = std::max(velocity, 0.1f);  // Avoid division by zero

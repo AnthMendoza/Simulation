@@ -44,7 +44,6 @@ class sensor{
     virtual void sample(Vehicle *vehicle);
     virtual std::array<float,3> read(); 
 
-
 };
 
 
@@ -98,23 +97,23 @@ class gyroscope : public sensor{
 };
 
 
-class radar : public sensor{
-    private:
-    std::array<float,3> sensorOrigin;
-    std::vector<std::vector<std::array<float,3>>> points;
-    std::array<float,3> vehicleVector;
-    float quantization = .05;
-    const int rows = 16;           // vertical resolution
-    const int cols = 64;           // horizontal resolution
-    const float verticalFOV = 20;  // degrees
-    const float horizontalFOV = 90; // degrees
-    const float maxRange = 10.0f;   // meters
-    protected:
-
-    public:
-    void sample(Vehicle *Vehicle) override;
-        
-};
+//class radar : public sensor{
+//    private:
+//    std::array<float,3> sensorOrigin;
+//    std::vector<std::vector<std::array<float,3>>> points;
+//    std::array<float,3> vehicleVector;
+//    float quantization = .05;
+//    const int rows = 16;           // vertical resolution
+//    const int cols = 64;           // horizontal resolution
+//    const float verticalFOV = 20;  // degrees
+//    const float horizontalFOV = 90; // degrees
+//    const float maxRange = 10.0f;   // meters
+//    protected:
+//
+//    public:
+//    void sample(Vehicle *Vehicle) override;
+//        
+//};
 
 
 

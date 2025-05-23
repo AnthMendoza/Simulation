@@ -3,7 +3,6 @@
 #include <cmath>
 #include <stdexcept>
 #include <memory>
-#include <iostream>
 #include "../include/vehicle.h"
 #include "vectorMath.h"
 
@@ -204,11 +203,11 @@ void stateEstimation::updateEstimation(float timeStep){
 //gps cordiante and add IMU data from zero
 //use a filtering system to blend imu data and gps
 
-void radar::sample(Vehicle *vehicle){
+//void radar::sample(Vehicle *vehicle){
     //sensorOrigin = vehicle->getRadarPosition();
     
     //vehicleVector = vehicle->vehicleState;
 
 }
  
-}
+//}

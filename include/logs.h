@@ -5,7 +5,7 @@
 #include <vector>
 #include "../include/sensors.h"
 #include <fstream>
-#include <iostream>
+
 #include <memory>
 #include "vehicle.h"
 #pragma once

@@ -1,4 +1,4 @@
-#include <iostream>
+
 #include <cmath>
 #include "../include/Eigen/Eigen"
 #include "../include/Eigen/Dense"

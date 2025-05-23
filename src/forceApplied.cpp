@@ -1,5 +1,5 @@
 #include <array>
-#include <iostream>
+
 #include "../include/vectorMath.h"
 
 namespace SimCore{

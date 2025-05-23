@@ -1,6 +1,6 @@
 #include <cmath>
 #include <array>
-#include <iostream>
+
 #include "../include/rotationMatrix.h"
 #include "../include/vectorMath.h"
 
@@ -31,14 +31,6 @@ std::array<float, 3> Matrix3x3::rotate(const std::array<float, 3>& v) const {
     return result;
 }
 
-void Matrix3x3::printMatrix() const {
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            std::cout << m[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
-}
 
 
 // Rotation matrix for rotation around X-axis

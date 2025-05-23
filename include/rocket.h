@@ -75,6 +75,11 @@ class Rocket : public Vehicle{
     float logPosX;
     float logPosY;
 
+    float maxThrust;
+    float minThrust;
+    float landingThrust;
+    float maxGAllowedEntry;
+
     std::array<float , 3> appliedVector;
 
 
@@ -84,7 +89,7 @@ class Rocket : public Vehicle{
     std::array<float,3> logEngineVector;
     std::array<float,3> logMoment;
     
-    std::shared_ptr<StanleyController> Stanley;
+    std::unique_ptr<StanleyController> Stanley;
     public:
     float gimbalX;
     float gimbalY;
@@ -95,13 +100,11 @@ class Rocket : public Vehicle{
     //used to send data to simulation for fire animation, no physics is done
     float enginePower;
 
-        Rocket();
+        Rocket(std::string config);
 
         Rocket(const Rocket& vehicle);
 
         void init() override;
-
-        void operator++(int) override;
 
         void drag() override;
 
@@ -134,12 +137,12 @@ class Rocket : public Vehicle{
         inline float getSpecificEnergy(){
             std::array<float,3> estimatedVelo =getEstimatedVelocity();
             float velo = vectorMag(estimatedVelo);
-            return  (velo * velo)/2 + std::abs(constants::gravitationalAcceleration * Zposition);
+            return  (velo * velo)/2 + std::abs(gravitationalAcceleration * Zposition);
         }
         // kenetic + potential energy per unit mass in vector form {x,y,z}
         inline std::array<float,3> getVectorizedEnergy(){
             std::array<float,3> estimatedVelo = getEstimatedVelocity();
-            return {estimatedVelo[0]*estimatedVelo[0]/2 , estimatedVelo[1]*estimatedVelo[1]/2 , (estimatedVelo[2]*estimatedVelo[2] / 2) + std::abs(constants::gravitationalAcceleration * getEstimatedPosition()[2])};
+            return {estimatedVelo[0]*estimatedVelo[0]/2 , estimatedVelo[1]*estimatedVelo[1]/2 , (estimatedVelo[2]*estimatedVelo[2] / 2) + std::abs(gravitationalAcceleration * getEstimatedPosition()[2])};
         }
 
 
