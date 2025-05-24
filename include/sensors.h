@@ -49,11 +49,9 @@ class sensor{
 
 class sensorSuite{
     protected:
-    std::vector<std::shared_ptr<sensor>> sensorList;
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<sensor>>> sensorMap;
+    std::unique_ptr<std::unordered_map<std::string, std::unique_ptr<sensor>>> sensorMap;
     public: 
     sensorSuite();
-    void add(std::shared_ptr<sensor> sensor);
     void updateSensors(Vehicle *vehicle);
 };
 
@@ -127,7 +125,7 @@ class stateEstimation: public sensorSuite{
     bool firstGPSSample = true;
     float lowPassFilter(float newData,float prevData);
     protected:
-    std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<sensor>>> stateEstimationSensors;
+
     public:
     stateEstimation();
     //Update Estimated positions based on the most recent velocity and acceleration.

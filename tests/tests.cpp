@@ -14,9 +14,9 @@
 #include <sstream>
 #include <array>
 #include <gtest/gtest.h>
-#include <iostream>
 using namespace SimCore;
-//freefall, warning may fail if timestep is low as error will increase
+
+//freefall, warning may fail if timestep is large as error will increase
 // looking for freefall plus or minus 2 percent of actual
 //this also may fail do to lack of a sample rocket configuration
 TEST(System , FreeFall){
@@ -34,7 +34,6 @@ TEST(System , FreeFall){
         ++vehicle;
     }
     float time = vehicle.getTime();
-    std::cout<<"the time: "<< time <<  "iterations"<< vehicle.getIterations();
     if(time < 45.16 *1.01 && time > 45.16 * .99 ) time = 45.16;
     EXPECT_FLOAT_EQ(time , 45.16f);
 }
@@ -51,6 +50,59 @@ TEST(TOML,GetValue){
     parser.parseConfig(configText, "vehicle");
     auto arr =parser.arrayValues["MOI"];
     EXPECT_FLOAT_EQ(arr[1], 2.0f);
+
+}
+
+TEST(TOML,GetValueSecondSet){
+    std::string configText = R"(
+    [vehicle]
+    dryMass = 100.0
+    MOI = [1.0, 2.0, 3.0]
+    gimbalDamping = 0.5
+    [rocket]
+    thrust = 10000.0
+    )";
+
+    toml::tomlParse parser;
+    parser.parseConfig(configText, "rocket");
+    auto val =parser.floatValues["thrust"];
+    EXPECT_FLOAT_EQ( val, 10000.0f);
+
+}
+
+TEST(TOML,BooleanTestTrue){
+    std::string configText = R"(
+    [vehicle]
+    dryMass = 100.0
+    MOI = [1.0, 2.0, 3.0]
+    gimbalDamping = 0.5
+    [rocket]
+    thrust = 10000.0
+    SetLanding = true
+    )";
+
+    toml::tomlParse parser;
+    parser.parseConfig(configText, "rocket");
+    auto val =parser.boolValues["SetLanding"];
+    EXPECT_TRUE(val);
+
+}
+
+TEST(TOML,BooleanTestFalse){
+    std::string configText = R"(
+    [vehicle]
+    dryMass = 100.0
+    MOI = [1.0, 2.0, 3.0]
+    gimbalDamping = 0.5
+    [rocket]
+    thrust = 10000.0
+    SetLanding = false
+    )";
+
+    toml::tomlParse parser;
+    parser.parseConfig(configText, "rocket");
+    auto val =parser.boolValues["SetLanding"];
+    EXPECT_FALSE(val);
 
 }
 

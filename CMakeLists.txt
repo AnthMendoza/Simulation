@@ -80,4 +80,5 @@ add_subdirectory(third_party/googletest)
 
 target_link_libraries(tests gtest gtest_main)
 
-add_test(NAME tests COMMAND tests)
+
+add_test(NAME RocketSimTests COMMAND tests)

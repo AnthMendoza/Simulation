@@ -39,10 +39,11 @@ class Vehicle : public stateEstimation{
     std::string outputFile;
     Vehicle();
 
-    Vehicle(const Vehicle& vehicle);
+    Vehicle(const Vehicle& vehicle) = delete;
 
     virtual void init();
- 
+    
+    virtual Vehicle& operator=(const Vehicle& other);
 
     void operator++();
 

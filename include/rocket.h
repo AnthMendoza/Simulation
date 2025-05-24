@@ -102,7 +102,9 @@ class Rocket : public Vehicle{
 
         Rocket(std::string config);
 
-        Rocket(const Rocket& vehicle);
+        Rocket(const Rocket& vehicle) = delete;
+
+        Rocket& operator=(const Rocket& other);
 
         void init() override;
 

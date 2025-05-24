@@ -82,22 +82,19 @@ float sensor::burstNoise(float currentTime){
 
 
 sensorSuite::sensorSuite(){
-    sensorMap = std::make_shared<std::unordered_map<std::string, std::shared_ptr<sensor>>>();
+    sensorMap = std::make_unique<std::unordered_map<std::string, std::unique_ptr<sensor>>>();
 }
 
-
+//cycles through *sensorMap and calls on sample method of each sensor for potental update of data sample.
 void sensorSuite::updateSensors(Vehicle *vehicle){
-
-    for(auto& sen:sensorList){
-
-        sen->sample(vehicle);
+    //keyPtrSensors is a std::pair first is key second is unique_ptr.
+    for (const auto& keyPtrSensors : *sensorMap){
+        keyPtrSensors.second->sample(vehicle);
     }
-
 }
 
-void sensorSuite::add(std::shared_ptr<sensor> sensor){
-    sensorList.push_back(sensor);
-}
+
+
 
 
 GNSS::GNSS(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias):sensor(frequency , NoisePowerSpectralDensity , bandwidth , bias){
@@ -168,7 +165,6 @@ std::array<float,3> accelerometer::read(){
 }
 
 stateEstimation::stateEstimation(){
-    stateEstimationSensors = std::make_shared<std::unordered_map<std::string, std::shared_ptr<sensor>>>();
     alpha = .03;
 }
 //when used add statement that sets newData = prevData when no prevData exists(first sample)
@@ -179,7 +175,8 @@ float stateEstimation::lowPassFilter(float newData,float prevData){
 
 //gpsUpdate is only called when gps is updated... further calls will reset imu effects on the state estimation
 void stateEstimation::gpsUpdate(){
-    std::shared_ptr<GNSS> GPS = std::dynamic_pointer_cast<GNSS> (sensorMap->find("GNSS")->second);
+    auto& ptr = sensorMap->find("GNSS")->second;
+    GNSS* GPS = dynamic_cast<GNSS*>(ptr.get());
     position = GPS->read();
     if(firstGPSSample == true){
         for(int i = 0 ; i < 3 ; i ++){
@@ -194,7 +191,8 @@ void stateEstimation::gpsUpdate(){
 
 //call at main clock speed
 void stateEstimation::updateEstimation(float timeStep){
-    std::shared_ptr<accelerometer> accel = std::dynamic_pointer_cast<accelerometer>(sensorMap->find("accelerometer")->second);
+    auto& ptr = sensorMap->find("accelerometer")->second;
+    accelerometer* accel = dynamic_cast<accelerometer*> (ptr.get());
     auto accelReading = accel->read();
     for (int i = 0; i < 3; ++i) velocity[i] += accelReading[i] * timeStep;
     for (int i = 0; i < 3; ++i) position[i] += velocity[i] * timeStep;

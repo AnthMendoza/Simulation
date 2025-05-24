@@ -17,7 +17,71 @@
 #include "../include/toml.h"
 
 namespace SimCore{
-Rocket::Rocket(const Rocket& Rocket) = default;
+
+
+Rocket& Rocket::operator=(const Rocket& other){
+    if (this == &other) return *this; // handles self assignment || example a=a
+    Vehicle::operator=(other);
+
+    if (other.Stanley)
+        Stanley = std::make_unique<StanleyController>(*other.Stanley);
+
+    dryMass = other.dryMass;
+    fuel = other.fuel;
+    LOX = other.LOX;
+    mass = other.mass;
+    fuelConsumptionRate = other.fuelConsumptionRate;
+    LOXConsumptionRate = other.LOXConsumptionRate;
+    MOI = other.MOI;
+    targetLandingPosition = other.targetLandingPosition;
+    gimbalDamping = other.gimbalDamping;
+    gimbalPGain = other.gimbalPGain;
+    gimbalIGain = other.gimbalIGain;
+    gimbalDGain = other.gimbalDGain;
+    finDamping = other.finDamping;
+    finPGain = other.finPGain;
+    finIGain = other.finIGain;
+    finDGain = other.finDGain;
+    maxFinAcceleration = other.maxFinAcceleration;
+    maxGimbalAcceleration = other.maxGimbalAcceleration;
+    maxGAllowedEntry = other.maxGAllowedEntry;
+    centerOfPressure = other.centerOfPressure;
+    cogToEngine = other.cogToEngine;
+    maxThrust = other.maxThrust;
+    minThrust = other.minThrust;
+    landingThrust = other.landingThrust;
+    maxGimbalAngle = other.maxGimbalAngle;
+
+    gimbalErrorX = other.gimbalErrorX;
+    gimbalErrorY = other.gimbalErrorY;
+    gimbalX = other.gimbalX;
+    gimbalY = other.gimbalY;
+    gimbalVelocityX = other.gimbalVelocityX;
+    gimbalVelocityY = other.gimbalVelocityY;
+    twoDAngle = other.twoDAngle;
+    error = other.error;
+    sumOfGimbalErrorX = other.sumOfGimbalErrorX;
+    sumOfGimbalErrorY = other.sumOfGimbalErrorY;
+    vehicleYError = other.vehicleYError;
+    sumOfVehicleYError = other.sumOfVehicleYError;
+    vehicleXError = other.vehicleXError;
+    sumOfVehicleXError = other.sumOfVehicleXError;
+    logXInput = other.logXInput;
+    logYInput = other.logYInput;
+    logPosX = other.logPosX;
+    logPosY = other.logPosY;
+    logMoment = other.logMoment;
+    finErrorX = other.finErrorX;
+    finErrorY = other.finErrorY;
+    finX = other.finX;
+    finY = other.finY;
+    sumOfFinErrorX = other.sumOfFinErrorX;
+    sumOfFinErrorY = other.sumOfFinErrorY;
+    finVelocityX = other.finVelocityX;
+    finVelocityY = other.finVelocityY;
+    return *this;
+}
+
 
 Rocket::Rocket(std::string config){
     configFile = config;
@@ -128,6 +192,7 @@ void Rocket::drag(){
     Vehicle::drag();
 
 }
+
 
 
 
@@ -552,7 +617,8 @@ void Rocket::reentryBurn(loggedData *data){
         std::array<float,2> direction = {0,0};
         float count = 0;
         while(currentMaxGForce >  maxGAllowedEntry){
-            Rocket lookAheadRocket = *this;
+            Rocket lookAheadRocket(configFile);
+            lookAheadRocket = *this;
             lookAheadRocket.initSensors();
             std::vector<float> gForces = lookAhead(lookAheadRocket , 105 , [](Rocket &r) { return r.gForce; }); // 105 is the lookahead time in seconds. this may be stoppped earlier if the vehicle hits the ground
             if(gForces.size()!= 0)currentMaxGForce = *std::max_element(gForces.begin(),gForces.end());

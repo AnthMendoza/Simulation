@@ -27,7 +27,6 @@ unreal::unreal(const std::string tomlData){
     unrealVehicle =  std::make_unique<Rocket> (tomlData);
     unrealData packet;
     unrealVehicle->init();
-    unrealVehicle->setPosition(0,0,1000);
     totalTime = 0;
 }
 
@@ -49,10 +48,10 @@ void unreal::setPacket(){
     packet.velocity[0] = velo[0];
     packet.velocity[1] = velo[1];
     packet.velocity[2] = velo[2];
-    int state = unrealVehicle->getIterations();
-    packet.rotation[0] = state;
-    //packet.rotation[1] = state[1];
-    //packet.rotation[2] = state[2];
+    std::array<float,3> state = unrealVehicle->getState();
+    packet.rotation[0] = state[0];
+    packet.rotation[1] = state[1];
+    packet.rotation[2] = state[2];
     packet.timeStamp = unrealVehicle->getTime();
 }
 

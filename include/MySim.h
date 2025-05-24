@@ -17,13 +17,13 @@ struct unrealData{
 class unreal{
     private:
     unrealData packet;
-    std::unique_ptr<Rocket> unrealVehicle;
     std::string configFile;
     void setPacket();
     void getPacket(unrealData &dataPacket);
     void iterator(float totalTime);
     float totalTime;
     public:
+    std::unique_ptr<Rocket> unrealVehicle;
     unreal(const std::string tomlData);
     ~unreal();
     unrealData* simFrameRequest(float deltaTime);

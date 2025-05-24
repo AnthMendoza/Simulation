@@ -19,19 +19,14 @@ namespace SimCore{
 void Vehicle::initSensors(){
     toml::tomlParse vParse;
     vParse.parseConfig( configFile,"vehicle");
-   
-
-    auto map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<sensor>>>();
-    sensorMap = map;
-    auto stateMap = std::make_shared<std::unordered_map<std::string, std::shared_ptr<sensor>>>();
-    stateEstimationSensors = stateMap;
-    sensorList = std::vector<std::shared_ptr<sensor>>();
-
+    
+    sensorMap = std::make_unique<std::unordered_map<std::string, std::unique_ptr<sensor>>>();
+    
     toml::tomlParse accelParse;
     accelParse.parseConfig( configFile,"accelerometer");
 
     // Accelerometer
-    std::shared_ptr<accelerometer> accel = std::make_shared<accelerometer>(
+    std::unique_ptr<accelerometer> accel = std::make_unique<accelerometer>(
         accelParse.floatValues["frequency"],
         accelParse.floatValues["NoisePowerSpectralDensity"],
         accelParse.floatValues["bandwidth"],
@@ -43,14 +38,13 @@ void Vehicle::initSensors(){
             accelParse.floatValues["maxBurstDuration"]
         );
     }
-    sensorMap->insert({"accelerometer", accel});
-    this->add(accel);
+    sensorMap->insert({"accelerometer", std::move(accel)});
 
     // GNSS
     toml::tomlParse gpsParse;
     gpsParse.parseConfig( configFile,"gps");
 
-    std::shared_ptr<GNSS> gps = std::make_shared<GNSS>(
+    std::unique_ptr<GNSS> gps = std::make_unique<GNSS>(
         gpsParse.floatValues["frequency"],
         gpsParse.floatValues["NoisePowerSpectralDensity"],
         gpsParse.floatValues["bandwidth"],
@@ -63,14 +57,13 @@ void Vehicle::initSensors(){
             gpsParse.floatValues["maxBurstDuration"]
         );
     }
-    sensorMap->insert({"GNSS", gps});
-    this->add(gps);
+    sensorMap->insert({"GNSS", std::move(gps)});
 
     // Gyroscope
     toml::tomlParse gyroParse;
     gyroParse.parseConfig( configFile,"gyro");
     
-    std::shared_ptr<gyroscope> gyro = std::make_shared<gyroscope>(
+    std::unique_ptr<gyroscope> gyro = std::make_unique<gyroscope>(
         gyroParse.floatValues["frequency"],
         gyroParse.floatValues["NoisePowerSpectralDensity"],
         gyroParse.floatValues["bandwidth"],
@@ -82,11 +75,8 @@ void Vehicle::initSensors(){
             gyroParse.floatValues["maxBurstDuration"]
         );
     }
-    sensorMap->insert({"gyro",gyro});
-    this->add(gyro);
+    sensorMap->insert({"gyro",std::move(gyro)});
 
-
-    this->stateEstimationSensors = std::shared_ptr<std::unordered_map<std::string,std::shared_ptr<sensor>>>(this->sensorMap);
 
 }
 
@@ -101,6 +91,36 @@ void Vehicle::operator++(){
 }
 
 
+Vehicle& Vehicle::operator=(const Vehicle& other){
+    if (this == &other) return *this;
+    
+    Xposition = other.Xposition;
+    Yposition = other.Yposition;
+    Zposition = other.Zposition;
+    Xvelocity = other.Xvelocity;
+    Yvelocity = other.Yvelocity;
+    Zvelocity = other.Zvelocity;
+    timeStep = other.timeStep;
+    iterations = other.iterations;
+    mass = other.mass;
+    centerOfPressure = other.centerOfPressure;
+    gForce = other.gForce;
+    wind = other.wind;
+    angularVelocity = other.angularVelocity;
+    vehicleState = other.vehicleState;
+    MOI = other.MOI;
+    sumOfForces = other.sumOfForces;
+    sumOfMoments = other.sumOfMoments;
+    acceleration = other.acceleration;
+    gravitationalAcceleration = other.gravitationalAcceleration;
+    configFile = other.configFile;
+    outputFile = other.outputFile;
+
+
+    return *this;
+}
+
+
 void Vehicle::init(){
     outputFile = "../output.csv";
     toml::tomlParse vParse;
@@ -112,11 +132,8 @@ void Vehicle::init(){
     auto& pos = vParse.arrayValues["initPosition"];
     Xposition = pos[0];
     Yposition = pos[1];
-    if(pos[2] < 100.0f){
-        Zposition = 10000;
-    }else{
-        Zposition = pos[2];
-    }
+    Zposition = pos[2];
+
 
     gForce = 0;
     angularVelocity = {0, 0, 0};
@@ -158,7 +175,6 @@ void Vehicle::init(){
 }
 
 
-Vehicle::Vehicle(const Vehicle& vehicle) = default;
 
 
 
@@ -289,7 +305,8 @@ void  Vehicle::addMoment(std::array<float,3> moments){
 void Vehicle::updateState(){
         //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
         if(iterations == 0){
-            std::shared_ptr GPS = std::static_pointer_cast<GNSS>(sensorMap->find("GNSS")->second);
+            auto& ptr = sensorMap->find("GNSS")->second;
+            GNSS* GPS = dynamic_cast<GNSS*> (ptr.get());
             GPS->setGNSSVelocity({Xvelocity,Yvelocity,Zvelocity});
         }
         updateSensors(this);
