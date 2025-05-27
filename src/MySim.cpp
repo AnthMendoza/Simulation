@@ -14,8 +14,8 @@ void unreal::iterator(float totalTime){
     while(unrealVehicle->getTime() < totalTime &&  unrealVehicle->getPositionVector()[2]> 0 ){
         unrealVehicle->drag();
         unrealVehicle->lift();
-        unrealVehicle->reentryBurn();
-        unrealVehicle->landingBurn();
+        //unrealVehicle->reentryBurn();
+        //unrealVehicle->landingBurn();
         //data->logRocketPosition(rocket); //future simulate in unreal and display logs. not logging for now
         unrealVehicle->updateState();
         unrealVehicle->operator++();

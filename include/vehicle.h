@@ -63,6 +63,8 @@ class Vehicle : public stateEstimation{
 
     float getGForce();
 
+    
+
     void getAccel(std::array<float,3> &accel);
 
     float PID(float target , float currentState , float &previousError , float &sumOfError , float timeStep, float Pgain , float Igain , float Dgain);

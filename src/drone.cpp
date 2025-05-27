@@ -1,14 +1,24 @@
 #include "../include/drone.h"
 namespace SimCore{
-drone::drone(){
+droneBody::droneBody(){
     
 }
 
-void drone::init(){
+void droneBody::init(){
 
 }
 
-void drone::motorThrust(){
+void droneBody::motorThrust(){
 
 }
+
+
+droneControl::droneControl(){
+    
+}
+
+void droneControl::init(){
+    drone = std::make_unique<droneBody>();
+}
+
 }

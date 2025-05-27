@@ -20,10 +20,9 @@ void iterator(Rocket &rocket ,loggedData *data){
     while(rocket.getPositionVector()[2] > 0 && rocket.getIterations() < 1000000){
         rocket.drag();
         rocket.lift();
-        rocket.glideToTarget();
-        //reentryBurn(rocket,data);
-        //rocket.finVectors = rocket.getFinForceVectors();
-        //landingBurn(rocket);
+        //rocket.glideToTarget();
+        rocket.reentryBurn();
+        rocket.landingBurn();
         data->logRocketPosition(rocket);
         rocket.updateState();
         ++rocket;

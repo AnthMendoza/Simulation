@@ -10,6 +10,7 @@
 #include "../include/sensors.h"
 #include "../include/rocket.h"
 #include "../include/toml.h"
+#include "../include/quaternion.h"
 #include <fstream>
 #include <sstream>
 #include <array>
@@ -105,6 +106,150 @@ TEST(TOML,BooleanTestFalse){
     EXPECT_FALSE(val);
 
 }
+
+//using EPSILON to correct floating point error for the check. floating point error was tiny.Something like
+constexpr float EPSILON = 1e-6;
+
+bool almostEqual(float a, float b, float eps = EPSILON) {
+    return std::abs(a - b) < eps;
+}
+
+bool vectorsAlmostEqual(const std::array<float, 3>& v1, const std::array<float, 3>& v2, float eps = EPSILON) {
+    return almostEqual(v1[0], v2[0], eps) &&
+           almostEqual(v1[1], v2[1], eps) &&
+           almostEqual(v1[2], v2[2], eps);
+}
+
+TEST(QuaternionRotationTest, IdentityRotation) {
+    Quaternion q = {1.0f, 0.0f, 0.0f, 0.0f};  // Identity quaternion
+    std::array<float, 3> v = {1.0f, 2.0f, 3.0f};
+
+    auto rotated = rotateVector(q, v);
+
+    EXPECT_TRUE(vectorsAlmostEqual(rotated, v));
+}
+// 90° rotation around Z-axis
+TEST(QuaternionRotationTest, Rotate90DegreesAroundZ) {
+    float angle_rad = M_PI / 2.0f;
+    std::array<float, 3> axis = {0.0f, 0.0f, 1.0f};
+    Quaternion q = fromAxisAngle(axis, angle_rad);
+
+    std::array<float, 3> v = {1.0f, 0.0f, 0.0f};
+    std::array<float, 3> expected = {0.0f, 1.0f, 0.0f};
+
+    auto rotated = rotateVector(q, v);
+
+    EXPECT_TRUE(vectorsAlmostEqual(rotated, expected));
+}
+// 180° rotation around Y-axis
+TEST(QuaternionRotationTest, Rotate180DegreesAroundY) {
+    float angle_rad = M_PI;
+    std::array<float, 3> axis = {0.0f, 1.0f, 0.0f};
+    Quaternion q = fromAxisAngle(axis, angle_rad);
+
+    std::array<float, 3> v = {1.0f, 0.0f, 0.0f};
+    std::array<float, 3> expected = {-1.0f, 0.0f, 0.0f};
+
+    auto rotated = rotateVector(q, v);
+
+    EXPECT_TRUE(vectorsAlmostEqual(rotated, expected));
+}
+
+TEST(QuaternionRotationTest, Rotate45DegreesAroundX) {
+    float angle_rad = M_PI / 4.0f;
+    std::array<float, 3> axis = {1.0f, 0.0f, 0.0f};
+    Quaternion q = fromAxisAngle(axis, angle_rad);
+
+    std::array<float, 3> v = {0.0f, 1.0f, 0.0f};
+    std::array<float, 3> expected = {
+        0.0f,
+        std::cos(angle_rad),
+        std::sin(angle_rad)
+    };
+
+    auto rotated = rotateVector(q, v);
+
+    EXPECT_TRUE(almostEqual(rotated[0], expected[0]));
+    EXPECT_TRUE(almostEqual(rotated[1], expected[1]));
+    EXPECT_TRUE(almostEqual(rotated[2], expected[2]));
+}
+
+TEST(QuaternionRotationTest, CombinedRotationTest) {
+    // Step 1: Define two 90° rotations
+    float angle_rad = M_PI / 2.0f;
+
+    Quaternion q_z = fromAxisAngle({0.0f, 0.0f, 1.0f}, angle_rad);  // Rotate around Z
+    Quaternion q_y = fromAxisAngle({0.0f, 1.0f, 0.0f}, angle_rad);  // Rotate around Y
+
+    Quaternion q_combined = q_y * q_z;
+    
+    std::array<float, 3> v = {1.0f, 0.0f, 0.0f};
+    std::array<float, 3> expected = {0.0f, 1.0f, 0.0f};
+    auto rotated = rotateVector(q_combined, v);
+    std::cout<<"vector = "<<rotated[0]<<","<<rotated[1]<<","<<rotated[2]<<")";
+    EXPECT_TRUE(vectorsAlmostEqual(rotated, expected));
+}
+
+
+bool almostEqual(const std::array<float, 3>& a, const std::array<float, 3>& b, float epsilon = EPSILON) {
+    return std::fabs(a[0] - b[0]) < epsilon &&
+           std::fabs(a[1] - b[1]) < epsilon &&
+           std::fabs(a[2] - b[2]) < epsilon;
+}
+
+TEST(QuaternionVehicleTest, Rotate90DegreesAroundX) {
+    quaternionVehicle vehicle({0,1,0} , {0,0,1});
+    vehicle.eularRotation(M_PI / 2, 0, 0);  // 90 degrees around X
+
+    std::array<float, 3> expectedDir = {0, 0, 1};
+    std::array<float, 3> expectedFwd = {0, -1, 0};
+
+    EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
+    EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
+}
+
+TEST(QuaternionVehicleTest, Rotate90DegreesAroundY) {
+    quaternionVehicle vehicle({1,0,0},{0,0,1});
+
+    vehicle.eularRotation(0, M_PI / 2, 0);  // 90 degrees around Y
+
+    std::array<float, 3> expectedDir = {0, 0, -1};
+    std::array<float, 3> expectedFwd = {1, 0, 0};
+
+    EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
+    EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
+}
+
+TEST(QuaternionVehicleTest, Rotate90DegreesAroundZ) {
+    quaternionVehicle vehicle({1, 0, 0},{0, 1, 0});
+
+    vehicle.eularRotation(0, 0, M_PI / 2);  // 90 degrees around Z
+
+    std::array<float, 3> expectedDir = {-1 * 0, 1, 0};  // same Y
+    std::array<float, 3> expectedFwd = {-1, 0, 0};      // rotated from X
+
+    EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
+    EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
+}
+
+TEST(QuaternionVehicleTest, CombinedRotationXYZ) {
+    quaternionVehicle vehicle({0, 1, 0}, {1, 0, 0});
+
+    vehicle.eularRotation(M_PI / 2, M_PI / 2, 0);  // Only once!
+
+    // Build combined rotation manually
+    Quaternion qx = fromAxisAngle({1, 0, 0}, M_PI / 2);
+    Quaternion qy = fromAxisAngle({0, 1, 0}, M_PI / 2);
+    Quaternion combined = qy * qx;  // Rotate X first, then Y
+
+    std::array<float, 3> expectedDir = rotateVector(combined, {0, 1, 0});
+    std::array<float, 3> expectedFwd = rotateVector(combined, {1, 0, 0});
+
+    EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
+    EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
+}
+
+
 
 
 TEST(VectorMathTest, TestVectorMagnitude) {

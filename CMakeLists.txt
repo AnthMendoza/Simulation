@@ -55,6 +55,7 @@ add_executable(tests
     src/rocket.cpp
     src/toml.cpp
     tests/tests.cpp
+    src/quaternion.cpp
 )
 
 # Static library
