@@ -306,7 +306,7 @@ void  Vehicle::addMoment(std::array<float,3> moments){
 }
 
 void Vehicle::addYawMoment(float moment){
-    yawMoment += moment
+    yawMoment += moment;
 }
 
 
