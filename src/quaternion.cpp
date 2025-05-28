@@ -1,6 +1,7 @@
 #include "../include/quaternion.h"
 #include "../include/vectorMath.h"
 #include <cmath>
+#include <iostream>
 
 namespace SimCore{
 //w is just a scaler of vector x,y,z
@@ -38,14 +39,11 @@ Quaternion fromAxisAngle(std::array<float, 3> axis, float angle_rad) {
 }
 
 constexpr float EPSILON = 1e-4;
-quaternionVehicle::quaternionVehicle(std::array<float,3> dirVectorInit , std::array<float,3> fwdVectorInit){
-    if(std::abs(vectorDotProduct(dirVectorInit,fwdVectorInit)) < EPSILON){
-        dirVector = dirVectorInit;
-        fwdVector = fwdVectorInit;
-    }else{
+quaternionVehicle::quaternionVehicle(std::array<float,3> dirVectorInit , std::array<float,3> fwdVectorInit): 
+                                    dirVector{0,0,1}, fwdVector{1,0,0}, rightVector{0,1,0}, numberOfCalls(0){
 
-        std::cerr<<"Warning inital state is not valid as the forward and direction vector are not orthogonal. Setting Default values.";
-    }
+
+    std::cerr<<"Warning inital state is not valid as the forward and direction vector are not orthogonal. Setting Default values.";
 }
 //eular rotaion, rotates around x,y,z axis.
 void quaternionVehicle::eularRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ){
@@ -55,14 +53,17 @@ void quaternionVehicle::eularRotation(float rotationInRadsX , float rotationInRa
     Quaternion qz = fromAxisAngle({0,0,1}, rotationInRadsZ);
 
 
-    Quaternion combined = qz * qy * qx;
+    Quaternion combined = qx * qy * qz;
     combined = combined.normalized();
 
     dirVector = rotateVector(combined, dirVector);
     fwdVector = rotateVector(combined, fwdVector);
-    // call for Gram-Schmidt orthonormalization
-    if(numberOfCalls > 20){
-        orthogonalize();
+    rightVector = rotateVector(combined,rightVector);
+    // call for Gram-Schmidt orthonormalization while re-normilizing vectors
+    if(numberOfCalls > 100){
+        orthogonalize(dirVector,fwdVector);
+        orthogonalize(dirVector,rightVector);
+        orthogonalize(fwdVector,rightVector);
         numberOfCalls = 0;
     }
 
@@ -73,28 +74,27 @@ void quaternionVehicle::applyYaw(float rotationInRads){
     fwdVector = rotateVector(rotationQuat,fwdVector);
 } 
 
-void quaternionVehicle::orthogonalize(){
+void quaternionVehicle::orthogonalize(std::array<float,3>& vector1 , std::array<float,3>& vector2){
     // Normalize v1
-    dirVector = normalizeVector(dirVector);
+    vector1 = normalizeVector(vector1);
 
     // Project v2 onto v1 and subtract to make v2 perpendicular to v1
-    float dotProd = vectorDotProduct(dirVector, fwdVector);
+    float dotProd = vectorDotProduct(vector1, vector2);
     std::array<float, 3> proj = {
-        dotProd * dirVector[0],
-        dotProd * dirVector[1],
-        dotProd * dirVector[2]
+        dotProd * vector1[0],
+        dotProd * vector1[1],
+        dotProd * vector1[2]
     };
 
-    fwdVector = {
-        fwdVector[0] - proj[0],
-        fwdVector[1] - proj[1],
-        fwdVector[2] - proj[2]
+    vector2 = {
+        vector2[0] - proj[0],
+        vector2[1] - proj[1],
+        vector2[2] - proj[2]
     };
 
     // Normalize v2
-    fwdVector = normalizeVector(fwdVector);
+    vector2 = normalizeVector(vector2);
 }
 
 
-
-}
+} 

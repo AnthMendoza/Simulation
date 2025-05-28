@@ -37,6 +37,7 @@ add_executable(rocket
     src/sensors.cpp
     src/rocket.cpp
     src/toml.cpp
+    src/quaternion.cpp
 )
 
 # Test executable
@@ -74,6 +75,7 @@ add_library(MySim STATIC
     src/sensors.cpp
     src/rocket.cpp
     src/toml.cpp
+    
 )
 
 # GoogleTest

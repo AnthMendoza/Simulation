@@ -3,17 +3,18 @@
 #include <cmath>
 #include <memory>
 #include <cmath>
+#include <memory>
 #include "../include/forceApplied.h"
 #include "../include/vehicle.h"
 #include "../include/vectorMath.h"
 #include "../include/aero.h"
 #include "../include/RungeKutta.h"
 #include "../include/odeIterator.h"
-#include "../include/rotationMatrix.h"
 #include "../include/getRotation.h"
 #include "../include/control.h"
 #include "../include/sensors.h"
 #include "../include/toml.h"
+#include "../include/quaternion.h"
 
 namespace SimCore{
 void Vehicle::initSensors(){
@@ -167,11 +168,14 @@ void Vehicle::init(){
     sumOfMoments[0] = 0;
     sumOfMoments[1] = 0;
     sumOfMoments[2] = 0;
+    yawMoment = 0;
 
     acceleration = {0,0,0};
     
     timeStep = .001; //seconds
-
+    std::array<float,3> vect1 = {1,0,0};
+    std::array<float,3> vect2 = {1,1,0};
+    pose = std::make_unique<quaternionVehicle>(vect2,vect1);
 }
 
 
@@ -301,6 +305,10 @@ void  Vehicle::addMoment(std::array<float,3> moments){
     sumOfMoments[2] += moments[2];
 }
 
+void Vehicle::addYawMoment(float moment){
+    yawMoment += moment
+}
+
 
 void Vehicle::updateState(){
         //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
@@ -320,15 +328,11 @@ void Vehicle::updateState(){
         RungeKutta4th(sumOfForces[1] , mass ,  timeStep , Yvelocity,Yposition);
         RungeKutta4th(sumOfForces[2] , mass ,  timeStep , Zvelocity,Zposition);
     
+        pose->eularRotation(rotationalOde(sumOfMoments[0] , MOI[0],  timeStep ,angularVelocity[0]),
+                            rotationalOde(sumOfMoments[1] , MOI[1],  timeStep ,angularVelocity[1]),
+                            rotationalOde(sumOfMoments[2] , MOI[2],  timeStep ,angularVelocity[2]));
     
-    
-        Matrix3x3 rotX = rotationMatrixX(rotationalOde(sumOfMoments[0] , MOI[0],  timeStep ,angularVelocity[0]));
-        Matrix3x3 rotY = rotationMatrixY(rotationalOde(sumOfMoments[1] , MOI[1],  timeStep ,angularVelocity[1]));
-        Matrix3x3 rotZ = rotationMatrixZ(rotationalOde(sumOfMoments[2] , MOI[2],  timeStep ,angularVelocity[2]));
-    
-        Matrix3x3 combined = rotX * rotY *rotZ;
-        vehicleState = combined.rotate(vehicleState);
-        vehicleState = normalizeVector(vehicleState);
+        vehicleState = pose->getdirVector();
     
         gForce = getGForce();
     

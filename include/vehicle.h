@@ -8,6 +8,7 @@
 #include "sensors.h"
 #include "vectorMath.h"
 #include "control.h"
+#include "quaternion.h"
 #include "logs.h"
 namespace SimCore{
 class stateEstimation;
@@ -25,13 +26,16 @@ class Vehicle : public stateEstimation{
     float mass; 
     float centerOfPressure;
     float gForce;
-    
+
+    std::unique_ptr<quaternionVehicle> pose;
+   
     std::array<float,3> wind;
     std::array<float,3> angularVelocity;
     std::array<float,3> vehicleState;
     std::array<float,3> MOI;
     std::array<float,3> sumOfForces;
     std::array<float,3> sumOfMoments;
+    float yawMoment;
     std::array<float,3> acceleration;
     float gravitationalAcceleration;
     public:
@@ -50,6 +54,9 @@ class Vehicle : public stateEstimation{
     void addForce(std::array<float,3> forceVector);
 
     void addMoment(std::array<float,3> moments);
+    //Positive moment about the direction vector is a rotation from x to y.
+    //Negative from y to x.
+    void addYawMoment(float moment);
 
     virtual void updateState();
 
@@ -94,12 +101,14 @@ class Vehicle : public stateEstimation{
     inline void setIterations(int it){
         iterations = it;
     }
-
     inline float getMass(){
         return mass;
     }
     inline float getTimeStep(){
         return timeStep;
+    }
+    inline std::array<std::array<float,3>,3> getPose(){
+        return pose->getPose();
     }
 
 

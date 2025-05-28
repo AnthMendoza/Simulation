@@ -13,7 +13,7 @@ namespace SimCore{
 // Quaternions: black magic that actually works.
 // Rotates vectors in 3D using 4D math, avoids gimbal lock and interpolates smoothly.
 
-// rotation matrix version experiences gimbal lock. causing issues with yaw.
+// rotation matrix version experiences gimbal lock.
 
 
 class Quaternion {
@@ -44,26 +44,29 @@ class quaternionVehicle{
     private:
     std::array<float,3> dirVector;
     std::array<float,3> fwdVector;
-    //Gram-Schmidt orthonormalization
-    void orthogonalize();
-    int numberOfCalls = 0;
-    protected:
-
+    std::array<float,3> rightVector;
+    int numberOfCalls;
     public:
     //start direction
-    quaternionVehicle(std::array<float,3> dirVector , std::array<float,3> fwdVector);
+    quaternionVehicle(std::array<float,3> dirVectorInit , std::array<float,3> fwdVectorInit);
     //update direction and foward vector
     void eularRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ);
     //uses the direction vector as the basis for rotation
     void applyYaw(float rotationInRads);
-
-    
+    //Gram-Schmidt orthonormalization
+    void orthogonalize(std::array<float,3>& vector1 , std::array<float,3>& vector2);
     
     inline std::array<float,3> getdirVector(){
         return dirVector;
     }
     inline std::array<float,3> getfwdVector(){
         return fwdVector;
+    }
+    //direction(top) Vector , fwdVector , rightVector
+    inline std::array<std::array<float,3>,3> getPose(){
+        return {dirVector,
+                fwdVector,
+                rightVector};
     }
 };
 

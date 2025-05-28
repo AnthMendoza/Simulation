@@ -6,6 +6,7 @@
 #include <cstdlib> 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include "../include/vectorMath.h"
 #include "../include/vehicle.h"
 #include "../include/odeIterator.h"
@@ -13,6 +14,7 @@
 #include "../include/control.h"
 #include "../include/sensors.h"
 #include "../include/rocket.h"
+#include "../include/quaternion.h"
 #include <string>
 
 namespace SimCore{
@@ -117,7 +119,9 @@ int main(int argc, char* argv[]){
     SimCore::loggedData* data = new SimCore::loggedData;
     std::string configFileData = SimCore::readFileAsString(argv[1]);
     SimCore::Rocket rocket(configFileData);
-    iterator(rocket , data);
+    rocket.init();
+    SimCore::iterator(rocket , data);
+
     delete data;
     std::string outputFile = "../output.csv";
     std::string command = "python3 ../src/plot.py "+ outputFile;
