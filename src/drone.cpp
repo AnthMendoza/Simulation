@@ -1,12 +1,19 @@
 #include "../include/drone.h"
+#include "../include/battery.h"
 #include <iostream>
+#include <utility>
 namespace SimCore{
 droneBody::droneBody(){
     
 }
 
-void droneBody::init(){
+void droneBody::init(string& motorConfig , string& batteryConfig){
+    Vehicle::init();
     propLocationsSet = false;
+    for(int i = 0 ; i < propLocations.size() ; i++){
+        motors.push_back(std::make_unique<motor>(motorConfig));
+    }
+    droneBattery = std::make_unique<battery>(batteryConfig);
 }
 
 void droneBody::setSquare(float x ,float y , float propellerMOI){
@@ -30,12 +37,24 @@ void droneBody::offsetCOG(std::array<float ,3> offset){
     cogLocation = offset;
 }
 
-void droneBody::motorThrust(){
+void droneBody::motorThrust(float motorRPM){
 
 }
 //a prop spinning creates a moment about the motor. This will be on spin up and staticlly 
 void droneBody::motorMoment(){
     
+}
+void droneBody::thrustRequest(vector<float>& thrust){
+    if(thrust.size() != propLocations.size()){
+        throw std::runtime_error("Thrust Request does not match number of motors on drone body");
+    }
+
+}
+
+//.first represents location .second is the given props force vector(normal vector).
+//note location is relative to the vehicle center. 
+std::pair<vector<array<float,3>>, vector<array<float,3>>>& droneBody::transposedProps(){
+
 }
 
 

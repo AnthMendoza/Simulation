@@ -5,28 +5,45 @@
 #include <memory>
 namespace SimCore{
 //#pragma pack(push,1)
-struct unrealData{
+struct unrealDataRocket{
     float timeStamp;
     float position[3];
     float velocity[3];
-    float rotation[3]; //format undecided
+    float rotation[3];
 };
 //#pragma pack(pop)
 
 
-class unreal{
+class unrealRocket{
     private:
-    unrealData packet;
+    unrealDataRocket packet;
     std::string configFile;
     void setPacket();
-    void getPacket(unrealData &dataPacket);
+    void getPacket(unrealDataRocket &dataPacket);
     void iterator(float totalTime);
     float totalTime;
     public:
     std::unique_ptr<Rocket> unrealVehicle;
-    unreal(const std::string tomlData);
-    ~unreal();
-    unrealData* simFrameRequest(float deltaTime);
+    unrealRocket(const std::string tomlData);
+    ~unrealRocket();
+    unrealDataRocket* simFrameRequest(float deltaTime);
+};
+
+struct unrealDataDrone{
+    float timeStamp;
+    float position[3];
+    float velocity[3];
+    float dirVector[3]; 
+    float fwdVector[3]; 
+};
+
+class unrealDrone{
+    private:
+    unrealDataDrone packet;
+    
+    void SetPacket();
+
+
 };
 
 }

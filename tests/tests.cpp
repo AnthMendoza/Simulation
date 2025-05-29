@@ -11,12 +11,14 @@
 #include "../include/rocket.h"
 #include "../include/toml.h"
 #include "../include/quaternion.h"
+#include "../include/linearInterpolation.h"
 #include <fstream>
 #include <sstream>
 #include <array>
 #include <gtest/gtest.h>
 using namespace SimCore;
 
+constexpr float EPSILON = 1e-6;
 //freefall, warning may fail if timestep is large as error will increase
 // looking for freefall plus or minus 2 percent of actual
 //this also may fail do to lack of a sample rocket configuration
@@ -38,6 +40,42 @@ TEST(System , FreeFall){
     if(time < 45.16 *1.01 && time > 45.16 * .99 ) time = 45.16;
     EXPECT_FLOAT_EQ(time , 45.16f);
 }
+
+
+TEST(LinearInterpolationTest, InterpolatesCorrectlyInMiddle) {
+    std::vector<float> x = {0.0f, 1.0f, 2.0f};
+    std::vector<float> y = {0.0f, 10.0f, 20.0f};
+
+    float result = linearInterpolate(x, y, 1.5f);
+    EXPECT_NEAR(result, 15.0f, EPSILON);
+}
+
+
+TEST(LinearInterpolationTest, ClampsToLowerBound) {
+    std::vector<float> x = {0.0f, 1.0f};
+    std::vector<float> y = {10.0f, 20.0f};
+
+    float result = linearInterpolate(x, y, -1.0f);
+    EXPECT_NEAR(result, 10.0f, EPSILON);
+}
+
+TEST(LinearInterpolationTest, ClampsToUpperBound) {
+    std::vector<float> x = {0.0f, 1.0f};
+    std::vector<float> y = {10.0f, 20.0f};
+
+    float result = linearInterpolate(x, y, 2.0f);
+    EXPECT_NEAR(result, 20.0f, EPSILON);
+}
+
+
+TEST(LinearInterpolationTest, ReturnsExactMatch) {
+    std::vector<float> x = {0.0f, 1.0f, 2.0f};
+    std::vector<float> y = {5.0f, 15.0f, 25.0f};
+
+    float result = linearInterpolate(x, y, 1.0f);
+    EXPECT_NEAR(result, 15.0f, EPSILON);
+}
+
 
 TEST(TOML,GetValue){
     std::string configText = R"(
@@ -106,9 +144,6 @@ TEST(TOML,BooleanTestFalse){
     EXPECT_FALSE(val);
 
 }
-
-//using EPSILON to correct floating point error for the check. floating point error was tiny.Something like
-constexpr float EPSILON = 1e-6;
 
 bool almostEqual(float a, float b, float eps = EPSILON) {
     return std::abs(a - b) < eps;

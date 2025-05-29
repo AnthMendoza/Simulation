@@ -121,7 +121,6 @@ int main(int argc, char* argv[]){
     SimCore::Rocket rocket(configFileData);
     rocket.init();
     SimCore::iterator(rocket , data);
-
     delete data;
     std::string outputFile = "../output.csv";
     std::string command = "python3 ../src/plot.py "+ outputFile;

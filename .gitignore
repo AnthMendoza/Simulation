@@ -27,7 +27,7 @@ cmake_install.cmake
 *.log
 *.tmp
 *.swp
-.csv
+*.csv
 
 __pycache__/
 *.pyc

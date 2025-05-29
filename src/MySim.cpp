@@ -10,7 +10,7 @@
 
 namespace SimCore{
   
-void unreal::iterator(float totalTime){
+void unrealRocket::iterator(float totalTime){
     while(unrealVehicle->getTime() < totalTime &&  unrealVehicle->getPositionVector()[2]> 0 ){
         unrealVehicle->drag();
         unrealVehicle->lift();
@@ -23,23 +23,23 @@ void unreal::iterator(float totalTime){
 }
 
 
-unreal::unreal(const std::string tomlData){
+unrealRocket::unrealRocket(const std::string tomlData){
     unrealVehicle =  std::make_unique<Rocket> (tomlData);
-    unrealData packet;
+    unrealDataRocket packet;
     unrealVehicle->init();
     totalTime = 0;
 }
 
-unrealData* unreal::simFrameRequest(float deltaTime){
+unrealDataRocket* unrealRocket::simFrameRequest(float deltaTime){
     totalTime += deltaTime;
     iterator(totalTime);    
     setPacket();
     return &packet;
 }
 
-unreal::~unreal() = default;
+unrealRocket::~unrealRocket() = default;
 
-void unreal::setPacket(){
+void unrealRocket::setPacket(){
     std::array<float,3> pos = unrealVehicle->getPositionVector();
     packet.position[0] = pos[0];
     packet.position[1] = pos[1];
@@ -54,13 +54,5 @@ void unreal::setPacket(){
     packet.rotation[2] = state[2];
     packet.timeStamp = unrealVehicle->getTime();
 }
-
-
-/*
-
-unreal *unrealVehicle = new unreal;
-
-
-*/
 
 }

@@ -85,29 +85,29 @@ class Vehicle : public stateEstimation{
         return iterations * timeStep;
     }
     //Not based off sensor data. Actual Simulation Position
-    inline std::array<float,3> getVelocityVector(){
+    inline std::array<float,3> getVelocityVector() const{
         return {Xvelocity,Yvelocity,Zvelocity};
     }
-    inline std::array<float,3> getPositionVector(){
+    inline std::array<float,3> getPositionVector() const{
         return {Xposition,Yposition,Zposition};
     }
     //Vehicle state is the direction vector of the vehicle. 
-    inline std::array<float,3> getState(){
+    inline std::array<float,3> getState() const{
         return vehicleState;
     }
-    inline int getIterations(){
+    inline int getIterations() const{
         return iterations;
     }
     inline void setIterations(int it){
         iterations = it;
     }
-    inline float getMass(){
+    inline float getMass() const{
         return mass;
     }
-    inline float getTimeStep(){
+    inline float getTimeStep() const{
         return timeStep;
     }
-    inline std::array<std::array<float,3>,3> getPose(){
+    inline std::array<std::array<float,3>,3> getPose() const{
         return pose->getPose();
     }
 
