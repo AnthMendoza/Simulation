@@ -36,8 +36,17 @@ public:
 //const Quaternion to make it immutable so that it can be used multiple times one more than 1 vectors.
 std::array<float, 3> rotateVector(const Quaternion& q, const std::array<float, 3>& v);
 
+//rotate an array(vector) full of vectors.
+inline void rotateMultiVectors(const Quaternion& q, vector<std::array<float, 3>>& v){
+    for(int i = 0 ; i < v.size() ; i++){
+        v[i] = rotateVector(q,v[i]);
+    }
+}
 
-Quaternion fromAxisAngle(std::array<float, 3> axis, float angle_rad);
+
+Quaternion fromAxisAngle(const std::array<float, 3> axis, float angle_rad);
+
+
 
 
 class quaternionVehicle{

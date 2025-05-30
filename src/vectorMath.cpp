@@ -6,12 +6,12 @@
 
 namespace SimCore{
 
-float vectorMag(std::array<float,3> &vector){
+float vectorMag(const std::array<float,3> &vector){
     return sqrt(vector[0]*vector[0] + vector[1]*vector[1] + vector[2]*vector[2]);
 }
 
 
-float vectorDotProduct(std::array<float,3> &vector1, std::array<float,3> &vector2) {
+float vectorDotProduct(const std::array<float,3> &vector1,const std::array<float,3> &vector2) {
     float dotProduct = 0.0;
 
     //v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
@@ -24,7 +24,7 @@ float vectorDotProduct(std::array<float,3> &vector1, std::array<float,3> &vector
 }
 
 
-void vectorCrossProduct(std::array<float,3> &vector1, std::array<float,3> &vector2, std::array<float,3> &result) {
+void vectorCrossProduct(const std::array<float,3> &vector1,const std::array<float,3> &vector2, std::array<float,3> &result) {
 
     result[0] = vector1[1] * vector2[2] - vector1[2] * vector2[1]; 
     result[1] = vector1[2] * vector2[0] - vector1[0] * vector2[2]; 
@@ -34,7 +34,7 @@ void vectorCrossProduct(std::array<float,3> &vector1, std::array<float,3> &vecto
 
 
 
-float vectorAngleBetween(std::array<float,3> &vector1, std::array<float,3> &vector2) {
+float vectorAngleBetween(const std::array<float,3> &vector1,const std::array<float,3> &vector2) {
     
     float mag1 = vectorMag(vector1);
     float mag2 = vectorMag(vector2);
@@ -50,7 +50,7 @@ float vectorAngleBetween(std::array<float,3> &vector1, std::array<float,3> &vect
 
 
 
-std::array<float,3> normalizeVector(std::array<float,3> vector1){
+std::array<float,3> normalizeVector(const std::array<float,3> vector1){
     std::array<float,3> normalVector;
     float mag = vectorMag(vector1);
     if(mag == 0) return normalVector = {0,0,0};
@@ -63,7 +63,7 @@ std::array<float,3> normalizeVector(std::array<float,3> vector1){
 
 
 
-float twodAngleDiffrence(std::array<float , 2> &vector1 , std::array<float , 2> &vector2){
+float twodAngleDiffrence(const std::array<float , 2> &vector1 ,const std::array<float , 2> &vector2){
 
     float vectDot = vector1[0] * vector2[0] + vector1[1] * vector2[1];
 
@@ -92,7 +92,7 @@ float twodAngleDiffrence(std::array<float , 2> &vector1 , std::array<float , 2> 
 }
 
 
-std::array<float , 3> addVectors(std::array<float , 3> &vec1 , std::array<float , 3> &vec2){
+std::array<float , 3> addVectors(const std::array<float , 3> &vec1 ,const std::array<float , 3> &vec2){
     std::array<float , 3> addedVector= {vec1[0]+vec2[0],vec1[1]+vec2[1],vec1[2]+vec2[2]};
     return addedVector;
 }

@@ -69,7 +69,7 @@ public:
     float calculateEfficiency() const;         // Motor efficiency percentage
     
     // Simulation/update method
-    void update(float deltaTime);              // Update motor state
+    void update();              // Update motor state
 };
 
 } //SimCore

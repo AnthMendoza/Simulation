@@ -4,29 +4,45 @@
 #include "vehicle.h"
 #include "motor.h"
 #include "battery.h"
+#include "quaternion.h"
+#include "indexVectors.h"
 #include <utility>
 #include <memory>
 #include <string>
 using namespace std;
 namespace SimCore{
+
 class droneBody :  public Vehicle{
     private:
     void motorThrust(float motorRPM);
     //prop locations in relation to the center of gravity
     vector<array<float,3>> propLocations;
+    vector<array<float,3>> propLocationsTranspose;
     //prop force vector allows for unconventional motor mounting
     vector<array<float,3>> propForceVector;
+    vector<array<float,3>> propForceVectorTranspose;
     // .first is current and .second is previous rpm
     vector<pair<float,float>> propRPM;
     vector<float> propMOI;
     //true if props are already formed
     bool propLocationsSet;
+    int transposeCalls;
+    //index vectors
 
     array<float,3> cogLocation;
+    array<float,3> cogLocationTranspose;
     //location of motor is logged via its index in vector and the propLocatiion vector
     vector<std::unique_ptr<motor>> motors;
     //droneBattery
     std::unique_ptr<battery> droneBattery;
+
+    std::unique_ptr<quaternionVehicle> pose;
+    indexCoordinates index;
+    //helper Functions
+    void rotationHelper(Quaternion& q);
+
+    void resetHelper();
+
     protected:
 
     public:
@@ -46,7 +62,7 @@ class droneBody :  public Vehicle{
 
     void thrustRequest(vector<float>& thrust);
 
-    std::pair<vector<array<float,3>>, vector<array<float,3>>>& transposedProps();
+    void transposedProps();
 
     inline battery* getBattery(){
         battery* bat = dynamic_cast<battery*> (droneBattery.get()); 

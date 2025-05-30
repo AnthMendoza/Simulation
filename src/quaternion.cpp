@@ -27,7 +27,7 @@ std::array<float, 3> rotateVector(const Quaternion& q, const std::array<float, 3
     return {rotated_q.x, rotated_q.y, rotated_q.z};
 }
 
-Quaternion fromAxisAngle(std::array<float, 3> axis, float angle_rad) {
+Quaternion fromAxisAngle(const std::array<float, 3> axis, float angle_rad) {
     float half_angle = angle_rad / 2.0f;
     float s = sin(half_angle);
     return Quaternion{
