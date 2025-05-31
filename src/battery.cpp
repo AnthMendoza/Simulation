@@ -12,14 +12,14 @@ namespace SimCore{
     void battery::init(std::string& config){
         toml::tomlParse bParse;
         bParse.parseConfig( config,"battery");
-        nominalInternalResistance = bParse.floatValues["nominalInternalResistance"];
-        capacityAh = bParse.floatValues["capacityAh"];
-        nominalVoltage = bParse.floatValues["nominalVolatge"];
-        cellCount = bParse.floatValues["cellCount"];
-        wattHours = bParse.floatValues["wattHours"];
-        currentCapacity = bParse.floatValues["currentCapactiy"];
-        soc = bParse.floatValues["soc"];
-        safetyTerminationLevel = bParse.floatValues["safteyTerminationLevel"];
+        nominalInternalResistance   = bParse.floatValues["nominalInternalResistance"];
+        capacityAh                  = bParse.floatValues["capacityAh"];
+        nominalVoltage              = bParse.floatValues["nominalVolatge"];
+        cellCount                   = bParse.floatValues["cellCount"];
+        wattHours                   = bParse.floatValues["wattHours"];
+        currentCapacity             = bParse.floatValues["currentCapactiy"];
+        soc                         = bParse.floatValues["soc"];
+        safetyTerminationLevel      = bParse.floatValues["safteyTerminationLevel"];
 
     }
 

@@ -1,0 +1,10 @@
+[battery]
+
+nominalInternalResistance   = 
+capacityAh                  = 
+nominalVoltage              = 
+cellCount                   = 
+wattHours                   = 
+currentCapacity             = 
+soc                         = 1
+safetyTerminationLevel      = 

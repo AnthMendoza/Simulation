@@ -2,6 +2,7 @@
 #define MYSIM_H
 #include "vehicle.h"
 #include "rocket.h"
+#include "drone.h"
 #include <memory>
 namespace SimCore{
 //#pragma pack(push,1)
@@ -35,13 +36,19 @@ struct unrealDataDrone{
     float velocity[3];
     float dirVector[3]; 
     float fwdVector[3]; 
+    float rightVector[3];
 };
 
 class unrealDrone{
     private:
     unrealDataDrone packet;
-    
-    void SetPacket();
+    void setPacket();
+    void iterator(float totalTime);
+    float totalTime;
+    public:
+    std::unique_ptr<droneControl> drone;
+    unrealDrone(std::string motorConfig, std::string batteryConfig);
+    unrealDataDrone* simFrameRequest(float deltaTime);
 
 
 };

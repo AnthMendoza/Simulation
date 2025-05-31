@@ -1,1 +1,9 @@
 [drone]
+weight = 1.5
+[PID]
+Kp = 1
+Ki = 0.2
+Kd = 0.2
+ZKp = 1
+ZKi = 0.2
+ZKd = 0.2

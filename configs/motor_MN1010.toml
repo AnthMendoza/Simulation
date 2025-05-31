@@ -1,13 +1,10 @@
 [motor]
 name = "T-Motor MN1010"
-kv = 135
-stator_diameter_mm = 118
-motorLength_mm = 34
-idleCurrent = 2.0
-internalResistance = 0.025
-maxContinuousCurrent = 104
-maxContinuousPower = 4930
-weight = 645
-voltage = 50
-recommendedPropellerInch = [30, 32]
-configuration = "36N42P"
+    freeSpeedRpm   =
+    stallTorque    = 
+    stallCurrent   = 
+    noLoadCurrent  =  
+    resistance     = 
+    voltage        = 
+    kv             =  
+    kt             = 

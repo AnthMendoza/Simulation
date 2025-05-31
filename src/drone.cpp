@@ -1,5 +1,7 @@
 #include "../include/drone.h"
 #include "../include/battery.h"
+#include "../include/control.h"
+#include "../include/toml.h"
 #include <iostream>
 #include <utility>
 namespace SimCore{
@@ -11,7 +13,7 @@ droneBody::~droneBody(){
 
 }
 
-void droneBody::init(string& motorConfig){
+void droneBody::init(string& motorConfig,string& batteryConfig){
     Vehicle::init();
 
     propLocationsSet = false;
@@ -21,6 +23,7 @@ void droneBody::init(string& motorConfig){
         motors[i]->init(motorConfig);
     }
     droneBattery = std::make_unique<battery>();
+    droneBattery->init(batteryConfig);
     std::array<float,3> vect1 = {1,0,0};
     std::array<float,3> vect2 = {1,1,0};
     pose = std::make_unique<quaternionVehicle>(vect2,vect1);
@@ -127,8 +130,41 @@ void droneBody::updateState(){
 droneControl::droneControl(){
 }
 
-void droneControl::init(){
+void droneControl::init(std::string& motorConfig, std::string& batteryConfig){
     body = make_unique<droneBody>();
+    body->init(motorConfig,batteryConfig);
 }
+
+void droneControl::initpidControl(){
+    toml::tomlParse PIDPrase;
+    PIDPrase.parseConfig(body->droneConfig,"PID");
+    float kp = PIDPrase.floatValues["Kp"];
+    float ki = PIDPrase.floatValues["Ki"];
+    float kd = PIDPrase.floatValues["Kd"];
+    if(PIDX != nullptr) PIDX = std::make_unique<PIDController>(kp,ki,kd,body->getTimeStep());
+    if(PIDY != nullptr) PIDY = std::make_unique<PIDController>(kp,ki,kd,body->getTimeStep());
+    if(PIDZ != nullptr) PIDZ = std::make_unique<PIDController>( PIDPrase.floatValues["ZKp"],
+                                                                PIDPrase.floatValues["ZKi"],
+                                                                PIDPrase.floatValues["ZKd"],body->getTimeStep());
+    PIDX->setOutputLimits(-1,1);
+    PIDY->setOutputLimits(-1,1);
+    PIDZ->setOutputLimits(-1,1);
+}
+
+std::array<float,3> droneControl::pidControl(float x, float y , float z){
+    return{ PIDX->update(x),
+            PIDY->update(y),
+            PIDZ->update(z)};
+}
+
+void droneControl::setpidControl(float xTarget , float yTarget , float zTarget){
+    PIDX->setTarget(xTarget);
+    PIDY->setTarget(yTarget);
+    PIDZ->setTarget(zTarget);
+}
+
+
+
+
 
 }//SimCore

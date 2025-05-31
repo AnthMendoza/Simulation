@@ -6,6 +6,7 @@
 #include "battery.h"
 #include "quaternion.h"
 #include "indexVectors.h"
+#include "PIDController.h"
 #include <utility>
 #include <memory>
 #include <string>
@@ -18,11 +19,11 @@ class droneBody :  public Vehicle{
     //prop locations in relation to the center of gravity
     vector<array<float,3>> propLocations;
     vector<array<float,3>> propLocationsTranspose;
-    //prop force vector allows for unconventional motor mounting
+    //prop force vector allows for unventional motor mounting
     vector<array<float,3>> propForceVector;
     vector<array<float,3>> propForceVectorTranspose;
     // .first is current and .second is previous rpm
-    vector<pair<float,float>> propRPM;
+    vector<float> propRPM;
     vector<float> propMOI;
     vector<float> thrustRequest;
     //true if props are already formed
@@ -49,9 +50,10 @@ class droneBody :  public Vehicle{
     public:
     droneBody();
     ~droneBody();
+    std::string droneConfig;
     //droneBody(const droneBody& drone) = delete;
     void updateState() override; 
-    void init(string& motorConfig);
+    void init(string& motorConfig ,string& batteryConfig);
     //Set Square allows the creation of a rectagular prop profile.
     //positive x = front , positive y = right, positive Z = top
     void setSquare(float x , float y , float propellerMOI);
@@ -75,14 +77,23 @@ class droneBody :  public Vehicle{
 };
 
 //Gives a high level state request that is handled down stream
+//Container for Drone body
 class droneControl{
     private:
+    std::unique_ptr<PIDController> PIDX;
+    std::unique_ptr<PIDController> PIDY;
+    std::unique_ptr<PIDController> PIDZ;
+
     protected:
     public:
     unique_ptr<droneBody> body;
     droneControl();
     //initialization out of constructor due to out of order calls in unreal engine.
-    void init(); 
+    
+    void init(std::string& motorConfig, std::string& batteryConfig); 
+    void initpidControl();
+    std::array<float , 3> pidControl(float x , float y, float z);
+    void setpidControl(float xTarget , float yTarget , float zTarget);
 };
 } //SimCore
 
