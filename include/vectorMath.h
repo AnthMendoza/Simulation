@@ -6,7 +6,7 @@ namespace SimCore{
 
 float vectorMag(const std::array<float,3> &vector);
 
-float vectorDotProduct(const std::array<float,3> &vector1, std::array<float,3> &vector2);
+float vectorDotProduct(const std::array<float,3> &vector1,const std::array<float,3> &vector2);
 
 void vectorCrossProduct(const std::array<float,3> &vector1,const std::array<float,3> &vector2, std::array<float,3> &result);
 

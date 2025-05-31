@@ -8,19 +8,22 @@ droneBody::droneBody(){
 }
 
 droneBody::~droneBody(){
-    
+
 }
 
-void droneBody::init(string& motorConfig , string& batteryConfig){
+void droneBody::init(string& motorConfig){
     Vehicle::init();
 
     propLocationsSet = false;
     transposeCalls = 0;
     for(int i = 0 ; i < propLocations.size() ; i++){
-        motors.push_back(std::make_unique<motor>(motorConfig));
+        motors.push_back(std::make_unique<motor>());
+        motors[i]->init(motorConfig);
     }
-    droneBattery = std::make_unique<battery>(batteryConfig);
-    pose = std::make_unique<quaternionVehicle> ();
+    droneBattery = std::make_unique<battery>();
+    std::array<float,3> vect1 = {1,0,0};
+    std::array<float,3> vect2 = {1,1,0};
+    pose = std::make_unique<quaternionVehicle>(vect2,vect1);
 }
 
 void droneBody::setSquare(float x ,float y , float propellerMOI){
@@ -113,25 +116,19 @@ void droneBody::resetHelper(){
 
 
 void droneBody::updateState(){
-    //for(int i = 0 ; i < motors.size() , i++){
-    //    motors[i]->update();
-    //}
-    //droneBattery->updateBattery();
+    for(int i = 0 ; i < motors.size();i++){
+        motors[i]->update();
+    }
+    droneBattery->updateBattery();
     Vehicle::updateState();
 }
 
 
 droneControl::droneControl(){
-    
 }
 
 void droneControl::init(){
-
-}
-//Create drone with characteristics required then move it intoi the control class.
-void droneControl::addDrone(droneBody&& body){
-    if(drone != nullptr) std::cerr<< "Warning drone already exists. Overwriting existing drone.";
-    drone = std::make_unique<droneBody> (std::move(body));
+    body = make_unique<droneBody>();
 }
 
 }//SimCore

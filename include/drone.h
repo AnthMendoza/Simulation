@@ -24,6 +24,7 @@ class droneBody :  public Vehicle{
     // .first is current and .second is previous rpm
     vector<pair<float,float>> propRPM;
     vector<float> propMOI;
+    vector<float> thrustRequest;
     //true if props are already formed
     bool propLocationsSet;
     int transposeCalls;
@@ -48,9 +49,9 @@ class droneBody :  public Vehicle{
     public:
     droneBody();
     ~droneBody();
-    droneBody(const droneBody& drone) = delete;
+    //droneBody(const droneBody& drone) = delete;
     void updateState() override; 
-    void init(string& motorConfig, string& batteryConfig);
+    void init(string& motorConfig);
     //Set Square allows the creation of a rectagular prop profile.
     //positive x = front , positive y = right, positive Z = top
     void setSquare(float x , float y , float propellerMOI);
@@ -60,7 +61,9 @@ class droneBody :  public Vehicle{
 
     void motorMoment();
 
-    void thrustRequest(vector<float>& thrust);
+    inline void thrustRequest(vector<float>& thrust){
+        thrustRequest = thrust;
+    }
 
     void transposedProps();
 
@@ -74,13 +77,12 @@ class droneBody :  public Vehicle{
 //Gives a high level state request that is handled down stream
 class droneControl{
     private:
-    unique_ptr<droneBody> drone;
     protected:
     public:
+    unique_ptr<droneBody> body;
     droneControl();
     //initialization out of constructor due to out of order calls in unreal engine.
     void init(); 
-    void addDrone(droneBody&& body);
 };
 } //SimCore
 

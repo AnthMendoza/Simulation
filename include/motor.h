@@ -1,5 +1,7 @@
 #ifndef MOTOR_H
 #define MOTOR_H
+#include <string>
+
 namespace SimCore{
 class motor {
 private:
@@ -18,20 +20,18 @@ private:
     float currentTorque;         // Current torque output
     float currentCurrent;        // Current draw
     float currentThrottle;       // Throttle input (0.0 - 1.0)
+    float maxCurrentAvailable;
     
     // Motor limits and safety
-    float maxCurrent;            // Maximum safe current
-    float maxTemperature;        // Maximum operating temperature
     bool isEnabled;              // Motor enable state
     
 public:
     // Constructors
-    motor();
-    motor(float freeSpeed, float stall_torque, float stall_current, 
-          float no_load_current, float motor_voltage);
-    
+    motor(std::string& config);
+    //motor(float freeSpeed, float stall_torque, float stall_current, float no_load_current, float motor_voltage);
+    void init(std::string& motorConfig);
     // Destructor
-    ~motor();
+    ~motor() = default;
     
     // Configuration methods
     void setMotorSpecs(float freeSpeed, float stall_torque, float stall_current, 
@@ -39,33 +39,51 @@ public:
     void setLimits(float max_current, float max_temp);
     
     // Control methods
-    void setThrottle(float throttle);           // Set throttle (0.0 - 1.0)
-    void setRpm(float target_rpm);              // Set target RPM
+    void rpmRequest(float rpm);
     void enable();                              // Enable motor
     void disable();                             // Disable motor
+     void setCurrent(float current);
     
+
     // Getter methods for specifications
-    float getFreeSpeedRpm() const;
-    float getStallTorque() const;
-    float getStallCurrent() const;
-    float getNoLoadCurrent() const;
-    float getResistance() const;
-    float getVoltage() const;
-    float getKv() const;
-    float getKt() const;
+    inline float getFreeSpeedRpm(){
+        return freeSpeedRpm;
+    }
+    inline float getStallTorque() const{
+        return stallTorque;
+    }
+    inline float getStallCurrent() const{
+        return stallCurrent;
+    }
+    inline float getNoLoadCurrent() const{
+        return noLoadCurrent;
+    }
+    inline float getVoltage() const{
+        return voltage;
+    }
+    inline float getKv() const{
+        return kv;
+    }
+    inline float getKt() const{
+        return kt;
+    }
     
-    // Getter methods for current state
+    
     float getCurrentRpm() const;
     float getCurrentTorque() const;
-    float getCurrentCurrent() const;
+    inline float getCurrentCurrent() const{
+        return currentCurrent;
+    }
     float getCurrentThrottle() const;
     bool getIsEnabled() const;
     
     // Performance calculations
     float calculateTorqueFromCurrent(float current) const;
     float calculateCurrentFromTorque(float torque) const;
-    float calculateRpmFromVoltage(float voltage) const;
-    float calculatePowerOutput() const;        // Mechanical power output (W)
+    float calculateRpmFromVoltage(float voltage);
+    inline float calculatePowerOutput(){
+        return voltage * getCurrentCurrent();
+    }
     float calculateEfficiency() const;         // Motor efficiency percentage
     
     // Simulation/update method

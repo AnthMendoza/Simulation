@@ -21,9 +21,9 @@ include_directories(
   third_party/googletest/googletest/include
 )
 
-# Main executable
+# Rocket executable
 add_executable(rocket
-    src/main.cpp
+    src/rocketMain.cpp
     src/vehicle.cpp
     src/vectorMath.cpp
     src/rotationMatrix.cpp
@@ -38,6 +38,27 @@ add_executable(rocket
     src/rocket.cpp
     src/toml.cpp
     src/quaternion.cpp
+)
+# Drone Executable
+add_executable(drone
+    src/droneMain.cpp
+    src/vehicle.cpp
+    src/vectorMath.cpp
+    src/rotationMatrix.cpp
+    src/odeIterator.cpp
+    src/logs.cpp
+    src/getRotationAngles.cpp
+    src/forceApplied.cpp
+    src/control.cpp
+    src/aero.cpp
+    src/RungeKutta.cpp
+    src/sensors.cpp
+    src/rocket.cpp
+    src/toml.cpp
+    src/quaternion.cpp
+    src/battery.cpp
+    src/motor.cpp
+    src/drone.cpp
 )
 
 # Test executable

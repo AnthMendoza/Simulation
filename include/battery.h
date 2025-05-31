@@ -1,8 +1,13 @@
 #ifndef BATTERY_H
 #define BATTERY_H
+#include <vector>
+#include <memory>
+#include <string>
+#include "motor.h"
 namespace SimCore{
 class battery {
 private:
+    std::string configBattery;
     // Battery specifications
     float capacityAh;                    // Battery capacity in Amp-hours
     float nominalVoltage;                // Nominal voltage per cell (V)
@@ -10,8 +15,9 @@ private:
     float maxVoltagePerCell;             // Maximum voltage per cell (V)
     float minVoltagePerCell;             // Minimum voltage per cell (V)
     float internalResistance;            // Internal resistance (Ohms)
+    float nominalInternalResistance;
     float wattHours;                     // Energy capacity in Watt-hours
-    
+    float currentCapacity;
     // Battery state
     float soc;                           // State of charge (0 to 1)
     float voltage;                       // Current voltage (V)
@@ -40,13 +46,12 @@ private:
     
 public:
     // Constructors
-    battery();
-    battery(float capacityAh, float initialSoc = 1.0f);
-    battery(float capacityAh, float nominalVoltage, int cellCount, float initialSoc = 1.0f);
-    void init();
+    battery(std::string& config);
+    //battery(float capacityAh, float nominalVoltage, int cellCount, float initialSoc = 1.0f);
+    void init(std::string& config);
 
     // Destructor
-    ~battery();
+    ~battery() = default;
 
 
     
@@ -61,8 +66,8 @@ public:
     void setTimestep(float timestep);
     
     // Battery state update
-    void updateBattery(float currentAmps);           // Update SOC based on current draw
-
+    void updateBattery();           // Update SOC based on current draw
+    void currentBalancing(std::vector<std::unique_ptr<motor>> motors);
     // State getters
     float getSOC() const;                            // State of charge (0 to 1)
     float getVoltage() const;                        // Current terminal voltage
