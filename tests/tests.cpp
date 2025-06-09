@@ -28,7 +28,7 @@ TEST(System , FreeFall){
     buffer << inFile.rdbuf();
     std::string config = buffer.str();
     Rocket vehicle(config);
-    vehicle.init();
+    vehicle.init(config);
     float freeFallDuration = 10000;
     vehicle.setVelocity(0.0f,0.0f,0.0f);
     vehicle.setPosition(0.0f,0.0f,freeFallDuration);

@@ -5,8 +5,7 @@
 #include <vector>
 namespace SimCore{
 
-    battery::battery(std::string& config){
-        init(config);
+    battery::battery(){
     }
 
     void battery::init(std::string& config){

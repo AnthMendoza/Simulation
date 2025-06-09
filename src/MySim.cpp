@@ -1,8 +1,5 @@
 #include "../include/MySim.h"
-
-
 #include <cstring>
-
 #include "../include/control.h"
 #include <filesystem>
 #include <stdexcept>
@@ -23,10 +20,10 @@ void unrealRocket::iterator(float totalTime){
 }
 
 
-unrealRocket::unrealRocket(const std::string tomlData){
+unrealRocket::unrealRocket(std::string tomlData){
     unrealVehicle =  std::make_unique<Rocket> (tomlData);
     unrealDataRocket packet;
-    unrealVehicle->init();
+    unrealVehicle->init(tomlData);
     totalTime = 0;
 }
 
@@ -62,11 +59,10 @@ unrealDataDrone* unrealDrone::simFrameRequest(float deltaTime){
     return &packet;
 }
 
-unrealDrone::unrealDrone(std::string motorConfig , std::string batteryConfig){
+unrealDrone::unrealDrone(std::string motorConfig , std::string batteryConfig , std::string droneConfig){
     drone = std::make_unique<droneControl>();
-    drone->init(motorConfig,batteryConfig);
+    drone->init(motorConfig,batteryConfig,droneConfig);
     drone->body->setSquare(0.3f,0.3f,0.0005f);
-    
 }
 
 void unrealDrone::iterator(float totalTime){

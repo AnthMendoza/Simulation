@@ -25,7 +25,7 @@ class unrealRocket{
     float totalTime;
     public:
     std::unique_ptr<Rocket> unrealVehicle;
-    unrealRocket(const std::string tomlData);
+    unrealRocket(std::string tomlData);
     ~unrealRocket();
     unrealDataRocket* simFrameRequest(float deltaTime);
 };
@@ -47,7 +47,7 @@ class unrealDrone{
     float totalTime;
     public:
     std::unique_ptr<droneControl> drone;
-    unrealDrone(std::string motorConfig, std::string batteryConfig);
+    unrealDrone(std::string motorConfig, std::string batteryConfig , std::string droneConfig);
     unrealDataDrone* simFrameRequest(float deltaTime);
 
 

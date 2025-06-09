@@ -106,7 +106,7 @@ class Rocket : public Vehicle{
 
         Rocket& operator=(const Rocket& other);
 
-        void init() override;
+        void init(string& configFile) override;
 
         void drag() override;
 

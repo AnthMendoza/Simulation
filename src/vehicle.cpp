@@ -122,7 +122,7 @@ Vehicle& Vehicle::operator=(const Vehicle& other){
 }
 
 
-void Vehicle::init(){
+void Vehicle::init(string& vehicleConfig){
     outputFile = "../output.csv";
     toml::tomlParse vParse;
     vParse.parseConfig( configFile,"vehicle");
@@ -173,9 +173,15 @@ void Vehicle::init(){
     acceleration = {0,0,0};
     
     timeStep = .001; //seconds
+    // todo 
+    //change init vectors to match setup in config file. need computation to ensure init vectors are valid.
     std::array<float,3> vect1 = {1,0,0};
     std::array<float,3> vect2 = {1,1,0};
     pose = std::make_unique<quaternionVehicle>(vect2,vect1);
+    turbulantX = std::unique_ptr<turbulence> ();
+    turbulantY = std::unique_ptr<turbulence> ();
+    turbulantZ = std::unique_ptr<turbulence> ();
+
 }
 
 
@@ -239,7 +245,7 @@ void Vehicle::lift(){
     airVelocityVector[0] = Xvelocity +  wind[0];
     airVelocityVector[1] = Yvelocity +  wind[1];
     airVelocityVector[2] = Zvelocity +  wind[2];
-
+    
 
     float absVelocity = vectorMag(airVelocityVector);
 
@@ -365,8 +371,17 @@ float Vehicle::PID(float target , float currentState , float &previousError , fl
 
 }
 
-
+//future model if vehicle is moving.Dryden Wind Turbulence Model (https://en.wikipedia.org/wiki/Dryden_Wind_Turbulence_Model)
+//The industry standard way of generating turblance using a stochastic model. 
+//white noise will be generated and smoothed using a low pass filter.  
+void Vehicle::turbulantWind(){
+    wind[0] += turbulantX->getNext();
+    wind[1] += turbulantY->getNext();
+    wind[2] += turbulantZ->getNext();
+}
 
 
 }
+
+
 

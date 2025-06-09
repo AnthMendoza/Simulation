@@ -119,7 +119,7 @@ int main(int argc, char* argv[]){
     SimCore::loggedData* data = new SimCore::loggedData;
     std::string configFileData = SimCore::readFileAsString(argv[1]);
     SimCore::Rocket rocket(configFileData);
-    rocket.init();
+    rocket.init(configFileData);
     SimCore::iterator(rocket , data);
     delete data;
     std::string outputFile = "../output.csv";

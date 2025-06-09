@@ -10,6 +10,7 @@
 #include "control.h"
 #include "quaternion.h"
 #include "logs.h"
+#include "windGenerator.h"
 namespace SimCore{
 class stateEstimation;
 class StanleyController;
@@ -45,7 +46,7 @@ class Vehicle : public stateEstimation{
 
     Vehicle(const Vehicle& vehicle) = delete;
 
-    virtual void init();
+    virtual void init(string& vehicleConfig);
     
     virtual Vehicle& operator=(const Vehicle& other);
 
@@ -70,7 +71,11 @@ class Vehicle : public stateEstimation{
 
     float getGForce();
 
-    
+    void turbulantWind();
+
+    std::unique_ptr<turbulence> turbulantX;
+    std::unique_ptr<turbulence> turbulantY;
+    std::unique_ptr<turbulence> turbulantZ;
 
     void getAccel(std::array<float,3> &accel);
 

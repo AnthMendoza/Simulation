@@ -3,8 +3,8 @@
 
 class PIDController {
 public:
-    PIDController(float kp, float ki, float kd, float dt);
     PIDController() = delete;
+    PIDController(float kp, float ki, float kd, float dt);
     void setGains(float kp, float ki, float kd);
     void setOutputLimits(float minOutput, float maxOutput);
     void reset();

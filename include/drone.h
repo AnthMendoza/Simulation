@@ -7,6 +7,7 @@
 #include "quaternion.h"
 #include "indexVectors.h"
 #include "PIDController.h"
+#include "propeller.h"
 #include <utility>
 #include <memory>
 #include <string>
@@ -16,29 +17,22 @@ namespace SimCore{
 class droneBody :  public Vehicle{
     private:
     void motorThrust(float motorRPM);
-    //prop locations in relation to the center of gravity
-    vector<array<float,3>> propLocations;
-    vector<array<float,3>> propLocationsTranspose;
-    //prop force vector allows for unventional motor mounting
-    vector<array<float,3>> propForceVector;
-    vector<array<float,3>> propForceVectorTranspose;
-    // .first is current and .second is previous rpm
-    vector<float> propRPM;
-    vector<float> propMOI;
-    vector<float> thrustRequest;
+
+    vector<float> thrustRequestVect;
     //true if props are already formed
     bool propLocationsSet;
     int transposeCalls;
-    //index vectors
+    //index vectorsßßß
 
     array<float,3> cogLocation;
     array<float,3> cogLocationTranspose;
     //location of motor is logged via its index in vector and the propLocatiion vector
-    vector<std::unique_ptr<motor>> motors;
+    vector<unique_ptr<motor>> motors;
+    vector<unique_ptr<propeller>> propellers;
     //droneBattery
-    std::unique_ptr<battery> droneBattery;
+    unique_ptr<battery> droneBattery;
 
-    std::unique_ptr<quaternionVehicle> pose;
+    unique_ptr<quaternionVehicle> pose;
     indexCoordinates index;
     //helper Functions
     void rotationHelper(Quaternion& q);
@@ -46,17 +40,16 @@ class droneBody :  public Vehicle{
     void resetHelper();
 
     protected:
-
+    array<float,3>  thrustVector();
+    vector<float> thrust();
     public:
     droneBody();
     ~droneBody();
-    std::string droneConfig;
+    string droneConfig;
     //droneBody(const droneBody& drone) = delete;
     void updateState() override; 
-    void init(string& motorConfig ,string& batteryConfig);
-    //Set Square allows the creation of a rectagular prop profile.
-    //positive x = front , positive y = right, positive Z = top
-    void setSquare(float x , float y , float propellerMOI);
+    void init(string& motorConfig ,string& batteryConfig , string& droneBody);
+    void setSquare(float x , float y , propeller prop);
     //sets center of gravity as an offset relative to the center defined by propLocations
     //positive x = front , positive y = right, positive Z = top
     void offsetCOG(array<float,3> offset);
@@ -64,7 +57,7 @@ class droneBody :  public Vehicle{
     void motorMoment();
 
     inline void thrustRequest(vector<float>& thrust){
-        thrustRequest = thrust;
+        thrustRequestVect = thrust;
     }
 
     void transposedProps();
@@ -80,22 +73,21 @@ class droneBody :  public Vehicle{
 //Container for Drone body
 class droneControl{
     private:
-    std::unique_ptr<PIDController> PIDX;
-    std::unique_ptr<PIDController> PIDY;
-    std::unique_ptr<PIDController> PIDZ;
-
+    unique_ptr<PIDController> PIDX;
+    unique_ptr<PIDController> PIDY;
+    unique_ptr<PIDController> PIDZ;
     protected:
     public:
     unique_ptr<droneBody> body;
     droneControl();
     //initialization out of constructor due to out of order calls in unreal engine.
     
-    void init(std::string& motorConfig, std::string& batteryConfig); 
+    void init(string& motorConfig, string& batteryConfig , string& droneConfig); 
     void initpidControl();
-    std::array<float , 3> pidControl(float x , float y, float z);
+    array<float , 3> pidControl(float x , float y, float z);
     void setpidControl(float xTarget , float yTarget , float zTarget);
 };
 } //SimCore
 
 
-#endif
+#endif  

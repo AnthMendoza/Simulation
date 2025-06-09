@@ -90,7 +90,7 @@ Rocket::Rocket(std::string config){
 
 
 
-void Rocket::init(){
+void Rocket::init(string& configFile){
     toml::tomlParse vehicleParse;
     vehicleParse.parseConfig( configFile,"vehicle");
 
@@ -183,7 +183,7 @@ void Rocket::init(){
     
     finVelocityX = 0;
     finVelocityY = 0;
-    Vehicle::init();
+    Vehicle::init(configFile);
 
 }
 

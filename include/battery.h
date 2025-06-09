@@ -46,7 +46,7 @@ private:
     
 public:
     // Constructors
-    battery(std::string& config);
+    battery();
     //battery(float capacityAh, float nominalVoltage, int cellCount, float initialSoc = 1.0f);
     void init(std::string& config);
 

@@ -59,6 +59,7 @@ add_executable(drone
     src/battery.cpp
     src/motor.cpp
     src/drone.cpp
+    src/PIDController.cpp
 )
 
 # Test executable
@@ -78,6 +79,7 @@ add_executable(tests
     src/toml.cpp
     tests/tests.cpp
     src/quaternion.cpp
+    src/PIDController.cpp
 )
 
 # Static library
@@ -96,6 +98,11 @@ add_library(MySim STATIC
     src/sensors.cpp
     src/rocket.cpp
     src/toml.cpp
+    src/quaternion.cpp
+    src/battery.cpp
+    src/motor.cpp
+    src/drone.cpp
+    src/PIDController.cpp
     
 )
 

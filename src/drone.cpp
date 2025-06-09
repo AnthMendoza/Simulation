@@ -2,8 +2,12 @@
 #include "../include/battery.h"
 #include "../include/control.h"
 #include "../include/toml.h"
+#include "../include/PIDController.h"
+#include "../include/aero.h"
+#include "../include/propeller.h"
 #include <iostream>
 #include <utility>
+#include <cmath>
 namespace SimCore{
 droneBody::droneBody(){
     
@@ -13,13 +17,13 @@ droneBody::~droneBody(){
 
 }
 
-void droneBody::init(string& motorConfig,string& batteryConfig){
-    Vehicle::init();
+void droneBody::init(string& motorConfig,string& batteryConfig , string& droneConfig){
+    Vehicle::init(droneConfig);
 
     propLocationsSet = false;
     transposeCalls = 0;
-    for(int i = 0 ; i < propLocations.size() ; i++){
-        motors.push_back(std::make_unique<motor>());
+    for(int i = 0 ; i < propellers.size() ; i++){
+        motors.push_back(std::make_unique<motor>(motorConfig));
         motors[i]->init(motorConfig);
     }
     droneBattery = std::make_unique<battery>();
@@ -28,22 +32,33 @@ void droneBody::init(string& motorConfig,string& batteryConfig){
     std::array<float,3> vect2 = {1,1,0};
     pose = std::make_unique<quaternionVehicle>(vect2,vect1);
 }
+//Set Square allows the creation of a rectagular prop profile.
+//positive x = front , positive y = right, positive Z = top
+// prop is a basis object location will be overwritten in setSquare
+void droneBody::setSquare(float x, float y, propeller prop) {
+    x = x / 2;
+    y = y / 2;
 
-void droneBody::setSquare(float x ,float y , float propellerMOI){
-    if(propLocationsSet) return;
-    propLocationsSet = true;
-    x = x/2;
-    y = y/2;
-    //set in a local frame to the drone
-    propLocations.push_back({x,y,0});
-    propLocations.push_back({-x,y,0});
-    propLocations.push_back({x,-y,0});
-    propLocations.push_back({-x,-y,0});
-    for(int i = 0 ; i < 4 ; i++){
-        propMOI.push_back(propellerMOI);
-        propForceVector.push_back({0,0,1});
+    std::vector<std::unique_ptr<propeller>> props;
+
+    std::array<std::array<float, 3>, 4> positions = {{
+        { x,  y, 0},
+        {-x,  y, 0},
+        { x, -y, 0},
+        {-x, -y, 0}
+    }};
+
+    for (const auto& pos : positions) {
+        auto p = std::make_unique<propeller>(prop);
+        p->location = pos;
+        p->locationTransposed = pos;
+        p->direction = {0, 0, 1};
+        p->directionTransposed = {0, 0, 1};
+        props.push_back(std::move(p));
     }
+
 }
+
 
 //adjust COG at the start of the simulation. Can be adjusted in sim.
 void droneBody::offsetCOG(std::array<float ,3> offset){
@@ -56,13 +71,6 @@ void droneBody::motorThrust(float motorRPM){
 //a prop spinning creates a moment about the motor. This will be on spin up and staticlly 
 void droneBody::motorMoment(){
     
-}
-
-void droneBody::thrustRequest(vector<float>& thrust){
-    if(thrust.size() != propLocations.size()){
-        throw std::runtime_error("Thrust Request does not match number of motors on drone body");
-    }
- 
 }
 
 //.first represents location .second is the given props force vector(normal vector).
@@ -99,8 +107,10 @@ void droneBody::transposedProps(){
 }
 
 void droneBody::rotationHelper(Quaternion& q){
-    rotateMultiVectors(q,propLocationsTranspose);
-    rotateMultiVectors(q,propForceVectorTranspose);
+    for(int i = 0 ; i < propellers.size();i++){
+        rotateVector(q,propellers[i]->locationTransposed);
+        rotateVector(q,propellers[i]->directionTransposed);
+    }
     rotateVector(q,index.dirVector);
     rotateVector(q,index.fwdVector);
     rotateVector(q,index.rightVector);
@@ -110,8 +120,10 @@ void droneBody::rotationHelper(Quaternion& q){
 void droneBody::resetHelper(){
     indexCoordinates reset;
     index = reset;
-    propLocationsTranspose = propLocations;
-    propForceVectorTranspose = propForceVector;
+    for(int i = 0 ; i < propellers.size() ; i++){
+        propellers[i]->directionTransposed = propellers[i]->direction;
+        propellers[i]->locationTransposed = propellers[i]->location;
+    }
     cogLocationTranspose = cogLocation;
 }
 
@@ -130,9 +142,9 @@ void droneBody::updateState(){
 droneControl::droneControl(){
 }
 
-void droneControl::init(std::string& motorConfig, std::string& batteryConfig){
-    body = make_unique<droneBody>();
-    body->init(motorConfig,batteryConfig);
+void droneControl::init(std::string& motorConfig, std::string& batteryConfig , std::string& droneConfig){
+    body = std::make_unique<droneBody>();
+    body->init(motorConfig,batteryConfig,droneConfig);
 }
 
 void droneControl::initpidControl(){
@@ -141,11 +153,19 @@ void droneControl::initpidControl(){
     float kp = PIDPrase.floatValues["Kp"];
     float ki = PIDPrase.floatValues["Ki"];
     float kd = PIDPrase.floatValues["Kd"];
-    if(PIDX != nullptr) PIDX = std::make_unique<PIDController>(kp,ki,kd,body->getTimeStep());
-    if(PIDY != nullptr) PIDY = std::make_unique<PIDController>(kp,ki,kd,body->getTimeStep());
-    if(PIDZ != nullptr) PIDZ = std::make_unique<PIDController>( PIDPrase.floatValues["ZKp"],
-                                                                PIDPrase.floatValues["ZKi"],
-                                                                PIDPrase.floatValues["ZKd"],body->getTimeStep());
+    if (PIDX == nullptr)
+        PIDX = std::make_unique<PIDController>(kp, ki, kd, body->getTimeStep());
+
+    if (PIDY == nullptr)
+        PIDY = std::make_unique<PIDController>(kp, ki, kd, body->getTimeStep());
+
+    if (PIDZ == nullptr)
+        PIDZ = std::make_unique<PIDController>(
+            PIDPrase.floatValues["ZKp"],
+            PIDPrase.floatValues["ZKi"],
+            PIDPrase.floatValues["ZKd"],
+            body->getTimeStep());
+
     PIDX->setOutputLimits(-1,1);
     PIDY->setOutputLimits(-1,1);
     PIDZ->setOutputLimits(-1,1);
@@ -162,7 +182,17 @@ void droneControl::setpidControl(float xTarget , float yTarget , float zTarget){
     PIDY->setTarget(yTarget);
     PIDZ->setTarget(zTarget);
 }
-
+//Thrust model. Motor Rpm to thrust via a propellor model. 
+//For now the simulation assumes that thrust is only a function of angular velocity of the motor.
+//A more indepth model would have include the vechicle air velocity vector.
+std::vector<float> droneBody::thrust(){
+    std::vector <float> thrusts;
+    for(int i  = 0 ; i < motors.size(); i++){
+        //std::array<float,3> velo = this->getVelocityVector();
+        thrusts.push_back(airDensity(getPositionVector()[2]) * pow(motors[i]->getCurrentRpm(),2) * pow(propellers[i]->diameter,4) * propellers[i]->thrustCoefficient);
+    }
+    return thrusts;
+}
 
 
 
