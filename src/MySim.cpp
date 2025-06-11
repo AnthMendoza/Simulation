@@ -1,6 +1,7 @@
 #include "../include/MySim.h"
 #include <cstring>
 #include "../include/control.h"
+#include "../include/propeller.h"
 #include <filesystem>
 #include <stdexcept>
 #include <memory>
@@ -59,28 +60,37 @@ unrealDataDrone* unrealDrone::simFrameRequest(float deltaTime){
     return &packet;
 }
 
-unrealDrone::unrealDrone(std::string motorConfig , std::string batteryConfig , std::string droneConfig){
-    drone = std::make_unique<droneControl>();
+unrealDrone::unrealDrone(std::string motorConfig , std::string batteryConfig , std::string droneConfig,std::string propellerConfig){
+    drone = std::make_unique<droneBody>();
     drone->init(motorConfig,batteryConfig,droneConfig);
-    drone->body->setSquare(0.3f,0.3f,0.0005f);
+    propeller prop;
+    initPropeller(prop,propellerConfig);
+    drone->setSquare(0.3f,0.3f,prop);
+}
+
+void unrealDrone::setTargetPosition(float x , float y , float z , float yaw){
+
+    drone->controller->setpidControl(x,y,z);
+
 }
 
 void unrealDrone::iterator(float totalTime){
-    while(drone->body->getTime() < totalTime &&  drone->body->getPositionVector()[2]> 0 ){
-
+    while(drone->getTime() < totalTime &&  drone->getPositionVector()[2]> 0 ){
+        drone->updateState();
+        ++(*drone);
     }
 }
 
 void unrealDrone::setPacket(){
-    std::array<float,3> pos = drone->body->getPositionVector();
+    std::array<float,3> pos = drone->getPositionVector();
     packet.position[0] = pos[0];
     packet.position[1] = pos[1];
     packet.position[2] = pos[2];
-    std::array<float,3> velo = drone->body->getVelocityVector();
+    std::array<float,3> velo = drone->getVelocityVector();
     packet.velocity[0] = velo[0];
     packet.velocity[1] = velo[1];
     packet.velocity[2] = velo[2];
-    std::array<std::array<float,3>,3> state = drone->body->getPose();
+    std::array<std::array<float,3>,3> state = drone->getPose();
     packet.dirVector[0] = state[0][0];
     packet.dirVector[1] = state[0][1];
     packet.dirVector[2] = state[0][2];
@@ -92,7 +102,7 @@ void unrealDrone::setPacket(){
     packet.rightVector[0] = state[2][0]; 
     packet.rightVector[1] = state[2][1];
     packet.rightVector[2] = state[2][2];
-    packet.timeStamp = drone->body->getTime();
+    packet.timeStamp = drone->getTime();
 }
 
 

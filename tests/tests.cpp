@@ -12,6 +12,9 @@
 #include "../include/toml.h"
 #include "../include/quaternion.h"
 #include "../include/linearInterpolation.h"
+#include "../include/droneControl.h"
+#include "../include/Eigen/Eigen"
+#include "../include/Eigen/Dense"
 #include <fstream>
 #include <sstream>
 #include <array>
@@ -40,6 +43,34 @@ TEST(System , FreeFall){
     if(time < 45.16 *1.01 && time > 45.16 * .99 ) time = 45.16;
     EXPECT_FLOAT_EQ(time , 45.16f);
 }
+
+VectorXd toVectorXd(std::initializer_list<double> list) {
+    VectorXd vec(list.size());
+    int i = 0;
+    for (double val : list) vec(i++) = val;
+    return vec;
+}
+
+TEST(ControlAllocator, WrenchMatchesDesiredInput) {
+    std::vector<std::array<float, 3>> positions = {
+        {{1, 1, 0}}, {{-1, 1, 0}}, {{-1, -1, 0}}, {{1, -1, 0}}
+    };
+    std::vector<std::array<float, 3>> thrustDirs = {
+        {{0, 0, 1}}, {{0, 0, 1}}, {{0, 0, 1}}, {{0, 0, 1}}
+    };
+    std::vector<float> spin = {1, -1, 1, -1};
+
+    controlAllocator allocator(positions, thrustDirs, spin);
+
+    VectorXd desired = toVectorXd({0, 0, 4, 0, 0, 0});
+    VectorXd thrusts = allocator.allocate(desired);
+    VectorXd actual = allocator.computeWrench(thrusts);
+
+    for (int i = 0; i < 6; ++i) {
+        EXPECT_NEAR(actual(i), desired(i), EPSILON);
+    }
+}
+
 
 
 TEST(LinearInterpolationTest, InterpolatesCorrectlyInMiddle) {
@@ -156,7 +187,7 @@ bool vectorsAlmostEqual(const std::array<float, 3>& v1, const std::array<float, 
 }
 
 TEST(QuaternionRotationTest, IdentityRotation) {
-    Quaternion q = {1.0f, 0.0f, 0.0f, 0.0f};  // Identity quaternion
+    SimCore::Quaternion q = {1.0f, 0.0f, 0.0f, 0.0f};  // Identity quaternion
     std::array<float, 3> v = {1.0f, 2.0f, 3.0f};
 
     auto rotated = rotateVector(q, v);
@@ -167,7 +198,7 @@ TEST(QuaternionRotationTest, IdentityRotation) {
 TEST(QuaternionRotationTest, Rotate90DegreesAroundZ) {
     float angle_rad = M_PI / 2.0f;
     std::array<float, 3> axis = {0.0f, 0.0f, 1.0f};
-    Quaternion q = fromAxisAngle(axis, angle_rad);
+    SimCore::Quaternion q = fromAxisAngle(axis, angle_rad);
 
     std::array<float, 3> v = {1.0f, 0.0f, 0.0f};
     std::array<float, 3> expected = {0.0f, 1.0f, 0.0f};
@@ -180,7 +211,7 @@ TEST(QuaternionRotationTest, Rotate90DegreesAroundZ) {
 TEST(QuaternionRotationTest, Rotate180DegreesAroundY) {
     float angle_rad = M_PI;
     std::array<float, 3> axis = {0.0f, 1.0f, 0.0f};
-    Quaternion q = fromAxisAngle(axis, angle_rad);
+    SimCore::Quaternion q = fromAxisAngle(axis, angle_rad);
 
     std::array<float, 3> v = {1.0f, 0.0f, 0.0f};
     std::array<float, 3> expected = {-1.0f, 0.0f, 0.0f};
@@ -193,7 +224,7 @@ TEST(QuaternionRotationTest, Rotate180DegreesAroundY) {
 TEST(QuaternionRotationTest, Rotate45DegreesAroundX) {
     float angle_rad = M_PI / 4.0f;
     std::array<float, 3> axis = {1.0f, 0.0f, 0.0f};
-    Quaternion q = fromAxisAngle(axis, angle_rad);
+    SimCore::Quaternion q = fromAxisAngle(axis, angle_rad);
 
     std::array<float, 3> v = {0.0f, 1.0f, 0.0f};
     std::array<float, 3> expected = {
@@ -213,10 +244,10 @@ TEST(QuaternionRotationTest, CombinedRotationTest) {
     // Step 1: Define two 90° rotations
     float angle_rad = M_PI / 2.0f;
 
-    Quaternion q_z = fromAxisAngle({0.0f, 0.0f, 1.0f}, angle_rad);  // Rotate around Z
-    Quaternion q_y = fromAxisAngle({0.0f, 1.0f, 0.0f}, angle_rad);  // Rotate around Y
+    SimCore::Quaternion q_z = fromAxisAngle({0.0f, 0.0f, 1.0f}, angle_rad);  // Rotate around Z
+    SimCore::Quaternion q_y = fromAxisAngle({0.0f, 1.0f, 0.0f}, angle_rad);  // Rotate around Y
 
-    Quaternion q_combined = q_y * q_z;
+    SimCore::Quaternion q_combined = q_y * q_z;
     
     std::array<float, 3> v = {1.0f, 0.0f, 0.0f};
     std::array<float, 3> expected = {0.0f, 1.0f, 0.0f};
@@ -250,7 +281,8 @@ TEST(QuaternionVehicleTest, Rotate90DegreesAroundY) {
 
     std::array<float, 3> expectedDir = {0, 0, -1};
     std::array<float, 3> expectedFwd = {1, 0, 0};
-
+    std::cout<<std::endl<< expectedDir[0]<< expectedDir[1]<<expectedDir[2]<<std::endl;
+    std::cout<< vehicle.getdirVector()[0]<<","<< vehicle.getdirVector()[1]<<","<<vehicle.getdirVector()[2]<<std::endl;
     EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
     EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
 }
@@ -273,9 +305,9 @@ TEST(QuaternionVehicleTest, CombinedRotationXYZ) {
     vehicle.eularRotation(M_PI / 2, M_PI / 2, 0);  // Only once!
 
     // Build combined rotation manually
-    Quaternion qx = fromAxisAngle({1, 0, 0}, M_PI / 2);
-    Quaternion qy = fromAxisAngle({0, 1, 0}, M_PI / 2);
-    Quaternion combined = qy * qx;  // Rotate X first, then Y
+    SimCore::Quaternion qx = fromAxisAngle({1, 0, 0}, M_PI / 2);
+    SimCore::Quaternion qy = fromAxisAngle({0, 1, 0}, M_PI / 2);
+    SimCore::Quaternion combined = qy * qx;  // Rotate X first, then Y
 
     std::array<float, 3> expectedDir = rotateVector(combined, {0, 1, 0});
     std::array<float, 3> expectedFwd = rotateVector(combined, {1, 0, 0});

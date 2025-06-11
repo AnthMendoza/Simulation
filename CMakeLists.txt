@@ -60,8 +60,8 @@ add_executable(drone
     src/motor.cpp
     src/drone.cpp
     src/PIDController.cpp
+    src/droneControl.cpp
 )
-
 # Test executable
 add_executable(tests
     src/vehicle.cpp
@@ -80,6 +80,7 @@ add_executable(tests
     tests/tests.cpp
     src/quaternion.cpp
     src/PIDController.cpp
+    src/droneControl.cpp
 )
 
 # Static library
@@ -103,7 +104,7 @@ add_library(MySim STATIC
     src/motor.cpp
     src/drone.cpp
     src/PIDController.cpp
-    
+    src/droneControl.cpp
 )
 
 # GoogleTest

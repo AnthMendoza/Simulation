@@ -19,7 +19,7 @@ droneBody::~droneBody(){
 
 void droneBody::init(string& motorConfig,string& batteryConfig , string& droneConfig){
     Vehicle::init(droneConfig);
-
+    controller = make_unique<droneControl>();
     propLocationsSet = false;
     transposeCalls = 0;
     for(int i = 0 ; i < propellers.size() ; i++){
@@ -31,6 +31,7 @@ void droneBody::init(string& motorConfig,string& batteryConfig , string& droneCo
     std::array<float,3> vect1 = {1,0,0};
     std::array<float,3> vect2 = {1,1,0};
     pose = std::make_unique<quaternionVehicle>(vect2,vect1);
+    
 }
 //Set Square allows the creation of a rectagular prop profile.
 //positive x = front , positive y = right, positive Z = top
@@ -56,7 +57,8 @@ void droneBody::setSquare(float x, float y, propeller prop) {
         p->directionTransposed = {0, 0, 1};
         props.push_back(std::move(p));
     }
-
+    //updates allocator with new motor layout
+    allocatorHelper();
 }
 
 
@@ -84,7 +86,7 @@ void droneBody::transposedProps(){
 
         float angle = vectorAngleBetween(quaternionDirectionVector,index.nominal.dir);
         const float EPSILON = 1e-4f;
-        if(std::abs(angle -M_PI) < EPSILON){
+        if(std::abs(angle - M_PI) < EPSILON){
             resetHelper();
             float adjust = .1;
             Quaternion qx = fromAxisAngle({1,0,0}, adjust);
@@ -127,54 +129,68 @@ void droneBody::resetHelper(){
     cogLocationTranspose = cogLocation;
 }
 
+void droneBody::allocatorHelper(){
+    vector<array<float,3>> pos;
+    vector<array<float,3>> thrustVect;
+    vector<float> coef;
+    for(auto &props:propellers){
+        pos.push_back(props->location);
+        thrustVect.push_back(props->direction);
+        coef.push_back(props->dragCoefficient);
+    }
+    controlAllocator allocate(pos,thrustVect,coef);
+    controller->allocator = std::make_unique<controlAllocator>(allocate);
+}
+
 
 
 
 void droneBody::updateState(){
+    updateController();
     for(int i = 0 ; i < motors.size();i++){
         motors[i]->update();
     }
     droneBattery->updateBattery();
     Vehicle::updateState();
+    transposedProps();
 }
 
 
 droneControl::droneControl(){
 }
 
-void droneControl::init(std::string& motorConfig, std::string& batteryConfig , std::string& droneConfig){
-    body = std::make_unique<droneBody>();
-    body->init(motorConfig,batteryConfig,droneConfig);
+void droneControl::init(){
+
 }
 
-void droneControl::initpidControl(){
+void droneControl::initpidControl(string droneConfig , float timeStep){
     toml::tomlParse PIDPrase;
-    PIDPrase.parseConfig(body->droneConfig,"PID");
+    PIDPrase.parseConfig(droneConfig,"PID");
     float kp = PIDPrase.floatValues["Kp"];
     float ki = PIDPrase.floatValues["Ki"];
     float kd = PIDPrase.floatValues["Kd"];
     if (PIDX == nullptr)
-        PIDX = std::make_unique<PIDController>(kp, ki, kd, body->getTimeStep());
+        PIDX = std::make_unique<PIDController>(kp, ki, kd, timeStep);
 
     if (PIDY == nullptr)
-        PIDY = std::make_unique<PIDController>(kp, ki, kd, body->getTimeStep());
+        PIDY = std::make_unique<PIDController>(kp, ki, kd, timeStep);
 
     if (PIDZ == nullptr)
         PIDZ = std::make_unique<PIDController>(
             PIDPrase.floatValues["ZKp"],
             PIDPrase.floatValues["ZKi"],
             PIDPrase.floatValues["ZKd"],
-            body->getTimeStep());
+            timeStep);
 
     PIDX->setOutputLimits(-1,1);
     PIDY->setOutputLimits(-1,1);
     PIDZ->setOutputLimits(-1,1);
 }
 
-std::array<float,3> droneControl::pidControl(float x, float y , float z){
-    return{ PIDX->update(x),
-            PIDY->update(y),
-            PIDZ->update(z)};
+void droneControl::pidControl(std::array<float,3> pos){
+    controlOutput = {   PIDX->update(pos[0]),
+                        PIDY->update(pos[1]),
+                        PIDZ->update(pos[2])};
 }
 
 void droneControl::setpidControl(float xTarget , float yTarget , float zTarget){
@@ -189,7 +205,7 @@ std::vector<float> droneBody::thrust(){
     std::vector <float> thrusts;
     for(int i  = 0 ; i < motors.size(); i++){
         //std::array<float,3> velo = this->getVelocityVector();
-        thrusts.push_back(airDensity(getPositionVector()[2]) * pow(motors[i]->getCurrentRpm(),2) * pow(propellers[i]->diameter,4) * propellers[i]->thrustCoefficient);
+        thrusts.push_back(airDensity(getPositionVector()[2]) * pow(motors[i]->getCurrentAngularVelocity(),2) * pow(propellers[i]->diameter,4) * propellers[i]->thrustCoefficient);
     }
     return thrusts;
 }

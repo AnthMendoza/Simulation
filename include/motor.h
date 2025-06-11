@@ -39,7 +39,7 @@ public:
     void setLimits(float max_current, float max_temp);
     
     // Control methods
-    void rpmRequest(float rpm);
+    void angualrVeloctiyRequest(float rad_per_sec);
     void enable();                              // Enable motor
     void disable();                             // Disable motor
      void setCurrent(float current);
@@ -68,8 +68,13 @@ public:
         return kt;
     }
     
-    
-    float getCurrentRpm() const;
+    /**
+     * @brief Motors current rotational Velocity
+     * @return rad/s
+     */
+    inline float getCurrentAngularVelocity() const{
+        return currentRpm;
+    }
     float getCurrentTorque() const;
     inline float getCurrentCurrent() const{
         return currentCurrent;

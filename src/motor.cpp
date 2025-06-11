@@ -32,8 +32,8 @@ void motor::setCurrent(float currentRequest){
     else currentCurrent = stallCurrent;
 }
 
-void motor::rpmRequest(float rpm){
-
+void motor::angualrVeloctiyRequest(float rad_per_sec){
+    
 }
 
 

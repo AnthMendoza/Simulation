@@ -46,14 +46,20 @@ class unrealDrone{
     void iterator(float totalTime);
     float totalTime;
     public:
-    std::unique_ptr<droneControl> drone;
-    unrealDrone(std::string motorConfig, std::string batteryConfig , std::string droneConfig);
+    std::unique_ptr<droneBody> drone;
+    unrealDrone(std::string motorConfig, std::string batteryConfig , std::string droneConfig,std::string propellerConfig);
     unrealDataDrone* simFrameRequest(float deltaTime);
-
+    /**
+    * @brief Sets Pid object target location to argument setpoint.
+    * @param x in meters
+    * @param y in meters
+    * @param z in meters
+    */
+    void setTargetPosition(float x , float y , float z , float yaw);
 
 };
 
 }
 
-
+ 
 #endif 
