@@ -7,3 +7,15 @@ Kd = 0.2
 ZKp = 1
 ZKi = 0.2
 ZKd = 0.2
+[vehicle]
+wind = [0.0,0.0,0.0]
+gravitationalAcceleration = -9.81
+targetLandingPosition  = [400000.0,0.0,0.0]
+initPosition = [0.0,0.0,10.0]
+initVehicleState = [0.0,0.0,1.0]
+MOI = [20,20,20]
+initVelocity = [0.0,0.0,0.0]
+centerOfPressure = 15.0
+maxGAllowedEntry = 4.5
+cogToEngine = -8.0
+timeStep = 0.001

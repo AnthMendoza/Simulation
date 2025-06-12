@@ -12,6 +12,7 @@
 #include <utility>
 #include <memory>
 #include <string>
+#include <vectorMath.h>
 using namespace std;
 namespace SimCore{
 
@@ -19,13 +20,21 @@ namespace SimCore{
 //Container for Drone body
 class droneControl{
     private:
+    //high level positional control loop
     unique_ptr<PIDController> PIDX;
     unique_ptr<PIDController> PIDY;
     unique_ptr<PIDController> PIDZ;
+    //low level vehicle angle control loop
+    unique_ptr<PIDController> APIDX;
+    unique_ptr<PIDController> APIDY;
     protected:
     public:
     //controlOutput is the ouput of the PID controllers when pidControl is called.
-    std::array<float,3> controlOutput; 
+    //PID output clamped -1 to 1.
+    std::array<float,3> controlOutput;
+    std::array<float,3> desiredNormal;
+    std::array<float,3> currentFlightTargetNormal;
+    std::array<float,3> aot;
     droneControl();
     //initialization out of constructor due to out of order calls in unreal engine.
     unique_ptr<controlAllocator> allocator;
@@ -34,7 +43,14 @@ class droneControl{
     void initpidControl(string droneConfig,float timeStep);
     void pidControl(std::array<float,3> pos);
     void setpidControl(float xTarget , float yTarget , float zTarget);
+    //feedForward function for windprediction and gravity offset.
+    void forceMomentProfile();
 
+    void aot();
+    // nominally desired normal should be set to {0,0,1}. Hover right side up.
+    inline void setTargetNormalVecotr(float x , float y , float z){
+        desiredNormal = normalizeVector({x,y,z});
+    }
 };
 
 class droneBody :  public Vehicle{

@@ -149,6 +149,7 @@ void droneBody::updateState(){
     updateController();
     for(int i = 0 ; i < motors.size();i++){
         motors[i]->update();
+        
     }
     droneBattery->updateBattery();
     Vehicle::updateState();
@@ -185,6 +186,18 @@ void droneControl::initpidControl(string droneConfig , float timeStep){
     PIDX->setOutputLimits(-1,1);
     PIDY->setOutputLimits(-1,1);
     PIDZ->setOutputLimits(-1,1);
+
+    if (APIDX == nullptr)
+        APIDX = std::make_unique<PIDController>(kp, ki, kd, timeStep);
+
+    if (APIDY == nullptr)
+        APIDY = std::make_unique<PIDController>(kp, ki, kd, timeStep);
+
+
+    APIDX->setOutputLimits(-1,1);
+    APIDY->setOutputLimits(-1,1);
+
+    
 }
 
 void droneControl::pidControl(std::array<float,3> pos){
@@ -209,8 +222,20 @@ std::vector<float> droneBody::thrust(){
     }
     return thrusts;
 }
-
-
-
+void droneControl::forceMomentProfile(){
+    
+}
+//current state this is very temporary
+void droneControl::aot(){
+    float maxAngle = .7;
+    float xAngle = maxAngle * controlOutput[0];
+    float yAngle = maxAngle * controlOutput[1];
+    desiredNormal = {0,0,1};
+    Quaternion quantX = fromAxisAngle( {1,0,0}, xAngle);
+    Quaternion quantY = fromAxisAngle({0,1,0} , yAngle);
+    Quaternion combined = quantX * quantY;
+    std::array<float,3> adjustedVect = rotateVector(combined,desiredNormal);
+    currentFlightTargetNormal = adjustedVect;
+}
 
 }//SimCore
