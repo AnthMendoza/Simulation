@@ -12,9 +12,9 @@ void PIDController::setGains(float kp, float ki, float kd) {
     kd = kd;
 }
 
-void PIDController::setOutputLimits(float minOutput, float maxOutput) {
-    minOutput = minOutput;
-    maxOutput = maxOutput;
+void PIDController::setOutputLimits(float min, float max) {
+    minOutput = min;
+    maxOutput = max;
 }
 
 void PIDController::reset() {

@@ -1,9 +1,9 @@
 #ifndef DRONECONTROL_H
 #define DRONECONTROL_H 
 #include <iostream>
-#include <Eigen/Dense>
+#include "../include/Eigen/Eigen"
+#include "../include/Eigen/Dense"
 #include <vector>
-
 using namespace Eigen;
 using namespace std;
 namespace SimCore{

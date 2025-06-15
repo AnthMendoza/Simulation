@@ -13,7 +13,7 @@
 #include <fstream>
 
 namespace SimCore{
-loggedData::loggedData( int preset){
+loggedData::loggedData(int preset){
 
     timeStepVect->reserve(preset);
     Xposition->reserve(preset);
@@ -148,7 +148,24 @@ void loggedData::writeCSV( const std::string& filename,const std::vector<std::sh
 
     file.close();
 }
+void writeCSV( const std::string& filename,const std::vector<std::shared_ptr<std::vector<float>>>& data) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        //handle error
+        return;
+    }
+    if(data.empty()) return;
+    int numRows = (*(data[0])).size();
+    for(int i = 0; i < numRows; ++i) {
+        for(int j = 0 ; j < data.size() ; j++){
+            if(j<data.size() - 1 )file << (*data[j])[i]<<",";
+            else file << (*data[j])[i];
+        }
+        file << "\n";
+    }
 
+    file.close();
+}
 
 
 

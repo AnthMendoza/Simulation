@@ -58,9 +58,7 @@ class loggedData{
 
 };
 
-
-
-
+void writeCSV(const std::string& filename,const std::vector<std::shared_ptr<std::vector<float>>>& data);
 
 
 /*

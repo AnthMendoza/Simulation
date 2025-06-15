@@ -12,7 +12,7 @@
 #include <utility>
 #include <memory>
 #include <string>
-#include <vectorMath.h>
+#include "vectorMath.h"
 using namespace std;
 namespace SimCore{
 
@@ -34,7 +34,7 @@ class droneControl{
     std::array<float,3> controlOutput;
     std::array<float,3> desiredNormal;
     std::array<float,3> currentFlightTargetNormal;
-    std::array<float,3> aot;
+    std::array<float,3> aotVect;
     droneControl();
     //initialization out of constructor due to out of order calls in unreal engine.
     unique_ptr<controlAllocator> allocator;

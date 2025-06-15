@@ -3,7 +3,6 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include "motor.h"
 namespace SimCore{
 class battery {
 private:
@@ -23,6 +22,7 @@ private:
     float voltage;                       // Current voltage (V)
     float currentDraw;                   // Current draw/charge rate (A)
     float cycleCount;                    // Number of charge/discharge cycles
+    float socVoltage;
     
     // Safety and limits
     float safetyTerminationLevel;        // SOC where battery is no longer usable
@@ -42,11 +42,11 @@ private:
     float calculateInternalVoltageDrop(float current) const;
     void updateTemperature(float current, float deltaTime);
     bool checkSafetyLimits() const;
-    void updateVoltage();
+    void updateVoltage(float current);
     
 public:
     // Constructors
-    battery();
+    battery(std::string& config);
     //battery(float capacityAh, float nominalVoltage, int cellCount, float initialSoc = 1.0f);
     void init(std::string& config);
 
@@ -66,14 +66,17 @@ public:
     void setTimestep(float timestep);
     
     // Battery state update
-    void updateBattery();           // Update SOC based on current draw
-    void currentBalancing(std::vector<std::unique_ptr<motor>> motors);
+    void updateBattery(float current);           // Update SOC based on current draw
     // State getters
     float getSOC() const;                            // State of charge (0 to 1)
-    float getVoltage() const;                        // Current terminal voltage
+    inline float getBatVoltage() const{
+        return voltage;
+    }                        // Current terminal voltage
     float getRemainingCapacityAh() const;            // Remaining capacity
     float getRemainingEnergyWh() const;              // Remaining energy
-    float getCurrentDraw() const;                    // Current draw/charge rate
+    inline float getCurrentDraw() const{
+        return currentDraw;
+    }                    // Current draw/charge rate
     
     // Capacity and specifications
     inline float getTotalCapacityAh() const;

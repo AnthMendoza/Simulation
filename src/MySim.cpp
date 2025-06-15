@@ -74,10 +74,10 @@ void unrealDrone::setTargetPosition(float x , float y , float z , float yaw){
 
 }
 
-void unrealDrone::iterator(float totalTime){
+void unrealDrone::iterator(float totalTime,bool display){
     while(drone->getTime() < totalTime &&  drone->getPositionVector()[2]> 0 ){
         drone->updateState();
-        ++(*drone);
+        if(display) drone->display();
     }
 }
 

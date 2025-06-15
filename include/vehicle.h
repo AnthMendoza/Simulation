@@ -5,6 +5,7 @@
 #include <array>
 #include <memory>
 #include <cmath>
+#include <iomanip>
 #include "sensors.h"
 #include "vectorMath.h"
 #include "control.h"
@@ -115,8 +116,38 @@ class Vehicle : public stateEstimation{
     inline std::array<std::array<float,3>,3> getPose() const{
         return pose->getPose();
     }
+    inline void display() const {
+        static const int linesToClear = 6; // number of lines in display
 
+        // Move cursor up to overwrite previous lines
+        for (int i = 0; i < linesToClear; ++i)
+            std::cout << "\x1b[1A" << "\x1b[2K";  // move up 1 line + clear line
 
+        std::cout << std::fixed << std::setprecision(2);
+        std::cout << "Drone Analytics\n";
+        std::array<float,3> pos = getPositionVector();
+        std::cout << "Position     (x, y, z):      ("
+                  << pos[0] << ", "
+                  << pos[1] << ", "
+                  << pos[2] << ")\n";
+        std::array<float,3> velo = getVelocityVector();
+        std::cout << "Velocity     (vx, vy, vz):   ("
+                  << pos[0] << ", "
+                  << pos[1] << ", "
+                  << pos[2] << ")\n";
+
+        std::cout << "Acceleration (ax, ay, az):   ("
+                  << acceleration[0] << ", "
+                  << acceleration[1] << ", "
+                  << acceleration[2] << ")\n";
+
+        std::cout << "Orientation  (roll, pitch, yaw): ("
+                  << vehicleState[0] << ", "
+                  << vehicleState[1] << ", "
+                  << vehicleState[2] << ")\n";
+
+        std::cout << std::flush;
+    }
 
 };
 }

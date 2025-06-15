@@ -24,7 +24,7 @@ void droneBody::init(string& motorConfig,string& batteryConfig , string& droneCo
     transposeCalls = 0;
     for(int i = 0 ; i < propellers.size() ; i++){
         motors.push_back(std::make_unique<motor>(motorConfig));
-        motors[i]->init(motorConfig);
+        motors[i]->init(motorConfig,timeStep);
     }
     droneBattery = std::make_unique<battery>();
     droneBattery->init(batteryConfig);
@@ -75,7 +75,6 @@ void droneBody::motorMoment(){
     
 }
 
-//.first represents location .second is the given props force vector(normal vector).
 //note location is relative to the vehicle center. 
 void droneBody::transposedProps(){
     //rezero transpose every 100 timeSteps
@@ -147,13 +146,12 @@ void droneBody::allocatorHelper(){
 
 void droneBody::updateState(){
     updateController();
-    for(int i = 0 ; i < motors.size();i++){
-        motors[i]->update();
-        
+    for(int i = 0 ; i < motors.size() ; i++){
+        motors[i]->updateMotorAngularVelocity();
     }
-    droneBattery->updateBattery();
     Vehicle::updateState();
     transposedProps();
+    ++(*this);
 }
 
 

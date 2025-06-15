@@ -30,6 +30,9 @@ struct propeller {
     //Drag Torque and thrust force is as defined in the paper "Generalized Control Allocation Scheme for Multirotor Type of UAVs"
     //Kotarski, Denis & Kasac, Josip. (2018). Generalized Control Allocation
     //Scheme for Multirotor Type of UAVs. 10.5772/intechopen.73006. 
+    inline propeller(std::string& propellerConfig){
+        initPropeller(propellerConfig);
+    }
     inline float dragTorque(float airDensity ,float angularVelocity){
         float k_t =  powerCoefficient * airDensity * M_PI * pow(diameter/2, 5);
         return k_t * pow(angularVelocity,3);  
@@ -38,17 +41,19 @@ struct propeller {
         float k_f = thrustCoefficient * airDensity * M_PI * pow(diameter/2,2) * pow(diameter/2,2);
         return k_f * pow(angularVelocity,2);
     }
-};
-//Sets prop attributes to config presets
-inline void initPropeller(propeller prop,std::string propellerConfig){
+    //Sets prop attributes to config presets
+    inline void initPropeller(std::string& propellerConfig){
     toml::tomlParse propParse;
     propParse.parseConfig(propellerConfig,"propeller");
-    prop.diameter = propParse.floatValues["diameter"];
-    prop.massKg = propParse.floatValues["massKg"];
-    prop.momentOfInertia = propParse.floatValues["MOI"];
-    prop.pitchMeters = propParse.floatValues["pitch"];
-    prop.thrustCoefficient = propParse.floatValues["thrustCoefficient"];
-    prop.dragCoefficient = propParse.floatValues["dragCoefficient"];
-}
+    diameter = propParse.floatValues["diameter"];
+    massKg = propParse.floatValues["massKg"];
+    momentOfInertia = propParse.floatValues["MOI"];
+    pitchMeters = propParse.floatValues["pitch"];
+    thrustCoefficient = propParse.floatValues["thrustCoefficient"];
+    dragCoefficient = propParse.floatValues["dragCoefficient"];    
+    }
+};
+//Sets prop attributes to config presets
+
 
 } //SimCore

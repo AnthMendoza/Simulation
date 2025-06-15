@@ -1,35 +1,63 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 #include <string>
+#include "PIDController.h"
+#include "battery.h"
 
 namespace SimCore{
 class motor {
 private:
     // Motor specifications
-    float freeSpeedRpm;          // Maximum RPM at no load
+    float freeSpeedAngularVelocity;          // Maximum RPM at no load
     float stallTorque;           // Maximum torque at zero speed (Nm)
     float stallCurrent;          // Current draw at stall (A)
     float noLoadCurrent;         // Current draw at no load (A)
-    float resistance;            // Motor resistance (Ohms)
+    float coilResistance;            // Motor resistance (Ohms)
     float voltage;               // Operating voltage (V)
-    float kv;                    // Motor velocity constant (RPM/V)
+    float kv;                    // Motor velocity constant (V/rad/s)
     float kt;                    // Motor torque constant (Nm/A)
+    float ke;                    // ke = kt for ideal motor
+    float dampingCoeff;
+    float netTorque;             // equals motorTorque - loads
+    float motorTorque;
     
     // Current operating state
-    float currentRpm;            // Current motor speed
+    float currentAngularVelocity;            // Current motor speed
     float currentTorque;         // Current torque output
     float currentCurrent;        // Current draw
     float currentThrottle;       // Throttle input (0.0 - 1.0)
     float maxCurrentAvailable;
-    
+    float maxVoltage;
+    float appliedVoltage;
+    float inertia;               // kg·m² (rotor inertia)
+    float angualrVeloRequest;
+    float backEMF;
+    float electricalPower;
+    float mechanicalPower;
+    float efficiency;
     // Motor limits and safety
     bool isEnabled;              // Motor enable state
     
+    std::unique_ptr<PIDController> PID;
 public:
+    /**
+     * @brief Updates the motor's electrical and mechanical state over a time step.
+     *
+     * Sources: https://www.ece.rice.edu/~jdw/435/book/ch8?utm_source=chatgpt.com
+     *
+     * @param timeStep The time increment for the simulation step (in seconds).
+     * @param motorResistance The mechanical torque opposing the motor's rotation (in Nm).
+     * @param coilResistance The electrical resistance of the motor coils (in ohms).
+     */
+    void updateMotor(float timeStep , float loadTorque , float voltage);
+    void updateMotorAngularVelocity(float timeStep , float loadTroque , battery& bat, float rad_sec);
+    /// @brief voltage applied to motor  = state * batteryVoltage.
+    /// @param state value -1 to 1;
     // Constructors
-    motor(std::string& config);
+    motor() = delete;
+    motor(std::string& config , float timeStep); 
     //motor(float freeSpeed, float stall_torque, float stall_current, float no_load_current, float motor_voltage);
-    void init(std::string& motorConfig);
+    void init(std::string& motorConfig , float timeStep);
     // Destructor
     ~motor() = default;
     
@@ -42,12 +70,12 @@ public:
     void angualrVeloctiyRequest(float rad_per_sec);
     void enable();                              // Enable motor
     void disable();                             // Disable motor
-     void setCurrent(float current);
+    void setCurrent(float current);
     
 
     // Getter methods for specifications
-    inline float getFreeSpeedRpm(){
-        return freeSpeedRpm;
+    inline float getFreeSpeedAngularVelocity(){
+        return freeSpeedAngularVelocity;
     }
     inline float getStallTorque() const{
         return stallTorque;
@@ -73,7 +101,7 @@ public:
      * @return rad/s
      */
     inline float getCurrentAngularVelocity() const{
-        return currentRpm;
+        return currentAngularVelocity;
     }
     float getCurrentTorque() const;
     inline float getCurrentCurrent() const{
@@ -90,9 +118,13 @@ public:
         return voltage * getCurrentCurrent();
     }
     float calculateEfficiency() const;         // Motor efficiency percentage
+
+    inline void setVoltage(float volt){
+        if(volt>maxVoltage)appliedVoltage = maxVoltage;
+        else if(volt < -maxVoltage) appliedVoltage = -maxVoltage;
+        else appliedVoltage = volt;
+    }
     
-    // Simulation/update method
-    void update();              // Update motor state
 };
 
 } //SimCore

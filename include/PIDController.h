@@ -6,7 +6,7 @@ public:
     PIDController() = delete;
     PIDController(float kp, float ki, float kd, float dt);
     void setGains(float kp, float ki, float kd);
-    void setOutputLimits(float minOutput, float maxOutput);
+    void setOutputLimits(float min, float max);
     void reset();
     void setTimeStep(float timeStep);
     void setTarget(float t);
