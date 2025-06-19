@@ -27,6 +27,10 @@ class droneControl{
     //low level vehicle angle control loop
     unique_ptr<PIDController> APIDX;
     unique_ptr<PIDController> APIDY;
+    /// @brief 
+    /// @param estimatedPostion 
+    /// @param estimatedState 
+    /// @return  vector of thrusts requests for each motor. 
     protected:
     public:
     //controlOutput is the ouput of the PID controllers when pidControl is called.
@@ -45,6 +49,8 @@ class droneControl{
     void setpidControl(float xTarget , float yTarget , float zTarget);
     //feedForward function for windprediction and gravity offset.
     void forceMomentProfile();
+
+    vector<float> update(std::array<float,3> estimatedPostion,std::array<float,3> estimatedState,std::array<float,3> estimatedVelocity, float mass, float gravitationalAcceleration);
 
     void aot();
     // nominally desired normal should be set to {0,0,1}. Hover right side up.
@@ -93,16 +99,17 @@ class droneBody :  public Vehicle{
     //droneBody(const droneBody& drone) = delete;
     void updateState() override; 
     void init(string& motorConfig ,string& batteryConfig , string& droneBody);
-    void setSquare(float x , float y , propeller prop);
+    void setSquare(float x , float y , propeller& prop , motor& mot);
     //sets center of gravity as an offset relative to the center defined by propLocations
     //positive x = front , positive y = right, positive Z = top
     void offsetCOG(array<float,3> offset);
     /**
      * @brief Simply calls the controller and feeds in the estimated Positions from state estimation as its arguments.
      * State estimation uses the sensors associated with the vehicle base class.
+     * @return Requested Thrust value from controller
      */
-    inline void updateController(){
-        controller->pidControl(getEstimatedPosition());
+    inline vector<float> updateController(){
+        return controller->update(getEstimatedPosition(),getEstimatedRotation(),getEstimatedVelocity(),mass,gravitationalAcceleration);
     }
 
     void motorMoment();
@@ -110,13 +117,29 @@ class droneBody :  public Vehicle{
     inline void thrustRequest(vector<float>& thrust){
         thrustRequestVect = thrust;
     }
-
+    /**
+    * @brief Cycles through updating controller, allocator, motors, propellers, battery, and droneBody. 
+    * This method is just a connecting bridge for objects within the droneBody.
+    */
     void transposedProps();
 
     inline battery* getBattery(){
         battery* bat = dynamic_cast<battery*> (droneBattery.get()); 
         return bat;
     }
+    inline void droneDisplay() const {
+        static const int linesToClear = 1; // number of lines in display
+
+        // Move cursor up to overwrite previous lines
+        for (int i = 0; i < linesToClear; ++i)
+            std::cout << "\x1b[1A" << "\x1b[2K";  // move up 1 line + clear line
+        std::cout << "Motors (rad/s):    ";
+        for(int i = 0; i<motors.size();i++){
+                  std::cout<< std::fixed << std::setprecision(2) << motors[0]->getCurrentAngularVelocity() << ",";
+        }
+        std::cout << std::flush;
+    }
+
 
 };
 

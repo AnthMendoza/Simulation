@@ -2,6 +2,7 @@
 #include "../include/vectorMath.h"
 #include <cmath>
 #include <iostream>
+#include <assert.h>
 
 namespace SimCore{
 //w is just a scaler of vector x,y,z

@@ -4,6 +4,7 @@
 #include <memory>
 #include <cmath>
 #include <memory>
+#include <iostream>
 #include "../include/forceApplied.h"
 #include "../include/vehicle.h"
 #include "../include/vectorMath.h"
@@ -28,15 +29,15 @@ void Vehicle::initSensors(){
 
     // Accelerometer
     std::unique_ptr<accelerometer> accel = std::make_unique<accelerometer>(
-        accelParse.floatValues["frequency"],
-        accelParse.floatValues["NoisePowerSpectralDensity"],
-        accelParse.floatValues["bandwidth"],
-        accelParse.floatValues["bias"]
+        accelParse.getFloat("frequency"),
+        accelParse.getFloat("NoisePowerSpectralDensity"),
+        accelParse.getFloat("bandwidth"),
+        accelParse.getFloat("bias")
     );
-    if (accelParse.boolValues["burst"] == true) {
+    if (accelParse.getBool("burst") == true) {
         accel->setBurst(
-            accelParse.floatValues["burstStdDeviation"],
-            accelParse.floatValues["maxBurstDuration"]
+            accelParse.getFloat("burstStdDeviation"),
+            accelParse.getFloat("maxBurstDuration")
         );
     }
     sensorMap->insert({"accelerometer", std::move(accel)});
@@ -46,16 +47,16 @@ void Vehicle::initSensors(){
     gpsParse.parseConfig( configFile,"gps");
 
     std::unique_ptr<GNSS> gps = std::make_unique<GNSS>(
-        gpsParse.floatValues["frequency"],
-        gpsParse.floatValues["NoisePowerSpectralDensity"],
-        gpsParse.floatValues["bandwidth"],
-        gpsParse.floatValues["bias"]
+        gpsParse.getFloat("frequency"),
+        gpsParse.getFloat("NoisePowerSpectralDensity"),
+        gpsParse.getFloat("bandwidth"),
+        gpsParse.getFloat("bias")
     );
 
-    if (gpsParse.boolValues["burst"] == true) {
+    if (gpsParse.getBool("burst") == true) {
         gps->setBurst(
-            gpsParse.floatValues["burstStdDeviation"],
-            gpsParse.floatValues["maxBurstDuration"]
+            gpsParse.getFloat("burstStdDeviation"),
+            gpsParse.getFloat("maxBurstDuration")
         );
     }
     sensorMap->insert({"GNSS", std::move(gps)});
@@ -65,15 +66,15 @@ void Vehicle::initSensors(){
     gyroParse.parseConfig( configFile,"gyro");
     
     std::unique_ptr<gyroscope> gyro = std::make_unique<gyroscope>(
-        gyroParse.floatValues["frequency"],
-        gyroParse.floatValues["NoisePowerSpectralDensity"],
-        gyroParse.floatValues["bandwidth"],
-        gyroParse.floatValues["bias"]
+        gyroParse.getFloat("frequency"),
+        gyroParse.getFloat("NoisePowerSpectralDensity"),
+        gyroParse.getFloat("bandwidth"),
+        gyroParse.getFloat("bias")
     );
-    if (gyroParse.boolValues["burst"] == true) {
+    if (gyroParse.getBool("burst") == true) {
         gyro->setBurst(
-            gyroParse.floatValues["burstStdDeviation"],
-            gyroParse.floatValues["maxBurstDuration"]
+            gyroParse.getFloat("burstStdDeviation"),
+            gyroParse.getFloat("maxBurstDuration")
         );
     }
     sensorMap->insert({"gyro",std::move(gyro)});
@@ -125,12 +126,11 @@ Vehicle& Vehicle::operator=(const Vehicle& other){
 void Vehicle::init(string& vehicleConfig){
     outputFile = "../output.csv";
     toml::tomlParse vParse;
-    vParse.parseConfig( configFile,"vehicle");
+    vParse.parseConfig(vehicleConfig,"vehicle");
 
     iterations = 0;
-
     // Read initPosition
-    auto& pos = vParse.arrayValues["initPosition"];
+    auto pos = vParse.getArray("initPosition");
     Xposition = pos[0];
     Yposition = pos[1];
     Zposition = pos[2];
@@ -140,7 +140,7 @@ void Vehicle::init(string& vehicleConfig){
     angularVelocity = {0, 0, 0};
 
     // Read initVehicleState
-    auto& state = vParse.arrayValues["initVehicleState"];
+    auto state = vParse.getArray("initVehicleState");
 
     vehicleState[0] = state[0];
     vehicleState[1] = state[1];
@@ -148,15 +148,15 @@ void Vehicle::init(string& vehicleConfig){
 
 
     // Read initVelocity
-    auto& velo = vParse.arrayValues["initVelocity"];
+    auto velo = vParse.getArray("initVelocity");
     Xvelocity = velo[0];
     Yvelocity = velo[1];
     Zvelocity = velo[2];
 
 
-    gravitationalAcceleration = vParse.floatValues["gravitationalAcceleration"]; 
+    gravitationalAcceleration = vParse.getFloat("gravitationalAcceleration"); 
 
-    auto& windVect = vParse.arrayValues["wind"];
+    auto windVect = vParse.getArray("wind");
     wind[0] = windVect[0];
     wind[1] = windVect[1];
     wind[2] = windVect[2];
@@ -172,7 +172,7 @@ void Vehicle::init(string& vehicleConfig){
 
     acceleration = {0,0,0};
     
-    timeStep = .001; //seconds
+    timeStep = vParse.getFloat("timeStep");
     // todo 
     //change init vectors to match setup in config file. need computation to ensure init vectors are valid.
     std::array<float,3> vect1 = {1,0,0};
@@ -207,7 +207,7 @@ void Vehicle::getAccel(std::array<float,3> &accel){
 }
 
 
-void Vehicle::drag(){
+void Vehicle::drag(float (*aeroArea)(float),float (*coefOfDrag)(float)){
 
     std::array<float,3> airVelocityVector;
 
@@ -236,7 +236,7 @@ void Vehicle::drag(){
 }
 
 
-void Vehicle::lift(){
+void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
 
     //lift acting on the center of pressure.
 
@@ -318,6 +318,7 @@ void Vehicle::addYawMoment(float moment){
 
 void Vehicle::updateState(){
         //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
+        // Before using GNSS velocity
         if(iterations == 0){
             auto& ptr = sensorMap->find("GNSS")->second;
             GNSS* GPS = dynamic_cast<GNSS*> (ptr.get());
@@ -327,17 +328,21 @@ void Vehicle::updateState(){
         updateEstimation( timeStep);
     
         sumOfForces[2] = sumOfForces[2] + gravitationalAcceleration * mass; 
-        
+        // After gravitational force added
+
+
         updateAcceleration();
-    
+        // Before Runge-Kutta
+
         RungeKutta4th(sumOfForces[0] , mass ,  timeStep , Xvelocity,Xposition);
         RungeKutta4th(sumOfForces[1] , mass ,  timeStep , Yvelocity,Yposition);
         RungeKutta4th(sumOfForces[2] , mass ,  timeStep , Zvelocity,Zposition);
-    
+    // Before rotational ODE
+
         pose->eularRotation(rotationalOde(sumOfMoments[0] , MOI[0],  timeStep ,angularVelocity[0]),
                             rotationalOde(sumOfMoments[1] , MOI[1],  timeStep ,angularVelocity[1]),
                             rotationalOde(sumOfMoments[2] , MOI[2],  timeStep ,angularVelocity[2]));
-    
+
         vehicleState = pose->getdirVector();
     
         gForce = getGForce();
@@ -351,6 +356,7 @@ void Vehicle::updateState(){
         sumOfMoments[0] = 0;
         sumOfMoments[1] = 0;
         sumOfMoments[2] = 0;
+        // After pose rotation
 }
 
 

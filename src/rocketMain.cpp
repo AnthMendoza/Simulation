@@ -15,13 +15,14 @@
 #include "../include/sensors.h"
 #include "../include/rocket.h"
 #include "../include/quaternion.h"
+#include "../include/aero.h"
 #include <string>
 
 namespace SimCore{
 void iterator(Rocket &rocket ,loggedData *data){
     while(rocket.getPositionVector()[2] > 0 && rocket.getIterations() < 1000000){
-        rocket.drag();
-        rocket.lift();
+        rocket.drag(aeroAreaRocket,coefOfDragRocket);
+        rocket.lift(aeroAreaRocket,coefOfLiftRocket);
         //rocket.glideToTarget();
         rocket.reentryBurn();
         rocket.landingBurn();

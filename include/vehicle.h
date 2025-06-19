@@ -62,9 +62,9 @@ class Vehicle : public stateEstimation{
 
     virtual void updateState();
 
-    virtual void drag();
+    virtual void drag(float (*aeroArea)(float),float (*coefOfDrag)(float));
 
-    virtual void lift();
+    virtual void lift(float (*aeroArea)(float),float (*coefOfLift)(float));
 
     virtual void initSensors();
 
@@ -117,14 +117,14 @@ class Vehicle : public stateEstimation{
         return pose->getPose();
     }
     inline void display() const {
-        static const int linesToClear = 6; // number of lines in display
+        static const int linesToClear = 4; // number of lines in display
 
         // Move cursor up to overwrite previous lines
         for (int i = 0; i < linesToClear; ++i)
             std::cout << "\x1b[1A" << "\x1b[2K";  // move up 1 line + clear line
 
         std::cout << std::fixed << std::setprecision(2);
-        std::cout << "Drone Analytics\n";
+        std::cout << "Drone Analytics : Iteration" << iterations<<"\n";
         std::array<float,3> pos = getPositionVector();
         std::cout << "Position     (x, y, z):      ("
                   << pos[0] << ", "
@@ -132,9 +132,9 @@ class Vehicle : public stateEstimation{
                   << pos[2] << ")\n";
         std::array<float,3> velo = getVelocityVector();
         std::cout << "Velocity     (vx, vy, vz):   ("
-                  << pos[0] << ", "
-                  << pos[1] << ", "
-                  << pos[2] << ")\n";
+                  << velo[0] << ", "
+                  << velo[1] << ", "
+                  << velo[2] << ")\n";
 
         std::cout << "Acceleration (ax, ay, az):   ("
                   << acceleration[0] << ", "
@@ -145,7 +145,6 @@ class Vehicle : public stateEstimation{
                   << vehicleState[0] << ", "
                   << vehicleState[1] << ", "
                   << vehicleState[2] << ")\n";
-
         std::cout << std::flush;
     }
 

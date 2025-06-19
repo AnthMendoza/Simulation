@@ -98,48 +98,48 @@ void Rocket::init(string& configFile){
 
     // Controller
     Stanley = std::make_unique<StanleyController>(
-        vehicleParse.floatValues["StanleyGain"],
-        vehicleParse.floatValues["maxSteeringAngle"]
+        vehicleParse.getFloat("StanleyGain"),
+        vehicleParse.getFloat("maxSteeringAngle")
     );
 
     // Mass parameters
-    dryMass = vehicleParse.floatValues["dryMass"];
-    fuel = vehicleParse.floatValues["initFuel"];
-    LOX = vehicleParse.floatValues["initLOX"];
+    dryMass = vehicleParse.getFloat("dryMass");
+    fuel = vehicleParse.getFloat("initFuel");
+    LOX = vehicleParse.getFloat("initLOX");
     mass = dryMass + fuel + LOX;
 
-    fuelConsumptionRate = vehicleParse.floatValues["consumptionRateFuel"];
-    LOXConsumptionRate = vehicleParse.floatValues["consumptionRateLOX"];
+    fuelConsumptionRate =   vehicleParse.getFloat("consumptionRateFuel");
+    LOXConsumptionRate =    vehicleParse.getFloat("consumptionRateLOX");
 
     // MOI
-    auto& moiArray = vehicleParse.arrayValues["MOI"];
+    auto moiArray = vehicleParse.getArray("MOI");
     MOI[0] = moiArray[0];
     MOI[1] = moiArray[1];
     MOI[2] = moiArray[2];
 
     // Landing target
-    auto& landingPos = vehicleParse.arrayValues["targetLandingPosition"];
+    auto landingPos = vehicleParse.getArray("targetLandingPosition");
     targetLandingPosition[0] = landingPos[0];
     targetLandingPosition[1] = landingPos[1];
     targetLandingPosition[2] = landingPos[2];
     // Gimbal PID
-    gimbalDamping = vehicleParse.floatValues["gimbalDamping"];
-    gimbalPGain =   vehicleParse.floatValues["gimbalPGain"];
-    gimbalIGain =   vehicleParse.floatValues["gimbalIGain"];
-    gimbalDGain =   vehicleParse.floatValues["gimbalDGain"];
+    gimbalDamping = vehicleParse.getFloat("gimbalDamping");
+    gimbalPGain =   vehicleParse.getFloat("gimbalPGain");
+    gimbalIGain =   vehicleParse.getFloat("gimbalIGain");
+    gimbalDGain =   vehicleParse.getFloat("gimbalDGain");
 
     // Fin PID
-    finDamping =            vehicleParse.floatValues["finDamping"];
-    finPGain =              vehicleParse.floatValues["finPGain"];
-    finIGain =              vehicleParse.floatValues["finIGain"];
-    finDGain =              vehicleParse.floatValues["finDGain"];
-    maxFinAcceleration =    vehicleParse.floatValues["maxFinAcceleration"];
-    maxGimbalAcceleration = vehicleParse.floatValues["maxGimbalAcceleration"];
+    finDamping =            vehicleParse.getFloat("finDamping");
+    finPGain =              vehicleParse.getFloat("finPGain");
+    finIGain =              vehicleParse.getFloat("finIGain");
+    finDGain =              vehicleParse.getFloat("finDGain");
+    maxFinAcceleration =    vehicleParse.getFloat("maxFinAcceleration");
+    maxGimbalAcceleration = vehicleParse.getFloat("maxGimbalAcceleration");
 
-    maxGAllowedEntry = vehicleParse.floatValues["maxGAllowedEntry"];
-    centerOfPressure = vehicleParse.floatValues["centerOfPressure"];
-    cogToEngine = vehicleParse.floatValues["cogToEngine"];// meters use this to calculate the moment created by the engine this is negative becuase center of pressure on the opposite side of the COG is positive
-    maxThrust = vehicleParse.floatValues["maxThrust"];
+    maxGAllowedEntry =  vehicleParse.getFloat("maxGAllowedEntry");
+    centerOfPressure =  vehicleParse.getFloat("centerOfPressure");
+    cogToEngine =       vehicleParse.getFloat("cogToEngine");// meters use this to calculate the moment created by the engine this is negative becuase center of pressure on the opposite side of the COG is positive
+    maxThrust =         vehicleParse.getFloat("maxThrust");
     minThrust = maxThrust *.5; //newtons, 65 percent of max;
     landingThrust = maxThrust * .95 ;
     maxGimbalAngle = 30  * 3.1415926535f / 180.0f;// degrees
@@ -188,8 +188,8 @@ void Rocket::init(string& configFile){
 }
 
 
-void Rocket::drag(){
-    Vehicle::drag();
+void Rocket::drag(float (*aeroArea)(float),float (*coefOfDrag)(float)){
+    Vehicle::drag(aeroArea,coefOfDrag);
 
 }
 
@@ -203,8 +203,8 @@ void Rocket::initSensors(){
 }
 
 
-void Rocket::lift(){
-    Vehicle::lift();
+void Rocket::lift(float (*aeroArea)(float),float (*coefOfDrag)(float)){
+    Vehicle::lift(aeroArea,coefOfDrag);
 }   
 
 void Rocket::applyEngineForce(std::array<float,2> twoDEngineRadians , float thrust){
@@ -589,8 +589,8 @@ std::vector<float> Rocket::lookAhead(Rocket &rocket,float lookAheadTime , std::f
     std::vector<float> log;
     while(rocket.iterations - initalIterations < limit && rocket.Zposition > 0){
         
-        rocket.drag();
-        rocket.lift();
+        rocket.drag(aeroAreaRocket,coefOfDragRocket);
+        rocket.lift(aeroAreaRocket,coefOfLiftRocket);
         rocket.updateState();
         log.push_back(valueToLog(rocket));
         rocket.iterations++;
@@ -629,8 +629,8 @@ void Rocket::reentryBurn(loggedData *data){
             float currentIteration = iterations;
             count++;
             while(iterations < currentIteration + stepInterval/ timeStep && Zposition > 0){
-                drag();
-                lift();
+                drag(aeroAreaRocket,coefOfDragRocket);
+                lift(aeroAreaRocket,coefOfLiftRocket);
                 applyEngineForce(direction ,  maxThrust * .6 * 3); 
                 finVectors = getFinForceVectors();
                 if(data != nullptr) data->logRocketPosition(*this);

@@ -52,6 +52,7 @@ void tomlParse::parseConfig(const std::string& config, const std::string& target
             floatValues[key] = std::stof(value);
         }
     }
+
 }
 
 }

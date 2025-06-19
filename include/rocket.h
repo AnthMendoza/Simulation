@@ -108,9 +108,9 @@ class Rocket : public Vehicle{
 
         void init(string& configFile) override;
 
-        void drag() override;
+        void drag(float (*aeroArea)(float),float (*coefOfDrag)(float)) override;
 
-        void lift() override;
+        void lift(float (*aeroArea)(float),float (*coefOfLift)(float)) override;
 
         void applyEngineForce(std::array<float,2> twoDEngineRadians , float thrust);
 
@@ -129,6 +129,12 @@ class Rocket : public Vehicle{
         void initSensors() override;
 
         void updateFinPosition(std::pair<float,float> commands);
+
+        float aeroArea(float angle);
+        
+        float coefOfDrag(float angle);
+
+        float coefOfLift(float angle);
 
         inline std::array<float,3> getRadarPosition(){
             std::array<float,3> radar = {0,0,0};

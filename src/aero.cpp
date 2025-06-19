@@ -27,25 +27,37 @@ float airDensity(float Zposition) {  //Zposition in meters, returned in kg/m^3
     return pressure / (.2869f * (temp + 273.15f));
 }
 
-
-
-float aeroArea(float angle){  //cross sectional aera dependent on the orientation of the vehicle. This will be estamited based on a cylindrical body
+float aeroAreaRocket(float angle){  //cross sectional aera dependent on the orientation of the vehicle. This will be estamited based on a cylindrical body
     // cross section of a circle when head-on, cross section of a rectangle when in slide slip.
     //coef of drag
     return sin(angle) * 141.687 + 10.75;
 }
 
 
-float coefOfDrag(float angle){
+float coefOfDragRocket(float angle){
     //coef of drag for a "long" cylinder is .82 with blunt/square ends. 
     // for an infintly long cylinder, the sideways coef drag is 1.095
     return sin(angle) * .7 + .82;
 }
 
-float coefOfLift(float angle){
+float coefOfLiftRocket(float angle){
     // more is needed to properlly estmiate this
-
     return angle * 2.1;
 }
+
+
+float aeroAreaDrone(float angle){
+    return 0;
+}
+
+float coefOfDragDrone(float angle){
+    return 0;
+}
+    
+float coefOfLiftDrone(float angle){
+    return 0;
+}
+
+
 
 }

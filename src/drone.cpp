@@ -5,6 +5,11 @@
 #include "../include/PIDController.h"
 #include "../include/aero.h"
 #include "../include/propeller.h"
+#include "../include/motor.h"
+#include "../include/Eigen/Eigen"
+#include "../include/Eigen/Dense"
+#include "toml.h"
+#include <cassert>
 #include <iostream>
 #include <utility>
 #include <cmath>
@@ -19,28 +24,36 @@ droneBody::~droneBody(){
 
 void droneBody::init(string& motorConfig,string& batteryConfig , string& droneConfig){
     Vehicle::init(droneConfig);
+    configFile = droneConfig;
+    initSensors();
     controller = make_unique<droneControl>();
     propLocationsSet = false;
     transposeCalls = 0;
     for(int i = 0 ; i < propellers.size() ; i++){
-        motors.push_back(std::make_unique<motor>(motorConfig));
+        motors.push_back(std::make_unique<motor>(motorConfig,timeStep));
         motors[i]->init(motorConfig,timeStep);
     }
-    droneBattery = std::make_unique<battery>();
-    droneBattery->init(batteryConfig);
+    droneBattery = std::make_unique<battery>(batteryConfig);
     std::array<float,3> vect1 = {1,0,0};
     std::array<float,3> vect2 = {1,1,0};
     pose = std::make_unique<quaternionVehicle>(vect2,vect1);
-    
+    cogLocation = {0,0,0};
+    cogLocationTranspose = cogLocation;
+    toml::tomlParse toml;
+    toml.parseConfig(droneConfig,"vehicle");
+    mass = toml.getFloat("mass");
+    MOI[0] = toml.getArray("MOI")[0];
+    MOI[1] = toml.getArray("MOI")[1];
+    MOI[2] = toml.getArray("MOI")[2];
 }
 //Set Square allows the creation of a rectagular prop profile.
 //positive x = front , positive y = right, positive Z = top
 // prop is a basis object location will be overwritten in setSquare
-void droneBody::setSquare(float x, float y, propeller prop) {
+void droneBody::setSquare(float x, float y, propeller& prop, motor& mot) {
+    if(x <= 0 || y <= 0) throw runtime_error("X and Y values of SetSquare cannot be <=0 \n");
     x = x / 2;
     y = y / 2;
 
-    std::vector<std::unique_ptr<propeller>> props;
 
     std::array<std::array<float, 3>, 4> positions = {{
         { x,  y, 0},
@@ -50,13 +63,14 @@ void droneBody::setSquare(float x, float y, propeller prop) {
     }};
 
     for (const auto& pos : positions) {
+        motors.push_back(std::make_unique<motor>(mot));
         auto p = std::make_unique<propeller>(prop);
         p->location = pos;
         p->locationTransposed = pos;
         p->direction = {0, 0, 1};
         p->directionTransposed = {0, 0, 1};
-        props.push_back(std::move(p));
-    }
+        propellers.push_back(std::move(p));
+;    }
     //updates allocator with new motor layout
     allocatorHelper();
 }
@@ -79,11 +93,15 @@ void droneBody::motorMoment(){
 void droneBody::transposedProps(){
     //rezero transpose every 100 timeSteps
     if(transposeCalls >= 100){
+        for(auto& p:propellers){
+            p->directionTransposed= normalizeVector(p->directionTransposed);
+        }
         transposeCalls = 0;
         //set direction axis to main axis
         std::array<float,3> quaternionDirectionVector = pose->getdirVector();
 
         float angle = vectorAngleBetween(quaternionDirectionVector,index.nominal.dir);
+        assert(!std::isnan(angle));
         const float EPSILON = 1e-4f;
         if(std::abs(angle - M_PI) < EPSILON){
             resetHelper();
@@ -97,13 +115,16 @@ void droneBody::transposedProps(){
             combined.normalized();
             rotationHelper(combined);
             angle = vectorAngleBetween(quaternionDirectionVector,index.dirVector);
+            assert(!std::isnan(angle));
         }
         std::array<float,3> cross;
+        assert(!std::isnan(cross[0]));
         vectorCrossProduct(quaternionDirectionVector, index.dirVector, cross);
         Quaternion qcross = fromAxisAngle(cross, angle);
         rotationHelper(qcross);
 
         float yawAngle = vectorAngleBetween(index.fwdVector,pose->getfwdVector());
+        assert(!std::isnan(yawAngle));
     }
 }
 
@@ -131,11 +152,14 @@ void droneBody::resetHelper(){
 void droneBody::allocatorHelper(){
     vector<array<float,3>> pos;
     vector<array<float,3>> thrustVect;
-    vector<float> coef;
-    for(auto &props:propellers){
-        pos.push_back(props->location);
-        thrustVect.push_back(props->direction);
-        coef.push_back(props->dragCoefficient);
+    vector<float> coef = {  propellers[0]->dragCoefficient,
+                            -propellers[0]->dragCoefficient,
+                            propellers[0]->dragCoefficient,
+                            -propellers[0]->dragCoefficient};
+    for(int i = 0 ; i < propellers.size();i++){
+        pos.push_back(propellers[i]->location);
+        thrustVect.push_back(propellers[i]->direction);
+        //coef.push_back(propellers[i]->dragCoefficient);
     }
     controlAllocator allocate(pos,thrustVect,coef);
     controller->allocator = std::make_unique<controlAllocator>(allocate);
@@ -145,13 +169,37 @@ void droneBody::allocatorHelper(){
 
 
 void droneBody::updateState(){
-    updateController();
+    vector<float> controllerThrusts = updateController();
+    lift(aeroAreaDrone,coefOfLiftDrone);
+    drag(aeroAreaDrone,coefOfDragDrone);
+    float current = 0;
+    float density = airDensity(Zposition);
+    std::cout<<Zposition<< "," <<getEstimatedPosition()[2]<< "\n";
     for(int i = 0 ; i < motors.size() ; i++){
-        motors[i]->updateMotorAngularVelocity();
+        if(controllerThrusts.size() != motors.size()) throw runtime_error("Controller error thrust request does not equal motor count \n");
+        
+        float torqueLoad = propellers[i]->dragTorque(density,motors[i]->getCurrentAngularVelocity());
+        float angularVelocityRequest = propellers[i]->desiredAngularVelocity(density,controllerThrusts[i]);
+        if(angularVelocityRequest < 0) angularVelocityRequest = 0;
+        std::cout<<angularVelocityRequest;
+        motors[i]->updateMotorAngularVelocity(timeStep,torqueLoad,*droneBattery,angularVelocityRequest);
+        current += abs(motors[i]->getCurrentCurrent());
+        std::array<float,3> thrustVector = propellers[i]->directionTransposed;
+        float currentThrust = propellers[i]->thrustForce(density,motors[i]->getCurrentAngularVelocity());
+        thrustVector[0] = thrustVector[0] * currentThrust;
+        thrustVector[1] = thrustVector[1] * currentThrust;
+        thrustVector[2] = thrustVector[2] * currentThrust;
+        
+        //std::cout<<"thrust"<<thrustVector[0]<<","<< thrustVector[1]<<","<<thrustVector[2]<<"\n"; 
+        addForce(thrustVector);
     }
+    assert(!std::isnan(current));
+    droneBattery->updateBattery(current);
     Vehicle::updateState();
+    //TransposedProps move the transposed cordinates of the props in the prop objects within propellers.
     transposedProps();
-    ++(*this);
+    //calls a step in iteration
+    iterations++;
 }
 
 
@@ -165,9 +213,9 @@ void droneControl::init(){
 void droneControl::initpidControl(string droneConfig , float timeStep){
     toml::tomlParse PIDPrase;
     PIDPrase.parseConfig(droneConfig,"PID");
-    float kp = PIDPrase.floatValues["Kp"];
-    float ki = PIDPrase.floatValues["Ki"];
-    float kd = PIDPrase.floatValues["Kd"];
+    float kp = PIDPrase.getFloat("Kp");
+    float ki = PIDPrase.getFloat("Ki");
+    float kd = PIDPrase.getFloat("Kd");
     if (PIDX == nullptr)
         PIDX = std::make_unique<PIDController>(kp, ki, kd, timeStep);
 
@@ -176,9 +224,9 @@ void droneControl::initpidControl(string droneConfig , float timeStep){
 
     if (PIDZ == nullptr)
         PIDZ = std::make_unique<PIDController>(
-            PIDPrase.floatValues["ZKp"],
-            PIDPrase.floatValues["ZKi"],
-            PIDPrase.floatValues["ZKd"],
+            PIDPrase.getFloat("ZKp"),
+            PIDPrase.getFloat("ZKi"),
+            PIDPrase.getFloat("ZKd"),
             timeStep);
 
     PIDX->setOutputLimits(-1,1);
@@ -202,6 +250,7 @@ void droneControl::pidControl(std::array<float,3> pos){
     controlOutput = {   PIDX->update(pos[0]),
                         PIDY->update(pos[1]),
                         PIDZ->update(pos[2])};
+    std::cout<<PIDZ->lastError()<<","<<PIDZ->getTarget()<<","<<PIDZ->getPreviousSample()<< ","<< PIDZ->getTarget()<<","<< PIDZ->getPreviousError()<<","<<controlOutput[2]<<"\n";
 }
 
 void droneControl::setpidControl(float xTarget , float yTarget , float zTarget){
@@ -235,5 +284,22 @@ void droneControl::aot(){
     std::array<float,3> adjustedVect = rotateVector(combined,desiredNormal);
     currentFlightTargetNormal = adjustedVect;
 }
+
+ vector<float> droneControl::update(std::array<float,3> estimatedPostion,std::array<float,3> estimatedState,std::array<float,3> estimatedVelocity , float mass, float gravitationalAcceleration){
+    pidControl(estimatedPostion);
+    //change this asap. thrustCoeff used as test metric
+    float thrustCoeff = 400;
+    assert(allocator != nullptr);
+    VectorXd desired  = allocator->toVectorXd({0.0f,0.0f,controlOutput[2] * thrustCoeff,0.0f,0.0f,0.0f});
+    VectorXd thrusts = allocator->allocate(desired);
+    //VectorXd to vector<float> can be converted into a method if needed further
+    std::vector<float> result;
+    result.reserve(thrusts.size());
+    for (int i = 0; i < thrusts.size(); ++i) {
+        result.push_back(static_cast<float>(thrusts[i]));
+    }
+    return result;
+}
+
 
 }//SimCore

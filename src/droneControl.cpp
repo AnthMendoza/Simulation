@@ -27,8 +27,15 @@ void controlAllocator::buildCASMatrix() {
     Bpinv = svd.solve(MatrixXd::Identity(6, 6));
 }
 
-controlAllocator::controlAllocator(const vector<array<float,3>>& motorPositions,const vector<array<float,3>>& thrustDirections,vector<float> spinTCoefficent)
-{   
+VectorXd controlAllocator::toVectorXd(std::initializer_list<float> list) {
+    VectorXd vec(list.size());
+    int i = 0;
+    for (float  val : list) vec(i++) = val;
+    return vec;
+}
+
+controlAllocator::controlAllocator(const vector<array<float,3>>& motorPositions,const vector<array<float,3>>& thrustDirections,vector<float> spinTCoefficent){   
+    if(motorPositions.empty() || thrustDirections.empty() || spinTCoefficent.empty()) throw runtime_error("Allocator contains no motor positions");
     //converts native c++ into eigan friendly Vectors.
     //check if vectors are the same size. Throws runtime error if not.
     if(motorPositions.size() != thrustDirections.size() || motorPositions.size() != spinTCoefficent.size()){
@@ -49,6 +56,7 @@ controlAllocator::controlAllocator(const vector<array<float,3>>& motorPositions,
     }
     buildCASMatrix();  // Build CAS matrix and precompute pseudo-inverse
 }
+
 
 
 } //SimCore

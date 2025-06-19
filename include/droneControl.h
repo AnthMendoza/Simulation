@@ -4,6 +4,7 @@
 #include "../include/Eigen/Eigen"
 #include "../include/Eigen/Dense"
 #include <vector>
+#include "propeller.h"
 using namespace Eigen;
 using namespace std;
 namespace SimCore{
@@ -37,7 +38,6 @@ public:
      * @param spinTCoefficent      Vector of spin torque coefficients (yaw torque per unit thrust)
      */
     controlAllocator(const vector<array<float,3>>& motorPositions,const vector<array<float,3>>& thrustDirections,vector<float> spinTCoefficent);
-
     /**
      * @brief Solves for the rotor thrusts required to produce the given wrench (force and torque).
      * @param desiredwrench 6D vector: [Fx, Fy, Fz, Tx, Ty, Tz]
@@ -64,6 +64,8 @@ public:
     inline VectorXd computeWrench(const VectorXd& thrusts) const {
         return B * thrusts;
     }
+
+    VectorXd toVectorXd(std::initializer_list<float> list);
 
 };
 

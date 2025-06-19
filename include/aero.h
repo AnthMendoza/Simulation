@@ -3,11 +3,18 @@
 namespace SimCore{
     float airDensity(float Zposition);
 
-    float aeroArea(float angle);
+    float aeroAreaRocket(float angle);
 
-    float coefOfDrag(float angle);
+    float coefOfDragRocket(float angle);
     
-    float coefOfLift(float angle);
+    float coefOfLiftRocket(float angle);
+
+    float aeroAreaDrone(float angle);
+
+    float coefOfDragDrone(float angle);
+    
+    float coefOfLiftDrone(float angle);
+
 }
     
 #endif

@@ -43,7 +43,7 @@ class unrealDrone{
     private:
     unrealDataDrone packet;
     void setPacket();
-    void iterator(float totalTime , bool display = false);
+    void iterator(float totalTime);
     float totalTime;
     public:
     std::unique_ptr<droneBody> drone;

@@ -6,4 +6,4 @@ cellCount                   = 8.0
 wattHours                   = 100.0
 currentCapacity             = 100.0
 soc                         = 1.0
-safetyTerminationLevel      = 0.2
+safteyTerminationLevel      = 0.2

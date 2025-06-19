@@ -56,10 +56,11 @@ public:
     // Constructors
     motor() = delete;
     motor(std::string& config , float timeStep); 
+    motor(const motor& other);
     //motor(float freeSpeed, float stall_torque, float stall_current, float no_load_current, float motor_voltage);
     void init(std::string& motorConfig , float timeStep);
     // Destructor
-    ~motor() = default;
+    ~motor();
     
     // Configuration methods
     void setMotorSpecs(float freeSpeed, float stall_torque, float stall_current, 
@@ -120,9 +121,8 @@ public:
     float calculateEfficiency() const;         // Motor efficiency percentage
 
     inline void setVoltage(float volt){
-        if(volt>maxVoltage)appliedVoltage = maxVoltage;
-        else if(volt < -maxVoltage) appliedVoltage = -maxVoltage;
-        else appliedVoltage = volt;
+       volt = std::clamp(volt,-maxVoltage,maxVoltage);
+       appliedVoltage = volt;
     }
     
 };

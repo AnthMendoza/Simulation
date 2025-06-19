@@ -44,12 +44,6 @@ TEST(System , FreeFall){
     EXPECT_FLOAT_EQ(time , 45.16f);
 }
 
-VectorXd toVectorXd(std::initializer_list<double> list) {
-    VectorXd vec(list.size());
-    int i = 0;
-    for (double val : list) vec(i++) = val;
-    return vec;
-}
 
 TEST(ControlAllocator, WrenchMatchesDesiredInput) {
     std::vector<std::array<float, 3>> positions = {
@@ -62,11 +56,10 @@ TEST(ControlAllocator, WrenchMatchesDesiredInput) {
 
     controlAllocator allocator(positions, thrustDirs, spin);
 
-    VectorXd desired = toVectorXd({0, 0, 4, 0, 0, 0});
+    VectorXd desired = allocator.toVectorXd({0, 0, 4, 0, 0, 0});
     VectorXd thrusts = allocator.allocate(desired);
     VectorXd actual = allocator.computeWrench(thrusts);
-
-    for (int i = 0; i < 6; ++i) {
+    for(int i = 0; i < 6; ++i) {
         EXPECT_NEAR(actual(i), desired(i), EPSILON);
     }
 }
@@ -118,7 +111,7 @@ TEST(TOML,GetValue){
 
     toml::tomlParse parser;
     parser.parseConfig(configText, "vehicle");
-    auto arr =parser.arrayValues["MOI"];
+    auto arr =parser.getArray("MOI");
     EXPECT_FLOAT_EQ(arr[1], 2.0f);
 
 }
@@ -135,7 +128,7 @@ TEST(TOML,GetValueSecondSet){
 
     toml::tomlParse parser;
     parser.parseConfig(configText, "rocket");
-    auto val =parser.floatValues["thrust"];
+    auto val =parser.getFloat("thrust");
     EXPECT_FLOAT_EQ( val, 10000.0f);
 
 }
@@ -153,7 +146,7 @@ TEST(TOML,BooleanTestTrue){
 
     toml::tomlParse parser;
     parser.parseConfig(configText, "rocket");
-    auto val =parser.boolValues["SetLanding"];
+    auto val =parser.getBool("SetLanding");
     EXPECT_TRUE(val);
 
 }
@@ -171,7 +164,7 @@ TEST(TOML,BooleanTestFalse){
 
     toml::tomlParse parser;
     parser.parseConfig(configText, "rocket");
-    auto val =parser.boolValues["SetLanding"];
+    auto val =parser.getBool("SetLanding");
     EXPECT_FALSE(val);
 
 }

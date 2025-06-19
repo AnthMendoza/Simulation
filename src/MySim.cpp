@@ -2,6 +2,7 @@
 #include <cstring>
 #include "../include/control.h"
 #include "../include/propeller.h"
+#include "../include/aero.h"
 #include <filesystem>
 #include <stdexcept>
 #include <memory>
@@ -10,8 +11,8 @@ namespace SimCore{
   
 void unrealRocket::iterator(float totalTime){
     while(unrealVehicle->getTime() < totalTime &&  unrealVehicle->getPositionVector()[2]> 0 ){
-        unrealVehicle->drag();
-        unrealVehicle->lift();
+        unrealVehicle->drag(aeroAreaRocket,coefOfDragRocket);
+        unrealVehicle->lift(aeroAreaRocket,coefOfLiftRocket);
         //unrealVehicle->reentryBurn();
         //unrealVehicle->landingBurn();
         //data->logRocketPosition(rocket); //future simulate in unreal and display logs. not logging for now
@@ -63,9 +64,11 @@ unrealDataDrone* unrealDrone::simFrameRequest(float deltaTime){
 unrealDrone::unrealDrone(std::string motorConfig , std::string batteryConfig , std::string droneConfig,std::string propellerConfig){
     drone = std::make_unique<droneBody>();
     drone->init(motorConfig,batteryConfig,droneConfig);
-    propeller prop;
-    initPropeller(prop,propellerConfig);
-    drone->setSquare(0.3f,0.3f,prop);
+    drone->controller->initpidControl(droneConfig,drone->getTimeStep());
+    propeller prop(propellerConfig);
+    motor m(motorConfig,drone->getTimeStep());
+    drone->setSquare(0.3f,0.3f,prop,m);
+    drone->offsetCOG({0,0,0});
 }
 
 void unrealDrone::setTargetPosition(float x , float y , float z , float yaw){
@@ -74,10 +77,9 @@ void unrealDrone::setTargetPosition(float x , float y , float z , float yaw){
 
 }
 
-void unrealDrone::iterator(float totalTime,bool display){
-    while(drone->getTime() < totalTime &&  drone->getPositionVector()[2]> 0 ){
+void unrealDrone::iterator(float totalTime){
+    while(drone->getTime() < totalTime /*&&  drone->getPositionVector()[2]> 0 */){
         drone->updateState();
-        if(display) drone->display();
     }
 }
 

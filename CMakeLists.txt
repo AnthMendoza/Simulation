@@ -61,6 +61,7 @@ add_executable(drone
     src/drone.cpp
     src/PIDController.cpp
     src/droneControl.cpp
+    src/MySim.cpp
 )
 # Test executable
 add_executable(tests

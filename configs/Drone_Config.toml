@@ -1,17 +1,8 @@
-[drone]
-weight = 1.5
-[PID]
-Kp = 1
-Ki = 0.2
-Kd = 0.2
-ZKp = 1
-ZKi = 0.2
-ZKd = 0.2
 [vehicle]
 wind = [0.0,0.0,0.0]
 gravitationalAcceleration = -9.81
 targetLandingPosition  = [400000.0,0.0,0.0]
-initPosition = [0.0,0.0,10.0]
+initPosition=[0.0,0.0,200.0]
 initVehicleState = [0.0,0.0,1.0]
 MOI = [20,20,20]
 initVelocity = [0.0,0.0,0.0]
@@ -19,3 +10,35 @@ centerOfPressure = 15.0
 maxGAllowedEntry = 4.5
 cogToEngine = -8.0
 timeStep = 0.001
+mass = 1
+[PID]
+Kp = 0.02
+Ki = 0.0
+Kd = 0.0002
+ZKp = 1.0
+ZKi = 0.0
+ZKd = 0
+[accelerometer]
+frequency = 1000.0
+NoisePowerSpectralDensity = 3.0
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 2.0
+maxBurstDuration = 0.5
+[gps]
+frequency = 10.0
+NoisePowerSpectralDensity = 10.0
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 10.0
+maxBurstDuration = 3.0
+[gyro]
+frequency = 10.0
+NoisePowerSpectralDensity = 3.0
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 0.5
+maxBurstDuration = 0.4

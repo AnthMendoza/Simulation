@@ -2,6 +2,7 @@
 #include "../include/toml.h"
 #include <algorithm>
 #include <vector>
+#include <iostream>
 namespace SimCore{
 
     battery::battery(std::string& config){
@@ -11,14 +12,14 @@ namespace SimCore{
     void battery::init(std::string& config){
         toml::tomlParse bParse;
         bParse.parseConfig( config,"battery");
-        nominalInternalResistance   = bParse.floatValues["nominalInternalResistance"];
-        capacityAh                  = bParse.floatValues["capacityAh"];
-        nominalVoltage              = bParse.floatValues["nominalVoltage"];
-        cellCount                   = bParse.floatValues["cellCount"];
-        wattHours                   = bParse.floatValues["wattHours"];
-        currentCapacity             = bParse.floatValues["currentCapactiy"];
-        soc                         = bParse.floatValues["soc"];
-        safetyTerminationLevel      = bParse.floatValues["safteyTerminationLevel"];
+        nominalInternalResistance   = bParse.getFloat("nominalInternalResistance");
+        capacityAh                  = bParse.getFloat("capacityAh");
+        nominalVoltage              = bParse.getFloat("nominalVoltage");
+        cellCount                   = bParse.getFloat("cellCount");
+        wattHours                   = bParse.getFloat("wattHours");
+        currentCapacity             = bParse.getFloat("currentCapacity");
+        soc                         = bParse.getFloat("soc");
+        safetyTerminationLevel      = bParse.getFloat("safteyTerminationLevel");
         voltage = nominalVoltage;
         socVoltage = voltage;
 
@@ -34,6 +35,10 @@ namespace SimCore{
         //3600 seconds = 60 minutes * 60 seconds in an hour
         float deltaAh = (currentDraw * timestep) / 3600.0f;  // Convert to Ah
         wattHours += voltage * wattHours;
+        if(capacityAh <= 0 ){
+            capacityAh = .01;
+            std::cout<<"Battery is dead";
+        }
         soc -= deltaAh / capacityAh;
 
         updateVoltage(current);
@@ -43,7 +48,7 @@ namespace SimCore{
     float battery::getRemainingCapacityAh() const{
         return soc * capacityAh;
     }
-
+    //reduce voltage based on current demand. All batteries have voltage sag associated with the inetal Resistance
     void battery::updateVoltage(float current){
         current = abs(current);
         currentDraw = current;
@@ -51,6 +56,7 @@ namespace SimCore{
             voltage = 0;
             return;
         }
+
         voltage = socVoltage - (currentDraw * nominalInternalResistance);
     }
 }

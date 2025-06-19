@@ -38,6 +38,7 @@ struct propeller {
         return k_t * pow(angularVelocity,3);  
     }
     inline float thrustForce(float airDensity , float angularVelocity){
+        if(angularVelocity <0) return 0;
         float k_f = thrustCoefficient * airDensity * M_PI * pow(diameter/2,2) * pow(diameter/2,2);
         return k_f * pow(angularVelocity,2);
     }
@@ -45,12 +46,24 @@ struct propeller {
     inline void initPropeller(std::string& propellerConfig){
     toml::tomlParse propParse;
     propParse.parseConfig(propellerConfig,"propeller");
-    diameter = propParse.floatValues["diameter"];
-    massKg = propParse.floatValues["massKg"];
-    momentOfInertia = propParse.floatValues["MOI"];
-    pitchMeters = propParse.floatValues["pitch"];
-    thrustCoefficient = propParse.floatValues["thrustCoefficient"];
-    dragCoefficient = propParse.floatValues["dragCoefficient"];    
+    diameter = propParse.getFloat("diameter");
+    massKg = propParse.getFloat("massKg");
+    momentOfInertia = propParse.getFloat("MOI");
+    pitchMeters = propParse.getFloat("pitch");
+    thrustCoefficient = propParse.getFloat("thrustCoefficient");
+    dragCoefficient = propParse.getFloat("dragCoefficient");  
+    powerCoefficient = dragCoefficient;  
+    }
+    /// @brief 
+    /// @param airDensity 
+    /// @param thrustRequest 
+    /// @return if thrust request is negative the returned value will be zero due to a sqrt of the value.
+    inline float desiredAngularVelocity(float airDensity,float thrustRequest){
+        float k = M_PI * airDensity * thrustCoefficient * pow(diameter/2,4);
+        if (k <= 0) return 0;
+        float v = thrustRequest/k;
+        if(v < 0 ) return 0;
+        return sqrt(v);
     }
 };
 //Sets prop attributes to config presets
