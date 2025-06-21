@@ -1,9 +1,9 @@
 [battery]
-nominalInternalResistance   = 0.005
-capacityAh                  = 2000.0
+nominalInternalResistance   = 0.01
+capacityAh                  = 2.0
 nominalVoltage              = 12.0
-cellCount                   = 8.0
-wattHours                   = 100.0
+cellCount                   = 3.0
+wattHours                   = 124.0
 currentCapacity             = 100.0
 soc                         = 1.0
 safteyTerminationLevel      = 0.2

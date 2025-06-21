@@ -156,6 +156,7 @@ void Vehicle::init(string& vehicleConfig){
 
     gravitationalAcceleration = vParse.getFloat("gravitationalAcceleration"); 
 
+    //Turblant wind Set windvect to mean of turbalant object
     auto windVect = vParse.getArray("wind");
     wind[0] = windVect[0];
     wind[1] = windVect[1];
@@ -178,9 +179,9 @@ void Vehicle::init(string& vehicleConfig){
     std::array<float,3> vect1 = {1,0,0};
     std::array<float,3> vect2 = {1,1,0};
     pose = std::make_unique<quaternionVehicle>(vect2,vect1);
-    turbulantX = std::unique_ptr<turbulence> ();
-    turbulantY = std::unique_ptr<turbulence> ();
-    turbulantZ = std::unique_ptr<turbulence> ();
+    turbulantX = std::make_unique<turbulence> ();
+    turbulantY = std::make_unique<turbulence> ();
+    turbulantZ = std::make_unique<turbulence> ();
 
 }
 
@@ -356,6 +357,10 @@ void Vehicle::updateState(){
         sumOfMoments[0] = 0;
         sumOfMoments[1] = 0;
         sumOfMoments[2] = 0;
+        
+        wind[0] = 0;
+        wind[1] = 0;
+        wind[2] = 0;
         // After pose rotation
 }
 

@@ -8,6 +8,7 @@
 #include "../include/motor.h"
 #include "../include/Eigen/Eigen"
 #include "../include/Eigen/Dense"
+#include "../include/motorDyno.h"
 #include "toml.h"
 #include <cassert>
 #include <iostream>
@@ -73,6 +74,7 @@ void droneBody::setSquare(float x, float y, propeller& prop, motor& mot) {
 ;    }
     //updates allocator with new motor layout
     allocatorHelper();
+    dynoSystem();
 }
 
 
@@ -152,10 +154,10 @@ void droneBody::resetHelper(){
 void droneBody::allocatorHelper(){
     vector<array<float,3>> pos;
     vector<array<float,3>> thrustVect;
-    vector<float> coef = {  propellers[0]->dragCoefficient,
-                            -propellers[0]->dragCoefficient,
-                            propellers[0]->dragCoefficient,
-                            -propellers[0]->dragCoefficient};
+    vector<float> coef = {  propellers[0]->powerCoefficient,
+                            -propellers[0]->powerCoefficient,
+                            propellers[0]->powerCoefficient,
+                            -propellers[0]->powerCoefficient};
     for(int i = 0 ; i < propellers.size();i++){
         pos.push_back(propellers[i]->location);
         thrustVect.push_back(propellers[i]->direction);
@@ -170,18 +172,17 @@ void droneBody::allocatorHelper(){
 
 void droneBody::updateState(){
     vector<float> controllerThrusts = updateController();
+    //turbulantWind();
     lift(aeroAreaDrone,coefOfLiftDrone);
     drag(aeroAreaDrone,coefOfDragDrone);
     float current = 0;
     float density = airDensity(Zposition);
-    std::cout<<Zposition<< "," <<getEstimatedPosition()[2]<< "\n";
     for(int i = 0 ; i < motors.size() ; i++){
         if(controllerThrusts.size() != motors.size()) throw runtime_error("Controller error thrust request does not equal motor count \n");
         
         float torqueLoad = propellers[i]->dragTorque(density,motors[i]->getCurrentAngularVelocity());
         float angularVelocityRequest = propellers[i]->desiredAngularVelocity(density,controllerThrusts[i]);
         if(angularVelocityRequest < 0) angularVelocityRequest = 0;
-        std::cout<<angularVelocityRequest;
         motors[i]->updateMotorAngularVelocity(timeStep,torqueLoad,*droneBattery,angularVelocityRequest);
         current += abs(motors[i]->getCurrentCurrent());
         std::array<float,3> thrustVector = propellers[i]->directionTransposed;
@@ -190,7 +191,7 @@ void droneBody::updateState(){
         thrustVector[1] = thrustVector[1] * currentThrust;
         thrustVector[2] = thrustVector[2] * currentThrust;
         
-        //std::cout<<"thrust"<<thrustVector[0]<<","<< thrustVector[1]<<","<<thrustVector[2]<<"\n"; 
+        
         addForce(thrustVector);
     }
     assert(!std::isnan(current));
@@ -233,15 +234,15 @@ void droneControl::initpidControl(string droneConfig , float timeStep){
     PIDY->setOutputLimits(-1,1);
     PIDZ->setOutputLimits(-1,1);
 
-    if (APIDX == nullptr)
-        APIDX = std::make_unique<PIDController>(kp, ki, kd, timeStep);
+    float Akp = PIDPrase.getFloat("AKp");
+    float Aki = PIDPrase.getFloat("AKi");
+    float Akd = PIDPrase.getFloat("AKd");
 
-    if (APIDY == nullptr)
-        APIDY = std::make_unique<PIDController>(kp, ki, kd, timeStep);
+    if (APID == nullptr)
+        APID = std::make_unique<PIDController>(Akp, Aki, Akd, timeStep);
 
 
-    APIDX->setOutputLimits(-1,1);
-    APIDY->setOutputLimits(-1,1);
+    APID->setOutputLimits(-1,1);
 
     
 }
@@ -250,7 +251,6 @@ void droneControl::pidControl(std::array<float,3> pos){
     controlOutput = {   PIDX->update(pos[0]),
                         PIDY->update(pos[1]),
                         PIDZ->update(pos[2])};
-    std::cout<<PIDZ->lastError()<<","<<PIDZ->getTarget()<<","<<PIDZ->getPreviousSample()<< ","<< PIDZ->getTarget()<<","<< PIDZ->getPreviousError()<<","<<controlOutput[2]<<"\n";
 }
 
 void droneControl::setpidControl(float xTarget , float yTarget , float zTarget){
@@ -272,25 +272,41 @@ std::vector<float> droneBody::thrust(){
 void droneControl::forceMomentProfile(){
     
 }
-//current state this is very temporary
-void droneControl::aot(){
-    float maxAngle = .7;
-    float xAngle = maxAngle * controlOutput[0];
-    float yAngle = maxAngle * controlOutput[1];
+
+std::pair<std::array<float,3> , float> droneControl::aot(float maxAngleAOT , std::array<float,3> currentState){
+    //Takes the PIDX and PIDY values and creates a desired vector that is within the vehicles thrust profile. 
+    // maxAngle is calculated using the dyno numbers when the battery is at full charge with minimal voltage sag
+    //the desired Vector is located in the array named currentFlightTargetNormal.
+    float xAngle = maxAngleAOT * controlOutput[0];
+    float yAngle = maxAngleAOT * controlOutput[1];
     desiredNormal = {0,0,1};
     Quaternion quantX = fromAxisAngle( {1,0,0}, xAngle);
     Quaternion quantY = fromAxisAngle({0,1,0} , yAngle);
     Quaternion combined = quantX * quantY;
     std::array<float,3> adjustedVect = rotateVector(combined,desiredNormal);
     currentFlightTargetNormal = adjustedVect;
+
+    //Drone
+    //Create Torque around adjust vector which was used a pivot between disired and current angle.
+    float angleBetween = vectorAngleBetween(currentFlightTargetNormal,currentState);
+    std::array<float,3> rotationAxis;
+    vectorCrossProduct(currentFlightTargetNormal,currentState,rotationAxis); 
+    // set target is always 0 because the currentState and targetNormal ideally should have a 0 degree angleBetween
+    APID->setTarget(0);
+    float output = APID->update(angleBetween);
+    std::pair<array<float,3>,float> result = {rotationAxis,output};
+
+    return result;
+
 }
 
- vector<float> droneControl::update(std::array<float,3> estimatedPostion,std::array<float,3> estimatedState,std::array<float,3> estimatedVelocity , float mass, float gravitationalAcceleration){
+
+
+vector<float> droneControl::update(std::array<float,3> estimatedPostion,std::array<float,3> estimatedState,std::array<float,3> estimatedVelocity , float mass, float gravitationalAcceleration, float thrustLimit){
     pidControl(estimatedPostion);
     //change this asap. thrustCoeff used as test metric
-    float thrustCoeff = 400;
     assert(allocator != nullptr);
-    VectorXd desired  = allocator->toVectorXd({0.0f,0.0f,controlOutput[2] * thrustCoeff,0.0f,0.0f,0.0f});
+    VectorXd desired  = allocator->toVectorXd({0.0f,0.0f,static_cast<float>(abs(gravitationalAcceleration) * mass + thrustLimit * 0.3 * controlOutput[2]),0.0f,0.0f,0.0f});
     VectorXd thrusts = allocator->allocate(desired);
     //VectorXd to vector<float> can be converted into a method if needed further
     std::vector<float> result;
@@ -299,6 +315,20 @@ void droneControl::aot(){
         result.push_back(static_cast<float>(thrusts[i]));
     }
     return result;
+}
+
+
+//total thrust limit used in PID control loop. Can also be used in more advance control loops with constraints
+void droneBody::dynoSystem(){
+    totalThrustLimit = 0 ;
+
+    for(int i = 0 ;i < motors.size() ; i++){
+        auto limits = thrustLimits(*motors[i],*propellers[i],*droneBattery,timeStep);
+        propellers[i]->thrustLimits = limits;
+        totalThrustLimit += limits.second;
+        std::cout<<"maxThrust : "<< limits.second << "\n";
+    }
+    maxAngleAOT = acos(mass/totalThrustLimit);
 }
 
 

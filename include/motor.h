@@ -37,6 +37,8 @@ private:
     float efficiency;
     // Motor limits and safety
     bool isEnabled;              // Motor enable state
+
+    const float MAX_ANGULAR_ACCEL = 12000.0f; // rad/s²
     
     std::unique_ptr<PIDController> PID;
 public:

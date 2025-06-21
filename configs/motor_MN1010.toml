@@ -1,15 +1,15 @@
 [motor]
-freeSpeedAngularVelocity   = 4800.0        # [RPM] Free (no-load) speed at rated voltage
-stallTorque    = 2.2           # [Nm] Torque produced at stall (0 rad/s)
-stallCurrent   = 90.0          # [A] Current drawn at stall torque
-noLoadCurrent  = 1.7           # [A] Current drawn at free speed with no load
-coilResistance = 0.14          # [Ohms] Phase-to-phase resistance of the motor windings
+freeSpeedAngularVelocity   = 15600        # [RPM] Free (no-load) speed at rated voltage
+stallTorque    = 0.3           # [Nm] Torque produced at stall (0 rad/s)
+stallCurrent   = 30.0         # [A] Current drawn at stall torque
+noLoadCurrent  = 1.0          # [A] Current drawn at free speed with no load
+coilResistance = 0.06        # [Ohms] Phase-to-phase resistance of the motor windings
 voltage        = 12.0          # [V] Nominal operating voltage
-kv             = 400.0         # [RPM/V] Speed constant (inverse of kt, roughly)
-kt             = 0.025         # [Nm/A] Torque constant (kt ≈ 60 / (2π * kv))
-dampingCoeff   = 0.01        # [Nm·s/rad] Viscous damping coefficient
+kv             = 1300.0         # [RPM/V] Speed constant (inverse of kt, roughly)
+kt             = 0.0734         # [Nm/A] Torque constant (kt ≈ 60 / (2π * kv))
+dampingCoeff   = 0.0001      # [Nm·s/rad] Viscous damping coefficient
 maxVoltage     = 30.0          # [V] Maximum safe applied voltage (ESC or hardware limit)
-inertia        = 0.02         # [kg·m²] Rotor and shaft moment of inertia
+inertia        = 0.002        # [kg·m²] Rotor and shaft moment of inertia
 kp             = 0.5
 ki             = 0.0
 kd             = 0.1

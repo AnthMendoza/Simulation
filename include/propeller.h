@@ -21,10 +21,10 @@ struct propeller {
     //direction is the force vector
     std::array<float,3> direction;
     std::array<float,3> directionTransposed;
-
+    //min = first  ::  max = second .Thrust dyno program. It is motor and battery dependent.
+    std::pair<float,float> thrustLimits;
     float thrustCoefficient;
     float powerCoefficient;
-    float dragCoefficient;
    //true = clockwise : false = counter-clockwise
     bool clockwise;
     //Drag Torque and thrust force is as defined in the paper "Generalized Control Allocation Scheme for Multirotor Type of UAVs"
@@ -33,14 +33,18 @@ struct propeller {
     inline propeller(std::string& propellerConfig){
         initPropeller(propellerConfig);
     }
-    inline float dragTorque(float airDensity ,float angularVelocity){
-        float k_t =  powerCoefficient * airDensity * M_PI * pow(diameter/2, 5);
-        return k_t * pow(angularVelocity,3);  
+    
+    inline float dragTorque(float airDensity, float angularVelocity) {
+        float radius = diameter * 0.5f;
+        float k_t = powerCoefficient * airDensity * M_PI * pow(radius, 5);
+        return k_t * angularVelocity * angularVelocity;
     }
-    inline float thrustForce(float airDensity , float angularVelocity){
-        if(angularVelocity <0) return 0;
-        float k_f = thrustCoefficient * airDensity * M_PI * pow(diameter/2,2) * pow(diameter/2,2);
-        return k_f * pow(angularVelocity,2);
+
+    inline float thrustForce(float airDensity, float angularVelocity) {
+        if (angularVelocity < 0) return 0;
+        float radius = diameter * 0.5f;
+        float k_f = thrustCoefficient * airDensity * M_PI * pow(radius, 4);
+        return k_f * angularVelocity * angularVelocity;
     }
     //Sets prop attributes to config presets
     inline void initPropeller(std::string& propellerConfig){
@@ -51,8 +55,7 @@ struct propeller {
     momentOfInertia = propParse.getFloat("MOI");
     pitchMeters = propParse.getFloat("pitch");
     thrustCoefficient = propParse.getFloat("thrustCoefficient");
-    dragCoefficient = propParse.getFloat("dragCoefficient");  
-    powerCoefficient = dragCoefficient;  
+    powerCoefficient = propParse.getFloat("powerCoefficient");   
     }
     /// @brief 
     /// @param airDensity 

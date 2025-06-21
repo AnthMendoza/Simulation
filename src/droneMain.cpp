@@ -11,11 +11,11 @@ std::string readFileAsString(const std::string& filePath) {
 }
 
 int main(int argc, char* argv[]){
-    if(argv[1] == nullptr){
-        //std::cout<< "Specify vehicle config file path";
+    if (argc < 5) {
+        std::cout << "Usage: " << argv[0] << " <motor_config> <battery_config> <propeller_config> <drone_config>\n";
         return 1;
     }
-
+    
     std::string configMotor = readFileAsString(argv[1]);    
     std::string configBattery = readFileAsString(argv[2]);   
     std::string configPropeller = readFileAsString(argv[3]);

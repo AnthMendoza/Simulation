@@ -13,6 +13,7 @@
 #include "../include/quaternion.h"
 #include "../include/linearInterpolation.h"
 #include "../include/droneControl.h"
+#include "../include/drone.h"
 #include "../include/Eigen/Eigen"
 #include "../include/Eigen/Dense"
 #include <fstream>
@@ -169,6 +170,26 @@ TEST(TOML,BooleanTestFalse){
 
 }
 
+
+
+TEST(Allocator , AxisMomentToEularX){
+    std::array<float,3> axis = {1,1,0};
+    float moment = 10;
+    std::pair<float,float> result = SimCore::axisMomentToAllocator( axis,moment);
+    std::cout<<"AxisMoment"<<result.first << "," << sin(M_PI_4) * moment  <<"\n";
+    EXPECT_NEAR(result.first, sinf(static_cast<float>(M_PI_4)) * moment , EPSILON);
+}
+
+TEST(Allocator , AxisMomentToEularY){
+    std::array<float,3> axis = {1,1,0};
+    float moment = 10;
+    std::pair<float,float> result = SimCore::axisMomentToAllocator( axis,moment);
+
+    EXPECT_NEAR(result.second,cosf(static_cast<float>(M_PI_4)) * moment , EPSILON);
+}
+
+
+
 bool almostEqual(float a, float b, float eps = EPSILON) {
     return std::abs(a - b) < eps;
 }
@@ -245,7 +266,6 @@ TEST(QuaternionRotationTest, CombinedRotationTest) {
     std::array<float, 3> v = {1.0f, 0.0f, 0.0f};
     std::array<float, 3> expected = {0.0f, 1.0f, 0.0f};
     auto rotated = rotateVector(q_combined, v);
-    std::cout<<"vector = "<<rotated[0]<<","<<rotated[1]<<","<<rotated[2]<<")";
     EXPECT_TRUE(vectorsAlmostEqual(rotated, expected));
 }
 
@@ -274,8 +294,6 @@ TEST(QuaternionVehicleTest, Rotate90DegreesAroundY) {
 
     std::array<float, 3> expectedDir = {0, 0, -1};
     std::array<float, 3> expectedFwd = {1, 0, 0};
-    std::cout<<std::endl<< expectedDir[0]<< expectedDir[1]<<expectedDir[2]<<std::endl;
-    std::cout<< vehicle.getdirVector()[0]<<","<< vehicle.getdirVector()[1]<<","<<vehicle.getdirVector()[2]<<std::endl;
     EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
     EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
 }
@@ -491,6 +509,21 @@ TEST(VectorMathTest, TestVectorAdditionWithZeroValues) {
     
     EXPECT_EQ(result, expected);
 }
+
+
+// Test for zeroVector True
+TEST(VectorMathTest, zeroVectorTrue) {
+    std::array<float, 3> vec = {0.0f, 0.0f, 0.0f};
+    EXPECT_TRUE(isZeroVector(vec));
+}
+
+
+// Test for zeroVector False
+TEST(VectorMathTest, zeroVectorFalse) {
+    std::array<float, 3> vec = {1.0f, 0.0f, 0.0f};
+    EXPECT_FALSE(isZeroVector(vec));
+}
+
 
 // Test case for matrix multiplication
 TEST(MatrixTest, MatrixMultiplication) {

@@ -4,7 +4,7 @@
 #include <random>
 class turbulence{
 public:
-    turbulence(float alpha = 0.95f, float mean = 0.0f, float stddev = 3.0f)
+    turbulence(float alpha = 0.99f, float mean = 0.0f, float stddev = 5.0f)
         : alpha(alpha), mean(mean), stddev(stddev), previous(0.0f){
         std::random_device rd;
         rng = std::mt19937(rd());

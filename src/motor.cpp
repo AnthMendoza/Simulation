@@ -67,7 +67,8 @@ void motor::init(std::string& config, float timeStep){
     PID->setOutputLimits(-1,1);
 
     currentAngularVelocity = 0;
-    ke = kt;
+    ke = 60.0 / (2.0 * M_PI * kv); 
+    kt = ke; 
 
             
 }
@@ -75,7 +76,7 @@ void motor::init(std::string& config, float timeStep){
 void motor::angualrVeloctiyRequest(float rad_per_sec){
     angualrVeloRequest = rad_per_sec;
 }
-
+//the upper limit for rotor acceleration ::adjustable. done by hand calc.
 
 void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
     setVoltage(voltage);
@@ -86,7 +87,7 @@ void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
     if(coilResistance == 0) throw std::runtime_error("coilResistance Cannot be <= 0");
     float phaseCurrent = voltageAcrossCoil / coilResistance;
     currentCurrent = phaseCurrent;
-
+    
     motorTorque = kt * phaseCurrent;
     float dampingTorque = dampingCoeff * currentAngularVelocity;
     netTorque = motorTorque - loadTorque - dampingTorque;
@@ -94,6 +95,7 @@ void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
     // integrate
     if(inertia <= 0) throw std::runtime_error("inertia Cannot be <= 0");
     float angularAcceleration = netTorque / inertia;
+    angularAcceleration = std::clamp(angularAcceleration ,-MAX_ANGULAR_ACCEL ,MAX_ANGULAR_ACCEL);
     currentAngularVelocity += angularAcceleration * timeStep;
     
     electricalPower = appliedVoltage * phaseCurrent;
@@ -104,23 +106,10 @@ void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
 void motor::updateMotorAngularVelocity(float timeStep , float loadTorque, battery& bat, float rad_sec){
     PID->setTarget(rad_sec);
     PID->setGains(.5,.2,0);
-    std::cout<<"\n"<<"timeStep"<<timeStep<<"\n";
     PID->setTimeStep(timeStep);
     float output = PID->update(currentAngularVelocity);
     float volt = output * std::abs(bat.getBatVoltage());
-    /*std::cout<<std::fixed << std::setprecision(4)<< timeStep <<","<<loadTorque<< ","<< bat.getBatVoltage() << ","<<rad_sec<< ","<< volt<<"," << output<<  "\n";
-    std::cout << std::fixed << std::setprecision(4)
-              << PID->getKp() << "," 
-              << PID->getKi() << "," 
-              << PID->getKd() << "," 
-              << PID->getDt() << "," 
-              << PID->getTarget() << "," 
-              << PID->getIntegral() << "," 
-              << PID->getPreviousError() << "," 
-              << PID->getMinOutput() << "," 
-              << PID->getMaxOutput() << ","
-              <<angualrVeloRequest<<","
-              << PID->getPreviousError() <<std::endl; */
+
     updateMotor(timeStep,loadTorque,volt);
 }
 

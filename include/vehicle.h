@@ -117,7 +117,7 @@ class Vehicle : public stateEstimation{
         return pose->getPose();
     }
     inline void display() const {
-        static const int linesToClear = 4; // number of lines in display
+        static const int linesToClear = 6; // number of lines in display
 
         // Move cursor up to overwrite previous lines
         for (int i = 0; i < linesToClear; ++i)
@@ -135,7 +135,10 @@ class Vehicle : public stateEstimation{
                   << velo[0] << ", "
                   << velo[1] << ", "
                   << velo[2] << ")\n";
-
+        std::cout << "wind    (vx, vy, vz):   ("
+                  << wind[0] << ", "
+                  << wind[1] << ", "
+                  << wind[2] << ")\n";
         std::cout << "Acceleration (ax, ay, az):   ("
                   << acceleration[0] << ", "
                   << acceleration[1] << ", "
@@ -145,6 +148,7 @@ class Vehicle : public stateEstimation{
                   << vehicleState[0] << ", "
                   << vehicleState[1] << ", "
                   << vehicleState[2] << ")\n";
+
         std::cout << std::flush;
     }
 

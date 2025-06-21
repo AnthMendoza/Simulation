@@ -25,7 +25,6 @@ include_directories(
 add_executable(rocket
     src/rocketMain.cpp
     src/vehicle.cpp
-    src/vectorMath.cpp
     src/rotationMatrix.cpp
     src/odeIterator.cpp
     src/logs.cpp
@@ -43,7 +42,6 @@ add_executable(rocket
 add_executable(drone
     src/droneMain.cpp
     src/vehicle.cpp
-    src/vectorMath.cpp
     src/rotationMatrix.cpp
     src/odeIterator.cpp
     src/logs.cpp
@@ -66,7 +64,6 @@ add_executable(drone
 # Test executable
 add_executable(tests
     src/vehicle.cpp
-    src/vectorMath.cpp
     src/rotationMatrix.cpp
     src/odeIterator.cpp
     src/logs.cpp
@@ -82,13 +79,15 @@ add_executable(tests
     src/quaternion.cpp
     src/PIDController.cpp
     src/droneControl.cpp
+    src/drone.cpp
+    src/motor.cpp
+    src/battery.cpp
 )
 
 # Static library
 add_library(MySim STATIC
     src/MySim.cpp
     src/vehicle.cpp
-    src/vectorMath.cpp
     src/rotationMatrix.cpp
     src/odeIterator.cpp
     src/logs.cpp

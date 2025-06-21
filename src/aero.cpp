@@ -45,17 +45,17 @@ float coefOfLiftRocket(float angle){
     return angle * 2.1;
 }
 
-
+//Overly Basic for testing. Should adapt to real drone profile
 float aeroAreaDrone(float angle){
-    return 0;
+    return 1;
 }
 
 float coefOfDragDrone(float angle){
-    return 0;
+    return 0.5;
 }
     
 float coefOfLiftDrone(float angle){
-    return 0;
+    return 0.5;
 }
 
 
