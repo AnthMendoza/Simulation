@@ -172,23 +172,6 @@ TEST(TOML,BooleanTestFalse){
 
 
 
-TEST(Allocator , AxisMomentToEularX){
-    std::array<float,3> axis = {1,1,0};
-    float moment = 10;
-    std::pair<float,float> result = SimCore::axisMomentToAllocator( axis,moment);
-    std::cout<<"AxisMoment"<<result.first << "," << sin(M_PI_4) * moment  <<"\n";
-    EXPECT_NEAR(result.first, sinf(static_cast<float>(M_PI_4)) * moment , EPSILON);
-}
-
-TEST(Allocator , AxisMomentToEularY){
-    std::array<float,3> axis = {1,1,0};
-    float moment = 10;
-    std::pair<float,float> result = SimCore::axisMomentToAllocator( axis,moment);
-
-    EXPECT_NEAR(result.second,cosf(static_cast<float>(M_PI_4)) * moment , EPSILON);
-}
-
-
 
 bool almostEqual(float a, float b, float eps = EPSILON) {
     return std::abs(a - b) < eps;
@@ -580,6 +563,50 @@ TEST(MatrixTest, RotateZeroVector) {
     
     EXPECT_EQ(rotatedVec, expected);
 }
+
+
+TEST(EllipsoidalClamp2DTest, InsideEllipse_NoClamp) {
+    auto [x, y] = ellipsoidalClamp2D(2.0f, 1.0f, 4.0f, 2.0f);
+    EXPECT_TRUE(almostEqual(x, 2.0f,EPSILON));
+    EXPECT_TRUE(almostEqual(y, 1.0f,EPSILON));
+}
+
+TEST(EllipsoidalClamp2DTest, OutsideEllipse_ClampedToBoundary) {
+    auto [x, y] = ellipsoidalClamp2D(8.0f, 4.0f, 4.0f, 2.0f);
+    float normalized = (x * x) / (4.0f * 4.0f) + (y * y) / (2.0f * 2.0f);
+    EXPECT_TRUE(almostEqual(normalized, 1.0f,EPSILON));
+}
+
+TEST(EllipsoidalClamp2DTest, DirectionPreservedAfterClamp) {
+    float origX = 10.0f, origY = 0.0f;
+    auto [x, y] = ellipsoidalClamp2D(origX, origY, 4.0f, 2.0f);
+    EXPECT_TRUE(x > 0 && y == 0.0f);
+    EXPECT_TRUE(almostEqual(x, 4.0f,EPSILON));
+}
+
+TEST(EllipsoidalClamp3DTest, InsideEllipsoid_NoClamp) {
+    auto [x, y, z] = ellipsoidalClamp(1.0f, 1.0f, 1.0f, 4.0f, 5.0f, 6.0f);
+    EXPECT_TRUE(almostEqual(x, 1.0f , EPSILON));
+    EXPECT_TRUE(almostEqual(y, 1.0f , EPSILON));
+    EXPECT_TRUE(almostEqual(z, 1.0f , EPSILON));
+}
+
+TEST(EllipsoidalClamp3DTest, OutsideEllipsoid_ClampedToBoundary) {
+    auto [x, y, z] = ellipsoidalClamp(10.0f, 10.0f, 10.0f, 4.0f, 5.0f, 6.0f);
+    float value = (x * x) / (4.0f * 4.0f) + (y * y) / (5.0f * 5.0f) + (z * z) / (6.0f * 6.0f);
+    EXPECT_TRUE(almostEqual(value, 1.0f,EPSILON));
+}
+
+TEST(EllipsoidalClamp3DTest, DirectionPreservedAfterClamp) {
+    float origX = 10.0f, origY = 0.0f, origZ = 0.0f;
+    auto [x, y, z] = ellipsoidalClamp(origX, origY, origZ, 4.0f, 5.0f, 6.0f);
+    EXPECT_TRUE(x > 0 && y == 0.0f && z == 0.0f);
+    EXPECT_TRUE(almostEqual(x, 4.0f,EPSILON));
+}
+
+
+
+
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

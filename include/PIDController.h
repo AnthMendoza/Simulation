@@ -1,6 +1,9 @@
 #ifndef PIDCONTROLLER_H
 #define PIDCONTROLLER_H
 
+
+
+
 class PIDController {
 public:
     PIDController() = delete;
@@ -12,7 +15,11 @@ public:
     void reset();
     void setTimeStep(float timeStep);
     void setTarget(float t);
-    float update(float measurement);
+    float update(const float& measurement);
+
+    inline void clampIntegral(int value = 100){
+        clampInt = value;
+    }
 
     inline float getKp() const { return kp; }
     inline float getKi() const { return ki; }
@@ -39,7 +46,7 @@ private:
     float target;
 
     float integral; //sum of errors
-    float clampIntegral;
+    float clampInt;
     float previousError;  
     float previousSample;
     float minOutput;

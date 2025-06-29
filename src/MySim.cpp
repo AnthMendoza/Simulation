@@ -63,7 +63,7 @@ unrealDataDrone* unrealDrone::simFrameRequest(float deltaTime){
 
 unrealDrone::unrealDrone(std::string motorConfig , std::string batteryConfig , std::string droneConfig,std::string propellerConfig){
     drone = std::make_unique<droneBody>();
-    drone->init(motorConfig,batteryConfig,droneConfig);
+    drone->initDrone(motorConfig,batteryConfig,droneConfig);
     drone->controller->initpidControl(droneConfig,drone->getTimeStep());
     propeller prop(propellerConfig);
     motor m(motorConfig,drone->getTimeStep());

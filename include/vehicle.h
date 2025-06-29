@@ -97,6 +97,11 @@ class Vehicle : public stateEstimation{
     inline std::array<float,3> getPositionVector() const{
         return {Xposition,Yposition,Zposition};
     }
+    inline void setPositionVector(float x ,float y, float z){
+        Xposition = x;
+        Yposition = y;
+        Zposition = z;
+    }
     //Vehicle state is the direction vector of the vehicle. 
     inline std::array<float,3> getState() const{
         return vehicleState;

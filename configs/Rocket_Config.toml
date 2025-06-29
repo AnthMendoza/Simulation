@@ -35,23 +35,23 @@ maxSteeringAngle = 1.0
 StanleyGain = 0.00001
 [accelerometer]
 frequency = 1000.0
-NoisePowerSpectralDensity = 3.0
+NoisePowerSpectralDensity = 0.1
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 0.5
+maxBurstDuration = 0.2
+[gps]
+frequency = 10.0
+NoisePowerSpectralDensity = 2.0
 bandwidth = 100.0
 bias = 0.0
 burst = true
 burstStdDeviation = 2.0
-maxBurstDuration = 0.5
-[gps]
-frequency = 10.0
-NoisePowerSpectralDensity = 10.0
-bandwidth = 100.0
-bias = 0.0
-burst = true
-burstStdDeviation = 10.0
 maxBurstDuration = 3.0
 [gyro]
 frequency = 10.0
-NoisePowerSpectralDensity = 3.0
+NoisePowerSpectralDensity = 0.2
 bandwidth = 100.0
 bias = 0.0
 burst = true

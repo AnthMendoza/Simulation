@@ -16,7 +16,7 @@ PIDController::PIDController(float kp, float ki, float kd, float dt)
 
 PIDController::PIDController(const PIDController& other): kp(other.kp), ki(other.ki), kd(other.kd), dt(other.dt),
       target(other.target), integral(other.integral), previousError(other.previousError),
-      minOutput(other.minOutput), maxOutput(other.maxOutput) {}
+      minOutput(other.minOutput), maxOutput(other.maxOutput),clampInt(100.0f) {}
 
 
 
@@ -45,10 +45,11 @@ void PIDController::setTarget(float t){
     target = t;
 }
 
-float PIDController::update(float measurement) {
+float PIDController::update(const float& measurement) {
     previousSample = measurement;
     float error = target - measurement;
     integral += error * dt;
+    integral = std::clamp(integral,-clampInt,clampInt);
     float derivative = 0;
     if(dt <= 0){
         std::cout<<"Warning bypassing derivvative in PID within a motor. dt <= 0 \n";

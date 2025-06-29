@@ -16,18 +16,6 @@
 using namespace std;
 namespace SimCore{
 
-inline std::pair<float,float> axisMomentToAllocator(std::array<float,3> axisOfRotation, float moment ){
-    axisOfRotation[2] = 0;
-    if(isZeroVector(axisOfRotation)) throw runtime_error("AxisMomentToAllocator recieved ZeroVector when z component set to 0 \n");
-    std::array<float,3> basisVector = {1,0,0};
-    float angle = vectorAngleBetween(axisOfRotation,basisVector);
-    float momentAboutX = cos(angle) * moment;
-    float momentAboutY = sin(angle) * moment;
-    std::pair<float,float> result = {momentAboutX,momentAboutY};
-
-    return result;
-}
-
 //Gives a high level state request that is handled down stream
 //Container for Drone body
 class droneControl{
@@ -36,8 +24,14 @@ class droneControl{
     unique_ptr<PIDController> PIDX;
     unique_ptr<PIDController> PIDY;
     unique_ptr<PIDController> PIDZ;
+    //mid level velocity Control.
+    unique_ptr<PIDController> PIDVX;
+    unique_ptr<PIDController> PIDVY;
+    unique_ptr<PIDController> PIDVZ;
     //low level vehicle angle control loop
+    //only a single APID is needed to control the vehicles normal axis becuase the cross product is used to find the moment axis.
     unique_ptr<PIDController> APID;
+    
     /// @brief 
     /// @param estimatedPostion 
     /// @param estimatedState 
@@ -47,6 +41,7 @@ class droneControl{
     //controlOutput is the ouput of the PID controllers when pidControl is called.
     //PID output clamped -1 to 1.
     std::array<float,3> controlOutput;
+    std::array<float,3> controlOutputVelocity;
     std::array<float,3> desiredNormal;
     std::array<float,3> currentFlightTargetNormal;
     std::array<float,3> aotVect;
@@ -56,15 +51,23 @@ class droneControl{
     void init(); 
     //goal is to move towards a predicive model
     void initpidControl(string droneConfig,float timeStep);
-    void pidControl(std::array<float,3> pos);
+    /// @brief 
+    /// @param pos m
+    /// @param velo m/s
+    /// @param state Direction vector
+    /// @param maxAngleAOT rads
+    /// @return std::pair first and second is moments about x and y respectivly. Note this is not global, x and y are realtive to the drone.
+    std::array<float,3> pidControl(const std::array<float,3> pos , std::array<float,3> velo  , const std::array<float,3> state, const float& maxAngleAOT);
     void setpidControl(float xTarget , float yTarget , float zTarget);
     //feedForward function for windprediction and gravity offset.
     void forceMomentProfile();
+
+    std::array<float,3> thrustMoment(const propeller& prop ,const motor& mot, std::array<float,3>& cogLocation ,const float& airDensity);
     /// @brief 
     /// @param axisOfRotation 
     /// @param moment n*m
 
-    vector<float> update(std::array<float,3> estimatedPostion,std::array<float,3> estimatedState,std::array<float,3> estimatedVelocity, float mass, float gravitationalAcceleration , float thrustLimit);
+    vector<float> update(const std::array<float,3>& estimatedPostion,const std::array<float,3>& estimatedState,const std::array<float,3>& estimatedVelocity ,const float mass,const float gravitationalAcceleration, float thrustLimit , float maxAngleOfAttack);
     /**
      * @return pair first is the axis of rotation the second is the pid return clamped 1 to -1.The output should be converted into a deired moment.
      */
@@ -121,7 +124,7 @@ class droneBody :  public Vehicle{
     unique_ptr<droneControl> controller;
     //droneBody(const droneBody& drone) = delete;
     void updateState() override; 
-    void init(string& motorConfig ,string& batteryConfig , string& droneBody);
+    void initDrone(string& motorConfig ,string& batteryConfig , string& droneBody);
     void setSquare(float x , float y , propeller& prop , motor& mot);
     //sets center of gravity as an offset relative to the center defined by propLocations
     //positive x = front , positive y = right, positive Z = top
@@ -132,7 +135,7 @@ class droneBody :  public Vehicle{
      * @return Requested Thrust value from controller
      */
     inline vector<float> updateController(){
-        return controller->update(getEstimatedPosition(),getEstimatedRotation(),getEstimatedVelocity(),mass,gravitationalAcceleration,totalThrustLimit);
+        return controller->update(getEstimatedPosition(),getState(),getEstimatedVelocity(),mass,gravitationalAcceleration,totalThrustLimit,maxAngleAOT);
     }
 
     void motorMoment();
@@ -165,6 +168,19 @@ class droneBody :  public Vehicle{
 
 
 };
+
+/// @brief Converts quaternion style axis + moment to eular moments.
+/// @param axisOfRotation unitless
+/// @param moment n*m
+/// @return array where x,y,z represet moments around the axis {1,0,0},{0,1,0},and {0,0,1}.
+inline std::array<float,3> axisMomentToEularMoment(std::array<float,3> axisOfRotation, float moment ){
+    if(isZeroVector(axisOfRotation)) return {0,0,0};
+    axisOfRotation = normalizeVector(axisOfRotation);
+    axisOfRotation[0] = axisOfRotation[0] * moment;
+    axisOfRotation[1] = axisOfRotation[1] * moment;
+    axisOfRotation[2] = axisOfRotation[2] * moment;
+    return axisOfRotation;
+}
 
 } //SimCore
 

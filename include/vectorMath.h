@@ -3,7 +3,96 @@
 
 #include <array>
 #include <stdexcept>
+#include <tuple> 
+#include <cmath>
 namespace SimCore{
+
+
+
+// ellipsoidalClamp:
+// Clamps a 3D point (x, y, z) to remain within an axis-aligned ellipsoid centered at the origin.
+// The ellipsoid is defined by:
+//   - radius a along the x-axis
+//   - radius c along the y-axis
+//   - radius b along the z-axis
+// If the point lies outside this ellipsoid, it is uniformly scaled toward the origin until it lies
+// exactly on the ellipsoid’s surface, preserving direction. This allows enforcing directionally
+// asymmetric spatial limits (non-uniform clamping bounds).
+template<typename T>
+std::tuple<T, T, T> ellipsoidalClamp(T x, T y, T z, T a, T c, T b) {
+    // Compute normalized squared length inside ellipsoidal space
+    T ellipsoidLengthSq = (x * x) / (a * a) + (y * y) / (c * c) + (z * z) / (b * b);
+
+    // Inside ellipsoid — no clamping needed
+    if (ellipsoidLengthSq <= 1.0f) {
+        return {x, y, z};
+    }
+
+    // Clamp by scaling down to ellipsoid surface
+    T scale = 1.0f / std::sqrt(ellipsoidLengthSq);
+    return {x * scale, y * scale, z * scale};
+}
+
+
+// ellipsoidalClamp2D:
+// Clamps a 2D point (x, y) to remain within an axis-aligned ellipse centered at the origin.
+// The ellipse is defined by:
+//   - radius a along the x-axis
+//   - radius b along the y-axis
+// If the point lies outside this ellipse, it is scaled uniformly toward the origin
+// so it lies exactly on the ellipse boundary, preserving direction.
+// This allows enforcing asymmetric elliptical bounds rather than square or circular limits.
+template<typename T>
+std::pair<T, T> ellipsoidalClamp2D(T x, T y, T a, T b) {
+    // Compute normalized squared length in elliptical space
+    T ellipseLengthSq = (x * x) / (a * a) + (y * y) / (b * b);
+
+    // Inside ellipse — no clamping needed
+    if (ellipseLengthSq <= 1.0f) {
+        return {x, y};
+    }
+
+    // Clamp by scaling to ellipse boundary
+    T scale = 1.0f / std::sqrt(ellipseLengthSq);
+    return {x * scale, y * scale};
+}
+
+
+// circularClamp:
+// Clamps the 2D vector (x, y) to lie within a circle of radius maxRadius centered at the origin.
+// If the vector’s magnitude exceeds maxRadius, it is scaled back to lie on the circle's edge.
+// This enforces a radial boundary rather than clamping each axis independently (square clamp).
+template<typename T>
+std::tuple<T, T, T> sphericalClamp(T x, T y, T z, T maxRadius) {
+    T length = std::sqrt(x * x + y * y + z * z);
+
+    // If within the sphere, no clamping needed
+    if (length <= maxRadius) {
+        return {x, y, z};
+    }
+
+    // Scale down to the sphere surface
+    T scale = maxRadius / length;
+
+    return {x * scale, y * scale, z * scale};
+}
+// sphericalClamp:
+// Clamps the 3D vector (x, y, z) to lie within a sphere of radius maxRadius centered at the origin.
+// If the vector’s magnitude exceeds maxRadius, it is scaled back to lie on the sphere's surface.
+// This preserves direction while enforcing a spherical constraint, unlike axis-wise box clamping.
+template<typename T>
+inline std::pair<T, T> circularClamp(T x, T y, T maxRadius) {
+    T length = std::sqrt(x * x + y * y);
+
+    // If within the circle, no clamping needed
+    if (length <= maxRadius) {
+        return {x, y};
+    }
+
+    // Scale down to the circle edge
+    T scale = maxRadius / length;
+    return {x * scale, y * scale};
+}
 
 template <typename T>
 T vectorMag(const std::array<T,3> &vector){

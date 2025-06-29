@@ -33,14 +33,14 @@ struct propeller {
     inline propeller(std::string& propellerConfig){
         initPropeller(propellerConfig);
     }
-    
+
     inline float dragTorque(float airDensity, float angularVelocity) {
         float radius = diameter * 0.5f;
         float k_t = powerCoefficient * airDensity * M_PI * pow(radius, 5);
         return k_t * angularVelocity * angularVelocity;
     }
 
-    inline float thrustForce(float airDensity, float angularVelocity) {
+    inline float thrustForce(float airDensity, float angularVelocity) const{
         if (angularVelocity < 0) return 0;
         float radius = diameter * 0.5f;
         float k_f = thrustCoefficient * airDensity * M_PI * pow(radius, 4);

@@ -23,9 +23,10 @@ int main(int argc, char* argv[]){
 
 
     unrealDrone drone(configMotor,configBattery,configDrone,configPropeller);
-    drone.setTargetPosition(0,0,100,0);
+    drone.setTargetPosition(0,0,50,0);
     while(true){
         drone.simFrameRequest(1);
+        //display methods. Not needed when using MySim
         drone.drone->display();
         drone.drone->droneDisplay();
         std::this_thread::sleep_for(std::chrono::seconds(1));
