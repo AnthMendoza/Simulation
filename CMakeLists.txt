@@ -23,89 +23,92 @@ include_directories(
 
 # Rocket executable
 add_executable(rocket
-    src/rocketMain.cpp
-    src/vehicle.cpp
-    src/rotationMatrix.cpp
-    src/odeIterator.cpp
-    src/logs.cpp
-    src/getRotationAngles.cpp
-    src/forceApplied.cpp
-    src/control.cpp
-    src/aero.cpp
-    src/RungeKutta.cpp
-    src/sensors.cpp
-    src/rocket.cpp
-    src/toml.cpp
-    src/quaternion.cpp
+    src/sim/rocketMain.cpp
+    src/dynamics/vehicle.cpp
+    src/core/rotationMatrix.cpp
+    src/core/odeIterator.cpp
+    src/sim/logs.cpp
+    src/core/getRotationAngles.cpp
+    src/core/forceApplied.cpp
+    src/control/control.cpp
+    src/dynamics/aero.cpp
+    src/core/RungeKutta.cpp
+    src/subsystems/sensors.cpp
+    src/dynamics/rocket.cpp
+    src/sim/toml.cpp
+    src/core/quaternion.cpp
 )
+
 # Drone Executable
 add_executable(drone
-    src/droneMain.cpp
-    src/vehicle.cpp
-    src/rotationMatrix.cpp
-    src/odeIterator.cpp
-    src/logs.cpp
-    src/getRotationAngles.cpp
-    src/forceApplied.cpp
-    src/control.cpp
-    src/aero.cpp
-    src/RungeKutta.cpp
-    src/sensors.cpp
-    src/rocket.cpp
-    src/toml.cpp
-    src/quaternion.cpp
-    src/battery.cpp
-    src/motor.cpp
-    src/drone.cpp
-    src/PIDController.cpp
-    src/droneControl.cpp
-    src/MySim.cpp
+    src/sim/droneMain.cpp
+    src/dynamics/vehicle.cpp
+    src/core/rotationMatrix.cpp
+    src/core/odeIterator.cpp
+    src/sim/logs.cpp
+    src/core/getRotationAngles.cpp
+    src/core/forceApplied.cpp
+    src/control/control.cpp
+    src/dynamics/aero.cpp
+    src/core/RungeKutta.cpp
+    src/subsystems/sensors.cpp
+    src/dynamics/rocket.cpp
+    src/sim/toml.cpp
+    src/core/quaternion.cpp
+    src/subsystems/battery.cpp
+    src/subsystems/motor.cpp
+    src/dynamics/drone.cpp
+    src/control/PIDController.cpp
+    src/control/droneControl.cpp
+    src/sim/MySim.cpp
 )
+
 # Test executable
 add_executable(tests
-    src/vehicle.cpp
-    src/rotationMatrix.cpp
-    src/odeIterator.cpp
-    src/logs.cpp
-    src/getRotationAngles.cpp
-    src/forceApplied.cpp
-    src/control.cpp
-    src/aero.cpp
-    src/RungeKutta.cpp
-    src/sensors.cpp
-    src/rocket.cpp
-    src/toml.cpp
+    src/dynamics/vehicle.cpp
+    src/core/rotationMatrix.cpp
+    src/core/odeIterator.cpp
+    src/sim/logs.cpp
+    src/core/getRotationAngles.cpp
+    src/core/forceApplied.cpp
+    src/control/control.cpp
+    src/dynamics/aero.cpp
+    src/core/RungeKutta.cpp
+    src/subsystems/sensors.cpp
+    src/dynamics/rocket.cpp
+    src/sim/toml.cpp
     tests/tests.cpp
-    src/quaternion.cpp
-    src/PIDController.cpp
-    src/droneControl.cpp
-    src/drone.cpp
-    src/motor.cpp
-    src/battery.cpp
+    src/core/quaternion.cpp
+    src/control/PIDController.cpp
+    src/control/droneControl.cpp
+    src/dynamics/drone.cpp
+    src/subsystems/motor.cpp
+    src/subsystems/battery.cpp
 )
 
 # Static library
 add_library(MySim STATIC
-    src/MySim.cpp
-    src/vehicle.cpp
-    src/rotationMatrix.cpp
-    src/odeIterator.cpp
-    src/logs.cpp
-    src/getRotationAngles.cpp
-    src/forceApplied.cpp
-    src/control.cpp
-    src/aero.cpp
-    src/RungeKutta.cpp
-    src/sensors.cpp
-    src/rocket.cpp
-    src/toml.cpp
-    src/quaternion.cpp
-    src/battery.cpp
-    src/motor.cpp
-    src/drone.cpp
-    src/PIDController.cpp
-    src/droneControl.cpp
+    src/sim/MySim.cpp
+    src/dynamics/vehicle.cpp
+    src/core/rotationMatrix.cpp
+    src/core/odeIterator.cpp
+    src/sim/logs.cpp
+    src/core/getRotationAngles.cpp
+    src/core/forceApplied.cpp
+    src/control/control.cpp
+    src/dynamics/aero.cpp
+    src/core/RungeKutta.cpp
+    src/subsystems/sensors.cpp
+    src/dynamics/rocket.cpp
+    src/sim/toml.cpp
+    src/core/quaternion.cpp
+    src/subsystems/battery.cpp
+    src/subsystems/motor.cpp
+    src/dynamics/drone.cpp
+    src/control/PIDController.cpp
+    src/control/droneControl.cpp
 )
+
 
 # GoogleTest
 add_subdirectory(third_party/googletest)
