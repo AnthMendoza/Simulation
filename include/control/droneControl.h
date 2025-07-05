@@ -1,8 +1,8 @@
 #ifndef DRONECONTROL_H
 #define DRONECONTROL_H 
 #include <iostream>
-#include "../thirdparty/Eigen/Eigen"
-#include "../thirdparty/Eigen/Dense"
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
 #include <vector>
 #include "../subsystems/propeller.h"
 using namespace Eigen;

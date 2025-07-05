@@ -26,12 +26,7 @@ int main(int argc, char* argv[]){
 
 
     unrealDrone drone(configMotor,configBattery,configDrone,configPropeller);
-    drone.setTargetPosition(0,0,50,0);
-    while(true){
-        unrealDataDrone* data =  drone.simFrameRequest(1.0f);
-        //display methods. Not needed when using MySim
-        drone.drone->display();
-        drone.drone->droneDisplay();
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    std::tuple<float,float,float> PID = optimize(drone.drone.get(),drone.drone->getController(),70,hoverTestIterator,hoverTestSetup);
+
+    std::cout<<std::get<0>(PID) << ","<< std::get<1>(PID) << ","<< std::get<2>(PID)<<"\n";
 }

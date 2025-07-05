@@ -6,8 +6,8 @@
 #include "../../include/dynamics/aero.h"
 #include "../../include/subsystems/propeller.h"
 #include "../../include/subsystems/motor.h"
-#include "../../include/thirdparty/Eigen/Eigen"
-#include "../../include/thirdparty/Eigen/Dense"
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
 #include "../../include/subsystems/motorDyno.h"
 #include "../../include/dynamics/aero.h"
 #include "sim/toml.h"
@@ -201,7 +201,7 @@ void droneBody::updateState(){
         addForce(thrustVector);
         addMoment(controller->thrustMoment(*propellers[i] , *motors[i] , cogLocation , density));
     }
-    std::cout<< "Total Thrust : "<< totalThrust<<"\n";
+    //std::cout<< "Total Thrust : "<< totalThrust<<"\n";
     droneBattery->updateBattery(current);
     Vehicle::updateState();
     //TransposedProps move the transposed cordinates of the props in the prop objects within propellers.
@@ -423,7 +423,7 @@ vector<float> droneControl::update(const std::array<float,3>& estimatedPostion,c
     VectorXd desired  = allocator->toVectorXd({0.0f,0.0f,static_cast<float>((abs(gravitationalAcceleration) + controlOutput[2]) * mass * cosf(angleFromGravity)),moments[0],moments[1],moments[2]});
     VectorXd thrusts = allocator->allocate(desired);
     VectorXd output = allocator->computeWrench(thrusts);
-    std::cout << "moment: ["
+    /*std::cout << "moment: ["
           << estimatedState[0] << ", "
           << estimatedState[1] << ", "
           << estimatedState[2] << ", " << std::endl;
@@ -433,7 +433,7 @@ vector<float> droneControl::update(const std::array<float,3>& estimatedPostion,c
           << output[2] << ", "
           << output[3] << ", "
           << output[4] << ", "
-          << output[5] << "]" << std::endl;
+          << output[5] << "]" << std::endl;*/
 
     //VectorXd to vector<float> can be converted into a method if needed further
     std::vector<float> result;

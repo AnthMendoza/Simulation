@@ -26,7 +26,8 @@ class sensor{
     float sampleFrequency;
     //Time of last sample
     float lastSample;
-
+    //Random are not copyable 
+    //thus seed and gen{seed()} delete the constructor 
     std::random_device seed; 
     std::mt19937 gen{seed()};
 
@@ -37,6 +38,8 @@ class sensor{
     public:
     float hz;
     sensor(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
+    sensor(const sensor& other);
+    virtual std::unique_ptr<sensor> clone() const = 0;
     virtual ~sensor() =  default;
     float applyNoise(float realValue , float currentTime);
     void setClamp(float low , float high);
@@ -52,6 +55,7 @@ class sensorSuite{
     std::unique_ptr<std::unordered_map<std::string, std::unique_ptr<sensor>>> sensorMap;
     public: 
     sensorSuite();
+    sensorSuite(const sensorSuite& other);
     void updateSensors(Vehicle *vehicle);
 };
 
@@ -63,6 +67,10 @@ class GNSS : public sensor{
     std::array<float,3> lastPosition;
     public:
     GNSS(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
+    std::unique_ptr<sensor> clone() const override {
+        return std::make_unique<GNSS>(*this);
+    }
+
     void sample(Vehicle *vehicle) override; 
     std::array<float,3>  read() override;
     inline std::array<float,3> getVelocity(){
@@ -78,6 +86,9 @@ class accelerometer : public sensor{
     std::array<float,3> accel;
     public:
     accelerometer(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
+    std::unique_ptr<sensor> clone() const override {
+        return std::make_unique<accelerometer>(*this);
+    }
     void sample(Vehicle *vehicle) override;
     std::array<float,3>  read() override;
 
@@ -89,6 +100,9 @@ class gyroscope : public sensor{
     std::array<float,3> rotationVector;
     public:
     gyroscope(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
+    std::unique_ptr<sensor> clone() const override {
+        return std::make_unique<gyroscope>(*this);
+    }
     void sample(Vehicle *vehicle) override;
     std::array<float,3>  read() override;
 
@@ -128,6 +142,7 @@ class stateEstimation: public sensorSuite{
 
     public:
     stateEstimation();
+    stateEstimation(const stateEstimation& other);
     //Update Estimated positions based on the most recent velocity and acceleration.
     //Update will run at simulation clock speed unlike sensors which are tied to hardware spec sample rates.
     void gpsUpdate();

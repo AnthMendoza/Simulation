@@ -3,117 +3,132 @@ project(RocketSim CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Debugging and sanitizer flags
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-
-
-# macOS deployment target for Apple Silicon (ASan requires macOS 11+ on arm64)
+# macOS-specific
 if(APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
 endif()
 
+# Enable compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Python (for Python.h)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+
+# Fetch Third-Party Libraries
+include(FetchContent)
+
+# ---- GoogleTest ----
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.12.1
+)
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+# ---- Eigen3 ----
+FetchContent_Declare(
+    eigen
+    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+    GIT_TAG 3.4.0
+)
+FetchContent_MakeAvailable(eigen)
+
+# Global Include Directories
 include_directories(
-  include
-  third_party/googletest/googletest/include
+    include
+    ${Python3_INCLUDE_DIRS}
 )
 
-# Rocket executable
+# Source Groups
+set(SIM_SRC
+    src/sim/logs.cpp
+    src/sim/toml.cpp
+    src/sim/MySim.cpp
+)
+
+set(CORE_SRC
+    src/core/rotationMatrix.cpp
+    src/core/odeIterator.cpp
+    src/core/getRotationAngles.cpp
+    src/core/forceApplied.cpp
+    src/core/RungeKutta.cpp
+    src/core/quaternion.cpp
+)
+
+set(DYNAMICS_SRC
+    src/dynamics/vehicle.cpp
+    src/dynamics/aero.cpp
+    src/dynamics/rocket.cpp
+    src/dynamics/drone.cpp
+)
+
+set(CONTROL_SRC
+    src/control/control.cpp
+    src/control/PIDController.cpp
+    src/control/droneControl.cpp
+)
+
+set(SUBSYSTEMS_SRC
+    src/subsystems/sensors.cpp
+    src/subsystems/battery.cpp
+    src/subsystems/motor.cpp
+)
+
+# Static Library
+add_library(MySim STATIC
+    ${SIM_SRC}
+    ${CORE_SRC}
+    ${DYNAMICS_SRC}
+    ${CONTROL_SRC}
+    ${SUBSYSTEMS_SRC}
+)
+
+target_include_directories(MySim
+    PUBLIC
+    include
+    ${Python3_INCLUDE_DIRS}
+)
+
+target_link_libraries(MySim
+    PUBLIC
+    Eigen3::Eigen
+    ${Python3_LIBRARIES}
+)
+
+# Executables
 add_executable(rocket
     src/sim/rocketMain.cpp
-    src/dynamics/vehicle.cpp
-    src/core/rotationMatrix.cpp
-    src/core/odeIterator.cpp
-    src/sim/logs.cpp
-    src/core/getRotationAngles.cpp
-    src/core/forceApplied.cpp
-    src/control/control.cpp
-    src/dynamics/aero.cpp
-    src/core/RungeKutta.cpp
-    src/subsystems/sensors.cpp
-    src/dynamics/rocket.cpp
-    src/sim/toml.cpp
-    src/core/quaternion.cpp
 )
 
-# Drone Executable
 add_executable(drone
     src/sim/droneMain.cpp
-    src/dynamics/vehicle.cpp
-    src/core/rotationMatrix.cpp
-    src/core/odeIterator.cpp
-    src/sim/logs.cpp
-    src/core/getRotationAngles.cpp
-    src/core/forceApplied.cpp
-    src/control/control.cpp
-    src/dynamics/aero.cpp
-    src/core/RungeKutta.cpp
-    src/subsystems/sensors.cpp
-    src/dynamics/rocket.cpp
-    src/sim/toml.cpp
-    src/core/quaternion.cpp
-    src/subsystems/battery.cpp
-    src/subsystems/motor.cpp
-    src/dynamics/drone.cpp
-    src/control/PIDController.cpp
-    src/control/droneControl.cpp
-    src/sim/MySim.cpp
 )
 
-# Test executable
+add_executable(dronePIDGains
+    src/sim/dronePIDGains.cpp
+)
+
+
+# Tests
+enable_testing()
 add_executable(tests
-    src/dynamics/vehicle.cpp
-    src/core/rotationMatrix.cpp
-    src/core/odeIterator.cpp
-    src/sim/logs.cpp
-    src/core/getRotationAngles.cpp
-    src/core/forceApplied.cpp
-    src/control/control.cpp
-    src/dynamics/aero.cpp
-    src/core/RungeKutta.cpp
-    src/subsystems/sensors.cpp
-    src/dynamics/rocket.cpp
-    src/sim/toml.cpp
     tests/tests.cpp
-    src/core/quaternion.cpp
-    src/control/PIDController.cpp
-    src/control/droneControl.cpp
-    src/dynamics/drone.cpp
-    src/subsystems/motor.cpp
-    src/subsystems/battery.cpp
 )
 
-# Static library
-add_library(MySim STATIC
-    src/sim/MySim.cpp
-    src/dynamics/vehicle.cpp
-    src/core/rotationMatrix.cpp
-    src/core/odeIterator.cpp
-    src/sim/logs.cpp
-    src/core/getRotationAngles.cpp
-    src/core/forceApplied.cpp
-    src/control/control.cpp
-    src/dynamics/aero.cpp
-    src/core/RungeKutta.cpp
-    src/subsystems/sensors.cpp
-    src/dynamics/rocket.cpp
-    src/sim/toml.cpp
-    src/core/quaternion.cpp
-    src/subsystems/battery.cpp
-    src/subsystems/motor.cpp
-    src/dynamics/drone.cpp
-    src/control/PIDController.cpp
-    src/control/droneControl.cpp
-)
+# Link MySim and Python into all executables
+foreach(TARGET rocket dronePIDGains drone tests)
+    target_link_libraries(${TARGET}
+        PRIVATE
+        MySim
+        pthread
+    )
+endforeach()
 
-
-# GoogleTest
-add_subdirectory(third_party/googletest)
-
-target_link_libraries(tests gtest gtest_main)
-
-
+# GoogleTest for tests
+target_link_libraries(tests PRIVATE gtest gtest_main)
 add_test(NAME RocketSimTests COMMAND tests)

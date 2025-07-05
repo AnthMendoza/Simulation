@@ -1,7 +1,7 @@
 #include "../include/getRotation.h"
 #include "../include/vectorMath.h"
-#include "../include/Eigen/Eigen"
-#include "../include/Eigen/Dense"
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
 #include <iostream>
 #include <array>
 

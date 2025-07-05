@@ -9,6 +9,7 @@
 #include "../control/PIDController.h"
 #include "../subsystems/propeller.h"
 #include "../control/droneControl.h"
+#include "aero.h"
 #include <utility>
 #include <memory>
 #include <string>
@@ -79,6 +80,36 @@ class droneControl{
         //Must Specify type here
         desiredNormal = normalizeVector<float>({x,y,z});
     }
+
+    inline void setPIDXGains(const std::tuple<float, float, float>& pid) {
+        if (PIDX) PIDX->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+    
+    inline void setPIDYGains(const std::tuple<float, float, float>& pid) {
+        if (PIDY) PIDY->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+    
+    inline void setPIDZGains(const std::tuple<float, float, float>& pid) {
+        if (PIDZ) PIDZ->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+    
+    inline void setPIDVXGains(const std::tuple<float, float, float>& pid) {
+        if (PIDVX) PIDVX->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+    
+    inline void setPIDVYGains(const std::tuple<float, float, float>& pid) {
+        if (PIDVY) PIDVY->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+    
+    inline void setPIDVZGains(const std::tuple<float, float, float>& pid) {
+        if (PIDVZ) PIDVZ->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+    
+    inline void setAPIDGains(const std::tuple<float, float, float>& pid) {
+        if (APID) APID->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+
+
 };
 
 
@@ -130,15 +161,22 @@ class droneBody :  public Vehicle{
     void updateState() override; 
     void initDrone(string& motorConfig ,string& batteryConfig , string& droneBody);
     void setSquare(float x , float y , propeller& prop , motor& mot);
-    
+    //sets center of gravity as an offset relative to the center defined by propLocations
+    //positive x = front , positive y = right, positive Z = top
+    void offsetCOG(array<float,3> offset);
+
     // Manual set for a new controller
     inline void setController(droneControl* control){
         controller = make_unique<droneControl>(*control);
     }
+    
+    /// @brief Sets motors to zero rpm, torque, current, and applied volatge.
+    inline void resetMotors(){
+        for(auto& motor:motors){
+            motor->resetMotor();
+        }
+    }
 
-    //sets center of gravity as an offset relative to the center defined by propLocations
-    //positive x = front , positive y = right, positive Z = top
-    void offsetCOG(array<float,3> offset);
     /**
      * @brief Simply calls the controller and feeds in the estimated Positions from state estimation as its arguments.
      * State estimation uses the sensors associated with the vehicle base class.
@@ -163,6 +201,18 @@ class droneBody :  public Vehicle{
         battery* bat = dynamic_cast<battery*> (droneBattery.get()); 
         return bat;
     }
+    inline droneControl* getController(){
+        return controller.get();
+    }
+
+    void setMotorHover(){
+        float thrust = mass/motors.size();
+        for(int i = 0 ; i < motors.size() ; i++){
+            float rad_sec = propellers[i]->desiredAngularVelocity(airDensity(Zposition), thrust);
+            motors[i]->setMotorAngularVelocity(rad_sec);
+        }
+    }
+
     inline void droneDisplay() const {
         static const int linesToClear = 0; // number of lines in display
 

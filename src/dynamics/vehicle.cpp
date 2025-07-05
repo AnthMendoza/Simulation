@@ -118,33 +118,49 @@ Vehicle& Vehicle::operator=(const Vehicle& other){
     configFile = other.configFile;
     outputFile = other.outputFile;
 
+    if (other.turbulantX)
+        turbulantX = std::make_unique<turbulence>(*other.turbulantX);
+    if (other.turbulantY)
+        turbulantY = std::make_unique<turbulence>(*other.turbulantY);
+    if (other.turbulantZ)
+        turbulantZ = std::make_unique<turbulence>(*other.turbulantZ);
+    if (other.pose)
+        pose = std::make_unique<quaternionVehicle>(*other.pose);
 
     return *this;
 }
 
 Vehicle::Vehicle(const Vehicle& other)
-    : Xposition(other.Xposition),
-      Yposition(other.Yposition),
-      Zposition(other.Zposition),
-      Xvelocity(other.Xvelocity),
-      Yvelocity(other.Yvelocity),
-      Zvelocity(other.Zvelocity),
-      timeStep(other.timeStep),
-      iterations(other.iterations),
-      mass(other.mass),
-      centerOfPressure(other.centerOfPressure),
-      gForce(other.gForce),
-      wind(other.wind),
-      angularVelocity(other.angularVelocity),
-      vehicleState(other.vehicleState),
-      MOI(other.MOI),
-      sumOfForces(other.sumOfForces),
-      sumOfMoments(other.sumOfMoments),
-      acceleration(other.acceleration),
-      gravitationalAcceleration(other.gravitationalAcceleration),
-      configFile(other.configFile),
-      outputFile(other.outputFile){
-
+    :   stateEstimation(other),
+        Xposition(other.Xposition),
+        Yposition(other.Yposition),
+        Zposition(other.Zposition),
+        Xvelocity(other.Xvelocity),
+        Yvelocity(other.Yvelocity),
+        Zvelocity(other.Zvelocity),
+        timeStep(other.timeStep),
+        iterations(other.iterations),
+        mass(other.mass),
+        centerOfPressure(other.centerOfPressure),
+        gForce(other.gForce),
+        wind(other.wind),
+        angularVelocity(other.angularVelocity),
+        vehicleState(other.vehicleState),
+        MOI(other.MOI),
+        sumOfForces(other.sumOfForces),
+        sumOfMoments(other.sumOfMoments),
+        acceleration(other.acceleration),
+        gravitationalAcceleration(other.gravitationalAcceleration),
+        configFile(other.configFile),
+        outputFile(other.outputFile){
+    if (other.turbulantX)
+        turbulantX = std::make_unique<turbulence>(*other.turbulantX);
+    if (other.turbulantY)
+        turbulantY = std::make_unique<turbulence>(*other.turbulantY);
+    if (other.turbulantZ)
+        turbulantZ = std::make_unique<turbulence>(*other.turbulantZ);
+    if (other.pose)
+        pose = std::make_unique<quaternionVehicle>(*other.pose);
 }
 
 

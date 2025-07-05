@@ -2,7 +2,7 @@
 wind = [0.0,0.0,0.0]
 gravitationalAcceleration = -9.81
 targetLandingPosition  = [400000.0,0.0,0.0]
-initPosition=[0.0,0.0,0.0]
+initPosition=[0.0,0.0,20.0]
 initVehicleState = [0.0,0.0,1.0]
 MOI = [2,2,2]
 initVelocity = [0.0,0.0,0.0]
@@ -16,9 +16,9 @@ maxCruiseVelocity = 8.0
 Kp = 0.001
 Ki = 0.0
 Kd = 0.0002
-ZKp = 5.0
+ZKp = 24.5
 ZKi = 0.0
-ZKd = 0.0
+ZKd = 5.0
 
 Kvp = 0.001
 Kvi = 0.0

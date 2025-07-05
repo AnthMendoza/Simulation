@@ -14,8 +14,8 @@
 #include "../include/core/linearInterpolation.h"
 #include "../include/control/droneControl.h"
 #include "../include/dynamics/drone.h"
-#include "../include/thirdparty/Eigen/Eigen"
-#include "../include/thirdparty/Eigen/Dense"
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
 #include <fstream>
 #include <sstream>
 #include <array>

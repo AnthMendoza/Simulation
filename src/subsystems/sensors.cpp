@@ -167,6 +167,18 @@ std::array<float,3> accelerometer::read(){
 stateEstimation::stateEstimation(){
     alpha = .03;
 }
+
+SimCore::stateEstimation::stateEstimation(const stateEstimation& other)
+    : sensorSuite(other),  
+      position(other.position),
+      velocity(other.velocity),
+      rotation(other.rotation),
+      alpha(other.alpha),
+      firstGPSSample(other.firstGPSSample)
+{
+    
+}
+
 //when used add statement that sets newData = prevData when no prevData exists(first sample)
 float stateEstimation::lowPassFilter(float newData,float prevData){
 
@@ -197,6 +209,38 @@ void stateEstimation::updateEstimation(float timeStep){
     for (int i = 0; i < 3; ++i) velocity[i] += accelReading[i] * timeStep;
     for (int i = 0; i < 3; ++i) position[i] += velocity[i] * timeStep;
 }
+
+sensorSuite::sensorSuite(const sensorSuite& other) {
+    sensorMap = std::make_unique<std::unordered_map<std::string, std::unique_ptr<sensor>>>();
+    for (const auto& [key, sensorPtr] : *other.sensorMap) {
+        if (sensorPtr) {
+            (*sensorMap)[key] = sensorPtr->clone(); 
+        }
+    }
+}
+
+
+sensor::sensor(const sensor& other)
+    : mean(other.mean),
+      standardDeviation(other.standardDeviation),
+      lowerBound(other.lowerBound),
+      upperBound(other.upperBound),
+      currentBustValue(other.currentBustValue),
+      isClamped(other.isClamped),
+      burst(other.burst),
+      busrtStdDev(other.busrtStdDev),
+      maxBurstDur(other.maxBurstDur),
+      burstDuration(other.burstDuration),
+      lastBurst(other.lastBurst),
+      currentBurstMagnitude(other.currentBurstMagnitude),
+      sampleFrequency(other.sampleFrequency),
+      lastSample(other.lastSample),
+      hz(other.hz),
+      gen(std::random_device{}())
+{
+}
+
+
 
 //gps cordiante and add IMU data from zero
 //use a filtering system to blend imu data and gps
