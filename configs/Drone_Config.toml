@@ -13,23 +13,25 @@ timeStep = 0.001
 mass = 1
 maxCruiseVelocity = 8.0
 [PID]
-Kp = 0.001
-Ki = 0.0
-Kd = 0.0002
-ZKp = 24.5
-ZKi = 0.0
-ZKd = 5.0
+Kp = 2.4
+Ki = 0.6
+Kd = 2.2
 
-Kvp = 0.001
-Kvi = 0.0
-Kvd = 0.0002
-ZKvp = 2.0
-ZKvi = 0.5
-ZKvd = 0.5
+ZKp = 26.5
+ZKi = 1.2
+ZKd = 2.4
 
-AKp = 2.0
-AKi = 0.5
-AKd = 1.0
+Kvp = 21.1
+Kvi = 2.0
+Kvd = 0.9
+
+ZKvp = 29.3
+ZKvi = 2.6
+ZKvd = 4.2
+
+AKp = 21.0
+AKi = 2.9
+AKd = 2.7
 [accelerometer]
 frequency = 1000.0
 NoisePowerSpectralDensity = 3.0

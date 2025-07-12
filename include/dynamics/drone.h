@@ -75,6 +75,7 @@ class droneControl{
      * @return pair first is the axis of rotation the second is the pid return clamped 1 to -1.The output should be converted into a deired moment.
      */
     std::pair<std::array<float,3> , float> aot(float maxAngleAOT ,std::array<float,3> currentState);
+    std::pair<std::array<float,3> , float> aotControl(std::array<float,3> desiredNormal,std::array<float,3> currentState);
     // nominally desired normal should be set to {0,0,1}. Hover right side up.
     inline void setTargetNormalVecotr(float x , float y , float z){
         //Must Specify type here
@@ -125,6 +126,7 @@ class droneBody :  public Vehicle{
     float totalThrustLimit;
     float maxAngleAOT;
     array<float,3> cogLocation;
+    //transpose Locations are rotated with the vehicle. 
     array<float,3> cogLocationTranspose;
     //location of motor is logged via its index in vector and the propLocatiion vector
     vector<unique_ptr<motor>> motors;
@@ -221,7 +223,7 @@ class droneBody :  public Vehicle{
             std::cout << "\x1b[1A" << "\x1b[2K";  // move up 1 line + clear line
         std::cout << "Motors (rad/s):    ";
         for(int i = 0; i<motors.size();i++){
-                  std::cout<< std::fixed << std::setprecision(2) << motors[0]->getCurrentAngularVelocity() << ",";
+                  std::cout<< std::fixed << std::setprecision(2) << motors[i]->getCurrentAngularVelocity() << ",";
         }
         std::cout << std::flush;
     }

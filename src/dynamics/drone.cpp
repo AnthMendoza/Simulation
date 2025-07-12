@@ -6,10 +6,11 @@
 #include "../../include/dynamics/aero.h"
 #include "../../include/subsystems/propeller.h"
 #include "../../include/subsystems/motor.h"
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
+#include "../../include/core/forceApplied.h"
 #include "../../include/subsystems/motorDyno.h"
 #include "../../include/dynamics/aero.h"
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
 #include "sim/toml.h"
 #include <cassert>
 #include <iostream>
@@ -193,21 +194,22 @@ void droneBody::updateState(){
         current += abs(motors[i]->getCurrentCurrent());
         std::array<float,3> thrustVector = normalizeVector(propellers[i]->directionTransposed);
         float currentThrust = propellers[i]->thrustForce(density,motors[i]->getCurrentAngularVelocity());
-        thrustVector[0] = thrustVector[0] * currentThrust;
-        thrustVector[1] = thrustVector[1] * currentThrust;
-        thrustVector[2] = thrustVector[2] * currentThrust;
+        for(int i = 0 ; i < thrustVector.size();i++) thrustVector[i] = thrustVector[i] * currentThrust;
         totalThrust += currentThrust;
-
         addForce(thrustVector);
-        addMoment(controller->thrustMoment(*propellers[i] , *motors[i] , cogLocation , density));
+        auto leverArm = addVectors(cogLocationTranspose , propellers[i]->locationTransposed);
+        auto force = forceToMoment(thrustVector,leverArm);
+        addMoment(force);
+        
     }
-    //std::cout<< "Total Thrust : "<< totalThrust<<"\n";
+    std::cout<< "Total Thrust : "<< totalThrust<<"\n";
     droneBattery->updateBattery(current);
     Vehicle::updateState();
     //TransposedProps move the transposed cordinates of the props in the prop objects within propellers.
     transposedProps();
     //calls a step in iteration
     iterations++;
+
 }
 /// @brief Computes the moment (torque) produced by a propeller's thrust about the drone's center of gravity (COG).
 /// @param prop Reference to the propeller object (non const because it modifies `direction`; consider redesign).
@@ -272,7 +274,7 @@ void droneControl::initpidControl(string droneConfig , float timeStep){
 
     PIDX->setOutputLimits(-1,1);
     PIDY->setOutputLimits(-1,1);
-    PIDZ->setOutputLimits(-2,2);
+    PIDZ->setOutputLimits(-1,1);
 
 
     //#########################################################################
@@ -300,7 +302,9 @@ void droneControl::initpidControl(string droneConfig , float timeStep){
     // ensuring the (x, y) pair remains within a circle rather than forming a square region.
     PIDVX->setOutputLimits(-maxCruiseVelocity,maxCruiseVelocity);
     PIDVY->setOutputLimits(-maxCruiseVelocity,maxCruiseVelocity);
-    PIDVZ->setOutputLimits(0,1);
+    // m/s need to find an elligant way to calculate this limit
+    //currently hardcoded in 
+    PIDVZ->setOutputLimits(-1,1);
 
     //#########################################################################
     //Angular control loop
@@ -365,27 +369,26 @@ std::vector<float> droneBody::thrust(){
 void droneControl::forceMomentProfile(){
     
 }
-
+//Takes the PIDX and PIDY values and creates a desired vector that is within the vehicles thrust profile. 
+// maxAngle is calculated using the dyno numbers when the battery is at full charge with minimal voltage sag
+//the desired Vector is located in the array named currentFlightTargetNormal.
 std::pair<std::array<float,3> , float> droneControl::aot(float maxAngleAOT , std::array<float,3> currentState){
-    //Takes the PIDX and PIDY values and creates a desired vector that is within the vehicles thrust profile. 
-    // maxAngle is calculated using the dyno numbers when the battery is at full charge with minimal voltage sag
-    //the desired Vector is located in the array named currentFlightTargetNormal.
-
 
     float xAngle = maxAngleAOT * controlOutput[0];
     float yAngle = maxAngleAOT * controlOutput[1];
-    //maxAngleAOT * controlOutput[0] creates square control field
-    //correct that to circular radius. Can also change to ellipsoid if x and y clamp differ 
-    std::tie(xAngle,yAngle) = circularClamp(xAngle,yAngle,maxAngleAOT);
-    
     desiredNormal = {0,0,1};
     Quaternion quantX = fromAxisAngle({0,1,0}, xAngle);
-    Quaternion quantY = fromAxisAngle({0,0,0} , yAngle);
+    Quaternion quantY = fromAxisAngle({1,0,0} , yAngle);
     Quaternion combined = quantX * quantY;
     std::array<float,3> adjustedVect = rotateVector(combined,desiredNormal);
-    currentFlightTargetNormal = adjustedVect;
 
 
+    return aotControl(adjustedVect,currentState);
+
+}
+
+std::pair<std::array<float,3> , float> droneControl::aotControl(std::array<float,3> desiredNormal,std::array<float,3> currentState){
+    currentFlightTargetNormal = desiredNormal;
     //Drone
     //Create Torque around adjust vector which was used a pivot between disired and current angle.
     float angleBetween = vectorAngleBetween(currentFlightTargetNormal,currentState); 
@@ -419,7 +422,7 @@ vector<float> droneControl::update(const std::array<float,3>& estimatedPostion,c
     //change this asap. thrustCoeff used as test metric
     std::array<float,3> gravityNormal = {0,0,1};
     float angleFromGravity = vectorAngleBetween(gravityNormal,estimatedState);
-
+    std::cout<<"requested:"<< static_cast<float>((abs(gravitationalAcceleration) + controlOutput[2]) * mass * cosf(angleFromGravity))<< "\n";
     VectorXd desired  = allocator->toVectorXd({0.0f,0.0f,static_cast<float>((abs(gravitationalAcceleration) + controlOutput[2]) * mass * cosf(angleFromGravity)),moments[0],moments[1],moments[2]});
     VectorXd thrusts = allocator->allocate(desired);
     VectorXd output = allocator->computeWrench(thrusts);
@@ -436,12 +439,12 @@ vector<float> droneControl::update(const std::array<float,3>& estimatedPostion,c
           << output[5] << "]" << std::endl;*/
 
     //VectorXd to vector<float> can be converted into a method if needed further
-    std::vector<float> result;
-    result.reserve(thrusts.size());
+    std::vector<float> computedThrust;
+    computedThrust.reserve(thrusts.size());
     for (int i = 0; i < thrusts.size(); ++i) {
-        result.push_back(static_cast<float>(thrusts[i]));
+        computedThrust.push_back(static_cast<float>(thrusts[i]));
     }
-    return result;
+    return computedThrust;
 }
 
 
@@ -472,27 +475,23 @@ droneBody::droneBody(const droneBody& other)
       index(other.index),
       droneConfig(other.droneConfig)
 {
-    // Deep copy of motors
+    //Deep Copies
     for (const auto& mot : other.motors) {
         motors.push_back(std::make_unique<motor>(*mot));
     }
 
-    // Deep copy of propellers
     for (const auto& prop : other.propellers) {
         propellers.push_back(std::make_unique<propeller>(*prop));
     }
 
-    // Deep copy of droneBattery
     if (other.droneBattery) {
         droneBattery = std::make_unique<battery>(*other.droneBattery);
     }
 
-    // Deep copy of pose
     if (other.pose) {
         pose = std::make_unique<quaternionVehicle>(*other.pose);
     }
 
-    // Deep copy of controller
     if (other.controller) {
         controller = std::make_unique<droneControl>(*other.controller);
     }

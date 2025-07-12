@@ -44,7 +44,7 @@ class unrealDrone{
     unrealDataDrone packet;
     void setPacket();
     void iterator(float totalTime);
-    float totalTime;
+    float totalTime = 0;
     public:
     std::unique_ptr<droneBody> drone;
     unrealDrone(std::string motorConfig, std::string batteryConfig , std::string droneConfig,std::string propellerConfig);

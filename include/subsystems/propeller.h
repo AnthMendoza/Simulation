@@ -17,6 +17,7 @@ struct propeller {
     //rad/s
     //prop locations in relation to the nominal center of gravity
     std::array<float,3> location;
+    //transpose Locations are rotated with the vehicle. 
     std::array<float,3> locationTransposed;
     //direction is the force vector
     std::array<float,3> direction;

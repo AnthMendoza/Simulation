@@ -3,6 +3,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <future>
 #include <tuple>
 
 using namespace SimCore;
@@ -26,7 +27,14 @@ int main(int argc, char* argv[]){
 
 
     unrealDrone drone(configMotor,configBattery,configDrone,configPropeller);
-    std::tuple<float,float,float> PID = optimize(drone.drone.get(),drone.drone->getController(),70,hoverTestIterator,hoverTestSetup);
-
-    std::cout<<std::get<0>(PID) << ","<< std::get<1>(PID) << ","<< std::get<2>(PID)<<"\n";
+    float NUMBER_OF_RUNS = 100;
+    float hoverDuration = 20;
+    float AOTDuration = 3;
+    float pitchRollDuration = 10; 
+    auto PIDHover = optimize(drone.drone.get(),drone.drone->getController(),NUMBER_OF_RUNS,hoverDuration , hoverGroupDuel);
+    auto PIDAOT = optimize(drone.drone.get(),drone.drone->getController(),NUMBER_OF_RUNS, AOTDuration ,aotGroup);
+    auto PIDPITCHROLL = optimize(drone.drone.get(),drone.drone->getController(),NUMBER_OF_RUNS, pitchRollDuration ,rollPitchGroup);
+    displayPID(PIDHover , "PIDHover");
+    displayPID(PIDAOT , "PIDAOT");
+    displayPID(PIDPITCHROLL , "PIDPITCHROLL");
 }
