@@ -17,7 +17,7 @@ public:
     void setTarget(float t);
     float update(const float& measurement);
 
-    inline void clampIntegral(int value = 100){
+    inline void clampIntegral(int value = 1){
         clampInt = value;
     }
 

@@ -32,7 +32,7 @@ motor::motor(const motor& other){
     maxVoltage = other.maxVoltage;
     appliedVoltage = other.appliedVoltage;
     inertia = other.inertia;
-    angualrVeloRequest = other.angualrVeloRequest;
+    angularVeloRequest = other.angularVeloRequest;
     backEMF = other.backEMF;
     electricalPower = other.electricalPower;
     mechanicalPower = other.mechanicalPower;
@@ -70,11 +70,12 @@ void motor::init(std::string& config, float timeStep){
     ke = 60.0 / (2.0 * M_PI * kv); 
     kt = ke; 
 
-            
+    if (ke < 0 || kt < 0 || dampingCoeff < 0) throw std::runtime_error("Physical constants must be >= 0");
+     
 }
 //control loop modulates voltage input
-void motor::angualrVeloctiyRequest(float rad_per_sec){
-    angualrVeloRequest = rad_per_sec;
+void motor::angularVeloctiyRequest(float rad_per_sec){
+    angularVeloRequest = rad_per_sec;
 }
 //the upper limit for rotor acceleration ::adjustable. done by hand calc.
 
@@ -84,7 +85,7 @@ void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
     backEMF = ke * currentAngularVelocity;
 
     float voltageAcrossCoil = appliedVoltage - backEMF;
-    if(coilResistance == 0) throw std::runtime_error("coilResistance Cannot be <= 0");
+    if(coilResistance < 0) throw std::runtime_error("coilResistance Cannot be < 0");
     float phaseCurrent = voltageAcrossCoil / coilResistance;
     currentCurrent = phaseCurrent;
     
@@ -105,8 +106,9 @@ void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
 
 void motor::updateMotorAngularVelocity(float timeStep , float loadTorque, battery& bat, float rad_sec){
     PID->setTarget(rad_sec);
-    PID->setGains(.5,.2,0);
+    PID->setGains(.5,.2,0); 
     PID->setTimeStep(timeStep);
+    angularVeloRequest = rad_sec;
     float output = PID->update(currentAngularVelocity);
     float volt = output * std::abs(bat.getBatVoltage());
 

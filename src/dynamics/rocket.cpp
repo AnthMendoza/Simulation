@@ -111,11 +111,6 @@ void Rocket::init(string& configFile){
     fuelConsumptionRate =   vehicleParse.getFloat("consumptionRateFuel");
     LOXConsumptionRate =    vehicleParse.getFloat("consumptionRateLOX");
 
-    // MOI
-    auto moiArray = vehicleParse.getArray("MOI");
-    MOI[0] = moiArray[0];
-    MOI[1] = moiArray[1];
-    MOI[2] = moiArray[2];
 
     // Landing target
     auto landingPos = vehicleParse.getArray("targetLandingPosition");

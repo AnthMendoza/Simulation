@@ -1,5 +1,6 @@
 #include "../../include/sim/MySim.h"
 #include "../../include/control/PIDGains.h"
+#include "../../include/core/pythonConnector.h"
 #include <string>
 #include <chrono>
 #include <thread>
@@ -26,12 +27,25 @@ int main(int argc, char* argv[]){
 
 
     unrealDrone drone(configMotor,configBattery,configDrone,configPropeller);
-    drone.setTargetPosition(0,0,50,0);
-    while(true){
-        unrealDataDrone* data =  drone.simFrameRequest(1.0f);
-        //display methods. Not needed when using MySim
+    drone.setTargetPosition(0,50,200,0);
+    //in milliseconds (1 second)
+    float TimePerTelemetry = 1000.0f; 
+    while (true) {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        unrealDataDrone* data = drone.simFrameRequest(TimePerTelemetry / 1000.0f); 
+        //drone.drone->setStateVector({0, 0, 1 }, {1, 0, 0});
         drone.drone->display();
         drone.drone->droneDisplay();
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float, std::milli> duration = end - start;
+        float delay = TimePerTelemetry - duration.count();
+        if (delay < 0) {
+            std::cerr << "Warning: TimePerTelemetry is too small or simulation is running too slow to display in real time.\n";
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(delay)));
+        }
     }
+
 }

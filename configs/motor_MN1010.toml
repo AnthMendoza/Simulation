@@ -11,5 +11,5 @@ dampingCoeff   = 0.0001      # [Nm·s/rad] Viscous damping coefficient
 maxVoltage     = 30.0          # [V] Maximum safe applied voltage (ESC or hardware limit)
 inertia        = 0.002        # [kg·m²] Rotor and shaft moment of inertia
 kp             = 0.5
-ki             = 0.0
+ki             = 0.2
 kd             = 0.1

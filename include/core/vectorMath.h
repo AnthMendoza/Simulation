@@ -94,9 +94,13 @@ inline std::pair<T, T> circularClamp(T x, T y, T maxRadius) {
     return {x * scale, y * scale};
 }
 
-template <typename T>
-T vectorMag(const std::array<T,3> &vector){
-    return sqrt(vector[0]*vector[0] + vector[1]*vector[1] + vector[2]*vector[2]);
+template <typename T,std::size_t N>
+T vectorMag(const std::array<T,N> &vector){
+    T sum = 0;
+    for(std::size_t i = 0 ; i < N ; i++){
+        sum += vector[i] * vector[i];
+    }
+    return std::sqrt(sum);
 }
 
 

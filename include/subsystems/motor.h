@@ -30,7 +30,7 @@ private:
     float maxVoltage;
     float appliedVoltage;
     float inertia;               // kg·m² (rotor inertia)
-    float angualrVeloRequest;
+    float angularVeloRequest;
     float backEMF;
     float electricalPower;
     float mechanicalPower;
@@ -74,7 +74,7 @@ public:
     }
     
     // Control methods
-    void angualrVeloctiyRequest(float rad_per_sec);
+    void angularVeloctiyRequest(float rad_per_sec);
     void enable();                              // Enable motor
     void disable();                             // Disable motor
     void setCurrent(float current);
@@ -102,6 +102,13 @@ public:
     inline float getKt() const{
         return kt;
     }
+    inline float getAppliedVoltage(){
+        return appliedVoltage;
+    }
+    inline float getAngularVelocityRequest(){
+        return angularVeloRequest;
+    }
+
     
     /**
      * @brief Motors current rotational Velocity
@@ -136,7 +143,7 @@ public:
         currentThrottle = 0.0f;
         currentCurrent = 0.0f;
         appliedVoltage = 0.0f;
-        angualrVeloRequest = 0.0f;
+        angularVeloRequest = 0.0f;
         backEMF = 0.0f;
     }
     

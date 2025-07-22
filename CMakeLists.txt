@@ -71,12 +71,14 @@ set(CONTROL_SRC
     src/control/control.cpp
     src/control/PIDController.cpp
     src/control/droneControl.cpp
+    src/control/dronePIDControl.cpp
 )
 
 set(SUBSYSTEMS_SRC
     src/subsystems/sensors.cpp
     src/subsystems/battery.cpp
     src/subsystems/motor.cpp
+    src/subsystems/droneDependencyInjector.cpp
 )
 
 # Static Library

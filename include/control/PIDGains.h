@@ -4,8 +4,8 @@
 #include <limits>
 #include <stdexcept>
 #include "../dynamics/drone.h"
-#include "PIDGainsConnector.h"
-#include "../sim/utility.h"
+#include "../core/pythonConnector.h"
+#include "../utility/utility.h"
 #include "../core/vectorMath.h"
 #include "droneCostFunction.h"
 #include "PIDTestScenarios.h"
@@ -25,18 +25,18 @@ namespace SimCore{
 /// @return 
 
 template<typename PIDType>
-float simTemplate(  droneBody* basisDrone, droneControl* basisController, PIDType PID, PIDFunctionGroup<PIDType>& func , float duration){
-    calibratePID calibrate;
-    calibrate.setConstants(1.0f,1.0f);
+float simTemplate( droneBody* basisDrone, droneControl* basisController, PIDType PID, PIDFunctionGroup<PIDType>& func){
+    calibratePID calibrate(func.stdThreshold,func.errorThreshold);
+    calibrate.setConstants(10.0f,10.0f);
     auto testController = std::make_shared<droneControl>(*basisController);
     auto testDrone = std::make_shared<droneBody>(*basisDrone);
     func.setGains(testController.get(),PID);
     func.setUp(testDrone.get(),testController.get(),PID);
     //emplacing testController into testDrone
     testDrone->setController(testController.get());
-    for(int i = 0 ; i < duration/testDrone->getTimeStep() ; i++){
-        testDrone->updateState();
-        func.iteration(testDrone.get(), &calibrate);
+    for(int i = 0 ; i < func.maxDuration/testDrone->getTimeStep() ; i++){
+        bool continueTest = func.iteration(testDrone.get(), &calibrate);
+        if(continueTest == false) break;
     }
     float cost = calibrate.evaluate();
 
@@ -45,7 +45,7 @@ float simTemplate(  droneBody* basisDrone, droneControl* basisController, PIDTyp
 }
 
 template<typename PIDType>
-PIDType optimize( droneBody* basisDrone, droneControl* basisController, int numberOfRuns,float duration, PIDFunctionGroup<PIDType>& func ){
+PIDType optimize( droneBody* basisDrone, droneControl* basisController, int numberOfRuns,PIDFunctionGroup<PIDType>& func ){
     if(numberOfRuns <= 0) throw std::runtime_error("numberOfRuns in optimize cannot be <= 0\n");
     initPython();
     float lowestCost = std::numeric_limits<float>::max();
@@ -54,7 +54,7 @@ PIDType optimize( droneBody* basisDrone, droneControl* basisController, int numb
 
     for(int i = 0 ; i < numberOfRuns ; i++){
         progressBar(static_cast<float>(i)/static_cast<float>(numberOfRuns));
-        float cost = simTemplate(basisDrone,basisController,testPID,func , duration);
+        float cost = simTemplate(basisDrone,basisController,testPID,func);
         if(cost < lowestCost){
             lowestCost = cost;
             bestPID = testPID;

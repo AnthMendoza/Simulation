@@ -6,14 +6,21 @@
 using dataPID = std::tuple<float,float,float>;
 using PIDPair = std::pair<dataPID,dataPID>;
 
-void initPython() {
 
+
+
+void initPython() {
+    
     Py_Initialize();
     
     PyRun_SimpleString("import sys");
     PyRun_SimpleString("sys.path.insert(0, '/Users/anthony/Documents/rocket/venv/lib/python3.13/site-packages')");  
     PyRun_SimpleString("sys.path.append('../src/control/')");
 }
+
+
+
+
 
 dataPID getNextPIDSingle() {
     PyObject *pName = PyUnicode_DecodeFSDefault("bayesianOptimization"); //bayesianOptimization.py
@@ -258,6 +265,9 @@ void displayPID<PIDPair>(PIDPair PID){
     std::get<1>(PID.second) << ","<<
     std::get<2>(PID.second)<<"\n";
 }
+
+
+
 
 
 #endif //PIDGAINSCONNECTOR_H

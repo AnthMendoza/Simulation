@@ -37,6 +37,7 @@ class Vehicle : public stateEstimation{
     std::array<float,3> MOI;
     std::array<float,3> sumOfForces;
     std::array<float,3> sumOfMoments;
+    std::array<float,3> logSumOfMoments;
     float yawMoment;
     std::array<float,3> acceleration;
     float gravitationalAcceleration;
@@ -60,6 +61,8 @@ class Vehicle : public stateEstimation{
     //Positive moment about the direction vector is a rotation from x to y.
     //Negative from y to x.
     void addYawMoment(float moment);
+
+    virtual void rotateLocalEntities(Quaternion& quant);
 
     virtual void updateState();
 
@@ -100,10 +103,18 @@ class Vehicle : public stateEstimation{
         Yvelocity = vy;
         Zvelocity = vz; 
     }
-    inline void setStateVector(float x ,float y, float z){
-        vehicleState = {x,y,z};
-        vehicleState = normalizeVector(vehicleState);
+    inline void setStateVector(std::array<float,3> dirVector, std::array<float,3> fwdVector){
+        if(isZeroVector(dirVector)){
+            std::cerr<< "\nsetStateVector was given a Zero vector as the new Vehicle State dirVector.\n Command was skipped.\n";
+            return;
+        }
+        if(isZeroVector(fwdVector)){
+            std::cerr<< "\nsetStateVector was given a Zero vector as the new Vehicle State fwdVector.\n Command was skipped.\n";
+            return;
+        }
+        pose->setVehicleQuaternionState(dirVector,fwdVector);
     }
+
     inline void setIterations(int it){
         iterations = it;
     }
@@ -118,6 +129,9 @@ class Vehicle : public stateEstimation{
     //Not based off sensor data. Actual Simulation Position
     inline std::array<float,3> getVelocityVector() const{
         return {Xvelocity,Yvelocity,Zvelocity};
+    }
+    inline std::array<float,3> getMoment() const{
+        return logSumOfMoments;
     }
     inline std::array<float,3> getPositionVector() const{
         return {Xposition,Yposition,Zposition};
@@ -135,14 +149,15 @@ class Vehicle : public stateEstimation{
     inline float getTimeStep() const{
         return timeStep;
     }
-    inline std::array<std::array<float,3>,3> getPose() const{
+    inline poseState getPose() const{
         return pose->getPose();
     }
+
     
     //#############################################################################
 
     inline void display() const {
-        static const int linesToClear = 6; // number of lines in display
+        static const int linesToClear = 11; // number of lines in display
 
         // Move cursor up to overwrite previous lines
         for (int i = 0; i < linesToClear; ++i)
@@ -173,7 +188,11 @@ class Vehicle : public stateEstimation{
                   << vehicleState[0] << ", "
                   << vehicleState[1] << ", "
                   << vehicleState[2] << ")\n";
-
+        auto moments = getMoment();
+        std::cout << "Moments (mx,my,mz): ("
+                  << moments[0] << ", "
+                  << moments[1] << ", "
+                  << moments[2] << ")\n";
         std::cout << std::flush;
     }
 

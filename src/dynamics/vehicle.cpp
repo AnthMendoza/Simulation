@@ -21,6 +21,15 @@ namespace SimCore{
 void Vehicle::initSensors(){
     toml::tomlParse vParse;
     vParse.parseConfig( configFile,"vehicle");
+
+    // MOI
+    auto moiArray = vParse.getArray("MOI");
+    MOI[0] = moiArray[0];
+    MOI[1] = moiArray[1];
+    MOI[2] = moiArray[2];
+
+    // Mass is deinfed by dryMass + fuel for some vehicles. If mass > 0 it by passes a normal Mass check.
+    if(mass <= 0) mass = vParse.getFloat("mass");
     
     sensorMap = std::make_unique<std::unordered_map<std::string, std::unique_ptr<sensor>>>();
     
@@ -218,9 +227,8 @@ void Vehicle::init(string& vehicleConfig){
     timeStep = vParse.getFloat("timeStep");
     // todo 
     //change init vectors to match setup in config file. need computation to ensure init vectors are valid.
-    std::array<float,3> vect1 = {1,0,0};
-    std::array<float,3> vect2 = {1,1,0};
-    pose = std::make_unique<quaternionVehicle>(vect2,vect1);
+
+    pose = std::make_unique<quaternionVehicle>();
     turbulantX = std::make_unique<turbulence> ();
     turbulantY = std::make_unique<turbulence> ();
     turbulantZ = std::make_unique<turbulence> ();
@@ -382,10 +390,11 @@ void Vehicle::updateState(){
         RungeKutta4th(sumOfForces[2] , mass ,  timeStep , Zvelocity,Zposition);
     // Before rotational ODE
 
-        pose->eularRotation(rotationalOde(sumOfMoments[0] , MOI[0],  timeStep ,angularVelocity[0]),
+        Quaternion quant = pose->eularRotation(rotationalOde(sumOfMoments[0] , MOI[0],  timeStep ,angularVelocity[0]),
                             rotationalOde(sumOfMoments[1] , MOI[1],  timeStep ,angularVelocity[1]),
                             rotationalOde(sumOfMoments[2] , MOI[2],  timeStep ,angularVelocity[2]));
-
+        rotateLocalEntities(quant);
+        
         vehicleState = pose->getdirVector();
     
         gForce = getGForce();
@@ -395,6 +404,8 @@ void Vehicle::updateState(){
         sumOfForces[0] = 0; //reset forces to zero for next iteration
         sumOfForces[1] = 0;
         sumOfForces[2] = 0;
+
+        logSumOfMoments = sumOfMoments;
         
         sumOfMoments[0] = 0;
         sumOfMoments[1] = 0;
@@ -431,6 +442,11 @@ void Vehicle::turbulantWind(){
     wind[0] += turbulantX->getNext();
     wind[1] += turbulantY->getNext();
     wind[2] += turbulantZ->getNext();
+}
+
+
+void Vehicle::rotateLocalEntities(Quaternion& quant){
+    return;
 }
 
 

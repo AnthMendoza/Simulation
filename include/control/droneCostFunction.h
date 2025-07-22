@@ -1,6 +1,10 @@
-#include <vector>
-
 #pragma once
+
+#include <vector>
+#include <memory>
+#include "../utility/movingAverage.h"
+
+
 
 namespace SimCore{
 
@@ -31,12 +35,27 @@ private:
     float costFunctionSum = 0.0f;
     float tolerance = 0.02f;
     float currentTime = 0;
+    size_t movingAvgSize = 100;
+    float oscilationScaleFactor = 50;
+    float stdThreshold;
+    float errorThreshold;
     std::vector<float> timeLog;
     std::vector<float> outputLog;
     std::vector<float> referenceLog;
+    std::unique_ptr<utility::movingAverage<float>> movingAvg;
+    float previousError;
+    bool isPreviousErrorInitialized = false;
+    bool isPositive = true;
+
+
+    inline bool crossedZero(float prev,float current) {
+        return (prev * current < 0.0f);
+    }
+
 
     void costFunction(float error ,float dt) {
         costFunctionSum += (error * error) * dt;
+        costFunctionSum += costOfOscilation(error , dt , oscilationScaleFactor);
     }
 
     float computeOvershoot(const std::vector<float>& output, float reference) {
@@ -53,9 +72,26 @@ private:
         return 0.0f;
     }
 
-public:
-    calibratePID(){
+   
+    float costOfOscilation(float error, float dt, float scaleFactor){
+        if(!isPreviousErrorInitialized){
+            isPreviousErrorInitialized = true;
+            previousError = error;
+            return 0.0f;
+        }
+        bool crossed = crossedZero(previousError,error);
+        float slope = abs(previousError - error) / dt;
+        if(crossed){
+            return std::log(slope);
+            crossed = false;
+        }
+        previousError = error;
+        return 0.0f;
+    }
 
+public:
+    calibratePID(float stdThreshold, float errorThreshold): stdThreshold(stdThreshold ),errorThreshold(errorThreshold){
+        movingAvg = std::make_unique<utility::movingAverage<float>>(movingAvgSize);
     }
 
     void reset() {
@@ -65,14 +101,20 @@ public:
         outputLog.clear();
         referenceLog.clear();
     }
-
-    void logStep(float output, float reference , float dt) {
+    //bool return false = stop test.
+    bool logStep(float output, float reference , float dt) {
         currentTime += dt;
         float error = reference - output;
         costFunction(error , dt);
         timeLog.push_back(currentTime);
         outputLog.push_back(output);
         referenceLog.push_back(reference);
+        movingAvg->add(error);
+
+        if(!movingAvg->full()) return true;
+
+        if(movingAvg->getSampleStandardDeviation() <= stdThreshold && reference - movingAvg->getAverage() < errorThreshold) return false;
+        return true;
     }
 
     float evaluate() {
@@ -86,6 +128,26 @@ public:
     inline void setConstants(float _alpha, float _beta){
         alpha = _alpha;
         beta = _beta;
+    }
+
+    inline void resetMovingAvg(){
+        movingAvg->reset();
+    }
+
+    inline void setTolerance(float t){
+        tolerance = t; 
+    }
+
+    inline void setMovingAvgSize(size_t n){
+        movingAvgSize = n; 
+    }
+
+    inline void setOscillationScale(float f){
+        oscilationScaleFactor= f; 
+    }
+
+    inline void setStdThreshold(float s){
+        stdThreshold = s;
     }
 };
 

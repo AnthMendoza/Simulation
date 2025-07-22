@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <assert.h>
+#include <iostream>
 
 namespace SimCore{
 //w is just a scaler of vector x,y,z
@@ -39,40 +40,95 @@ Quaternion fromAxisAngle(const std::array<float, 3> axis, float angle_rad) {
     };
 }
 
-constexpr float EPSILON = 1e-4;
-quaternionVehicle::quaternionVehicle(std::array<float,3> dirVectorInit , std::array<float,3> fwdVectorInit): 
-                                    dirVector{0,0,1}, fwdVector{1,0,0}, rightVector{0,1,0}, numberOfCalls(0){
+static constexpr float EPSILON = 1e-4;
+quaternionVehicle::quaternionVehicle(): pose{{0, 0, 1}, {1, 0, 0}, {0, 1, 0}}, numberOfCalls(0){
+    
 
-
-    std::cerr<<"Warning inital state is not valid as the forward and direction vector are not orthogonal. Setting Default values.";
+    //std::cerr<<"Warning inital state is not valid as the forward and direction vector are not orthogonal. Setting Default values.";
 }
+
+void quaternionVehicle::setVehicleQuaternionState(threeDState dir , threeDState fwd){
+
+    pose.dirVector = dir;
+    pose.fwdVector = fwd;
+
+    float dotProduct = vectorDotProduct(dir,fwd);
+
+    if (std::fabs(dotProduct) >= 1.0f - EPSILON) {
+        std::cerr << "Warning: fwdVector is parallel or antiparallel to dirVector. Generating arbitrary orthogonal fwdVector.\n";
+
+        
+        std::array<float, 3> arbitrary = {1.0f, 0.0f, 0.0f};
+        if (std::fabs(vectorDotProduct(dir, arbitrary)) > 0.99f) {
+            arbitrary = {0.0f, 1.0f, 0.0f}; 
+        }
+
+        
+        std::array<float, 3> orthogonalFwd = {
+            dir[1] * arbitrary[2] - dir[2] * arbitrary[1],
+            dir[2] * arbitrary[0] - dir[0] * arbitrary[2],
+            dir[0] * arbitrary[1] - dir[1] * arbitrary[0]
+        };
+
+        normalizeVector(orthogonalFwd);
+        pose.fwdVector = orthogonalFwd;
+        return;
+    }
+
+    if (std::fabs(dotProduct) >= EPSILON) {
+        std::cerr << "Warning: dirVector and fwdVector were not orthogonal when attempting to set in QuaternionVehicle.\n";
+
+        
+        float projection = vectorDotProduct(fwd, dir);
+        std::array<float, 3> projectedComponent = {
+            projection * dir[0],
+            projection * dir[1],
+            projection * dir[2]
+        };
+
+        std::array<float, 3> orthogonalFwd = {
+            fwd[0] - projectedComponent[0],
+            fwd[1] - projectedComponent[1],
+            fwd[2] - projectedComponent[2]
+        };
+
+        orthogonalFwd = normalizeVector(orthogonalFwd);
+
+        pose.fwdVector = orthogonalFwd;
+
+    }
+    vectorCrossProduct(pose.dirVector,pose.fwdVector,pose.rightVector);
+
+}
+
+
 //eular rotaion, rotates around x,y,z axis.
-void quaternionVehicle::eularRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ){
+Quaternion quaternionVehicle::eularRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ){
     ++numberOfCalls;
     Quaternion qx = fromAxisAngle({1,0,0}, rotationInRadsX);
     Quaternion qy = fromAxisAngle({0,1,0}, rotationInRadsY);
     Quaternion qz = fromAxisAngle({0,0,1}, rotationInRadsZ);
 
-
-    Quaternion combined = qx * qy * qz;
+    Quaternion combined = qz * qy * qx;
     combined = combined.normalized();
 
-    dirVector = rotateVector(combined, dirVector);
-    fwdVector = rotateVector(combined, fwdVector);
-    rightVector = rotateVector(combined,rightVector);
+
+    pose.dirVector = rotateVector(combined, pose.dirVector);
+    pose.fwdVector = rotateVector(combined, pose.fwdVector);
+    pose.rightVector = rotateVector(combined,pose.rightVector);
     // call for Gram-Schmidt orthonormalization while re-normilizing vectors
     if(numberOfCalls > 100){
-        orthogonalize(dirVector,fwdVector);
-        orthogonalize(dirVector,rightVector);
-        orthogonalize(fwdVector,rightVector);
+        orthogonalize(pose.dirVector,pose.fwdVector);
+        orthogonalize(pose.dirVector,pose.rightVector);
+        orthogonalize(pose.fwdVector,pose.rightVector);
         numberOfCalls = 0;
     }
-
+    return combined;
 }
 
 void quaternionVehicle::applyYaw(float rotationInRads){
-    Quaternion rotationQuat = fromAxisAngle(normalizeVector(dirVector),rotationInRads);
-    fwdVector = rotateVector(rotationQuat,fwdVector);
+    Quaternion rotationQuat = fromAxisAngle(normalizeVector(pose.dirVector),rotationInRads);
+    pose.fwdVector = rotateVector(rotationQuat,pose.fwdVector);
 } 
 
 void quaternionVehicle::orthogonalize(std::array<float,3>& vector1 , std::array<float,3>& vector2){

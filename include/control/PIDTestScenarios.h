@@ -2,8 +2,8 @@
 #define PIDGAINS_H
 #include "../dynamics/drone.h"
 #include <tuple>
-#include "PIDGainsConnector.h"
-#include "../sim/utility.h"
+#include "../core/pythonConnector.h"
+#include "../utility/utility.h"
 #include "../core/vectorMath.h"
 #include "PIDTypes.h"
 #include "droneCostFunction.h"
@@ -29,7 +29,7 @@ void hoverTestSetup(droneBody* testDrone,droneControl* testController, dataPID P
     //set drone vertically 
     testDrone->resetMotors();
     testDrone->setPositionVector(0.0f,0.0f,25.0f);
-    testDrone->setStateVector(0.0f,0.0f,1.0f);
+    testDrone->setStateVector({0,0,1},{1,0,0});
     testDrone->setVelocity(0.0f,0.0f,0.0f);
     testDrone->setMotorHover();
 
@@ -37,15 +37,19 @@ void hoverTestSetup(droneBody* testDrone,droneControl* testController, dataPID P
 }
 
 
-void hoverTestIterator(droneBody* testDrone,calibratePID* calibrate){
-    testDrone->setStateVector(0.0f,0.0f,1.0f);
-    calibrate->logStep(testDrone->getEstimatedPosition()[2] , 4.0f ,testDrone->getTimeStep());
+bool hoverTestIterator(droneBody* testDrone,calibratePID* calibrate){
+    testDrone->setStateVector({0,0,1},{1,0,0});
+    testDrone->updateState();
+    return calibrate->logStep(testDrone->getEstimatedPosition()[2] , 4.0f ,testDrone->getTimeStep());
 }
 
 PIDFunctionGroup<dataPID> hoverGroup = {
     hoverTestIterator,
     hoverTestSetup,
-    hoverSetGain
+    hoverSetGain,
+    0.2f,
+    0.1f,
+    1000.0f
 };
 
 using PIDPair = std::pair<dataPID,dataPID>;
@@ -67,7 +71,7 @@ void hoverTestSetupDuel(droneBody* testDrone,droneControl* testController, PIDPa
     //set drone vertically 
     testDrone->resetMotors();
     testDrone->setPositionVector(0.0f,0.0f,10.0f);
-    testDrone->setStateVector(0.0f,0.0f,1.0f);
+    testDrone->setStateVector({0,0,1},{1,0,0});
     testDrone->setVelocity(0.0f,0.0f,0.0f);
     testDrone->setMotorHover();
 
@@ -75,60 +79,60 @@ void hoverTestSetupDuel(droneBody* testDrone,droneControl* testController, PIDPa
 }
 
 
-void hoverTestIteratorDuel(droneBody* testDrone,calibratePID* calibrate){
-    testDrone->setStateVector(0.0f,0.0f,1.0f);
-    calibrate->logStep(testDrone->getEstimatedPosition()[2] , wayPoint ,testDrone->getTimeStep());
+bool hoverTestIteratorDuel(droneBody* testDrone,calibratePID* calibrate){
+    testDrone->setStateVector({0,0,1},{1,0,0});
+    testDrone->updateState();
+    return calibrate->logStep(testDrone->getEstimatedPosition()[2] , wayPoint ,testDrone->getTimeStep());
 }
 
 PIDFunctionGroup<PIDPair> hoverGroupDuel = {
     hoverTestIteratorDuel,
     hoverTestSetupDuel,
-    hoverSetGainDuel
+    hoverSetGainDuel,
+    0.2f,
+    0.1f,
+    1000.0f
 };
 
 //##########################################################################
 //Angle of Attack(aot)
 
-
+static constexpr float ALTITUDE = 10.0f;
+static constexpr float arbitraryLargeDistance = 10000;
 
 void aotSetGain(droneControl* testController , dataPID PID){
-    testController->setAPIDGains(PID);
+    testController->setAPIDXGains(PID);
+    testController->setAPIDYGains(PID);
 }
- 
 
 void aotTestSetup(droneBody* testDrone,droneControl* testController, dataPID PID){
     //set drone vertically 
     testDrone->resetMotors();
-    testDrone->setPositionVector(0.0f,0.0f,10.0f);
-    testDrone->setStateVector(0.0f,0.0f,1.0f);
+    testDrone->setPositionVector(0.0f,0.0f,ALTITUDE);
+    testDrone->setStateVector({0,0,1},{1,0,0});
     testDrone->setVelocity(0.0f,0.0f,0.0f);
     testDrone->setMotorHover();
-
-    testController->setpidControl(0.0f,0.0f,10.0f);
+    testDrone->controller->setpidControl(0.0f,arbitraryLargeDistance,ALTITUDE);
 }
 
 
-void aotTestIterator(droneBody* testDrone,calibratePID* calibrate){
-    std::array<float,3> desiredAngle = {1,1,1};
-    testDrone->controller->aotControl(desiredAngle,testDrone->getState());
-    testDrone->setPositionVector(0.0f,0.0f,10.0f);
-    float angle = vectorAngleBetween(testDrone->getState(), desiredAngle);
-    auto printVec = [](const std::array<float, 3>& vec, const std::string& name) {
-    std::cout << name << ": [" 
-              << vec[0] << ", " 
-              << vec[1] << ", " 
-              << vec[2] << "]\n";
-};
-
-//printVec(testDrone->getState(), "Current");
-//printVec(desiredAngle, "Desired");
-    calibrate->logStep(angle,0,testDrone->getTimeStep());
+bool aotTestIterator(droneBody* testDrone,calibratePID* calibrate){
+    testDrone->controller->setpidControl(0.0f,arbitraryLargeDistance,ALTITUDE);
+    
+    testDrone->updateState();
+    
+    float angleFromRefrance = vectorAngleBetween({0,0,1},testDrone->getState());
+    float error = angleFromRefrance - testDrone->maxAngleAOT;
+    return calibrate->logStep(error,0,testDrone->getTimeStep());
 }
 
 PIDFunctionGroup<dataPID> aotGroup = {
     aotTestIterator,
     aotTestSetup,
-    aotSetGain
+    aotSetGain,
+    0.02f,
+    0.1f,
+    1000.0f
 };
 
 //##########################################################################
@@ -149,7 +153,7 @@ void rollPitchTestSetup(droneBody* testDrone,droneControl* testController, PIDPa
     //set drone vertically 
     testDrone->resetMotors();
     testDrone->setPositionVector(0.0f,0.0f,10.0f);
-    testDrone->setStateVector(0.0f,0.0f,1.0f);
+    testDrone->setStateVector({0,0,1},{1,0,0});
     testDrone->setVelocity(0.0f,0.0f,0.0f);
     testDrone->setMotorHover();
 
@@ -157,14 +161,18 @@ void rollPitchTestSetup(droneBody* testDrone,droneControl* testController, PIDPa
 }
 
 
-void rollPitchTestIterator(droneBody* testDrone,calibratePID* calibrate){
-    calibrate->logStep(testDrone->getEstimatedPosition()[1] , horizontalWayPoint ,testDrone->getTimeStep());
+bool rollPitchTestIterator(droneBody* testDrone,calibratePID* calibrate){
+    testDrone->updateState();
+    return calibrate->logStep(testDrone->getEstimatedPosition()[1] , horizontalWayPoint ,testDrone->getTimeStep());
 }
 
 PIDFunctionGroup<PIDPair> rollPitchGroup = {
     rollPitchTestIterator,
     rollPitchTestSetup,
-    rollPitchSetGain
+    rollPitchSetGain,
+    0.2f,
+    0.1f,
+    1000.0f
 };
 
 //##################################################

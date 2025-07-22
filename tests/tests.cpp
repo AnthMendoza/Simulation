@@ -14,6 +14,9 @@
 #include "../include/core/linearInterpolation.h"
 #include "../include/control/droneControl.h"
 #include "../include/dynamics/drone.h"
+#include "../include/utility/utility.h"
+#include "../include/subsystems/droneDependencyInjector.h"
+#include "../include/control/dronePIDControl.h"
 #include <Eigen/Eigen>
 #include <Eigen/Dense>
 #include <fstream>
@@ -260,41 +263,41 @@ bool almostEqual(const std::array<float, 3>& a, const std::array<float, 3>& b, f
 }
 
 TEST(QuaternionVehicleTest, Rotate90DegreesAroundX) {
-    quaternionVehicle vehicle({0,1,0} , {0,0,1});
+    quaternionVehicle vehicle;
     vehicle.eularRotation(M_PI / 2, 0, 0);  // 90 degrees around X
 
-    std::array<float, 3> expectedDir = {0, 0, 1};
-    std::array<float, 3> expectedFwd = {0, -1, 0};
+    std::array<float, 3> expectedDir = {0, -1, 0};
+    std::array<float, 3> expectedFwd = {1, 0, 0};
 
     EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
     EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
 }
 
 TEST(QuaternionVehicleTest, Rotate90DegreesAroundY) {
-    quaternionVehicle vehicle({1,0,0},{0,0,1});
+    quaternionVehicle vehicle;
 
     vehicle.eularRotation(0, M_PI / 2, 0);  // 90 degrees around Y
 
-    std::array<float, 3> expectedDir = {0, 0, -1};
-    std::array<float, 3> expectedFwd = {1, 0, 0};
+    std::array<float, 3> expectedDir = {1, 0, 0};
+    std::array<float, 3> expectedFwd = {0, 0, -1};
     EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
     EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
 }
 
 TEST(QuaternionVehicleTest, Rotate90DegreesAroundZ) {
-    quaternionVehicle vehicle({1, 0, 0},{0, 1, 0});
+    quaternionVehicle vehicle;
 
     vehicle.eularRotation(0, 0, M_PI / 2);  // 90 degrees around Z
 
-    std::array<float, 3> expectedDir = {-1 * 0, 1, 0};  // same Y
-    std::array<float, 3> expectedFwd = {-1, 0, 0};      // rotated from X
+    std::array<float, 3> expectedDir = {0, 0, 1};  
+    std::array<float, 3> expectedFwd = {0, 1, 0};     
 
     EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
     EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
 }
 
 TEST(QuaternionVehicleTest, CombinedRotationXYZ) {
-    quaternionVehicle vehicle({0, 1, 0}, {1, 0, 0});
+    quaternionVehicle vehicle;
 
     vehicle.eularRotation(M_PI / 2, M_PI / 2, 0);  // Only once!
 
@@ -303,9 +306,9 @@ TEST(QuaternionVehicleTest, CombinedRotationXYZ) {
     SimCore::Quaternion qy = fromAxisAngle({0, 1, 0}, M_PI / 2);
     SimCore::Quaternion combined = qy * qx;  // Rotate X first, then Y
 
-    std::array<float, 3> expectedDir = rotateVector(combined, {0, 1, 0});
-    std::array<float, 3> expectedFwd = rotateVector(combined, {1, 0, 0});
-
+    std::array<float, 3> expectedDir = rotateVector(combined, {0, -1, 0});
+    std::array<float, 3> expectedFwd = rotateVector(combined, {0, 0, -1});
+    
     EXPECT_TRUE(almostEqual(vehicle.getdirVector(), expectedDir));
     EXPECT_TRUE(almostEqual(vehicle.getfwdVector(), expectedFwd));
 }
@@ -602,6 +605,109 @@ TEST(EllipsoidalClamp3DTest, DirectionPreservedAfterClamp) {
     auto [x, y, z] = ellipsoidalClamp(origX, origY, origZ, 4.0f, 5.0f, 6.0f);
     EXPECT_TRUE(x > 0 && y == 0.0f && z == 0.0f);
     EXPECT_TRUE(almostEqual(x, 4.0f,EPSILON));
+}
+
+TEST(LimitMagnitudeWithFixedZTest, BelowLimitNoChange) {
+    std::array<float, 3> v = {1.0f, 2.0f, 3.0f};
+    float magLimit = 5.0f;
+    auto result = limitMagnitudeWithFixedZ(v, magLimit);
+    EXPECT_TRUE(almostEqual(result, v));
+}
+
+TEST(LimitMagnitudeWithFixedZTest, ZExceedsLimit) {
+    std::array<float, 3> v = {1.0f, 2.0f, 6.0f};
+    float magLimit = 5.0f;
+    auto result = limitMagnitudeWithFixedZ(v, magLimit);
+    EXPECT_TRUE(almostEqual(result, {0.0f, 0.0f, 6.0f}));
+}
+
+TEST(LimitMagnitudeWithFixedZTest, XYScaledDown) {
+    std::array<float, 3> v = {3.0f, 4.0f, 5.0f}; 
+    float magLimit = 7.0f;
+
+    auto result = limitMagnitudeWithFixedZ(v, magLimit);
+    float mag = vectorMag(result);
+
+    EXPECT_NEAR(mag, 7.0f, 1e-4f);             
+    EXPECT_FLOAT_EQ(result[2], 5.0f);        
+
+    float originalRatio = v[0] / v[1];
+    float resultRatio = result[0] / result[1];
+    EXPECT_NEAR(originalRatio, resultRatio, 1e-4f);
+}
+
+TEST(VehicleReferenceFrameTest, NoRotationNeededWhenAligned) {
+    poseState alignedPose = {
+        {0.0f, 0.0f, 1.0f}, 
+        {1.0f, 0.0f, 0.0f}, 
+        {0.0f, 1.0f, 0.0f}  
+    };
+
+    vehicleRefranceFrame frame(alignedPose);
+    std::array<float, 3> input = {1.0f, 0.0f, 0.0f};
+    std::array<float, 3> output = frame.realign(input);
+
+    EXPECT_NEAR(output[0], 1.0f, 1e-5);
+    EXPECT_NEAR(output[1], 0.0f, 1e-5);
+    EXPECT_NEAR(output[2], 0.0f, 1e-5);
+}
+TEST(VehicleReferenceFrameTest, Rotates180Degrees) {
+    poseState flippedPose = {
+        {0.0f, 0.0f, -1.0f},  
+        {1.0f, 0.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f}
+    };
+
+    poseState standardBasis = {
+        {0.0f, 0.0f, 1.0f},
+        {1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f}
+    };
+
+    vehicleRefranceFrame frame(flippedPose, standardBasis);
+    std::array<float, 3> input = {1.0f, 0.0f, 0.0f}; 
+    std::array<float, 3> output = frame.realign(input);
+
+    EXPECT_NEAR(output[0], 1.0f, 1e-5);
+    EXPECT_NEAR(output[1], 0.0f, 1e-5);
+    EXPECT_NEAR(output[2], 0.0f, 1e-5);
+}
+
+TEST(VehicleReferenceFrameTest, RealignListOfVectors) {
+    poseState pose = {
+        {0.0f, 0.0f, 1.0f},
+        {1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f}
+    };
+
+    vehicleRefranceFrame frame(pose);
+
+    std::vector<threeDState> input = {
+        {1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f}
+    };
+
+    auto output = frame.realign(input);
+
+    ASSERT_EQ(output.size(), 2);
+    EXPECT_NEAR(output[0][0], 1.0f, 1e-5);
+    EXPECT_NEAR(output[1][1], 1.0f, 1e-5);
+}
+
+TEST(VehicleReferenceFrameTest, IdentityRotationOnRightVector) {
+    poseState pose = {
+        {0.0f, 0.0f, 1.0f},
+        {1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f}
+    };
+
+    vehicleRefranceFrame frame(pose);
+    std::array<float, 3> input = {0.0f, 1.0f, 0.0f}; 
+    auto result = frame.realign(input);
+
+    EXPECT_NEAR(result[0], 0.0f, 1e-5);
+    EXPECT_NEAR(result[1], 1.0f, 1e-5);
+    EXPECT_NEAR(result[2], 0.0f, 1e-5);
 }
 
 

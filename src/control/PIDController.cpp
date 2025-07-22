@@ -12,6 +12,7 @@ PIDController::PIDController(float kp, float ki, float kd, float dt)
         this->ki = 0.2f;
         this->kd = 0.0f;
     }
+    clampIntegral();
 }
 
 PIDController::PIDController(const PIDController& other): kp(other.kp), ki(other.ki), kd(other.kd), dt(other.dt),
