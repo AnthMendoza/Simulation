@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <memory>
 #include "telemetry_packet.h"
 #include "../async-sockets/include/udpserver.hpp"
 
