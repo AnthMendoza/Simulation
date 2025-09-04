@@ -12,6 +12,10 @@
 # Build directories
 /build/
 /third_party/
+/bin/
+/lib/
+/share/
+
 
 # CMake and Make artifacts
 CMakeFiles/
@@ -34,3 +38,4 @@ __pycache__/
 
 mongo.txt
 build/
+pyvenv.cfg

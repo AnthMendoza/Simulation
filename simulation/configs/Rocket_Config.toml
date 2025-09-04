@@ -1,0 +1,60 @@
+[vehicle]
+wind = [0.0,0.0,0.0]
+gravitationalAcceleration = -9.81
+targetLandingPosition  = [400000.0,0.0,0.0]
+initPosition = [0.0,0.0,210000.0]
+initVehicleState = [0.0,0.0,1.0]
+MOI = [3614090.0,3614090.0,3614090.0]
+initVelocity = [2000.0,0.0,0.0]
+centerOfPressure = 15.0
+maxGAllowedEntry = 4.5
+cogToEngine = -8.0
+timeStep = 0.001
+maxThrust = 854000.0
+dryMass = 10000.0
+landingVelocity = 10.0
+consumptionRateAtFullPowerPerEngine = 328.8
+initFuel = 3000.0
+initLOX =  7050.0
+consumptionRateLOX = 165.0
+consumptionRateFuel = 70.0
+gimbalDamping = 21.0
+gimbalPGain = 17.0
+gimbalIGain = 2.0
+gimbalDGain = 0.5
+maxGimbalAcceleration = 10.0
+finDamping = 21.0
+finPGain = 17.0
+finIGain = 2.0
+finDGain = 10.0
+maxFinAcceleration = 10.0
+reentry = true
+glidePhase = false
+landingInProgress = false
+maxSteeringAngle = 1.0
+StanleyGain = 0.00001
+[accelerometer]
+frequency = 1000.0
+NoisePowerSpectralDensity = 0.1
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 0.5
+maxBurstDuration = 0.2
+[gps]
+frequency = 10.0
+NoisePowerSpectralDensity = 2.0
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 2.0
+maxBurstDuration = 3.0
+[gyro]
+frequency = 10.0
+NoisePowerSpectralDensity = 0.2
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 0.5
+maxBurstDuration = 0.4
+

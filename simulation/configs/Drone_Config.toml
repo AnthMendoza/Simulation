@@ -1,0 +1,61 @@
+[vehicle]
+wind = [0.0,0.0,0.0]
+gravitationalAcceleration = -9.81
+targetLandingPosition  = [400000.0,0.0,0.0]
+initPosition=[0.0,0.0,100.0]
+initVehicleState = [0.0,0.0,1.0]
+MOI = [2,2,2]
+initVelocity = [0.0,0.0,0.0]
+centerOfPressure = 0.0
+maxGAllowedEntry = 4.5
+cogToEngine = -8.0
+timeStep = 0.001
+mass = 1
+maxCruiseVelocity = 8.0
+[PID]
+ZKp = 28.3
+ZKi = 0.9
+ZKd = 1.0
+
+ZKvp = 18.2
+ZKvi = 3.7
+ZKvd = 0.8
+
+Kp = 10.2
+Ki = 0.2
+Kd = 2.9
+
+Kvp = 20.0
+Kvi = 5.0
+Kvd = 5.0
+
+AKp = 5.5
+AKi = 1.4
+AKd = 0.3
+
+
+
+[accelerometer]
+frequency = 1000.0
+NoisePowerSpectralDensity = 0.03
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 0.02
+maxBurstDuration = 0.5
+[gps]
+frequency = 10.0
+NoisePowerSpectralDensity = 0.02
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 0.01
+maxBurstDuration = 1.0
+[gyro]
+frequency = 10.0
+NoisePowerSpectralDensity = 3.0
+bandwidth = 100.0
+bias = 0.0
+burst = true
+burstStdDeviation = 0.5
+maxBurstDuration = 0.4

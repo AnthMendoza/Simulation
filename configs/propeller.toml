@@ -1,7 +1,0 @@
-[propeller]
-diameter = 0.127
-massKg = 0.02
-MOI = 0.0003
-pitch = 0.1
-thrustCoefficient = 0.1
-powerCoefficient = 0.05

@@ -1,3 +1,0 @@
-# Rocket Landing
-
-ZeroGLanding.com
