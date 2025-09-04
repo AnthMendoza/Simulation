@@ -3,6 +3,7 @@
 #include "../../simulation/include/utility/utility.h"
 #include <string>
 #include <iostream>
+#include <cstring>
 
 using namespace std;
 
@@ -32,7 +33,7 @@ void flight_computer::telemetry::call_back(){
             return;
         }
 
-        std::memcpy(&packet, message, sizeof(telemetry_packet));
+        memcpy(&packet, message, sizeof(telemetry_packet));
 
         std::cout << "Packet id: " << packet.payload.position.altitude << ", value: " << packet.header.crc16 << std::endl;
     };
