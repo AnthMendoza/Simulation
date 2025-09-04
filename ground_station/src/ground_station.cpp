@@ -1,5 +1,5 @@
 #include "../include/telemetry_ground.h"
-#include "../../../include/telemetry_packet.h"
+#include "../../flight_computer/include/telemetry_packet.h"
 #include <iostream>
 #include <string>
 using namespace std;
@@ -10,11 +10,9 @@ int main(){
     string input;
     getline(cin, input);
     while (input != "exit"){
-        telemetry.send(packet);
-        getline(cin, input);
+        getline(cin,input);
     }
 
-    telemetry.close();
 
     return 0;
 }

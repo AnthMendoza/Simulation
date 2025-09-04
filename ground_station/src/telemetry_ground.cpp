@@ -1,14 +1,16 @@
 #include "../include/telemetry_ground.h"
 #include "../../simulation/include/sim/toml.h"
+#include "../../simulation/include/utility/utility.h"
 #include <iostream>
 
 using namespace std;
 
 ground_station::telemetry_ground::telemetry_ground(){
-    toml::tomlParse telemetry_toml;
-    telemetry_toml.parseConfig(CONFIG_PATH,TARGET);
+    std::string contents = readFileAsString(CONFIG_PATH);
     
-
+    toml::tomlParse telemetry_toml;
+    telemetry_toml.parseConfig(contents,TARGET);
+    
     udp_bridge = make_shared<UDPSocket<>>();
     string IP = telemetry_toml.getString(IP_ADDRESS);
     uint16_t port = static_cast<uint16_t>(telemetry_toml.getFloat(PORT_ACCESS_NAME));

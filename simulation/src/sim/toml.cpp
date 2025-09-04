@@ -3,9 +3,7 @@
 
 namespace toml {
 tomlParse::tomlParse(){
-    std::unordered_map<std::string, float> floatValues;
-    std::unordered_map<std::string, bool> boolValues;
-    std::unordered_map<std::string, std::vector<float>> arrayValues;
+
 }
 
 void tomlParse::parseConfig(const std::string& config, const std::string& targetSection) {
@@ -14,7 +12,7 @@ void tomlParse::parseConfig(const std::string& config, const std::string& target
     bool inSection = false;
 
     while (std::getline(stream, line)) {
-        line.erase(0, line.find_first_not_of(" \t")); // trim start
+        line.erase(0, line.find_first_not_of(" \t")); 
         if (line.empty() || line[0] == '#') continue;
 
         if (line[0] == '[') {
@@ -32,9 +30,9 @@ void tomlParse::parseConfig(const std::string& config, const std::string& target
         key.erase(key.find_last_not_of(" \t") + 1);
         value.erase(0, value.find_first_not_of(" \t"));
 
-        // Float array: key = [1.0, 2.0, 3.0]
+        // Array
         if (value.front() == '[' && value.back() == ']') {
-            value = value.substr(1, value.size() - 2); // strip []
+            value = value.substr(1, value.size() - 2); 
             std::istringstream arrStream(value);
             std::string numStr;
             std::vector<float> values;
@@ -44,33 +42,27 @@ void tomlParse::parseConfig(const std::string& config, const std::string& target
                 values.push_back(std::stof(numStr));
             }
             arrayValues[key] = values;
-            continue;
-        }else if(value == "false") {
-            boolValues[key] = false;
-            continue;
-        }else if(value == "true"){
-            boolValues[key] = true;
-            continue;
-        }else {
-            floatValues[key] = std::stof(value);
-            continue;
         }
-        
-        if (value.front() == '"' && value.back() == '"') {
-            std::string stringValue = value.substr(1, value.size() - 2);
-            mapOfStrings[key] = stringValue;
-        }
-        else if(value == "false") {
+        // Bool
+        else if (value == "false") {
             boolValues[key] = false;
         }
-        else if(value == "true"){
+        else if (value == "true") {
             boolValues[key] = true;
         }
+
+        else if (value.front() == '"' && value.back() == '"') {
+            mapOfStrings[key] = value.substr(1, value.size() - 2);
+        }
+
         else {
-            floatValues[key] = std::stof(value);
+            try {
+                floatValues[key] = std::stof(value);
+            } catch (const std::invalid_argument&) {
+                mapOfStrings[key] = value;
+            }
         }
     }
-
 }
 
 }

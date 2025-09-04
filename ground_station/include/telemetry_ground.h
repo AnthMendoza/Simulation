@@ -15,7 +15,7 @@ public:
     
     telemetry_ground();
 
-    ~telemetry_ground();
+    ~telemetry_ground() = default;
 
     void call_back();
 
@@ -33,6 +33,10 @@ public:
     bool is_connected() const;
  
     void close();
+
+    inline telemetry_packet get_telemetry_packet(){
+        return packet;
+    }
 
 private:
     std::shared_ptr<UDPSocket<>> udp_bridge;
