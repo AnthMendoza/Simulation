@@ -1,16 +1,17 @@
-#include "../include/communication.h"
-#include "../include/telemetry_packet.h"
+#include "../telemetry/include/communication.h"
+#include "../telemetry/include/telemetry_packet.h"
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 int main(){
-    telemetry_packet packet{};
-    packet.payload.position.altitude = 20.0f;
-    flight_computer::telemetry tel;
-    tel.set_packet(packet);
+    flight_computer::telemetry tel(500);
+    tel.start();
+    string input;
+    getline(cin,input);
+    while(input != "exit"){
 
-    while(1){
-        tel.send_packet();
     }
+    return 0;
 }

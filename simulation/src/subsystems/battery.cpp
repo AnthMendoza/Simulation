@@ -28,12 +28,13 @@ namespace SimCore{
         safetyTerminationLevel(other.safetyTerminationLevel),
         maxDischargeCurrent(other.maxDischargeCurrent),
         charged(other.charged),
-        timestep(other.timestep),
         totalEnergyDelivered(other.totalEnergyDelivered),
         totalEnergyCharged(other.totalEnergyCharged),
-        peakDischargeCurrent(other.peakDischargeCurrent)
+        peakDischargeCurrent(other.peakDischargeCurrent),
+        lastTimeSeconds(0),
+        firstSample(true)
     {
-
+        
     }
 
     void battery::init(std::string& config){
@@ -43,25 +44,30 @@ namespace SimCore{
         capacityAh                  = bParse.getFloat("capacityAh");
         nominalVoltage              = bParse.getFloat("nominalVoltage");
         cellCount                   = bParse.getFloat("cellCount");
-        wattHours                   = bParse.getFloat("wattHours");
         currentCapacity             = bParse.getFloat("currentCapacity");
         soc                         = bParse.getFloat("soc");
         safetyTerminationLevel      = bParse.getFloat("safteyTerminationLevel");
         voltage = nominalVoltage;
         socVoltage = voltage;
+        wattHours = capacityAh * nominalVoltage;
 
     }
 
     // Update soc based on current draw. negative means discharge
-    void battery::updateBattery(float current) {
+    void battery::updateBattery(float current, float currentTimeSeconds) {
         if(soc <= safetyTerminationLevel){
             charged = false;
-            return;
         }
+        if(soc < 0) soc = 0;
+    
+        float deltaAh = 0;
+        if(!firstSample){
+            float dt = currentTimeSeconds - lastTimeSeconds;
+            deltaAh = (currentDraw * dt) / 3600.0f;
+        }
+        firstSample = false;
+        lastTimeSeconds = currentTimeSeconds;
 
-        //3600 seconds = 60 minutes * 60 seconds in an hour
-        float deltaAh = (currentDraw * timestep) / 3600.0f;  // Convert to Ah
-        
         if(capacityAh <= 0 ){
             capacityAh = .01;
             std::cout<<"Battery is dead";

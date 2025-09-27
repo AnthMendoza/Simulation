@@ -48,12 +48,12 @@ std::pair<T, T> ellipsoidalClamp2D(T x, T y, T a, T b) {
     T ellipseLengthSq = (x * x) / (a * a) + (y * y) / (b * b);
 
     // Inside ellipse — no clamping needed
-    if (ellipseLengthSq <= 1.0f) {
+    if (ellipseLengthSq <= T(1)) {
         return {x, y};
     }
 
     // Clamp by scaling to ellipse boundary
-    T scale = 1.0f / std::sqrt(ellipseLengthSq);
+    T scale = T(1) / std::sqrt(ellipseLengthSq);
     return {x * scale, y * scale};
 }
 
@@ -104,13 +104,13 @@ T vectorMag(const std::array<T,N> &vector){
 }
 
 
-template <typename T>
-T vectorDotProduct(const std::array<T,3> &vector1,const std::array<T,3> &vector2) {
-    T dotProduct = 0.0;
+template <typename T,size_t N>
+T vectorDotProduct(const std::array<T,N> &vector1,const std::array<T,N> &vector2) {
+    T dotProduct = T(0.0);
 
     //v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
 
-    for (int i = 0; i < 3; i++) {
+    for (size_t i = 0; i < N; i++) {
         dotProduct += vector1[i] * vector2[i];
     }
 
@@ -140,6 +140,18 @@ T vectorAngleBetween(const std::array<T,3> &vector1,const std::array<T,3> &vecto
     if(dotOverMags < -1) return 3.1415;
     if(dotOverMags > 1) return 0;
     return acos(dotOverMags); // Result is in radians
+}
+
+template <typename T>
+void normalizeVectorInPlace(std::array<T,3>& vector1) {
+    T mag = vectorMag(vector1);
+    if (mag == 0) {
+        vector1 = {0, 0, 0};
+        return;
+    }
+    for (int i = 0; i < 3; i++) {
+        vector1[i] /= mag;
+    }
 }
 
 
@@ -219,6 +231,31 @@ template <typename T>
 inline bool isZeroVector(T &vector){
     if(vector[0] == 0 && vector[1] == 0 && vector[2] == 0) return true;
     return false;
+}
+
+template <typename T, typename X>
+inline void resizeVectorIfLarger(T& vector, X length) {
+    X magnitude = 0;
+    for (auto& element : vector) {
+        magnitude += element * element;
+    }
+    magnitude = std::sqrt(magnitude);
+
+    if (magnitude == 0 || magnitude <= length) {
+        return;
+    }
+
+    X scale = length / magnitude;
+    for (auto& element : vector) {
+        element *= scale;
+    }
+}
+
+template<typename T>
+T signedAngle(std::array<T,2> v1, std::array<T,2> v2 = {0,1}) {
+    T dot = vectorDotProduct(v1,v2);
+    T cross = v1[0]*v2[1] - v1[1]*v2[0];
+    return std::atan2(cross, dot);
 }
 
 }

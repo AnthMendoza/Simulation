@@ -13,6 +13,8 @@
 #include <utility>
 #include <memory>
 #include <string>
+#include <algorithm>
+#include <sstream>
 #include "../core/vectorMath.h"
 #include "../utility/utility.h"
 #include "../control/dronePIDControl.h"
@@ -37,13 +39,12 @@ class droneBody :  public Vehicle{
     //droneBattery
     unique_ptr<battery> droneBattery;
 
-    unique_ptr<quaternionVehicle> pose;
     indexCoordinates index;
 
 
 
     //helper Functions
-    void rotationHelper(Quaternion& q);
+    void rotationHelper(const Quaternion& q);
 
     void resetHelper();
     /** 
@@ -77,7 +78,7 @@ class droneBody :  public Vehicle{
     //positive x = front , positive y = right, positive Z = top
     void offsetCOG(array<float,3> offset);
 
-    void rotateLocalEntities(Quaternion& quant) override;
+    void rotateLocalEntities(const Quaternion& quant) override;
 
     void addMotorsAndProps(std::pair<std::vector<std::unique_ptr<motor>>,std::vector<std::unique_ptr<propeller>>>& motorPropPairs){
         for(int i = 0 ; i < motorPropPairs.first.size() ; i++){
@@ -108,7 +109,7 @@ class droneBody :  public Vehicle{
      */
     inline vector<float> updateController(){
         if(controller == nullptr) throw std::runtime_error("Controller is a nullptr in updateController.\n");
-        return controller->update(getPositionVector(),getPose(),getVelocityVector(),getTime());
+        return controller->update(getEstimatedPosition(),getPose(),getEstimatedVelocity(),getTime());
     }
 
     void motorMoment();
@@ -121,7 +122,7 @@ class droneBody :  public Vehicle{
     * @brief Cycles through updating controller, allocator, motors, propellers, battery, and droneBody. 
     * This method is just a connecting bridge for objects within the droneBody.
     */
-    void transposedProps(Quaternion& quant);
+    void transposedProps(const Quaternion& quant);
 
     inline battery* getBattery(){
         battery* bat = dynamic_cast<battery*> (droneBattery.get()); 
@@ -131,8 +132,7 @@ class droneBody :  public Vehicle{
         return controller.get();
     }
     inline poseState getPose(){
-        poseState stateVectors =  pose->getPose();
-        return stateVectors;
+        return pose->getPose();
     }
 
     void setMotorHover(){
@@ -142,46 +142,48 @@ class droneBody :  public Vehicle{
             motors[i]->setMotorAngularVelocity(rad_sec);
         }
     }
+    void setEntityPose(quaternionVehicle pose) override;
 
 
-    inline void droneDisplay() const {
-        static const int linesToClear = 0; // number of lines in display
-
-        // Move cursor up to overwrite previous lines
-        for (int i = 0; i < linesToClear; ++i)
-            std::cout << "\x1b[1A" << "\x1b[2K";  // move up 1 line + clear line
+    inline std::string droneDisplay() const {
+        std::ostringstream buffer;
+        buffer << "-----Drone State-----\n";
         auto moments = controller->getMoments();
-        std::cout << "requested Moments (mx,my,mz): ("
-                  << moments[0] << ", "
-                  << moments[1] << ", "
-                  << moments[2] << ")\n";
-        std::cout << "Motors (rad/s):    ";
-        for(int i = 0; i<motors.size();i++){
-                  std::cout<< std::fixed << std::setprecision(2) << motors[i]->getCurrentAngularVelocity() << ",";
+        buffer << "requested Moments (mx,my,mz): (" 
+               << moments[0] << ", " << moments[1] << ", " << moments[2] << ")\n";
+
+        buffer << "Motors (rad/s):    ";
+        for (auto& motor : motors) {
+            buffer << std::fixed << std::setprecision(2) << motor->getCurrentAngularVelocity() << ",";
         }
-        std::cout<<"\nAngular Velocity request:";
-        for(int i = 0; i<motors.size();i++){
-                  std::cout<< std::fixed << std::setprecision(2) <<motors[i]->getAngularVelocityRequest()<< ",";
+        buffer << "\nAngular Velocity request:";
+        for (auto& motor : motors) {
+            buffer << std::fixed << std::setprecision(2) << motor->getAngularVelocityRequest() << ",";
         }
-        std::cout<<"\nMotor Voltage : ";
-        for(int i = 0; i<motors.size();i++){
-                  std::cout<< std::fixed << std::setprecision(2) << motors[i]->getVoltage() << ",";
+        buffer << "\nMotor Voltage : ";
+        for (auto& motor : motors) {
+            buffer << std::fixed << std::setprecision(2) << motor->getVoltage() << ",";
         }
-        std::cout<<"\nThrusts :";
+
+        buffer << "\nThrusts :";
         float density = airDensity(Zposition);
-        for(int i = 0; i<motors.size();i++){
-                  std::cout<< std::fixed << std::setprecision(2) <<propellers[i]->thrustForce(density , motors[i]->getCurrentAngularVelocity())<< ",";
-        }        
-        std::cout<<"\nProp Direction :";
-        for(int i = 0 ; i < propellers.size(); i++){
-            const auto& dir = propellers[i]->directionTransposed;
-            std::cout << "Propeller " << i << ": ["
-                        << dir[0] << ", "
-                        << dir[1] << ", "
-                        << dir[2] << "]\n";
+        for (size_t i = 0; i < motors.size(); ++i) {
+            buffer << std::fixed << std::setprecision(2) 
+                   << propellers[i]->thrustForce(density, motors[i]->getCurrentAngularVelocity()) << ",";
         }
-        std::cout<<"\nBattery Voltage:"<< droneBattery->getBatVoltage();
-        std::cout << std::flush;
+
+        buffer << "\nProp Direction :";
+        for (size_t i = 0; i < propellers.size(); ++i) {
+            const auto& dir = propellers[i]->directionTransposed;
+            buffer << "Propeller " << i << ": ["
+                   << dir[0] << ", " << dir[1] << ", " << dir[2] << "]\n";    
+        }
+        buffer << "-----Battery State-----\n";
+        buffer << "Voltage(V):" << droneBattery->getBatVoltage() << "\n";
+        buffer << "Current(amps):" << droneBattery->getCurrentDraw() << "\n";
+        buffer << "remaining Capacity(Wh):" << droneBattery->getRemainingEnergyWh() << "\n";
+        buffer << "SOC:" << droneBattery->getSOC() << "\n";
+        return buffer.str();
     }
 
 

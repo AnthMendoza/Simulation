@@ -10,7 +10,7 @@ private:
     // Motor specifications
     float freeSpeedAngularVelocity;          // Maximum RPM at no load
     float stallTorque;           // Maximum torque at zero speed (Nm)
-    float stallCurrent;          // Current draw at stall (A)
+    float currentLimit;          // speed controller current limit(A)
     float noLoadCurrent;         // Current draw at no load (A)
     float coilResistance;            // Motor resistance (Ohms)
     float voltage;               // Operating voltage (V)
@@ -87,8 +87,8 @@ public:
     inline float getStallTorque() const{
         return stallTorque;
     }
-    inline float getStallCurrent() const{
-        return stallCurrent;
+    inline float getCurrentLimit() const{
+        return currentLimit;
     }
     inline float getNoLoadCurrent() const{
         return noLoadCurrent;
@@ -137,6 +137,7 @@ public:
        volt = std::clamp(volt,-maxVoltage,maxVoltage);
        appliedVoltage = volt;
     }
+
     inline void resetMotor() {
         currentAngularVelocity = 0.0f;
         currentTorque = 0.0f;

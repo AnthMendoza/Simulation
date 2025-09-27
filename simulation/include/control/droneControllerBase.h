@@ -3,6 +3,8 @@
 #include <vector>
 #include "../dynamics/drone.h"
 #include "../control/droneControl.h"
+#include "../utility/time_manager.h"
+
 using namespace std;
 
 namespace SimCore{
@@ -11,8 +13,8 @@ class controlAllocator;
 class droneControllerBase {
 private:
 protected:
-    float frequency = 0.1f;
-    float lastComputeTime = std::numeric_limits<float>::lowest();
+    
+    std::unique_ptr<timeManager> manager;
     std::array<float,3> controlOutput;
     std::array<float,3> controlOutputVelocity;
     std::array<float,3> desiredNormal;
@@ -25,11 +27,11 @@ protected:
 public:
     bool controlEnabled = true;
     
-    droneControllerBase() = default;
+    droneControllerBase(float updateFrequency){
+        manager = std::make_unique<timeManager>(updateFrequency);
+    }
     virtual ~droneControllerBase() = default;
     droneControllerBase(const droneControllerBase& other):
-        frequency(other.frequency),
-        lastComputeTime(other.lastComputeTime),
         controlOutput(other.controlOutput),
         controlOutputVelocity(other.controlOutputVelocity),
         desiredNormal(other.desiredNormal),
@@ -39,6 +41,7 @@ public:
         moments(other.moments),
         controlEnabled(other.controlEnabled)
     {
+        if(other.manager) manager = std::make_unique<timeManager>(*other.manager);
         if(other.allocator) allocator = std::make_unique<controlAllocator>(*other.allocator);
     }
 

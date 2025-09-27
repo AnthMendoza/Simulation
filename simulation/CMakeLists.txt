@@ -81,6 +81,10 @@ set(SUBSYSTEMS_SRC
     src/subsystems/droneDependencyInjector.cpp
 )
 
+set(UTILITY_SRC
+    src/utility/time_manager.cpp
+)
+
 # Static Library
 add_library(MySim STATIC
     ${SIM_SRC}
@@ -88,6 +92,7 @@ add_library(MySim STATIC
     ${DYNAMICS_SRC}
     ${CONTROL_SRC}
     ${SUBSYSTEMS_SRC}
+    ${UTILITY_SRC}
 )
 
 target_include_directories(MySim
@@ -120,6 +125,8 @@ add_executable(dronePIDGains
 enable_testing()
 add_executable(tests
     tests/tests.cpp
+    tests/testPoseRotation.cpp
+    tests/quaternionTests.cpp
 )
 
 # Link MySim and Python into all executables

@@ -637,4 +637,9 @@ void Rocket::reentryBurn(loggedData *data){
 }
 
 
+void Rocket::setEntityPose(quaternionVehicle pose){
+
+}
+
+
 }

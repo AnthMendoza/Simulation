@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
             thrust += propellers[i]->thrustForce(density,motors[i]->getCurrentAngularVelocity());
         }
         //std::cout<<thrust<<","<< motors[1]->getCurrentCurrent()<<"\n";
-        bat.updateBattery(current);
+        bat.updateBattery(current,timeStep * i);
         voltage = bat.getBatVoltage(); 
         two->push_back(motors[0]->getCurrentAngularVelocity());
         three->push_back(thrust);

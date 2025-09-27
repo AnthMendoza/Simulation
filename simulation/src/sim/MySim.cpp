@@ -59,12 +59,13 @@ void unrealRocket::setPacket(){
 unrealDataDrone* unrealDrone::simFrameRequest(float deltaTime){
     totalTime += deltaTime;
     iterator(totalTime);
+
     setPacket();
     return &packet;
 }
-
+#define POLLING_RATE 0.01
 unrealDrone::unrealDrone(std::string motorConfig , std::string batteryConfig , std::string droneConfig,std::string propellerConfig){
-    auto controller = std::make_unique<PIDDroneController>();
+    auto controller = std::make_unique<PIDDroneController>(static_cast<float> (POLLING_RATE));
     auto bat = std::make_unique<battery>(batteryConfig);
     drone = std::make_unique<droneBody>(
         std::move(bat),
@@ -79,7 +80,7 @@ unrealDrone::unrealDrone(std::string motorConfig , std::string batteryConfig , s
     propeller prop(propellerConfig);
     motor mot(motorConfig,drone->getTimeStep());
 
-    auto motorPropPair= setSquare(0.3f,0.3f,prop,mot);
+    auto motorPropPair = setSquare(0.3f,0.3f,prop,mot);
     drone->addMotorsAndProps(motorPropPair);
 }
 

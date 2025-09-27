@@ -14,7 +14,7 @@ motor::motor(std::string& config,float timeStep){
 motor::motor(const motor& other){
     freeSpeedAngularVelocity = other.freeSpeedAngularVelocity;
     stallTorque = other.stallTorque;
-    stallCurrent = other.stallCurrent;
+    currentLimit = other.currentLimit;
     noLoadCurrent = other.noLoadCurrent;
     coilResistance = other.coilResistance;
     voltage = other.voltage;
@@ -49,15 +49,15 @@ void motor::init(std::string& config, float timeStep){
     mParse.parseConfig(config ,"motor");
     freeSpeedAngularVelocity   = mParse.getFloat("freeSpeedAngularVelocity");
     stallTorque    = mParse.getFloat("stallTorque");          
-    stallCurrent   = mParse.getFloat("stallCurrent");      
+    currentLimit   = mParse.getFloat("currentLimit");      
     noLoadCurrent  = mParse.getFloat("noLoadCurrent");   
     coilResistance = mParse.getFloat("coilResistance");
     voltage        = mParse.getFloat("voltage");           
-    kv             = mParse.getFloat("kv");                  
-    kt             = mParse.getFloat("kt");
+    kv             = mParse.getFloat("kv");                  ;
     dampingCoeff   = mParse.getFloat("dampingCoeff");
     maxVoltage     = mParse.getFloat("maxVoltage");
     inertia        = mParse.getFloat("inertia");
+
     PID = std::make_unique<PIDController>(    mParse.getFloat("kp"),
                                 mParse.getFloat("ki"),
                                 mParse.getFloat("kd"),
@@ -69,7 +69,6 @@ void motor::init(std::string& config, float timeStep){
     currentAngularVelocity = 0;
     ke = 60.0 / (2.0 * M_PI * kv); 
     kt = ke; 
-
     if (ke < 0 || kt < 0 || dampingCoeff < 0) throw std::runtime_error("Physical constants must be >= 0");
      
 }
@@ -86,8 +85,14 @@ void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
 
     float voltageAcrossCoil = appliedVoltage - backEMF;
     if(coilResistance <= 0) throw std::runtime_error("coilResistance Cannot be <= 0");
-    float phaseCurrent = voltageAcrossCoil / coilResistance;
+    float resistanceDC = coilResistance;
+    float phaseCurrent = voltageAcrossCoil / resistanceDC;
+    if(phaseCurrent > currentLimit){
+        phaseCurrent = currentLimit;
+        voltageAcrossCoil = phaseCurrent * resistanceDC;
+    }
     currentCurrent = phaseCurrent;
+    
     
     motorTorque = kt * phaseCurrent;
     float dampingTorque = dampingCoeff * currentAngularVelocity;

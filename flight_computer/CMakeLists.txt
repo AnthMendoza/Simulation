@@ -10,8 +10,8 @@ find_package(Threads REQUIRED)
 
 add_executable(flight_computer
     src/flight_computer.cpp
-    src/communication.cpp
-    ../simulation/src/sim/toml.cpp
+    telemetry/src/communication.cpp
+    ../../simulation/src/sim/toml.cpp
 )
 
 target_link_libraries(flight_computer 

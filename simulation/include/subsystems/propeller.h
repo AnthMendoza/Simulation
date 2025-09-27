@@ -35,11 +35,12 @@ struct propeller {
         initPropeller(propellerConfig);
     }
 
-    inline float dragTorque(float airDensity, float angularVelocity) {
+    inline float dragTorque(float airDensity, float angularVelocity) const{
         if(diameter <= 0) throw std::runtime_error("Diameter cannot be <= 0");
         float radius = diameter * 0.5f;
         float k_t = powerCoefficient * airDensity * M_PI * pow(radius, 5);
-        return k_t * angularVelocity * angularVelocity;
+        float drag = k_t * angularVelocity * angularVelocity;
+        return drag;
     }
 
     inline float thrustForce(float airDensity, float angularVelocity) const{

@@ -165,6 +165,8 @@ class Rocket : public Vehicle{
 
     void landingBurn();
 
+    void setEntityPose(quaternionVehicle pose) override;
+
     //only use prior to simulation
     //not a hard rule, wont be enforced
     inline void setPosition(float Xpos,float Ypos,float Zpos){

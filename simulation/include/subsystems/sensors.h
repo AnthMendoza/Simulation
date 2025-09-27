@@ -149,7 +149,9 @@ class stateEstimation: public sensorSuite{
     
     void updateEstimation(float timeStep);
 
-    inline std::array<float,3> getEstimatedPosition(){
+    void calculateEstimatedRotationRate();
+
+    inline std::array<float,3> getEstimatedPosition() const{
         return position;
     }
     //rotation estimation is returned as a vector pointing in the direction of the vehicles state.
@@ -160,10 +162,10 @@ class stateEstimation: public sensorSuite{
         return sensorMap->find("gyro")->second->read();
     }
     
-    inline std::array<float,3> getEstimatedVelocity(){
+    inline std::array<float,3> getEstimatedVelocity() const{
         return velocity;
     }  
-    inline float getAbsEstimatedVelocity(){
+    inline float getAbsEstimatedVelocity() const{
         return vectorMag(velocity);
     }  
 };

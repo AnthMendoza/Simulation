@@ -30,7 +30,7 @@ std::pair<float,float> thrustLimits(motor mot, propeller prop, battery bat , flo
         mot.updateMotor(timeStep,prop.dragTorque(density,mot.getCurrentAngularVelocity()),bat.getBatVoltage());
         float current = std::abs(mot.getCurrentCurrent());
         float thrust = prop.thrustForce(density,mot.getCurrentAngularVelocity());
-        bat.updateBattery(current);
+        bat.updateBattery(current,timeStep * i);
     }
     std::pair<float,float> result = {0,max}; 
     //for now 0 is the minimum. can add reverse if propeller is bidirectional

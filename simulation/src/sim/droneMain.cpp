@@ -1,18 +1,16 @@
 #include "../../include/sim/MySim.h"
 #include "../../include/control/PIDGains.h"
 #include "../../include/core/pythonConnector.h"
+#include "../../include/utility/utility.h"
+#include <sstream>
+#include <iostream>
 #include <string>
 #include <chrono>
 #include <thread>
 #include <tuple>
 
 using namespace SimCore;
-std::string readFileAsString(const std::string& filePath) {
-    std::ifstream inFile(filePath);
-    std::stringstream buffer;
-    buffer << inFile.rdbuf();
-    return buffer.str();
-}
+
 
 int main(int argc, char* argv[]){
     if (argc < 5) {
@@ -27,16 +25,21 @@ int main(int argc, char* argv[]){
 
 
     unrealDrone drone(configMotor,configBattery,configDrone,configPropeller);
-    drone.setTargetPosition(0,50,200,0);
+    drone.setTargetPosition(50,50,300,0);
+    drone.drone->turbulantZ->setStdDev(0.5);
+    drone.drone->turbulantX->setStdDev(5);
+    drone.drone->turbulantY->setStdDev(5);
     //in milliseconds (1 second)
     float TimePerTelemetry = 1000.0f; 
     while (true) {
         auto start = std::chrono::high_resolution_clock::now();
 
         unrealDataDrone* data = drone.simFrameRequest(TimePerTelemetry / 1000.0f); 
-        
-        //drone.drone->display();
-        //drone.drone->droneDisplay();
+
+        std::string bufferDashboard =
+            drone.drone->display() + "\n" +
+            drone.drone->droneDisplay();    
+        printDynamicDisplay(bufferDashboard);
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float, std::milli> duration = end - start;

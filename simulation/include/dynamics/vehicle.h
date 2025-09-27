@@ -5,6 +5,8 @@
 #include <array>
 #include <memory>
 #include <cmath>
+#include <algorithm>
+#include <sstream>
 #include <iomanip>
 #include "../subsystems/sensors.h"
 #include "../core/vectorMath.h"
@@ -28,6 +30,7 @@ class Vehicle : public stateEstimation{
     float mass; 
     float centerOfPressure;
     float gForce;
+    float dt; //delta time
 
     std::unique_ptr<quaternionVehicle> pose;
    
@@ -62,7 +65,7 @@ class Vehicle : public stateEstimation{
     //Negative from y to x.
     void addYawMoment(float moment);
 
-    virtual void rotateLocalEntities(Quaternion& quant);
+    virtual void rotateLocalEntities(const Quaternion& quant);
 
     virtual void updateState();
 
@@ -92,7 +95,9 @@ class Vehicle : public stateEstimation{
 
     //#############################################################################
     //SETTERS
-
+    inline void setDeltaTime(float seconds){
+        dt = seconds;
+    }
     inline void setPositionVector(float x ,float y, float z){
         Xposition = x;
         Yposition = y;
@@ -103,6 +108,8 @@ class Vehicle : public stateEstimation{
         Yvelocity = vy;
         Zvelocity = vz; 
     }
+    virtual void setEntityPose(quaternionVehicle pose) = 0;
+
     inline void setStateVector(std::array<float,3> dirVector, std::array<float,3> fwdVector){
         if(isZeroVector(dirVector)){
             std::cerr<< "\nsetStateVector was given a Zero vector as the new Vehicle State dirVector.\n Command was skipped.\n";
@@ -112,7 +119,11 @@ class Vehicle : public stateEstimation{
             std::cerr<< "\nsetStateVector was given a Zero vector as the new Vehicle State fwdVector.\n Command was skipped.\n";
             return;
         }
+        normalizeVectorInPlace(dirVector);
+        normalizeVectorInPlace(fwdVector);
         pose->setVehicleQuaternionState(dirVector,fwdVector);
+        quaternionVehicle newPose = *pose;
+        setEntityPose(newPose);
     }
 
     inline void setIterations(int it){
@@ -123,8 +134,11 @@ class Vehicle : public stateEstimation{
     //GETTERS
 
     //iteratoins * timestep
-    inline float getTime(){
+    inline float getTime() const {
         return iterations * timeStep;
+    }
+    inline float getDeltaTime(){
+        return dt;
     }
     //Not based off sensor data. Actual Simulation Position
     inline std::array<float,3> getVelocityVector() const{
@@ -159,44 +173,37 @@ class Vehicle : public stateEstimation{
     
     //#############################################################################
 
-    inline void display() const {
-        static const int linesToClear = 11; // number of lines in display
+    inline std::string display() const {
+        std::ostringstream buffer;
 
-        // Move cursor up to overwrite previous lines
-        for (int i = 0; i < linesToClear; ++i)
-            std::cout << "\x1b[1A" << "\x1b[2K";  // move up 1 line + clear line
+        buffer << std::fixed << std::setprecision(2);
+        buffer << "Drone Analytics : Time(S) " << getTime() << "\n";
+        buffer << "-----Vehicle State-----\n";
+        auto pos = getPositionVector();
+        buffer << "Position     (x, y, z):      (" << pos[0] << ", " << pos[1] << ", " << pos[2] << ")\n";
 
-        std::cout << std::fixed << std::setprecision(2);
-        std::cout << "Drone Analytics : Iteration" << iterations<<"\n";
-        std::array<float,3> pos = getPositionVector();
-        std::cout << "Position     (x, y, z):      ("
-                  << pos[0] << ", "
-                  << pos[1] << ", "
-                  << pos[2] << ")\n";
-        std::array<float,3> velo = getVelocityVector();
-        std::cout << "Velocity     (vx, vy, vz):   ("
-                  << velo[0] << ", "
-                  << velo[1] << ", "
-                  << velo[2] << ")\n";
-        std::cout << "wind    (vx, vy, vz):   ("
-                  << wind[0] << ", "
-                  << wind[1] << ", "
-                  << wind[2] << ")\n";
-        std::cout << "Acceleration (ax, ay, az):   ("
-                  << acceleration[0] << ", "
-                  << acceleration[1] << ", "
-                  << acceleration[2] << ")\n";
+        auto velo = getVelocityVector();
+        buffer << "Velocity     (vx, vy, vz):   (" << velo[0] << ", " << velo[1] << ", " << velo[2] << ")\n";
 
-        std::cout << "Orientation  (roll, pitch, yaw): ("
-                  << vehicleState[0] << ", "
-                  << vehicleState[1] << ", "
-                  << vehicleState[2] << ")\n";
+        buffer << "wind    (vx, vy, vz):   (" << wind[0] << ", " << wind[1] << ", " << wind[2] << ")\n";
+
+        buffer << "Acceleration (ax, ay, az):   (" << acceleration[0] << ", " << acceleration[1] << ", " << acceleration[2] << ")\n";
+
+        auto displayPose = getPose();
+        buffer << "Orientation (top vector):   (" << displayPose.dirVector[0] << ", " << displayPose.dirVector[1] << ", " << displayPose.dirVector[2] << ")\n";
+        buffer << "Orientation (front vector): (" << displayPose.fwdVector[0] << ", " << displayPose.fwdVector[1] << ", " << displayPose.fwdVector[2] << ")\n";
+
         auto moments = getMoment();
-        std::cout << "Moments (mx,my,mz): ("
-                  << moments[0] << ", "
-                  << moments[1] << ", "
-                  << moments[2] << ")\n";
-        std::cout << std::flush;
+        buffer << "Moments (mx,my,mz): (" << moments[0] << ", " << moments[1] << ", " << moments[2] << ")\n";
+        
+        buffer << "-----State Estimation-----\n";
+
+        auto estimatedPos = getEstimatedPosition();
+        buffer << "Position     (x, y, z):      (" << estimatedPos[0] << ", " << estimatedPos[1] << ", " << estimatedPos[2] << ")\n";
+
+        auto estimatedVelo = getEstimatedVelocity();
+        buffer << "Velocity     (vx, vy, vz):   (" << estimatedVelo[0] << ", " << estimatedVelo[1] << ", " << estimatedVelo[2] << ")\n";
+        return buffer.str();
     }
 
 };

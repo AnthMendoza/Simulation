@@ -16,8 +16,10 @@
 #include "../core/vectorMath.h"
 #include "../utility/utility.h"
 #include "../control/droneControllerBase.h"
+#include "../core/poseRotation.h"
 
 namespace SimCore{
+    
 
 struct accelerations{
     float xAccel;
@@ -49,16 +51,25 @@ class PIDDroneController : public droneControllerBase{
     unique_ptr<PIDController> PIDVZ;
     //low level vehicle angle control loop
     //only a single APID is needed to control the vehicles normal axis becuase the cross product is used to find the moment axis.
+    unique_ptr<PIDController> APIDVX;
+    unique_ptr<PIDController> APIDVY;
+
     unique_ptr<PIDController> APIDX;
     unique_ptr<PIDController> APIDY;
     float gravitationalAcceleation;
     float mass; 
     float maxThrust;
     float maxAcceleration;
+
+    poseState lastState;
+    poseAngleDifference poseDifference;
+    bool firstPose = true;
+
     
+
     public:
 
-    PIDDroneController();
+    PIDDroneController(float frequency);
     PIDDroneController(const PIDDroneController& other);
 
     virtual std::unique_ptr<droneControllerBase> clone() const override {
@@ -77,7 +88,7 @@ class PIDDroneController : public droneControllerBase{
     momentForceRequest pidControl(const std::array<float,3> pos , std::array<float,3> velo  ,poseState& state, float maxThrust);
     void setTargetPosition(float xTarget , float yTarget , float zTarget) override;
     //feedForward function for windprediction and gravity offset.
-    requestedVehicleState aotFeedForward(accelerations& accels,float gravitaionalAcceleration , float mass,float maxThrust);
+    requestedVehicleState aotFeedForward(accelerations& accels,float gravitaionalAcceleration , float mass,float maxThrust,poseState& pose);
 
     std::array<float,3> thrustMoment(const propeller& prop ,const motor& mot, std::array<float,3>& cogLocation ,const float& airDensity);
     /// @brief 
@@ -90,6 +101,21 @@ class PIDDroneController : public droneControllerBase{
      */
     std::pair<std::array<float,3> , float> aotControl(requestedVehicleState request, std::array<float,3> currentState);
 
+    inline void reset() {
+        if (PIDX) PIDX->reset();
+        if (PIDY) PIDY->reset();
+        if (PIDZ) PIDZ->reset();
+
+        if (PIDVX) PIDVX->reset();
+        if (PIDVY) PIDVY->reset();
+        if (PIDVZ) PIDVZ->reset();
+
+        if (APIDX) APIDX->reset();
+        if (APIDY) APIDY->reset();
+
+        computedThrust.clear();
+        controlOutputVelocity = {0.0f, 0.0f, 0.0f};
+    }
 
     inline void setPIDXGains(const std::tuple<float, float, float>& pid) {
         if (PIDX) PIDX->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
@@ -139,24 +165,26 @@ inline std::array<float,3> axisMomentToEulerMoment(std::array<float,3> axisOfRot
 }
 
 inline std::array<float, 3> limitMagnitudeWithFixedZ(std::array<float, 3> vect, float magLimit) {
-    
     float currentMag = vectorMag(vect);
-
-    if (currentMag <= magLimit) return vect; 
-
+    if (currentMag <= magLimit) return vect;
+    
     if (magLimit <= vect[2]) {
         return {0.0f, 0.0f, vect[2]};
     }
-
-    float maxXY2 = magLimit * magLimit - vect[2] * vect[2];
-
+    
+    float maxXY2 = magLimit * magLimit - vect[2] * vect[2];  
+    
+    // Add safety check in case of floating point errors
+    if (maxXY2 <= 0) {
+        return {0.0f, 0.0f, vect[2]};
+    }
+    
     float xyMag = std::sqrt(vect[0] * vect[0] + vect[1] * vect[1]);
-    if (xyMag == 0.0f){
-        return {0.0f, 0.0f, vect[2]}; 
+    if (xyMag == 0.0f) {
+        return {0.0f, 0.0f, vect[2]};
     }
     
     float scale = std::sqrt(maxXY2) / xyMag;
-
     return {vect[0] * scale, vect[1] * scale, vect[2]};
 }
 

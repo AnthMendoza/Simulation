@@ -49,8 +49,8 @@ quaternionVehicle::quaternionVehicle(): pose{{0, 0, 1}, {1, 0, 0}, {0, 1, 0}}, n
 
 void quaternionVehicle::setVehicleQuaternionState(threeDState dir , threeDState fwd){
 
-    pose.dirVector = dir;
-    pose.fwdVector = fwd;
+    pose.dirVector = normalizeVector(dir);
+    pose.fwdVector = normalizeVector(fwd);
 
     float dotProduct = vectorDotProduct(dir,fwd);
 
@@ -153,5 +153,10 @@ void quaternionVehicle::orthogonalize(std::array<float,3>& vector1 , std::array<
     vector2 = normalizeVector(vector2);
 }
 
+void quaternionVehicle::rotatePose(const Quaternion& quant){
+    pose.dirVector = rotateVector(quant,pose.dirVector);
+    pose.fwdVector = rotateVector(quant,pose.fwdVector);
+    pose.rightVector = rotateVector(quant,pose.rightVector);
+}
 
 } 

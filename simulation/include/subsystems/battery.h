@@ -30,8 +30,8 @@ private:
 
     // State tracking
     bool charged;                        // Is battery considered charged
-    float timestep;                      // Time step for calculations (s)
-    
+    float lastTimeSeconds = 0;
+    bool firstSample = true;
     // Performance tracking
     float totalEnergyDelivered;          // Total energy delivered (Wh)
     float totalEnergyCharged;            // Total energy charged (Wh)
@@ -64,17 +64,20 @@ public:
     void setInternalResistance(float resistance);
     void setSafetyLimits(float terminationLevel, float maxDischargeCurrent, 
                         float maxChargeCurrent, float maxTemp, float minTemp);
-    void setTimestep(float timestep);
     
     // Battery state update
-    void updateBattery(float current);           // Update SOC based on current draw
+    void updateBattery(float current , float currentTimeSeconds);           // Update SOC based on current draw
     // State getters
-    float getSOC() const;                            // State of charge (0 to 1)
+    float getSOC() const{
+        return soc;
+    };                            // State of charge (0 to 1)
     inline float getBatVoltage() const{
         return voltage;
     }                        // Current terminal voltage
     float getRemainingCapacityAh() const;            // Remaining capacity
-    float getRemainingEnergyWh() const;              // Remaining energy
+    float getRemainingEnergyWh() const{
+        return capacityAh * getNominalVoltage();
+    }              // Remaining energy
     inline float getCurrentDraw() const{
         return currentDraw;
     }                    // Current draw/charge rate
@@ -84,7 +87,7 @@ public:
     inline float getTotalEnergyWh() const;
 
     //Nominal Cell voltage is 3.7
-    inline float getNominalVoltage(){
+    inline float getNominalVoltage() const{
         return 3.7 * cellCount;
     }
 

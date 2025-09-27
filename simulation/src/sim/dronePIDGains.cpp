@@ -2,6 +2,7 @@
 #include "../../include/control/PIDGains.h"
 #include "../../include/control/PIDTestScenarios.h"
 #include "../../include/control/PIDTypes.h"
+#include "../../include/utility/utility.h"
 #include <string>
 #include <chrono>
 #include <thread>
@@ -9,12 +10,6 @@
 #include <tuple>
 
 using namespace SimCore;
-std::string readFileAsString(const std::string& filePath) {
-    std::ifstream inFile(filePath);
-    std::stringstream buffer;
-    buffer << inFile.rdbuf();
-    return buffer.str();
-}
 
 int main(int argc, char* argv[]){
     if (argc < 5) {
@@ -29,12 +24,12 @@ int main(int argc, char* argv[]){
 
 
     unrealDrone drone(configMotor,configBattery,configDrone,configPropeller);
-    float NUMBER_OF_RUNS = 200;
+    float NUMBER_OF_RUNS = 75;
     PIDDroneController* controller = dynamic_cast<PIDDroneController*>(drone.drone->controller.get());
     PIDPair PIDHover;
     dataPID PIDAOT;
     PIDPair PIDPITCHROLL;
-    for(int i = 0 ; i < 2 ; i++){
+    for(int i = 0 ; i < 1 ; i++){
         PIDHover = optimize(drone.drone.get(),controller,NUMBER_OF_RUNS, hoverGroupDuel);
         hoverSetGainDuel(controller,PIDHover);
         PIDAOT = optimize(drone.drone.get(),controller,NUMBER_OF_RUNS,aotGroup);

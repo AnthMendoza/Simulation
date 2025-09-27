@@ -6,9 +6,9 @@
 
 
 
+
 #define TELEMETRY_SYNC_WORD   0xABCD1234
 #define TELEMETRY_VERSION     0x01
-#define MAX_PAYLOAD_SIZE      128
 
 
 typedef enum : uint8_t {
@@ -30,12 +30,11 @@ typedef enum : uint8_t {
 
 
 typedef struct __attribute__((packed)) {
-    uint32_t sync_word;       // sync word
-    uint8_t  version;         // protocol version
-    uint8_t  msg_type;        // message type
-    uint16_t sequence;        // sequence number
-    uint16_t payload_length;  // payload length
-    uint16_t crc16;           // crc16
+    uint32_t sync_word;       //sync word
+    uint8_t  version;         //protocol version
+    uint8_t  msg_type;        //message type
+    uint16_t sequence;        //sequence number
+    uint16_t payload_length;  //payload length
 } telemetry_header;
 
 
@@ -69,6 +68,11 @@ typedef struct __attribute__((packed)) {
 } error_data;
 
 
+typedef struct __attribute__((packed)){
+    float angular_velocity; //rad/sec
+}rotor_state;
+
+
 typedef struct __attribute__((packed)) {
     telemetry_header header;
     union {
@@ -77,7 +81,7 @@ typedef struct __attribute__((packed)) {
         velocity_data velocity;
         status_data   status;
         error_data    error;
-        uint8_t       raw[MAX_PAYLOAD_SIZE];
+        uint32_t      crc32;
     } payload;
 } telemetry_packet;
 

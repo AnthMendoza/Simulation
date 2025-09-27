@@ -16,6 +16,7 @@
 #include "../../include/subsystems/sensors.h"
 #include "../../include/sim/toml.h"
 #include "../../include/core/quaternion.h"
+#include "../../include/utility/utility.h"
 
 namespace SimCore{
 void Vehicle::initSensors(){
@@ -393,8 +394,9 @@ void Vehicle::updateState(){
         Quaternion quant = pose->eularRotation(rotationalOde(sumOfMoments[0] , MOI[0],  timeStep ,angularVelocity[0]),
                             rotationalOde(sumOfMoments[1] , MOI[1],  timeStep ,angularVelocity[1]),
                             rotationalOde(sumOfMoments[2] , MOI[2],  timeStep ,angularVelocity[2]));
+
         rotateLocalEntities(quant);
-        
+
         vehicleState = pose->getdirVector();
     
         gForce = getGForce();
@@ -410,10 +412,6 @@ void Vehicle::updateState(){
         sumOfMoments[0] = 0;
         sumOfMoments[1] = 0;
         sumOfMoments[2] = 0;
-        
-        wind[0] = 0;
-        wind[1] = 0;
-        wind[2] = 0;
         // After pose rotation
 }
 
@@ -439,13 +437,14 @@ float Vehicle::PID(float target , float currentState , float &previousError , fl
 //The industry standard way of generating turblance using a stochastic model. 
 //white noise will be generated and smoothed using a low pass filter.  
 void Vehicle::turbulantWind(){
-    wind[0] += turbulantX->getNext();
-    wind[1] += turbulantY->getNext();
-    wind[2] += turbulantZ->getNext();
+    float timeSeconds = getTime();
+    wind[0] = turbulantX->getNext(timeSeconds);
+    wind[1] = turbulantY->getNext(timeSeconds);
+    wind[2] = turbulantZ->getNext(timeSeconds);
 }
 
 
-void Vehicle::rotateLocalEntities(Quaternion& quant){
+void Vehicle::rotateLocalEntities(const Quaternion& quant){
     return;
 }
 

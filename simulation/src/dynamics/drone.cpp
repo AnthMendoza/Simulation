@@ -54,7 +54,7 @@ void droneBody::motorMoment(){
 }
 
 //note location is relative to the vehicle center. 
-void droneBody::transposedProps(Quaternion& quant){
+void droneBody::transposedProps(const Quaternion& quant){
     //rezero transpose every 100 timeSteps
     if(transposeCalls >= 100){
         for(auto& p:propellers){
@@ -95,10 +95,12 @@ void droneBody::transposedProps(Quaternion& quant){
     }
 }
 
-void droneBody::rotationHelper(Quaternion& q){
+void droneBody::rotationHelper(const Quaternion& q){
     for(int i = 0 ; i < propellers.size();i++){
         propellers[i]->locationTransposed = rotateVector(q,propellers[i]->locationTransposed);
+        normalizeVectorInPlace(propellers[i]->locationTransposed);
         propellers[i]->directionTransposed = rotateVector(q,propellers[i]->directionTransposed);
+        normalizeVectorInPlace(propellers[i]->directionTransposed);
     }
     index.dirVector = rotateVector(q,index.dirVector);
     index.fwdVector = rotateVector(q,index.fwdVector);
@@ -131,8 +133,10 @@ void droneBody::allocatorHelper(){
 }
 
 
-void droneBody::rotateLocalEntities(Quaternion& quant){
+void droneBody::rotateLocalEntities(const Quaternion& quant){
+    Vehicle::rotateLocalEntities(quant);
     transposedProps(quant);
+
 }
 
 
@@ -140,8 +144,8 @@ void droneBody::updateState(){
 
     vector<float> controllerThrusts = updateController();
     
-    //turbulantWind();
-    //lift(aeroAreaDrone,coefOfLiftDrone);
+    turbulantWind();
+    lift(aeroAreaDrone,coefOfLiftDrone);
     drag(aeroAreaDrone,coefOfDragDrone);
     float current = 0;
     float density = airDensity(Zposition);
@@ -161,11 +165,11 @@ void droneBody::updateState(){
         addForce(thrustVector);
         auto leverArm = addVectors(cogLocationTranspose , propellers[i]->locationTransposed);
         auto moment = forceToMoment(thrustVector,leverArm);
-        
+
         addMoment(moment);
     }
-    //std::cout<< "Total Thrust : "<< totalThrust<<"\n";
-    droneBattery->updateBattery(current);
+
+    droneBattery->updateBattery(current,getTime());
     Vehicle::updateState();
     //TransposedProps move the transposed cordinates of the props in the prop objects within propellers.
 
@@ -240,6 +244,11 @@ droneBody::droneBody(const droneBody& other)
 
     controller = other.controller->clone();
 
+}
+
+
+void droneBody::setEntityPose(quaternionVehicle pose) {
+    return;
 }
 
 

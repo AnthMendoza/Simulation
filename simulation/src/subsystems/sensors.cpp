@@ -219,6 +219,15 @@ sensorSuite::sensorSuite(const sensorSuite& other) {
     }
 }
 
+void stateEstimation::calculateEstimatedRotationRate(){
+    poseState startPose;
+    poseState endPose;
+    
+    
+
+
+}
+
 
 sensor::sensor(const sensor& other)
     : mean(other.mean),

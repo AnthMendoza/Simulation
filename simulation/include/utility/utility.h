@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <string>
 #include <fstream>
@@ -50,9 +51,19 @@ inline void print(const std::vector<T>& vec, const char* name) {
     std::cout << "]\n";
 }
 
-std::string readFileAsString(const std::string& filePath) {
+inline std::string readFileAsString(const std::string& filePath) {
     std::ifstream inFile(filePath);
     std::stringstream buffer;
     buffer << inFile.rdbuf();
     return buffer.str();
+}
+
+
+inline void printDynamicDisplay(const std::string& output) {
+    int linesToClear = std::count(output.begin(), output.end(), '\n');
+
+    for (int i = 0; i < linesToClear; ++i){
+        std::cout << "\x1b[1A" << "\x1b[2K";
+    }
+    std::cout << output;
 }
