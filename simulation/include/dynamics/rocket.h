@@ -114,7 +114,7 @@ class Rocket : public Vehicle{
 
         void applyEngineForce(std::array<float,2> twoDEngineRadians , float thrust);
 
-        void updateState() override;
+        void updateState(float time,std::optional<controlPacks::variantPackets> controlInput) override;
 
         std::array<std::array<float , 3> , 2> getFinForceVectors();
 
@@ -141,17 +141,17 @@ class Rocket : public Vehicle{
             return radar;
         }
         
-        //kenetic + potential energy per unit mass
-        inline float getSpecificEnergy(){
-            std::array<float,3> estimatedVelo =getEstimatedVelocity();
-            float velo = vectorMag(estimatedVelo);
-            return  (velo * velo)/2 + std::abs(gravitationalAcceleration * Zposition);
-        }
-        // kenetic + potential energy per unit mass in vector form {x,y,z}
-        inline std::array<float,3> getVectorizedEnergy(){
-            std::array<float,3> estimatedVelo = getEstimatedVelocity();
-            return {estimatedVelo[0]*estimatedVelo[0]/2 , estimatedVelo[1]*estimatedVelo[1]/2 , (estimatedVelo[2]*estimatedVelo[2] / 2) + std::abs(gravitationalAcceleration * getEstimatedPosition()[2])};
-        }
+        ////kenetic + potential energy per unit mass
+        //inline float getSpecificEnergy(){
+        //    std::array<float,3> estimatedVelo =getEstimatedVelocity();
+        //    float velo = vectorMag(estimatedVelo);
+        //    return  (velo * velo)/2 + std::abs(gravitationalAcceleration * Zposition);
+        //}
+        //// kenetic + potential energy per unit mass in vector form {x,y,z}
+        //inline std::array<float,3> getVectorizedEnergy(){
+        //    std::array<float,3> estimatedVelo = getEstimatedVelocity();
+        //    return {estimatedVelo[0]*estimatedVelo[0]/2 , estimatedVelo[1]*estimatedVelo[1]/2 , (estimatedVelo[2]*estimatedVelo[2] / 2) + std::abs(gravitationalAcceleration * getEstimatedPosition()[2])};
+        //}
 
 
     //Vehicle &lookAhead( float lookAheadTime);
@@ -165,7 +165,7 @@ class Rocket : public Vehicle{
 
     void landingBurn();
 
-    void setEntityPose(quaternionVehicle pose) override;
+    void setEntitiesPose(const poseState& pose) override;
 
     //only use prior to simulation
     //not a hard rule, wont be enforced

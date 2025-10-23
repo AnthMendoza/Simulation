@@ -8,8 +8,8 @@
 #include <assert.h>
 
 namespace SimCore{
-motor::motor(std::string& config,float timeStep){
-    init(config,timeStep);
+motor::motor(std::string& config){
+    init(config);
 }
 motor::motor(const motor& other){
     freeSpeedAngularVelocity = other.freeSpeedAngularVelocity;
@@ -44,7 +44,7 @@ motor::motor(const motor& other){
 motor::~motor() {
 }
 
-void motor::init(std::string& config, float timeStep){
+void motor::init(std::string& config){
     toml::tomlParse mParse;
     mParse.parseConfig(config ,"motor");
     freeSpeedAngularVelocity   = mParse.getFloat("freeSpeedAngularVelocity");
@@ -58,10 +58,9 @@ void motor::init(std::string& config, float timeStep){
     maxVoltage     = mParse.getFloat("maxVoltage");
     inertia        = mParse.getFloat("inertia");
 
-    PID = std::make_unique<PIDController>(    mParse.getFloat("kp"),
-                                mParse.getFloat("ki"),
-                                mParse.getFloat("kd"),
-                                timeStep);
+    PID = std::make_unique<PIDController>(  mParse.getFloat("kp"),
+                                            mParse.getFloat("ki"),
+                                            mParse.getFloat("kd"));
 
 
     PID->setOutputLimits(-1,1);
@@ -87,10 +86,10 @@ void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
     if(coilResistance <= 0) throw std::runtime_error("coilResistance Cannot be <= 0");
     float resistanceDC = coilResistance;
     float phaseCurrent = voltageAcrossCoil / resistanceDC;
-    if(phaseCurrent > currentLimit){
-        phaseCurrent = currentLimit;
-        voltageAcrossCoil = phaseCurrent * resistanceDC;
-    }
+    //if(phaseCurrent > currentLimit){
+    //    phaseCurrent = currentLimit;
+    //    voltageAcrossCoil = phaseCurrent * resistanceDC;
+    //}
     currentCurrent = phaseCurrent;
     
     
@@ -112,9 +111,8 @@ void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
 void motor::updateMotorAngularVelocity(float timeStep , float loadTorque, battery& bat, float rad_sec){
     PID->setTarget(rad_sec);
     PID->setGains(.5,.2,0); 
-    PID->setTimeStep(timeStep);
     angularVeloRequest = rad_sec;
-    float output = PID->update(currentAngularVelocity);
+    float output = PID->update(currentAngularVelocity,timeStep);
     float volt = output * std::abs(bat.getBatVoltage());
 
     updateMotor(timeStep,loadTorque,volt);

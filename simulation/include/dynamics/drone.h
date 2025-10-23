@@ -6,9 +6,7 @@
 #include "../subsystems/battery.h"
 #include "../core/quaternion.h"
 #include "../core/indexVectors.h"
-#include "../control/PIDController.h"
 #include "../subsystems/propeller.h"
-#include "../control/droneControl.h"
 #include "aero.h"
 #include <utility>
 #include <memory>
@@ -17,22 +15,21 @@
 #include <sstream>
 #include "../core/vectorMath.h"
 #include "../utility/utility.h"
-#include "../control/dronePIDControl.h"
+#include "../core/droneState.h"
 #include "../control/droneControllerBase.h"
+#define USE_STATE_ESTIMATED_VALUES
 
 using namespace std;
 namespace SimCore{
 
 class droneBody :  public Vehicle{
     private:
-    void motorThrust(float motorRPM);
-
     vector<float> thrustRequestVect;
     int transposeCalls;
     //index vectors
-    array<float,3> cogLocation;
+    std::array<float,3> cogLocation;
     //transpose Locations are rotated with the vehicle. 
-    array<float,3> cogLocationTranspose;
+    std::array<float,3> cogLocationTranspose;
     //location of motor is logged via its index in vector and the propLocatiion vector
     vector<unique_ptr<motor>> motors;
     vector<unique_ptr<propeller>> propellers;
@@ -41,7 +38,7 @@ class droneBody :  public Vehicle{
 
     indexCoordinates index;
 
-
+    void dataLog();
 
     //helper Functions
     void rotationHelper(const Quaternion& q);
@@ -60,59 +57,39 @@ class droneBody :  public Vehicle{
     public:
     float totalThrustLimit = 0;
     
-    droneBody(std::unique_ptr<battery> bat, std::unique_ptr<droneControllerBase> _controller)
-        : droneBattery(std::move(bat)), controller(std::move(_controller)) 
+    droneBody(std::unique_ptr<battery> bat)
+        : droneBattery(std::move(bat))
     {
-        if (!controller) throw std::runtime_error("Controller is nullptr when drone is constructed.");
         if (!droneBattery)throw std::runtime_error("Battery is nullptr when drone is constructed.");
     }
 
     ~droneBody();
     droneBody(const droneBody& other);
     string droneConfig;
-    unique_ptr<droneControllerBase> controller;
     //droneBody(const droneBody& drone) = delete;
-    void updateState() override; 
+    void updateState(float time,std::optional<controlPacks::variantPackets> controlInput= nullopt) override; 
     void initDrone(string& droneBody);
     //sets center of gravity as an offset relative to the center defined by propLocations
     //positive x = front , positive y = right, positive Z = top
-    void offsetCOG(array<float,3> offset);
+    void offsetCOG(std::array<float,3> offset);
 
     void rotateLocalEntities(const Quaternion& quant) override;
+
 
     void addMotorsAndProps(std::pair<std::vector<std::unique_ptr<motor>>,std::vector<std::unique_ptr<propeller>>>& motorPropPairs){
         for(int i = 0 ; i < motorPropPairs.first.size() ; i++){
             motors.push_back(std::move(motorPropPairs.first[i]));
             propellers.push_back(std::move(motorPropPairs.second[i]));
         }
-        allocatorHelper();
         dynoSystem();
-        controller->updateCalculatedValues(*this);
     }
 
-    // Manual set for a new controller
-    void setController(std::unique_ptr<droneControllerBase> newController) {
-        controller = std::move(newController);
-    }
-    
     /// @brief Sets motors to zero rpm, torque, current, and applied volatge.
     inline void resetMotors(){
         for(auto& motor:motors){
             motor->resetMotor();
         }
     }
-
-    /**
-     * @brief Simply calls the controller and feeds in the estimated Positions from state estimation as its arguments.
-     * State estimation uses the sensors associated with the vehicle base class.
-     * @return Requested Thrust value from controller
-     */
-    inline vector<float> updateController(){
-        if(controller == nullptr) throw std::runtime_error("Controller is a nullptr in updateController.\n");
-        return controller->update(getEstimatedPosition(),getPose(),getEstimatedVelocity(),getTime());
-    }
-
-    void motorMoment();
 
 
     inline void thrustRequest(vector<float>& thrust){
@@ -128,9 +105,7 @@ class droneBody :  public Vehicle{
         battery* bat = dynamic_cast<battery*> (droneBattery.get()); 
         return bat;
     }
-    inline droneControllerBase* getController(){
-        return controller.get();
-    }
+
     inline poseState getPose(){
         return pose->getPose();
     }
@@ -142,15 +117,12 @@ class droneBody :  public Vehicle{
             motors[i]->setMotorAngularVelocity(rad_sec);
         }
     }
-    void setEntityPose(quaternionVehicle pose) override;
+    void setEntitiesPose(const poseState& pose) override;
 
 
-    inline std::string droneDisplay() const {
+    std::string display() const override{
         std::ostringstream buffer;
         buffer << "-----Drone State-----\n";
-        auto moments = controller->getMoments();
-        buffer << "requested Moments (mx,my,mz): (" 
-               << moments[0] << ", " << moments[1] << ", " << moments[2] << ")\n";
 
         buffer << "Motors (rad/s):    ";
         for (auto& motor : motors) {
@@ -172,21 +144,34 @@ class droneBody :  public Vehicle{
                    << propellers[i]->thrustForce(density, motors[i]->getCurrentAngularVelocity()) << ",";
         }
 
-        buffer << "\nProp Direction :";
+        buffer << "\nProp Direction/Location :\n";
         for (size_t i = 0; i < propellers.size(); ++i) {
             const auto& dir = propellers[i]->directionTransposed;
+            const auto& pos = propellers[i]->locationTransposed;
             buffer << "Propeller " << i << ": ["
-                   << dir[0] << ", " << dir[1] << ", " << dir[2] << "]\n";    
+                   << dir[0] << ", " << dir[1] << ", " << dir[2] << "] , [" << pos[0]<<", "<< pos[1]<<", "<< pos[2] <<"]\n";    
         }
         buffer << "-----Battery State-----\n";
         buffer << "Voltage(V):" << droneBattery->getBatVoltage() << "\n";
         buffer << "Current(amps):" << droneBattery->getCurrentDraw() << "\n";
         buffer << "remaining Capacity(Wh):" << droneBattery->getRemainingEnergyWh() << "\n";
         buffer << "SOC:" << droneBattery->getSOC() << "\n";
-        return buffer.str();
+
+        std::string droneString = buffer.str();
+        std::string vehicleString = Vehicle::display();
+
+
+        
+        return droneString + vehicleString;
     }
 
-
+    void setGlobals(){
+        auto& state = testGlobals::actualVehicleState::state;
+        state.pose = pose->getPose();
+        state.velocity = getVelocityVector();
+        state.position = getPositionVector();
+        state.timestamp = getTime();
+    }
 };
 
 

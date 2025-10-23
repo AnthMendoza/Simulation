@@ -20,86 +20,12 @@
 
 namespace SimCore{
 void Vehicle::initSensors(){
-    toml::tomlParse vParse;
-    vParse.parseConfig( configFile,"vehicle");
-
-    // MOI
-    auto moiArray = vParse.getArray("MOI");
-    MOI[0] = moiArray[0];
-    MOI[1] = moiArray[1];
-    MOI[2] = moiArray[2];
-
-    // Mass is deinfed by dryMass + fuel for some vehicles. If mass > 0 it by passes a normal Mass check.
-    if(mass <= 0) mass = vParse.getFloat("mass");
-    
-    sensorMap = std::make_unique<std::unordered_map<std::string, std::unique_ptr<sensor>>>();
-    
-    toml::tomlParse accelParse;
-    accelParse.parseConfig( configFile,"accelerometer");
-
-    // Accelerometer
-    std::unique_ptr<accelerometer> accel = std::make_unique<accelerometer>(
-        accelParse.getFloat("frequency"),
-        accelParse.getFloat("NoisePowerSpectralDensity"),
-        accelParse.getFloat("bandwidth"),
-        accelParse.getFloat("bias")
-    );
-    if (accelParse.getBool("burst") == true) {
-        accel->setBurst(
-            accelParse.getFloat("burstStdDeviation"),
-            accelParse.getFloat("maxBurstDuration")
-        );
-    }
-    sensorMap->insert({"accelerometer", std::move(accel)});
-
-    // GNSS
-    toml::tomlParse gpsParse;
-    gpsParse.parseConfig( configFile,"gps");
-
-    std::unique_ptr<GNSS> gps = std::make_unique<GNSS>(
-        gpsParse.getFloat("frequency"),
-        gpsParse.getFloat("NoisePowerSpectralDensity"),
-        gpsParse.getFloat("bandwidth"),
-        gpsParse.getFloat("bias")
-    );
-
-    if (gpsParse.getBool("burst") == true) {
-        gps->setBurst(
-            gpsParse.getFloat("burstStdDeviation"),
-            gpsParse.getFloat("maxBurstDuration")
-        );
-    }
-    sensorMap->insert({"GNSS", std::move(gps)});
-
-    // Gyroscope
-    toml::tomlParse gyroParse;
-    gyroParse.parseConfig( configFile,"gyro");
-    
-    std::unique_ptr<gyroscope> gyro = std::make_unique<gyroscope>(
-        gyroParse.getFloat("frequency"),
-        gyroParse.getFloat("NoisePowerSpectralDensity"),
-        gyroParse.getFloat("bandwidth"),
-        gyroParse.getFloat("bias")
-    );
-    if (gyroParse.getBool("burst") == true) {
-        gyro->setBurst(
-            gyroParse.getFloat("burstStdDeviation"),
-            gyroParse.getFloat("maxBurstDuration")
-        );
-    }
-    sensorMap->insert({"gyro",std::move(gyro)});
-
 
 }
 
 
-Vehicle::Vehicle(): stateEstimation(){
+Vehicle::Vehicle(){
 
-}
-
-
-void Vehicle::operator++(){
-    ++iterations;
 }
 
 
@@ -113,7 +39,7 @@ Vehicle& Vehicle::operator=(const Vehicle& other){
     Yvelocity = other.Yvelocity;
     Zvelocity = other.Zvelocity;
     timeStep = other.timeStep;
-    iterations = other.iterations;
+    lastTime = other.lastTime;
     mass = other.mass;
     centerOfPressure = other.centerOfPressure;
     gForce = other.gForce;
@@ -141,15 +67,14 @@ Vehicle& Vehicle::operator=(const Vehicle& other){
 }
 
 Vehicle::Vehicle(const Vehicle& other)
-    :   stateEstimation(other),
-        Xposition(other.Xposition),
+    : 
         Yposition(other.Yposition),
         Zposition(other.Zposition),
         Xvelocity(other.Xvelocity),
         Yvelocity(other.Yvelocity),
         Zvelocity(other.Zvelocity),
         timeStep(other.timeStep),
-        iterations(other.iterations),
+        lastTime(other.lastTime),
         mass(other.mass),
         centerOfPressure(other.centerOfPressure),
         gForce(other.gForce),
@@ -180,13 +105,22 @@ void Vehicle::init(string& vehicleConfig){
     toml::tomlParse vParse;
     vParse.parseConfig(vehicleConfig,"vehicle");
 
-    iterations = 0;
+    lastTime = 0.0f;
     // Read initPosition
     auto pos = vParse.getArray("initPosition");
     Xposition = pos[0];
     Yposition = pos[1];
     Zposition = pos[2];
 
+
+    // MOI
+    auto moiArray = vParse.getArray("MOI");
+    MOI[0] = moiArray[0];
+    MOI[1] = moiArray[1];
+    MOI[2] = moiArray[2];
+
+    // Mass is deinfed by dryMass + fuel for some vehicles. If mass > 0 it by passes a normal Mass check.
+    if(mass <= 0) mass = vParse.getFloat("mass");
 
     gForce = 0;
     angularVelocity = {0, 0, 0};
@@ -233,7 +167,6 @@ void Vehicle::init(string& vehicleConfig){
     turbulantX = std::make_unique<turbulence> ();
     turbulantY = std::make_unique<turbulence> ();
     turbulantZ = std::make_unique<turbulence> ();
-
 }
 
 
@@ -368,28 +301,25 @@ void Vehicle::addYawMoment(float moment){
 }
 
 
-void Vehicle::updateState(){
-        //adding gravity to the force of Z, becuase this is an acceleration and not a force; The addForce function cannot handle it
-        // Before using GNSS velocity
-        if(iterations == 0){
-            auto& ptr = sensorMap->find("GNSS")->second;
-            GNSS* GPS = dynamic_cast<GNSS*> (ptr.get());
-            GPS->setGNSSVelocity({Xvelocity,Yvelocity,Zvelocity});
+void Vehicle::updateState(float time,std::optional<controlPacks::variantPackets> controlInput){
+        //if deltaTime is 0 nothing to be updated
+        if(time == lastTime || lastTime == 0.0f ){
+            lastTime = time;
+            return;
         }
-        updateSensors(this);
-        updateEstimation( timeStep);
-    
-        sumOfForces[2] = sumOfForces[2] + gravitationalAcceleration * mass; 
-        // After gravitational force added
+        
+        timeStep = time - lastTime;
 
+        if(sensors){
+            sensors->updateSensors(this);
+        }
+        sumOfForces[2] += gravitationalAcceleration * mass; 
 
         updateAcceleration();
-        // Before Runge-Kutta
 
         RungeKutta4th(sumOfForces[0] , mass ,  timeStep , Xvelocity,Xposition);
         RungeKutta4th(sumOfForces[1] , mass ,  timeStep , Yvelocity,Yposition);
         RungeKutta4th(sumOfForces[2] , mass ,  timeStep , Zvelocity,Zposition);
-    // Before rotational ODE
 
         Quaternion quant = pose->eularRotation(rotationalOde(sumOfMoments[0] , MOI[0],  timeStep ,angularVelocity[0]),
                             rotationalOde(sumOfMoments[1] , MOI[1],  timeStep ,angularVelocity[1]),
@@ -412,7 +342,9 @@ void Vehicle::updateState(){
         sumOfMoments[0] = 0;
         sumOfMoments[1] = 0;
         sumOfMoments[2] = 0;
-        // After pose rotation
+
+        lastTime = time;
+
 }
 
 
@@ -447,6 +379,8 @@ void Vehicle::turbulantWind(){
 void Vehicle::rotateLocalEntities(const Quaternion& quant){
     return;
 }
+
+
 
 
 }

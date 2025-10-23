@@ -38,7 +38,7 @@ inline void setEndPose(const poseState& pose){
 }
 
 
-inline rotations getDifference() {
+rotations getDifference() {
     if(!startPose || !endPose){
         rotations emptyRotations{0,0,0};
         return emptyRotations;

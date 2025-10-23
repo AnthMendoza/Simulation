@@ -2,43 +2,51 @@
 #include <cmath>
 #include "../include/core/quaternion.h"
 
-using namespace SimCore;
 
-static poseState createIdentityPose() {
-    poseState pose;
-    pose.dirVector = {0.0f, 0.0f, 1.0f};
-    pose.fwdVector = {1.0f, 0.0f, 0.0f};
-    pose.rightVector = {0.0f, 1.0f, 0.0f};
-    return pose;
-}
+using namespace SimCore;
 
 
 TEST(ChangeOfBasis,RandomRotation0) {
-    poseState pose = createIdentityPose();
-    poseState basis = createIdentityPose();
-    vehicleRefranceFrame frame(pose,basis);
+    poseState pose = CoordinateSystem::WORLD_BASIS;
+    poseState basis = CoordinateSystem::WORLD_BASIS;
+    vehicleReferenceFrame frame(pose,basis);
     frame.realignPose(pose);
-    EXPECT_TRUE(arePosesEqual(pose,basis));
+    bool testResult = arePosesEqual(pose,basis);
+    if(!testResult){
+        pose.printPose("Pose");
+        basis.printPose("Basis");
+    }
+    EXPECT_TRUE(testResult);
 }
 
 TEST(ChangeOfBasis,RandomRotation1) {
     quaternionVehicle vehiclePose;
     vehiclePose.setVehicleQuaternionState({0,1,1},{1,0,0});
     poseState pose = vehiclePose.getPose();
-    poseState basis = createIdentityPose();
-    vehicleRefranceFrame frame(pose,basis);
+    poseState basis = CoordinateSystem::WORLD_BASIS;
+    vehicleReferenceFrame frame(pose,basis);
     frame.realignPose(pose);
-    EXPECT_TRUE(arePosesEqual(pose,basis));
+    bool testResult = arePosesEqual(pose,basis);
+    if(!testResult){
+        pose.printPose("Pose");
+        basis.printPose("Basis");
+    }
+    EXPECT_TRUE(testResult);
 }
 
 TEST(ChangeOfBasis,RandomRotation2) {
     quaternionVehicle vehiclePose;
     vehiclePose.setVehicleQuaternionState({0,-1,-1},{1,0,0});
     poseState pose = vehiclePose.getPose();
-    poseState basis = createIdentityPose();
-    vehicleRefranceFrame frame(pose,basis);
+    poseState basis = CoordinateSystem::WORLD_BASIS;
+    vehicleReferenceFrame frame(pose,basis);
     frame.realignPose(pose);
-    EXPECT_TRUE(arePosesEqual(pose,basis));
+    bool testResult = arePosesEqual(pose,basis);
+    if(!testResult){
+        pose.printPose("Pose");
+        basis.printPose("Basis");
+    }
+    EXPECT_TRUE(testResult);
 }
 
 
@@ -46,8 +54,42 @@ TEST(ChangeOfBasis,RandomRotation3) {
     quaternionVehicle vehiclePose;
     vehiclePose.setVehicleQuaternionState({0,0,1},{1,1,0});
     poseState pose = vehiclePose.getPose();
-    poseState basis = createIdentityPose();
-    vehicleRefranceFrame frame(pose,basis);
+    poseState basis = CoordinateSystem::WORLD_BASIS;
+    vehicleReferenceFrame frame(pose,basis);
     frame.realignPose(pose);
-    EXPECT_TRUE(arePosesEqual(pose,basis));
+    bool testResult = arePosesEqual(pose,basis);
+    if(!testResult){
+        pose.printPose("Pose");
+        basis.printPose("Basis");
+    }
+    EXPECT_TRUE(testResult);
+}
+
+TEST(ChangeOfBasis,RandomRotation4) {
+    quaternionVehicle vehiclePose;
+    vehiclePose.setVehicleQuaternionState({0,0,1},{0,1,0});
+    poseState pose = vehiclePose.getPose();
+    poseState basis = CoordinateSystem::WORLD_BASIS;
+    vehicleReferenceFrame frame(pose,basis);
+    frame.realignPose(pose);
+    bool testResult = arePosesEqual(pose,basis);
+    if(!testResult){
+        pose.printPose("Pose");
+        basis.printPose("Basis");
+    }
+    EXPECT_TRUE(testResult);
+}
+TEST(ChangeOfBasis,RandomRotation5) {
+    quaternionVehicle vehiclePose;
+    vehiclePose.setVehicleQuaternionState({0,0,1},{1,1,0});
+    poseState pose = vehiclePose.getPose();
+    poseState basis = CoordinateSystem::WORLD_BASIS;
+    vehicleReferenceFrame frame(pose,basis);
+    frame.realignPose(pose);
+    bool testResult = arePosesEqual(pose,basis);
+    if(!testResult){
+        pose.printPose("Pose");
+        basis.printPose("Basis");
+    }
+    EXPECT_TRUE(testResult);
 }

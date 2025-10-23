@@ -1,5 +1,6 @@
 #include "../../include/core/quaternion.h"
 #include "../../include/core/vectorMath.h"
+#include "../../include/core/coordinateSystem.h"
 #include <cmath>
 #include <iostream>
 #include <assert.h>
@@ -41,7 +42,7 @@ Quaternion fromAxisAngle(const std::array<float, 3> axis, float angle_rad) {
 }
 
 static constexpr float EPSILON = 1e-4;
-quaternionVehicle::quaternionVehicle(): pose{{0, 0, 1}, {1, 0, 0}, {0, 1, 0}}, numberOfCalls(0){
+quaternionVehicle::quaternionVehicle(): localPose{CoordinateSystem::WORLD_BASIS}, numberOfCalls(0){
     
 
     //std::cerr<<"Warning inital state is not valid as the forward and direction vector are not orthogonal. Setting Default values.";
@@ -49,8 +50,8 @@ quaternionVehicle::quaternionVehicle(): pose{{0, 0, 1}, {1, 0, 0}, {0, 1, 0}}, n
 
 void quaternionVehicle::setVehicleQuaternionState(threeDState dir , threeDState fwd){
 
-    pose.dirVector = normalizeVector(dir);
-    pose.fwdVector = normalizeVector(fwd);
+    localPose.dirVector = normalizeVector(dir);
+    localPose.fwdVector = normalizeVector(fwd);
 
     float dotProduct = vectorDotProduct(dir,fwd);
 
@@ -71,7 +72,7 @@ void quaternionVehicle::setVehicleQuaternionState(threeDState dir , threeDState 
         };
 
         normalizeVector(orthogonalFwd);
-        pose.fwdVector = orthogonalFwd;
+        localPose.fwdVector = orthogonalFwd;
         return;
     }
 
@@ -94,10 +95,10 @@ void quaternionVehicle::setVehicleQuaternionState(threeDState dir , threeDState 
 
         orthogonalFwd = normalizeVector(orthogonalFwd);
 
-        pose.fwdVector = orthogonalFwd;
+        localPose.fwdVector = orthogonalFwd;
 
     }
-    vectorCrossProduct(pose.dirVector,pose.fwdVector,pose.rightVector);
+    vectorCrossProduct(localPose.fwdVector,localPose.dirVector,localPose.rightVector);
 
 }
 
@@ -112,23 +113,19 @@ Quaternion quaternionVehicle::eularRotation(float rotationInRadsX , float rotati
     Quaternion combined = qz * qy * qx;
     combined = combined.normalized();
 
-
-    pose.dirVector = rotateVector(combined, pose.dirVector);
-    pose.fwdVector = rotateVector(combined, pose.fwdVector);
-    pose.rightVector = rotateVector(combined,pose.rightVector);
-    // call for Gram-Schmidt orthonormalization while re-normilizing vectors
+    rotatePose(combined);
     if(numberOfCalls > 100){
-        orthogonalize(pose.dirVector,pose.fwdVector);
-        orthogonalize(pose.dirVector,pose.rightVector);
-        orthogonalize(pose.fwdVector,pose.rightVector);
+        orthogonalize(localPose.dirVector,localPose.fwdVector);
+        orthogonalize(localPose.dirVector,localPose.rightVector);
+        orthogonalize(localPose.fwdVector,localPose.rightVector);
         numberOfCalls = 0;
     }
     return combined;
 }
 
 void quaternionVehicle::applyYaw(float rotationInRads){
-    Quaternion rotationQuat = fromAxisAngle(normalizeVector(pose.dirVector),rotationInRads);
-    pose.fwdVector = rotateVector(rotationQuat,pose.fwdVector);
+    Quaternion rotationQuat = fromAxisAngle(normalizeVector(localPose.dirVector),rotationInRads);
+    localPose.fwdVector = rotateVector(rotationQuat,localPose.fwdVector);
 } 
 
 void quaternionVehicle::orthogonalize(std::array<float,3>& vector1 , std::array<float,3>& vector2){
@@ -154,9 +151,12 @@ void quaternionVehicle::orthogonalize(std::array<float,3>& vector1 , std::array<
 }
 
 void quaternionVehicle::rotatePose(const Quaternion& quant){
-    pose.dirVector = rotateVector(quant,pose.dirVector);
-    pose.fwdVector = rotateVector(quant,pose.fwdVector);
-    pose.rightVector = rotateVector(quant,pose.rightVector);
+    localPose.dirVector = rotateVector(quant,localPose.dirVector);
+    localPose.fwdVector = rotateVector(quant,localPose.fwdVector);
+    normalizeVectorInPlace(localPose.dirVector);
+    normalizeVectorInPlace(localPose.fwdVector);
+    vectorCrossProduct(localPose.dirVector, localPose.fwdVector, localPose.rightVector);
+    normalizeVectorInPlace(localPose.rightVector);
 }
 
 } 

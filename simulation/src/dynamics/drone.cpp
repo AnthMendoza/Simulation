@@ -11,9 +11,10 @@
 #include "../../include/dynamics/aero.h"
 #include "../../include/utility/utility.h"
 #include "../../include/control/droneControllerBase.h"
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
+#include "../../include/thirdparty/eigenWrapper.h"
 #include "sim/toml.h"
+#include "../../include/utility/logger.h"
+#include "../../include/core/coordinateSystem.h"
 #include <cassert>
 #include <iostream>
 #include <utility>
@@ -32,25 +33,18 @@ droneBody::~droneBody(){
 void droneBody::initDrone(string& droneConfig){
     Vehicle::init(droneConfig);
     configFile = droneConfig;
-    initSensors();
     transposeCalls = 0;
     pose = std::make_unique<quaternionVehicle>();
     cogLocation = {0,0,0};
     cogLocationTranspose = cogLocation;
+
+    sensors = std::make_unique<droneSensorSuite>(droneConfig);
 }
 
 
 //adjust COG at the start of the simulation. Can be adjusted in sim.
 void droneBody::offsetCOG(std::array<float ,3> offset){
     cogLocation = offset;
-}
-
-void droneBody::motorThrust(float motorRPM){
-    
-}
-//a prop spinning creates a moment about the motor. This will be on spin up and staticlly 
-void droneBody::motorMoment(){
-    
 }
 
 //note location is relative to the vehicle center. 
@@ -98,7 +92,7 @@ void droneBody::transposedProps(const Quaternion& quant){
 void droneBody::rotationHelper(const Quaternion& q){
     for(int i = 0 ; i < propellers.size();i++){
         propellers[i]->locationTransposed = rotateVector(q,propellers[i]->locationTransposed);
-        normalizeVectorInPlace(propellers[i]->locationTransposed);
+        resizeVectorInPlace(propellers[i]->locationTransposed,propellers[i]->locationVectorLength);
         propellers[i]->directionTransposed = rotateVector(q,propellers[i]->directionTransposed);
         normalizeVectorInPlace(propellers[i]->directionTransposed);
     }
@@ -113,7 +107,7 @@ void droneBody::resetHelper(){
     index = reset;
     for(int i = 0 ; i < propellers.size() ; i++){
         propellers[i]->directionTransposed = propellers[i]->direction;
-        propellers[i]->locationTransposed = propellers[i]->location;
+        propellers[i]->locationTransposed = propellers[i]->getLocation();
     }
     cogLocationTranspose = cogLocation;
 }
@@ -123,13 +117,10 @@ void droneBody::allocatorHelper(){
     vector<array<float,3>> thrustVect;
     vector<float> coef;
     for(int i = 0 ; i < propellers.size();i++){
-        pos.push_back(propellers[i]->location);
+        pos.push_back(propellers[i]->getLocation());
         thrustVect.push_back(propellers[i]->direction);
         coef.push_back(propellers[i]->powerCoefficient * static_cast<float>(propellers[i]->rotationDirection));
     }
-    if(!controller) throw std::runtime_error("In AllocatorHelper controller is a nullptr.");
-    controller->initAllocator(pos,thrustVect,coef);
-
 }
 
 
@@ -140,13 +131,17 @@ void droneBody::rotateLocalEntities(const Quaternion& quant){
 }
 
 
-void droneBody::updateState(){
-
-    vector<float> controllerThrusts = updateController();
+void droneBody::updateState(float time,std::optional<controlPacks::variantPackets> controlInput){
+    vector<float> controllerThrusts;
+    if(controlInput){
+        controlPacks::variantPackets& packet = controlInput.value();
+        auto* controlPack = std::get_if<controlPacks::motorOnlyPacket>(&packet);
+        controllerThrusts = controlPack->thrust;
+    }
     
-    turbulantWind();
-    lift(aeroAreaDrone,coefOfLiftDrone);
-    drag(aeroAreaDrone,coefOfDragDrone);
+    //turbulantWind();
+    //lift(aeroAreaDrone,coefOfLiftDrone);
+    //drag(aeroAreaDrone,coefOfDragDrone);
     float current = 0;
     float density = airDensity(Zposition);
     float totalThrust = 0;
@@ -155,11 +150,14 @@ void droneBody::updateState(){
         
         float torqueLoad = propellers[i]->dragTorque(density,motors[i]->getCurrentAngularVelocity());
         float angularVelocityRequest = propellers[i]->desiredAngularVelocity(density,controllerThrusts[i]);
+
         if(angularVelocityRequest < 0) angularVelocityRequest = 0;
+
         motors[i]->updateMotorAngularVelocity(timeStep,torqueLoad,*droneBattery,angularVelocityRequest);
         current += abs(motors[i]->getCurrentCurrent());
         std::array<float,3> thrustVector = normalizeVector(propellers[i]->directionTransposed);
         float currentThrust = propellers[i]->thrustForce(density,motors[i]->getCurrentAngularVelocity());
+
         for(int i = 0 ; i < thrustVector.size();i++) thrustVector[i] = thrustVector[i] * currentThrust;
         totalThrust += currentThrust;
         addForce(thrustVector);
@@ -170,11 +168,13 @@ void droneBody::updateState(){
     }
 
     droneBattery->updateBattery(current,getTime());
-    Vehicle::updateState();
+    Vehicle::updateState(time);
     //TransposedProps move the transposed cordinates of the props in the prop objects within propellers.
 
 
-    iterations++;
+
+    dataLog();
+    setGlobals();
 
 }
 
@@ -205,7 +205,8 @@ void droneBody::dynoSystem(){
         propeller testPropeller(*propellers[i]);
         battery testBattery(*droneBattery);
         testMotor.resetMotor();
-        auto limits = thrustLimits(testMotor,testPropeller,testBattery,timeStep);
+        float simTimeStep = 0.001f;
+        auto limits = thrustLimits(testMotor,testPropeller,testBattery, simTimeStep);
         testPropeller.thrustLimits = limits;
         totalThrustLimit += limits.second;
 
@@ -242,14 +243,32 @@ droneBody::droneBody(const droneBody& other)
         pose = std::make_unique<quaternionVehicle>(*other.pose);
     }
 
-    controller = other.controller->clone();
-
 }
 
 
-void droneBody::setEntityPose(quaternionVehicle pose) {
-    return;
+void droneBody::setEntitiesPose(const poseState& pose) {
+
+    poseState basisPose = CoordinateSystem::WORLD_BASIS;
+    vehicleReferenceFrame basisReference(pose,basisPose);
+
+    for(auto &prop:propellers){
+        prop->locationTransposed = prop->getLocation();
+        prop->directionTransposed = prop->direction;
+        basisReference.realign(prop->locationTransposed);
+        resizeVectorInPlace(prop->locationTransposed,prop->locationVectorLength);
+        basisReference.realign(prop->directionTransposed);
+    }
 }
+
+
+
+void droneBody::dataLog(){
+    auto pA = getPositionVector();
+    LOG_VEC3("PositionActual",getTime(),pA[0],pA[1],pA[2]);
+    auto vA = getVelocityVector();
+    LOG_VEC3("VelocityActual",getTime(),vA[0],vA[1],vA[2]);
+}
+
 
 
 

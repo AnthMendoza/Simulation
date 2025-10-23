@@ -7,7 +7,11 @@
 #include <optional>
 #include "vectorMath.h"
 #include "../utility/utility.h"
+#include "coordinateSystem.h"
+#include "poseState.h"
+#include "vectorMath.h"
 
+// *** changed all key words from pose to localPose. unreal engine conflicts
 #pragma once
 using namespace std;
 
@@ -53,28 +57,11 @@ inline void rotateMultiVectors(const Quaternion& q, vector<std::array<float, 3>>
 
 Quaternion fromAxisAngle(const std::array<float, 3> axis, float angle_rad);
 
-struct poseState{
-    std::array<float,3> dirVector;
-    std::array<float,3> fwdVector;
-    std::array<float,3> rightVector;
-    void printPose(){
-        std::cout << "poseState {\n";
-        print(dirVector,"  dirVector");
-        print(fwdVector , "  fwdVector");
-        print(rightVector, "  rightVector");
-        std::cout << "}\n";
-    }
-    void normalize(){
-        normalizeVectorInPlace(dirVector);
-        normalizeVectorInPlace(fwdVector);
-        normalizeVectorInPlace(rightVector);
-    }
-};
 
 
 class quaternionVehicle{
     private:
-    poseState pose;
+    poseState localPose;
     int numberOfCalls;
     public:
     //start direction
@@ -91,17 +78,17 @@ class quaternionVehicle{
     void rotatePose(const Quaternion& quant);
     
     inline std::array<float,3> getdirVector(){
-        return pose.dirVector;
+        return localPose.dirVector;
     }
     inline std::array<float,3> getfwdVector(){
-        return pose.fwdVector;
+        return localPose.fwdVector;
     }
     //direction(top) Vector , fwdVector , rightVector
     inline poseState getPose(){
         poseState packet;
-        packet.dirVector = pose.dirVector;
-        packet.fwdVector = pose.fwdVector;
-        packet.rightVector = pose.rightVector;
+        packet.dirVector = localPose.dirVector;
+        packet.fwdVector = localPose.fwdVector;
+        packet.rightVector = localPose.rightVector;
         return packet;
     }
 };
@@ -129,48 +116,48 @@ static bool arePosesEqual(const poseState& pose1, const poseState& pose2) {
 }
 
 
-class vehicleRefranceFrame{
+class vehicleReferenceFrame{
     private:
-    std::optional<poseState> pose;
+    std::optional<poseState> localPose;
     std::optional<poseState> basis;
     std::vector<rotation> rotations;
     static constexpr float EPSILON = 1e-4;
 
 void getQuaternionRotationState(){
-    if(!pose){
-        std::cout<<"Warning pose not initialized in vehicleRefranceFrame.\n";
+    if(!localPose){
+        std::cout<<"Warning localPose not initialized in vehicleReferenceFrame.\n";
         return;
     }
     if(!basis){
-        std::cout<<"Warning basis not initialized in vehicleRefranceFrame.\n";
+        std::cout<<"Warning basis not initialized in vehicleReferenceFrame.\n";
         return;
     }
-    if(arePosesEqual(*pose,*basis)){
+    if(arePosesEqual(*localPose,*basis)){
         rotations.clear();
         return;
     }
     
     rotations.clear();
-    pose->normalize();
+    localPose->normalize();
     basis->normalize();
 
-    poseState progressPose = *pose;
+    poseState progressPose = *localPose;
     
-    float dotProduct = vectorDotProduct(pose->dirVector, basis->dirVector);
+    float dotProduct = vectorDotProduct(localPose->dirVector, basis->dirVector);
     if(std::fabs(dotProduct + 1) < EPSILON){
         rotation rot;
         rot.angle = M_PI;
-        rot.axisOfRotation = pose->fwdVector;
+        rot.axisOfRotation = localPose->fwdVector;
         rotations.push_back(rot);
     }
     //rotation.size() == 0 is just checking if the previous if statement added a rotation alread. if it did. the next step is covered.
     if(std::fabs(dotProduct - 1) > EPSILON && rotations.size() == 0){
         threeDState rotationAxis;
-        vectorCrossProduct(pose->dirVector,basis->dirVector,rotationAxis);
+        vectorCrossProduct(localPose->dirVector,basis->dirVector,rotationAxis);
         normalizeVectorInPlace(rotationAxis);
-        float angle = vectorAngleBetween(pose->dirVector,basis->dirVector);
+        float angle = vectorAngleBetween(localPose->dirVector,basis->dirVector);
         Quaternion quant = fromAxisAngle(rotationAxis,angle);
-        threeDState rotateTest = rotateVector(quant,pose->dirVector);
+        threeDState rotateTest = rotateVector(quant,localPose->dirVector);
 
         if(!similarVector(rotateTest,basis->dirVector,EPSILON)){
             angle = -angle;
@@ -220,7 +207,7 @@ void getQuaternionRotationState(){
 
     public:
 
-    vehicleRefranceFrame(const poseState& pose,poseState basisVector = {{0.0f,0.0f,1.0f},{1.0f,0.0f,0.0f},{0.0f,1.0f,0.0f}}): pose(pose) , basis(basisVector){
+    vehicleReferenceFrame(const poseState& localPose,poseState basisVector = CoordinateSystem::WORLD_BASIS): localPose(localPose) , basis(basisVector){
         getQuaternionRotationState();
     }
 
@@ -240,12 +227,16 @@ void getQuaternionRotationState(){
         return *basis;
     }
 
-    inline void realignPose(poseState &pose){
+    inline void realignPose(poseState &alignmentPose){
         for(auto& rotatePack : rotations){
             Quaternion quant = fromAxisAngle(rotatePack.axisOfRotation, rotatePack.angle);
-            pose.dirVector = rotateVector(quant, pose.dirVector);
-            pose.fwdVector = rotateVector(quant, pose.fwdVector);
-            pose.rightVector = rotateVector(quant, pose.rightVector);
+            alignmentPose.dirVector = rotateVector(quant, alignmentPose.dirVector);
+            alignmentPose.fwdVector = rotateVector(quant, alignmentPose.fwdVector);
+            normalizeVectorInPlace(alignmentPose.dirVector);
+            normalizeVectorInPlace(alignmentPose.fwdVector);
+            vectorCrossProduct(alignmentPose.dirVector, alignmentPose.fwdVector, alignmentPose.rightVector);
+            normalizeVectorInPlace(alignmentPose.rightVector);
+
         }
     }
 

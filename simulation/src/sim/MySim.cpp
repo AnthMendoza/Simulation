@@ -80,7 +80,7 @@ unrealDrone::unrealDrone(std::string motorConfig , std::string batteryConfig , s
     propeller prop(propellerConfig);
     motor mot(motorConfig,drone->getTimeStep());
 
-    auto motorPropPair = setSquare(0.3f,0.3f,prop,mot);
+    auto motorPropPair = setSquare(1.41f,1.41f,prop,mot);
     drone->addMotorsAndProps(motorPropPair);
 }
 

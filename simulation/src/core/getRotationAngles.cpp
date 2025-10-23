@@ -1,7 +1,6 @@
 
 #include <cmath>
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
+#include "../../include/thirdparty/eigenWrapper.h"
 namespace SimCore{
 Eigen::Vector3d getRotationAngles(const Eigen::Vector3d& from, const Eigen::Vector3d& to) {
     Eigen::Vector3d v = from.cross(to);

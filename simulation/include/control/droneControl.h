@@ -1,12 +1,10 @@
 #ifndef DRONECONTROL_H
 #define DRONECONTROL_H 
 #include <iostream>
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
+#include "../thirdparty/eigenWrapper.h"
 #include <vector>
 #include "../subsystems/propeller.h"
-#include "../dynamics/drone.h"
-#include "../control/droneControl.h"
+
 using namespace Eigen;
 using namespace std;
 namespace SimCore{
@@ -24,7 +22,7 @@ private:
     void buildCASMatrix();
 public:
 
-    controlAllocator(const vector<array<float,3>>& motorPositions,const vector<array<float,3>>& thrustDirections,vector<float> spinTCoefficent);
+    controlAllocator(const vector<std::array<float,3>>& motorPositions,const vector<std::array<float,3>>& thrustDirections,vector<float> spinTCoefficent);
     controlAllocator(const controlAllocator& other) = default;
     /**
      * @brief Solves for the rotor thrusts required to produce the given wrench (force and torque).

@@ -6,16 +6,15 @@
 #include "../subsystems/battery.h"
 #include "../core/quaternion.h"
 #include "../core/indexVectors.h"
-#include "../control/PIDController.h"
+#include "PIDController.h"
 #include "../subsystems/propeller.h"
-#include "../control/droneControl.h"
 #include "../dynamics/aero.h"
 #include <utility>
 #include <memory>
 #include <string>
 #include "../core/vectorMath.h"
 #include "../utility/utility.h"
-#include "../control/droneControllerBase.h"
+#include "droneControllerBase.h"
 #include "../core/poseRotation.h"
 
 namespace SimCore{
@@ -25,6 +24,10 @@ struct accelerations{
     float xAccel;
     float yAccel;
     float zAccel;
+
+    accelerations():xAccel(0.0f),
+    yAccel(0.0f),
+    zAccel(0.0f) {}
 };
 struct requestedVehicleState{
     threeDState vehicleState;
@@ -58,15 +61,14 @@ class PIDDroneController : public droneControllerBase{
     unique_ptr<PIDController> APIDY;
     float gravitationalAcceleation;
     float mass; 
-    float maxThrust;
     float maxAcceleration;
 
     poseState lastState;
     poseAngleDifference poseDifference;
     bool firstPose = true;
 
+    controlPacks::motorOnlyPacket computedControlPacket;    
     
-
     public:
 
     PIDDroneController(float frequency);
@@ -77,33 +79,36 @@ class PIDDroneController : public droneControllerBase{
     }
 
     //goal is to move towards a predicive model
-    void initController(string droneConfig,const droneBody& drone) override;
-    virtual void updateCalculatedValues(const droneBody& drone) override;
+    void initController(string droneConfig) override;
+    virtual void updateCalculatedValues() override;
     /// @brief 
     /// @param pos m
     /// @param velo m/s
     /// @param state Direction vector
     /// @param maxAngleAOT rads
     /// @return std::pair first and second is moments about x and y respectivly. Note this is not global, x and y are realtive to the drone.
-    momentForceRequest pidControl(const std::array<float,3> pos , std::array<float,3> velo  ,poseState& state, float maxThrust);
+    controlPacks::forceMoments pidControl(const std::array<float,3> pos , std::array<float,3> velo  ,poseState& state);
     void setTargetPosition(float xTarget , float yTarget , float zTarget) override;
     //feedForward function for windprediction and gravity offset.
-    requestedVehicleState aotFeedForward(accelerations& accels,float gravitaionalAcceleration , float mass,float maxThrust,poseState& pose);
-
-    std::array<float,3> thrustMoment(const propeller& prop ,const motor& mot, std::array<float,3>& cogLocation ,const float& airDensity);
+    requestedVehicleState aotFeedForward(accelerations& accels,float gravitaionalAcceleration , float mass,poseState& pose);
+    //std::array<float,3> thrustMoment(const propeller& prop ,const motor& mot, std::array<float,3>& cogLocation ,const float& airDensity);
     /// @brief 
     /// @param axisOfRotation 
     /// @param moment n*m
 
-    vector<float> update(const std::array<float,3>& estimatedPostion,poseState state,const std::array<float,3>& estimatedVelocity ,float time ) override;
+    controlPacks::variantPackets update(float time,stateInfo statePacket) override;
+
+    controlPacks::forceMoments updateWithoutAllocator(float time,stateInfo statePacket) override;
+
     /**
      * @return pair first is the axis of rotation the second is the pid return clamped 1 to -1.The output should be converted into a deired moment.
      */
     std::pair<std::array<float,3> , float> aotControl(requestedVehicleState request, std::array<float,3> currentState);
 
+
     inline void reset() {
         if (PIDX) PIDX->reset();
-        if (PIDY) PIDY->reset();
+        if (PIDY) PIDY->reset(); 
         if (PIDZ) PIDZ->reset();
 
         if (PIDVX) PIDVX->reset();
@@ -112,8 +117,8 @@ class PIDDroneController : public droneControllerBase{
 
         if (APIDX) APIDX->reset();
         if (APIDY) APIDY->reset();
-
-        computedThrust.clear();
+        controlPacks::motorOnlyPacket newPacket;
+        computedControlPacket = newPacket;
         controlOutputVelocity = {0.0f, 0.0f, 0.0f};
     }
 
@@ -187,6 +192,8 @@ inline std::array<float, 3> limitMagnitudeWithFixedZ(std::array<float, 3> vect, 
     float scale = std::sqrt(maxXY2) / xyMag;
     return {vect[0] * scale, vect[1] * scale, vect[2]};
 }
+
+
 
 
 }

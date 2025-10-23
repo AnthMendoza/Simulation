@@ -1,5 +1,5 @@
 #include "../../include/sim/MySim.h"
-#include "../../include/control/PIDGains.h"
+//#include "../../include/control/PIDGains.h"
 #include "../../include/core/pythonConnector.h"
 #include "../../include/utility/utility.h"
 #include <sstream>
@@ -8,8 +8,15 @@
 #include <chrono>
 #include <thread>
 #include <tuple>
+#include <atomic>
+#include <thread>
+#include "../../include/utility/logger.h"
 
 using namespace SimCore;
+
+#define REAL_TIME_REPRESENTATION
+
+
 
 
 int main(int argc, char* argv[]){
@@ -17,7 +24,10 @@ int main(int argc, char* argv[]){
         std::cout << "Usage: " << argv[0] << " <motor_config> <battery_config> <propeller_config> <drone_config>\n";
         return 1;
     }
-    
+    #ifdef DRONE_LOGGING
+    const float maxDurationSeconds = 30;
+    #endif
+
     std::string configMotor = readFileAsString(argv[1]);    
     std::string configBattery = readFileAsString(argv[2]);   
     std::string configPropeller = readFileAsString(argv[3]);
@@ -25,13 +35,16 @@ int main(int argc, char* argv[]){
 
 
     unrealDrone drone(configMotor,configBattery,configDrone,configPropeller);
-    drone.setTargetPosition(50,50,300,0);
+    drone.setTargetPosition(0,0,20,0);
     drone.drone->turbulantZ->setStdDev(0.5);
-    drone.drone->turbulantX->setStdDev(5);
-    drone.drone->turbulantY->setStdDev(5);
-    //in milliseconds (1 second)
+    drone.drone->turbulantX->setStdDev(0.5);
+    drone.drone->turbulantY->setStdDev(0.5);
+    //drone.drone->setStateVector({0,0,1},{0,1,0});
+
     float TimePerTelemetry = 1000.0f; 
-    while (true) {
+    bool running = true;
+
+    while (running) {
         auto start = std::chrono::high_resolution_clock::now();
 
         unrealDataDrone* data = drone.simFrameRequest(TimePerTelemetry / 1000.0f); 
@@ -44,11 +57,25 @@ int main(int argc, char* argv[]){
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float, std::milli> duration = end - start;
         float delay = TimePerTelemetry - duration.count();
+
+        #ifdef DRONE_LOGGING
+
+        if(drone.drone->getTime() >= maxDurationSeconds){
+            running = false;
+        }
+        #endif
+
+        #ifdef REAL_TIME_REPRESENTATION
         if (delay < 0) {
             std::cerr << "Warning: TimePerTelemetry is too small or simulation is running too slow to display in real time.\n";
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(delay)));
         }
+        #endif
     }
 
+    #ifdef DRONE_LOGGING
+    log::logger->exportCSV("droneLog.csv");
+    #endif
+    return 0;
 }

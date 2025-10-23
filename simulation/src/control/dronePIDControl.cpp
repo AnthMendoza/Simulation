@@ -1,4 +1,6 @@
-#include "../include/control/dronePIDControl.h"
+#include "../../include/control/dronePIDControl.h"
+#include "../../include/core/coordinateSystem.h"
+#include "../../include/control/stateInfo.h"
 #include <algorithm>
 #include <iostream>
 #include <cmath>
@@ -13,7 +15,6 @@ PIDDroneController::PIDDroneController(float frequency):droneControllerBase(freq
 
 PIDDroneController::PIDDroneController(const PIDDroneController& other):
     droneControllerBase(other),
-    maxThrust(other.maxThrust),
     mass(other.mass),
     maxAcceleration(other.maxAcceleration),
     gravitationalAcceleation(other.gravitationalAcceleation)
@@ -38,11 +39,12 @@ PIDDroneController::PIDDroneController(const PIDDroneController& other):
 
 
 
-void PIDDroneController::initController(string droneConfig, const droneBody& drone){
+void PIDDroneController::initController(string droneConfig){
     toml::tomlParse droneParse;
     droneParse.parseConfig(droneConfig,"vehicle");
     float timeStep = droneParse.getFloat("timeStep");
-
+    mass = droneParse.getFloat("mass");
+    gravitationalAcceleation = droneParse.getFloat("gravitationalAcceleration");
     toml::tomlParse PIDPrase;
     PIDPrase.parseConfig(droneConfig,"PID");
 
@@ -53,17 +55,16 @@ void PIDDroneController::initController(string droneConfig, const droneBody& dro
     float ki = PIDPrase.getFloat("Ki");
     float kd = PIDPrase.getFloat("Kd");
     if (PIDX == nullptr)
-        PIDX = std::make_unique<PIDController>(kp, ki, kd, timeStep);
+        PIDX = std::make_unique<PIDController>(kp, ki, kd);
 
     if (PIDY == nullptr)
-        PIDY = std::make_unique<PIDController>(kp, ki, kd, timeStep);
+        PIDY = std::make_unique<PIDController>(kp, ki, kd);
 
     if (PIDZ == nullptr)
         PIDZ = std::make_unique<PIDController>(
             PIDPrase.getFloat("ZKp"),
             PIDPrase.getFloat("ZKi"),
-            PIDPrase.getFloat("ZKd"),
-            timeStep);
+            PIDPrase.getFloat("ZKd"));
     toml::tomlParse vParse;
     vParse.parseConfig(droneConfig,"vehicle");
     float maxCruiseVelocity = vParse.getFloat("maxCruiseVelocity");
@@ -80,17 +81,16 @@ void PIDDroneController::initController(string droneConfig, const droneBody& dro
     float kvd = PIDPrase.getFloat("Kvd");
 
     if (PIDVX == nullptr)
-        PIDVX = std::make_unique<PIDController>(kvp, kvi, kvd, timeStep);
+        PIDVX = std::make_unique<PIDController>(kvp, kvi, kvd);
 
     if (PIDVY == nullptr)
-        PIDVY = std::make_unique<PIDController>(kvp, kvi, kvd, timeStep);
+        PIDVY = std::make_unique<PIDController>(kvp, kvi, kvd);
 
     if (PIDVZ == nullptr)
         PIDVZ = std::make_unique<PIDController>(
             PIDPrase.getFloat("ZKvp"),
             PIDPrase.getFloat("ZKvi"),
-            PIDPrase.getFloat("ZKvd"),
-            timeStep);
+            PIDPrase.getFloat("ZKvd"));
 
 
     //#########################################################################
@@ -100,8 +100,8 @@ void PIDDroneController::initController(string droneConfig, const droneBody& dro
     float AVki = PIDPrase.getFloat("AVKi");
     float AVkd = PIDPrase.getFloat("AVKd");
 
-    if (APIDVX == nullptr) APIDVX = std::make_unique<PIDController>(AVkp, AVki, AVkd, timeStep);
-    if (APIDVY == nullptr) APIDVY = std::make_unique<PIDController>(AVkp, AVki, AVkd, timeStep);
+    if (APIDVX == nullptr) APIDVX = std::make_unique<PIDController>(AVkp, AVki, AVkd);
+    if (APIDVY == nullptr) APIDVY = std::make_unique<PIDController>(AVkp, AVki, AVkd);
 
     constexpr float MAX_ROTATIONAL_ANGULAR_VELOCITY = 18.85;//rad/s {18.85 rad/s = 3 rps}
 
@@ -114,23 +114,22 @@ void PIDDroneController::initController(string droneConfig, const droneBody& dro
     float Aki = PIDPrase.getFloat("AKi");
     float Akd = PIDPrase.getFloat("AKd");
 
-    if (APIDX == nullptr) APIDX = std::make_unique<PIDController>(Akp, Aki, Akd, timeStep);
-    if (APIDY == nullptr) APIDY = std::make_unique<PIDController>(Akp, Aki, Akd, timeStep);
+    if (APIDX == nullptr) APIDX = std::make_unique<PIDController>(Akp, Aki, Akd);
+    if (APIDY == nullptr) APIDY = std::make_unique<PIDController>(Akp, Aki, Akd);
 
 
     APIDX->setOutputLimits(-2.5,2.5);
     APIDY->setOutputLimits(-2.5,2.5);
-    updateCalculatedValues(drone);
+    updateCalculatedValues();
 
 }
 
 
-void PIDDroneController::updateCalculatedValues(const droneBody& drone){
-    maxThrust = drone.totalThrustLimit;
-    if(maxThrust < 0 ) std::cerr<<"\nWarning: MaxThrust in initController is <0.\n";
-    mass = drone.getMass();
-    gravitationalAcceleation = drone.getGravitationalAcceleration();
-    maxAcceleration = maxThrust/mass;
+void PIDDroneController::updateCalculatedValues(){
+    if(mass <= 0){
+        throw std::runtime_error("Mass Cannot be <= 0.");
+    }
+    maxAcceleration = 10.0f;
     PIDVX->setOutputLimits(-maxAcceleration,maxAcceleration);
     PIDVY->setOutputLimits(-maxAcceleration,maxAcceleration);
     PIDVZ->setOutputLimits(gravitationalAcceleation,maxAcceleration + abs(gravitationalAcceleation));
@@ -140,42 +139,37 @@ void PIDDroneController::updateCalculatedValues(const droneBody& drone){
 //if aotFeedForwad calculates the thrust needed at the desired angle of attack for the desired postion and not the current position the motors will generate the thrust required faster than the vehicle can rotate to the position.
 // resulting in over delay from thrust to angle requested
 static float accelerationFromPose(const threeDState accels,poseState& pose){
-    threeDState directionVector = pose.dirVector;
-    normalizeVectorInPlace(directionVector);
-    if(directionVector[2] == 0) return 0;
-    float scalingFactor = accels[2] / directionVector[2];
-    for(int i = 0; i < directionVector.size() ; i++){
-        directionVector[i] = directionVector[i] * scalingFactor;
-    }
-    return vectorMag(directionVector);
+    threeDState newAccelVector;
+    auto dir = pose.dirVector;
+    newAccelVector = scaleVectorToZ(dir,accels[2]);
+    
+    return vectorMag(newAccelVector);
+
 }
 
 
 //flight envolope. zaccel is dominate. 
 //NOTE: acceleration includes gravity. Hovering drone is accelerating at G in positive z;
-requestedVehicleState PIDDroneController::aotFeedForward(accelerations& accels, float gravitaionalAcceleration , float mass ,float maxThrust,poseState& pose){
+requestedVehicleState PIDDroneController::aotFeedForward(accelerations& accels, float gravitaionalAcceleration , float mass ,poseState& pose){
     if(mass <= 0) throw std::runtime_error("mass cannot be <=0 , in aotFeedForward\n");
-    if(maxThrust <= 0) throw std::runtime_error("maxThrust cannot be <=0 , in aotFeedForward\n");
     //negative Z acceleration greater than gravity means the vehicle is upsideDown. For now this is not possible.
     threeDState vectorRepresentation = {accels.xAccel,accels.yAccel,accels.zAccel};
-
+    
     if(gravitaionalAcceleration >= 0) throw std::runtime_error("GravitationalAcceleration is not negative in PIDDroneController.\n");
     vectorRepresentation[2] += -gravitaionalAcceleration;
-        vectorRepresentation[2] = std::clamp(vectorRepresentation[2],gravitaionalAcceleration,std::numeric_limits<float>::max());
-
+    vectorRepresentation[2] = std::clamp(vectorRepresentation[2],gravitaionalAcceleration,std::numeric_limits<float>::max());
     // FRACTION_OF_GRAVITY ensures some position acceleration is present to resist gravity.
     //preventing an inverted command.
     constexpr float FRACTION_OF_GRAVITY = 0.1f;
     //if(accels.zAccel <= 0) accels.zAccel = -gravitaionalAcceleration * FRACTION_OF_GRAVITY;
-   
 
     if(mass <= 0) throw std::runtime_error("Mass Cannot be <=0.\n");
-    float maxAcceleration = maxThrust/mass;
     //limitMagnitudeWithFixedZ is a possible inprovment on limiting accelerationrequest. more devlopment is needed
     //vectorRepresentation = limitMagnitudeWithFixedZ(vectorRepresentation,maxAcceleration);
-    resizeVectorIfLarger(vectorRepresentation,maxAcceleration);
+    //resizeVectorIfLarger(vectorRepresentation,maxAcceleration);
     if(vectorRepresentation[0] == 0 && vectorRepresentation[1] == 0){
-        vectorRepresentation[2] = std::clamp(vectorRepresentation[2],0.0f,maxAcceleration);
+        //vectorRepresentation[2] = std::clamp(vectorRepresentation[2],0.0f,maxAcceleration);
+        vectorRepresentation[2] = std::clamp(vectorRepresentation[2],0.0f,std::numeric_limits<float>::max());
     }
     float magnitudeOfAcceleration = vectorMag(vectorRepresentation);
     if(magnitudeOfAcceleration == 0){
@@ -184,11 +178,9 @@ requestedVehicleState PIDDroneController::aotFeedForward(accelerations& accels, 
         request.force = 0;
         return request;
     }
-    float force = magnitudeOfAcceleration * mass;
 
     requestedVehicleState request;
     request.vehicleState = normalizeVector(vectorRepresentation);
-    request.force = force;
     request.force = accelerationFromPose(vectorRepresentation,pose) * mass;
     return request;
 }
@@ -203,54 +195,48 @@ static constexpr float MINIMUM_THROTTLE_AT_IDLE = 0.1;
 // - Velocity PID computes desired acceleration or thrust based on velocity error
 // - Attitude and Rate PIDs can follow to control orientation and angular velocity
 // Used in flight control systems like PX4 and ArduPilot.
-momentForceRequest PIDDroneController::pidControl(const std::array<float,3> pos ,std::array<float,3> velo , poseState& state, float maxThrust){
+controlPacks::forceMoments PIDDroneController::pidControl(const std::array<float,3> pos ,std::array<float,3> velo , poseState& state){
 
-    if(!controlEnabled) return {{0,0,0},{0,0,0}};
+    if(!controlEnabled){
+        controlPacks::forceMoments packet;
+        return packet;
+    }
     if(firstPose){
         lastState = state;
         firstPose = false;
     }
+    auto actualDeltaTime = manager->getActualDeltaTime();
     //wayPoint should be set prior to call via setPidControl();
     if(!manager) std::cerr<<"Drone Contoller manager not found\n";
     float deltaTime = manager->getActualDeltaTime();
-    PIDX->setTimeStep(deltaTime);
-    PIDY->setTimeStep(deltaTime);
-    PIDZ->setTimeStep(deltaTime);
-    controlOutputVelocity = {   PIDX->update(pos[0]),
-                                PIDY->update(pos[1]),
-                                PIDZ->update(pos[2])};
+
+    controlOutputVelocity = {   PIDX->update(pos[0],actualDeltaTime),
+                                PIDY->update(pos[1],actualDeltaTime),
+                                PIDZ->update(pos[2],actualDeltaTime)};
     //Control outPut for velocity will take the output command for 
-    PIDVX->setTimeStep(deltaTime);
-    PIDVY->setTimeStep(deltaTime);
-    PIDVZ->setTimeStep(deltaTime);
     PIDVX->setTarget(controlOutputVelocity[0]);
     PIDVY->setTarget(controlOutputVelocity[1]);
     PIDVZ->setTarget(controlOutputVelocity[2]);
 
     accelerations accels;
 
-    accels.xAccel = PIDVX->update(velo[0]);
-    accels.yAccel = PIDVY->update(velo[1]);
-    accels.zAccel = PIDVZ->update(velo[2]);
+    accels.xAccel = PIDVX->update(velo[0],actualDeltaTime);
+    accels.yAccel = PIDVY->update(velo[1],actualDeltaTime);
+    accels.zAccel = PIDVZ->update(velo[2],actualDeltaTime);
     
 
-    requestedVehicleState request = aotFeedForward(accels,gravitationalAcceleation,mass,maxThrust,state);
-    
-    poseState basisPose;
-    basisPose.dirVector = {0,0,1};
-    basisPose.fwdVector = {1,0,0};
-    basisPose.rightVector = {0,1,0};
-    vehicleRefranceFrame refranceFrame(state , basisPose);
-    threeDState basisAOT = refranceFrame.realign(request.vehicleState);
-    threeDState verify = refranceFrame.realign(state.dirVector);
+    requestedVehicleState request = aotFeedForward(accels,gravitationalAcceleation,mass,state);
+
+    poseState basisPose = CoordinateSystem::WORLD_BASIS;
+
+    vehicleReferenceFrame referenceFrame(state , basisPose);
+    threeDState basisAOT = referenceFrame.realign(request.vehicleState);
+
     float angleX,angleY;
     float EPSILON = 1e-4;
     float MAX_Angle = 1.0f;
     if(std::fabs(basisAOT[2]) <= EPSILON) basisAOT[2] = EPSILON;
 
-    //angleX = std::atanf(basisAOT[0] / std::fabs(basisAOT[2]));
-    //angleY = std::atanf(basisAOT[1] / std::fabs(basisAOT[2]));
-    
     std::array<float,2> vectorX2d = {basisAOT[0], basisAOT[2]};
     angleX = signedAngle(vectorX2d);
 
@@ -259,36 +245,42 @@ momentForceRequest PIDDroneController::pidControl(const std::array<float,3> pos 
 
     //Another angle limit can be added if not symetrical
     ellipsoidalClamp2D(angleX,angleY,MAX_Angle,MAX_Angle);
-    APIDX->setTimeStep(deltaTime);
-    APIDY->setTimeStep(deltaTime);
+
     APIDX->setTarget(0.0f);
     APIDY->setTarget(0.0f);
 
-    float angularVeloX = APIDX->update(angleX);
-    float angularVeloY = -APIDY->update(angleY);
+    float angularVeloX = APIDX->update(angleX,actualDeltaTime);
+    float angularVeloY = -APIDY->update(angleY,actualDeltaTime);
 
     threeDState APIDMoments = {0,0,0};
 
     APIDVX->setTarget(angularVeloX);
     APIDVY->setTarget(angularVeloY);
 
-    APIDVX->setTimeStep(deltaTime);
-    APIDVY->setTimeStep(deltaTime);
-    
-    poseDifference.setStartPose(lastState);
-    poseDifference.setEndPose(state);
+
+    vehicleReferenceFrame rotationFrame(lastState,basisPose);
     lastState = state;
+    rotationFrame.realignPose(state);
+    poseDifference.setStartPose(basisPose);
+    poseDifference.setEndPose(state);
+
+    //poseDifference.setStartPose(lastState);
+    //poseDifference.setEndPose(state);
+    //lastState = state;
+
     auto angularVelocity = poseDifference.getRotationRate(deltaTime);
-    APIDMoments[1] = -APIDVX->update(angularVelocity.pitchRate);
-    APIDMoments[0] = -APIDVY->update(angularVelocity.rollRate);
-    momentForceRequest momentsForces;
+    
+    APIDMoments[1] = -APIDVX->update(angularVelocity.pitchRate,actualDeltaTime);
+    APIDMoments[0] = -APIDVY->update(angularVelocity.rollRate,actualDeltaTime);
+    controlPacks::forceMoments momentsForces;
     momentsForces.moments = APIDMoments;
-    momentsForces.forces[2] = request.force;
+    momentsForces.force[2] = request.force;
     auto rotationError = poseDifference.getDifference();
     float minimumThurst = mass*std::fabs(gravitationalAcceleation) * MINIMUM_THROTTLE_AT_IDLE;
     if(request.force < minimumThurst){
         request.force = minimumThurst;
     }
+
     return momentsForces; 
 }
 
@@ -306,53 +298,45 @@ void PIDDroneController:: setTargetPosition(float xTarget , float yTarget , floa
 
 /**
  * @brief Computes the drone's control output based on state estimation.
- * @param estimatedPostion       Estimated 3D position of the drone(m).
- * @param estimatedState         Estimated orientation/state (direction vector normal).
- * @param estimatedVelocity      Estimated 3D velocity of the drone(m/s).
- * @param mass                   Mass of the drone (in kilograms).
- * @param gravitationalAcceleration  Acceleration due to gravity (-9.81 m/s^2).
- * @param thrustLimit            Maximum allowable thrust.
- * @param maxAngleOfAttack       Maximum allowable angle of attack (in radians).
- * @return std::vector<float>    Thrust commands
- * 
- * This function encapsulates the drone's core control logic.
  */
+controlPacks::variantPackets PIDDroneController::update(float time,stateInfo statePacket){ 
 
-vector<float> PIDDroneController::update(const std::array<float,3>& estimatedPostion,poseState state,const std::array<float,3>& estimatedVelocity ,float time ){ 
-    
     if (!manager->shouldTrigger(time)) {
-        return computedThrust;
+        return computedControlPacket;
     }
-    
-    momentForceRequest request = pidControl(estimatedPostion, estimatedVelocity,state,maxThrust);
+    controlPacks::forceMoments request = pidControl(statePacket.position, statePacket.velocity,statePacket.pose);
+
     if (!allocator) {
         throw std::runtime_error("Control allocator not initialized in PIDDroneController::update");
     }
-
     
-    VectorXd desired  = allocator->toVectorXd({request.forces[0],request.forces[1],request.forces[2],request.moments[0],request.moments[1],request.moments[2]});
+    VectorXd desired  = allocator->toVectorXd({request.force[0],request.force[1],request.force[2],request.moments[0],request.moments[1],request.moments[2]});
     VectorXd thrusts = allocator->allocate(desired);
     VectorXd output = allocator->computeWrench(thrusts);
-    /*std::cout << "moment: ["
-          << estimatedState[0] << ", "
-          << estimatedState[1] << ", "
-          << estimatedState[2] << ", " << std::endl;
-    std::cout << "Wrench Output: ["
-          << output[0] << ", "
-          << output[1] << ", "
-          << output[2] << ", "
-          << output[3] << ", "
-          << output[4] << ", "
-          << output[5] << "]" << std::endl;*/
+
 
     //VectorXd to vector<float> can be converted into a method if needed further
-    computedThrust.clear();
+    computedControlPacket.thrust.clear();
     for (int i = 0; i < thrusts.size(); ++i) {
-        computedThrust.push_back(static_cast<float>(thrusts[i]));
+        computedControlPacket.thrust.push_back(static_cast<float>(thrusts[i]));
     }
-    return computedThrust;
+    
+    return computedControlPacket;
 }
 
+
+
+controlPacks::forceMoments PIDDroneController::updateWithoutAllocator(float time,stateInfo statePacket){
+    if (!manager->shouldTrigger(time)) {
+        return computedForceMoments;
+    }
+    controlPacks::forceMoments request = pidControl(statePacket.position, statePacket.velocity,statePacket.pose);
+
+    computedForceMoments = request;
+
+    return computedForceMoments;
+
+}
 
 
 

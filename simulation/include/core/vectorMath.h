@@ -197,10 +197,23 @@ T twodAngleDiffrence(const std::array<T , 2> &vector1 ,const std::array<T , 2> &
 }
 
 
-template <typename T>
-std::array<T , 3> addVectors(const std::array<T , 3> &vec1 ,const std::array<T , 3> &vec2){
-    std::array<T , 3> addedVector= {vec1[0]+vec2[0],vec1[1]+vec2[1],vec1[2]+vec2[2]};
-    return addedVector;
+template <typename T, std::size_t N>
+std::array<T, N> addVectors(const std::array<T, N>& vec1, const std::array<T, N>& vec2) {
+    std::array<T, N> result{};
+    for (std::size_t i = 0; i < N; ++i) {
+        result[i] = vec1[i] + vec2[i];
+    }
+    return result;
+}
+
+//result = vec1 - vec2
+template <typename T, std::size_t N>
+std::array<T, N> subtractVectors(const std::array<T, N>& vec1, const std::array<T, N>& vec2) {
+    std::array<T, N> result{};
+    for (std::size_t i = 0; i < N; ++i) {
+        result[i] = vec1[i] - vec2[i];
+    }
+    return result;
 }
 
 
@@ -256,6 +269,51 @@ T signedAngle(std::array<T,2> v1, std::array<T,2> v2 = {0,1}) {
     T dot = vectorDotProduct(v1,v2);
     T cross = v1[0]*v2[1] - v1[1]*v2[0];
     return std::atan2(cross, dot);
+}
+
+
+template <typename T>
+void resizeVectorInPlace(std::array<T,3>& vector1, T newLength) {
+    T mag = vectorMag(vector1);
+    if (mag == 0) {
+        vector1 = {0, 0, 0};
+        return;
+    }
+    T scale = newLength / mag;
+    for (int i = 0; i < 3; i++) {
+        vector1[i] *= scale;
+    }
+}
+
+
+//project a onto b
+inline std::array<float,3> projectVector(const std::array<float,3>& a, const std::array<float,3>& b) {
+    float bMagSq = vectorDotProduct(a,b);
+    if (bMagSq == 0.0f){
+        return {0,0,0};
+    }
+
+    float scale = vectorDotProduct(a, b) / bMagSq;
+    return { b[0] * scale, b[1] * scale, b[2] * scale };
+}
+
+
+template <typename T>
+std::array<T,3> scaleVectorToZ(const std::array<T,3>& v, T w) {
+
+    if (v[2] == w) {
+        return v;
+    }
+    
+    if (v[2] == T(0)) {
+        if (w == T(0)) {
+            return v;
+        }
+        return {0,0,0};
+    }
+    
+    T s = w / v[2];
+    return { v[0] * s, v[1] * s, w };
 }
 
 }

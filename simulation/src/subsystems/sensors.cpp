@@ -5,6 +5,7 @@
 #include <memory>
 #include "../../include/dynamics/vehicle.h"
 #include "../../include/core/vectorMath.h"
+#include "../../include/core/poseRotation.h"
 
 namespace SimCore{
 //using the PSD to form a normal distabution 
@@ -26,13 +27,6 @@ float sensor::applyNoise(float realValue , float currentTime){
     clamp(noisyValue);
 
     return noisyValue ;
-}
-
-void sensor::sample(Vehicle *vehicle){
-    
-}
-std::array<float,3> sensor::read(){
-    return {0,0,0};
 }
 
 void sensor::clamp(float &input){
@@ -81,17 +75,8 @@ float sensor::burstNoise(float currentTime){
 }
 
 
-sensorSuite::sensorSuite(){
-    sensorMap = std::make_unique<std::unordered_map<std::string, std::unique_ptr<sensor>>>();
-}
 
-//cycles through *sensorMap and calls on sample method of each sensor for potental update of data sample.
-void sensorSuite::updateSensors(Vehicle *vehicle){
-    //keyPtrSensors is a std::pair first is key second is unique_ptr.
-    for (const auto& keyPtrSensors : *sensorMap){
-        keyPtrSensors.second->sample(vehicle);
-    }
-}
+
 
 
 
@@ -114,7 +99,6 @@ void GNSS::sample(Vehicle *vehicle ) {
         }
         lastSample = time;
         for (int i = 0; i < 3; i++) lastPosition[i] = gpsPosition[i];
-        vehicle->gpsUpdate(); 
     }
 }
 
@@ -129,13 +113,18 @@ gyroscope::gyroscope(float frequency , float NoisePowerSpectralDensity , float b
 
 void gyroscope::sample(Vehicle *vehicle){
     float time = vehicle->getTime();
-    if(time - lastSample >= hz){
-        float time = vehicle->getTime();
-        auto state = vehicle->getState();
-        rotationVector[0] = applyNoise(state[0] , time );
-        rotationVector[1] = applyNoise(state[1] , time);
-        rotationVector[2] = applyNoise(state[2] , time);
-        rotationVector = normalizeVector(rotationVector);
+    auto deltaTime = time - lastSample;
+    if(deltaTime >= hz){
+        poseState pose = vehicle->getPose();
+        poseAngleDifference angleDifference(lastPose , pose);
+
+        auto rates = angleDifference.getRotationRate(deltaTime);
+        rates.pitchRate = applyNoise(rates.pitchRate,time);
+        rates.rollRate = applyNoise(rates.rollRate,time);
+        rates.yawRate = applyNoise(rates.yawRate,time);
+
+        lastPose = pose;
+        rotationVector = {rates.rollRate,rates.pitchRate,rates.yawRate};
         lastSample = time;
     }
 }
@@ -164,70 +153,6 @@ std::array<float,3> accelerometer::read(){
     return accel;
 }
 
-stateEstimation::stateEstimation(){
-    alpha = .03;
-}
-
-SimCore::stateEstimation::stateEstimation(const stateEstimation& other)
-    : sensorSuite(other),  
-      position(other.position),
-      velocity(other.velocity),
-      rotation(other.rotation),
-      alpha(other.alpha),
-      firstGPSSample(other.firstGPSSample)
-{
-    
-}
-
-//when used add statement that sets newData = prevData when no prevData exists(first sample)
-float stateEstimation::lowPassFilter(float newData,float prevData){
-
-    return alpha * newData + (1 - alpha) * prevData;
-}
-
-//gpsUpdate is only called when gps is updated... further calls will reset imu effects on the state estimation
-void stateEstimation::gpsUpdate(){
-    auto& ptr = sensorMap->find("GNSS")->second;
-    GNSS* GPS = dynamic_cast<GNSS*>(ptr.get());
-    position = GPS->read();
-    if(firstGPSSample == true){
-        for(int i = 0 ; i < 3 ; i ++){
-            float velo =  GPS->getVelocity()[i];
-            velocity[i] = lowPassFilter(velo , velo);
-        }
-        firstGPSSample = false;
-        return;
-    }
-    for(int i = 0 ; i < 3 ; i ++) velocity[i] = lowPassFilter(GPS->getVelocity()[i] , velocity[i]);
-}
-
-//call at main clock speed
-void stateEstimation::updateEstimation(float timeStep){
-    auto& ptr = sensorMap->find("accelerometer")->second;
-    accelerometer* accel = dynamic_cast<accelerometer*> (ptr.get());
-    auto accelReading = accel->read();
-    for (int i = 0; i < 3; ++i) velocity[i] += accelReading[i] * timeStep;
-    for (int i = 0; i < 3; ++i) position[i] += velocity[i] * timeStep;
-}
-
-sensorSuite::sensorSuite(const sensorSuite& other) {
-    sensorMap = std::make_unique<std::unordered_map<std::string, std::unique_ptr<sensor>>>();
-    for (const auto& [key, sensorPtr] : *other.sensorMap) {
-        if (sensorPtr) {
-            (*sensorMap)[key] = sensorPtr->clone(); 
-        }
-    }
-}
-
-void stateEstimation::calculateEstimatedRotationRate(){
-    poseState startPose;
-    poseState endPose;
-    
-    
-
-
-}
-
 
 sensor::sensor(const sensor& other)
     : mean(other.mean),
@@ -248,7 +173,6 @@ sensor::sensor(const sensor& other)
       gen(std::random_device{}())
 {
 }
-
 
 
 //gps cordiante and add IMU data from zero

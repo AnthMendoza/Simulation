@@ -1,38 +1,47 @@
 #ifndef VEHICLE_H
 #define VEHICLE_H
 
-#pragma once
+
 #include <array>
 #include <memory>
 #include <cmath>
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
+#include <string>
+#include <optional>
+#include <variant>
 #include "../subsystems/sensors.h"
 #include "../core/vectorMath.h"
 #include "../control/control.h"
 #include "../core/quaternion.h"
 #include "../sim/logs.h"
 #include "windGenerator.h"
+#include "../subsystems/sensors.h"
+#include "../control/controlRequestStructs.h"
+#include "../subsystems/droneSensorSuite.h"
+#include "../subsystems/sensorPacket.h"
+#include "../utility/time_manager.h"
+
 namespace SimCore{
 class stateEstimation;
 class StanleyController;
+ 
 
-
-class Vehicle : public stateEstimation{
+class Vehicle{
     private:
     protected:
     float Xposition , Yposition , Zposition;     // position 
     float Xvelocity , Yvelocity , Zvelocity;
     float timeStep;
-    int iterations;
+    float lastTime;
 
     float mass; 
     float centerOfPressure;
     float gForce;
-    float dt; //delta time
 
     std::unique_ptr<quaternionVehicle> pose;
+    std::unique_ptr<timeManager> manager;
    
     std::array<float,3> wind;
     std::array<float,3> angularVelocity;
@@ -44,19 +53,26 @@ class Vehicle : public stateEstimation{
     float yawMoment;
     std::array<float,3> acceleration;
     float gravitationalAcceleration;
+
+    virtual void init(string& vehicleConfig);
     public:
+    std::unique_ptr<sensorSuite<simpleSensorPacket>> sensors;
     std::string configFile;
     std::string outputFile;
     Vehicle();
 
+    virtual ~Vehicle() = default;
+
     Vehicle(const Vehicle& other);
 
+    template<typename T>
+    void setSensorSuite(std::unique_ptr<T> setSensors){
+        static_assert(std::is_base_of_v<sensorSuite<simpleSensorPacket>, T>, "T must derive from sensorSuite");
+        sensors = std::move(setSensors);
+    }
 
-    virtual void init(string& vehicleConfig);
-    
     virtual Vehicle& operator=(const Vehicle& other);
 
-    void operator++();
 
     void addForce(std::array<float,3> forceVector);
 
@@ -67,7 +83,7 @@ class Vehicle : public stateEstimation{
 
     virtual void rotateLocalEntities(const Quaternion& quant);
 
-    virtual void updateState();
+    virtual void updateState(float time,std::optional<controlPacks::variantPackets> controlInput = nullopt);
 
     virtual void drag(float (*aeroArea)(float),float (*coefOfDrag)(float));
 
@@ -87,7 +103,7 @@ class Vehicle : public stateEstimation{
 
     void getAccel(std::array<float,3> &accel);
 
-    float PID(float target , float currentState , float &previousError , float &sumOfError , float timeStep, float Pgain , float Igain , float Dgain);
+    float PID(float target , float currentState , float &previousError , float &sumOfError, float timeStep, float Pgain , float Igain , float Dgain);
 
     inline void updateAcceleration(){
         acceleration = {sumOfForces[0]/mass , sumOfForces[1]/mass , sumOfForces[2]/mass};
@@ -95,9 +111,6 @@ class Vehicle : public stateEstimation{
 
     //#############################################################################
     //SETTERS
-    inline void setDeltaTime(float seconds){
-        dt = seconds;
-    }
     inline void setPositionVector(float x ,float y, float z){
         Xposition = x;
         Yposition = y;
@@ -108,7 +121,7 @@ class Vehicle : public stateEstimation{
         Yvelocity = vy;
         Zvelocity = vz; 
     }
-    virtual void setEntityPose(quaternionVehicle pose) = 0;
+    virtual void setEntitiesPose(const poseState& pose) = 0;
 
     inline void setStateVector(std::array<float,3> dirVector, std::array<float,3> fwdVector){
         if(isZeroVector(dirVector)){
@@ -122,12 +135,7 @@ class Vehicle : public stateEstimation{
         normalizeVectorInPlace(dirVector);
         normalizeVectorInPlace(fwdVector);
         pose->setVehicleQuaternionState(dirVector,fwdVector);
-        quaternionVehicle newPose = *pose;
-        setEntityPose(newPose);
-    }
-
-    inline void setIterations(int it){
-        iterations = it;
+        setEntitiesPose(pose->getPose());
     }
 
     //#############################################################################
@@ -135,10 +143,10 @@ class Vehicle : public stateEstimation{
 
     //iteratoins * timestep
     inline float getTime() const {
-        return iterations * timeStep;
+        return lastTime;
     }
     inline float getDeltaTime(){
-        return dt;
+        return timeStep;
     }
     //Not based off sensor data. Actual Simulation Position
     inline std::array<float,3> getVelocityVector() const{
@@ -153,9 +161,6 @@ class Vehicle : public stateEstimation{
     //Vehicle state is the direction vector of the vehicle. 
     inline std::array<float,3> getState() const{
         return vehicleState;
-    }
-    inline int getIterations() const{
-        return iterations;
     }
     inline float getMass() const{
         return mass;
@@ -173,7 +178,7 @@ class Vehicle : public stateEstimation{
     
     //#############################################################################
 
-    inline std::string display() const {
+    virtual std::string display() const {
         std::ostringstream buffer;
 
         buffer << std::fixed << std::setprecision(2);
@@ -196,13 +201,7 @@ class Vehicle : public stateEstimation{
         auto moments = getMoment();
         buffer << "Moments (mx,my,mz): (" << moments[0] << ", " << moments[1] << ", " << moments[2] << ")\n";
         
-        buffer << "-----State Estimation-----\n";
 
-        auto estimatedPos = getEstimatedPosition();
-        buffer << "Position     (x, y, z):      (" << estimatedPos[0] << ", " << estimatedPos[1] << ", " << estimatedPos[2] << ")\n";
-
-        auto estimatedVelo = getEstimatedVelocity();
-        buffer << "Velocity     (vx, vy, vz):   (" << estimatedVelo[0] << ", " << estimatedVelo[1] << ", " << estimatedVelo[2] << ")\n";
         return buffer.str();
     }
 

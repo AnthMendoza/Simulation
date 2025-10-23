@@ -57,10 +57,10 @@ public:
     /// @param state value -1 to 1;
     // Constructors
     motor() = delete;
-    motor(std::string& config , float timeStep); 
+    motor(std::string& config); 
     motor(const motor& other);
     //motor(float freeSpeed, float stall_torque, float stall_current, float no_load_current, float motor_voltage);
-    void init(std::string& motorConfig , float timeStep);
+    void init(std::string& motorConfig);
     // Destructor
     ~motor();
     

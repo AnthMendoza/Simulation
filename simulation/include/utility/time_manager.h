@@ -8,6 +8,7 @@ private:
     float actualDeltaTime;
     float lastTriggerTime;
     bool firstCall;
+    float EPSILON = 1E-6;
 
 public:
     timeManager(float triggerIntervalSeconds = 0.01f);

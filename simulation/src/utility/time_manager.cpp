@@ -25,10 +25,16 @@ timeManager& timeManager::operator=(const timeManager& other) {
 }
 
 
-bool timeManager::shouldTrigger(float currentSimTime) {
+bool timeManager::shouldTrigger(float currentSimTime){
+    if(triggerInterval <= 0.0f) return true;
+
+    if(currentSimTime < lastTriggerTime){
+        lastTriggerTime = currentSimTime;
+    }
+
     float elapsed = currentSimTime - lastTriggerTime;
     
-    if (firstCall || elapsed >= triggerInterval) {
+    if (firstCall || elapsed >= (triggerInterval - EPSILON)) {
         actualDeltaTime = elapsed;
         if(firstCall) actualDeltaTime = triggerInterval;
         lastTriggerTime = currentSimTime;
@@ -39,7 +45,12 @@ bool timeManager::shouldTrigger(float currentSimTime) {
     return false;
 }
 
-bool timeManager::shouldTrigger(float currentSimTime, float customIntervalSeconds) {
+bool timeManager::shouldTrigger(float currentSimTime, float customIntervalSeconds){
+    if(triggerInterval <= 0.0f) return true;
+    if(currentSimTime < lastTriggerTime){
+        lastTriggerTime = currentSimTime;
+    }
+
     float elapsed = currentSimTime - lastTriggerTime;
     
     if (elapsed >= customIntervalSeconds) {
@@ -64,6 +75,9 @@ float timeManager::getInterval() const {
 }
 
 float timeManager::getFrequency() const {
+    if(triggerInterval <= 0){
+        return 0;
+    }
     return 1.0f / triggerInterval;
 }
 

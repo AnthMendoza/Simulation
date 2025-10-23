@@ -4,6 +4,7 @@
 #include "../dynamics/rocket.h"
 #include "../dynamics/drone.h"
 #include <memory>
+#include <string>
 namespace SimCore{
 //#pragma pack(push,1)
 struct unrealDataRocket{
@@ -66,6 +67,12 @@ class unrealDrone{
     * @param z in meters
     */
     void setTargetPosition(float x , float y , float z , float yaw);
+
+    std::string getTelemetry(){
+        std::string telemetry = drone->display()  + "\n" +
+        drone->droneDisplay(); 
+        return telemetry;
+    }
 
 };
 

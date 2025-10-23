@@ -1,7 +1,6 @@
 #include "../../include/control/droneControl.h"
 #include <iostream>
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
+#include "../../include/thirdparty/eigenWrapper.h"
 #include <vector>
 
 using namespace Eigen;

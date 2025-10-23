@@ -3,8 +3,12 @@
 #include <array>
 #include <cmath>
 #include "../sim/toml.h"
+#include "../core/vectorMath.h"
 namespace SimCore{
-struct propeller {
+class propeller {
+    public:
+    //prop locations in relation to the nominal center of gravity
+    std::array<float,3> location;
     //optional
     std::string name;
     
@@ -15,10 +19,10 @@ struct propeller {
     float massKg;
     float momentOfInertia;   
     //rad/s
-    //prop locations in relation to the nominal center of gravity
-    std::array<float,3> location;
     //transpose Locations are rotated with the vehicle. 
     std::array<float,3> locationTransposed;
+    //size taken from location and used to renormilze locationTransposed
+    float locationVectorLength;
     //direction is the force vector
     std::array<float,3> direction;
     std::array<float,3> directionTransposed;
@@ -52,14 +56,14 @@ struct propeller {
     }
     //Sets prop attributes to config presets
     inline void initPropeller(std::string& propellerConfig){
-    toml::tomlParse propParse;
-    propParse.parseConfig(propellerConfig,"propeller");
-    diameter = propParse.getFloat("diameter");
-    massKg = propParse.getFloat("massKg");
-    momentOfInertia = propParse.getFloat("MOI");
-    pitchMeters = propParse.getFloat("pitch");
-    thrustCoefficient = propParse.getFloat("thrustCoefficient");
-    powerCoefficient = propParse.getFloat("powerCoefficient");   
+        toml::tomlParse propParse;
+        propParse.parseConfig(propellerConfig,"propeller");
+        diameter = propParse.getFloat("diameter");
+        massKg = propParse.getFloat("massKg");
+        momentOfInertia = propParse.getFloat("MOI");
+        pitchMeters = propParse.getFloat("pitch");
+        thrustCoefficient = propParse.getFloat("thrustCoefficient");
+        powerCoefficient = propParse.getFloat("powerCoefficient");   
     }
     /// @brief 
     /// @param airDensity 
@@ -72,6 +76,15 @@ struct propeller {
         float v = thrustRequest/k;
         if(v < 0 ) return 0;
         return sqrt(v);
+    }
+
+    inline std::array<float,3> getLocation() const{
+        return location;
+    }
+
+    inline void setLocation(std::array<float,3> loc){
+        location = loc;
+        locationVectorLength = vectorMag(location);
     }
 };
 //Sets prop attributes to config presets

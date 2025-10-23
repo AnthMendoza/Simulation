@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(RocketSim CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -48,7 +48,7 @@ include_directories(
 set(SIM_SRC
     src/sim/logs.cpp
     src/sim/toml.cpp
-    src/sim/MySim.cpp
+    #src/sim/MySim.cpp
 )
 
 set(CORE_SRC
@@ -63,7 +63,7 @@ set(CORE_SRC
 set(DYNAMICS_SRC
     src/dynamics/vehicle.cpp
     src/dynamics/aero.cpp
-    src/dynamics/rocket.cpp
+    #src/dynamics/rocket.cpp
     src/dynamics/drone.cpp
 )
 
@@ -72,6 +72,8 @@ set(CONTROL_SRC
     src/control/PIDController.cpp
     src/control/droneControl.cpp
     src/control/dronePIDControl.cpp
+    src/control/stateEstimation.cpp
+    src/control/testGlobals.cpp
 )
 
 set(SUBSYSTEMS_SRC
@@ -79,10 +81,12 @@ set(SUBSYSTEMS_SRC
     src/subsystems/battery.cpp
     src/subsystems/motor.cpp
     src/subsystems/droneDependencyInjector.cpp
+    src/subsystems/droneSensorSuite.cpp
 )
 
 set(UTILITY_SRC
     src/utility/time_manager.cpp
+    src/utility/logger.cpp
 )
 
 # Static Library
@@ -108,17 +112,17 @@ target_link_libraries(MySim
 )
 
 # Executables
-add_executable(rocket
-    src/sim/rocketMain.cpp
-)
+#add_executable(rocket
+#    src/sim/rocketMain.cpp
+#)
 
 add_executable(drone
-    src/sim/droneMain.cpp
+    src/sim/droneSim.cpp
 )
 
-add_executable(dronePIDGains
-    src/sim/dronePIDGains.cpp
-)
+#add_executable(dronePIDGains
+#    src/sim/dronePIDGains.cpp
+#)
 
 
 # Tests
@@ -127,10 +131,14 @@ add_executable(tests
     tests/tests.cpp
     tests/testPoseRotation.cpp
     tests/quaternionTests.cpp
+    tests/timeManagerTest.cpp
+    tests/stateEstimationTest.cpp
+    tests/PIDControllerTest.cpp
+    tests/momentValidationTest.cpp
 )
 
 # Link MySim and Python into all executables
-foreach(TARGET rocket dronePIDGains drone tests)
+foreach(TARGET  drone tests)
     target_link_libraries(${TARGET}
         PRIVATE
         MySim

@@ -13,7 +13,7 @@ propMotorPair setSquare(float x, float y, propeller& prop, motor& mot) {
     x = x / 2;
     y = y / 2;
     
-    std::array<int,4> rotationDirection = {1,-1,1,-1};
+    std::array<int,4> rotationDirection = {-1,1,1,-1};
 
     std::array<std::array<float, 3>, 4> positions = {{
         { x,  y, 0},
@@ -27,7 +27,7 @@ propMotorPair setSquare(float x, float y, propeller& prop, motor& mot) {
     for (const auto& pos : positions) {
         motors.push_back(std::make_unique<motor>(mot));
         auto p = std::make_unique<propeller>(prop);
-        p->location = pos;
+        p->setLocation(pos);
         p->locationTransposed = pos;
         p->direction = {0, 0, 1};
         p->directionTransposed = p->direction;

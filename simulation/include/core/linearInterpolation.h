@@ -13,7 +13,6 @@ type linearInterpolate(const std::vector<type>& xData,const std::vector<type>& y
     if (xQuery <= xData.front()) return yData.front();
     if (xQuery >= xData.back()) return yData.back();
 
-    // Find the interval xQuery is in
     for (size_t i = 0; i < xData.size() - 1; ++i) {
         if (xQuery >= xData[i] && xQuery <= xData[i + 1]) {
             type x0 = xData[i];
@@ -26,7 +25,6 @@ type linearInterpolate(const std::vector<type>& xData,const std::vector<type>& y
         }
     }
 
-    // Fallback (should never hit this if clamped and input is valid)
     throw std::runtime_error("Interpolation failed.");
 }
 

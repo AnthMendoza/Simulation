@@ -493,7 +493,7 @@ void Rocket::glideToTarget(){
 void Rocket::landingBurn(){
 
     if(reentry == false) return;
-    if(0 != iterations % 20 && landingInProgress){
+    if(0 != lastTime % 20 && landingInProgress){
         engineGimbal( PIDOutputY , PIDOutputX );
         applyEngineForce(landingGimbalDirection, landingRequiredThrust);
         return;
@@ -637,8 +637,8 @@ void Rocket::reentryBurn(loggedData *data){
 }
 
 
-void Rocket::setEntityPose(quaternionVehicle pose){
-
+void Rocket::setEntitiesPose(const poseState& pose){
+    return;
 }
 
 

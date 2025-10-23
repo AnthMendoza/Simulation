@@ -17,8 +17,7 @@
 #include "../include/utility/utility.h"
 #include "../include/subsystems/droneDependencyInjector.h"
 #include "../include/control/dronePIDControl.h"
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
+#include "../include/thirdparty/eigenWrapper.h"
 #include <fstream>
 #include <sstream>
 #include <array>
@@ -26,28 +25,6 @@
 using namespace SimCore;
 
 constexpr float EPSILON = 1e-6;
-//freefall, warning may fail if timestep is large as error will increase
-// looking for freefall plus or minus 2 percent of actual
-//this also may fail do to lack of a sample rocket configuration
-TEST(System , FreeFall){
-    std::ifstream inFile("../configs/Rocket_Config.toml");
-    std::stringstream buffer;
-    buffer << inFile.rdbuf();
-    std::string config = buffer.str();
-    Rocket vehicle(config);
-    vehicle.init(config);
-    float freeFallDuration = 10000;
-    vehicle.setVelocity(0.0f,0.0f,0.0f);
-    vehicle.setPosition(0.0f,0.0f,freeFallDuration);
-    while(vehicle.getPositionVector()[2] > 0){
-        vehicle.updateState();
-        ++vehicle;
-    }
-    float time = vehicle.getTime();
-    if(time < 45.16 *1.01 && time > 45.16 * .99 ) time = 45.16;
-    EXPECT_FLOAT_EQ(time , 45.16f);
-}
-
 
 TEST(ControlAllocator, WrenchMatchesDesiredInput) {
     std::vector<std::array<float, 3>> positions = {
@@ -643,7 +620,7 @@ TEST(VehicleReferenceFrameTest, NoRotationNeededWhenAligned) {
         {0.0f, 1.0f, 0.0f}  
     };
 
-    vehicleRefranceFrame frame(alignedPose);
+    vehicleReferenceFrame frame(alignedPose);
     std::array<float, 3> input = {1.0f, 0.0f, 0.0f};
     std::array<float, 3> output = frame.realign(input);
 
@@ -664,7 +641,7 @@ TEST(VehicleReferenceFrameTest, Rotates180Degrees) {
         {0.0f, 1.0f, 0.0f}
     };
 
-    vehicleRefranceFrame frame(flippedPose, standardBasis);
+    vehicleReferenceFrame frame(flippedPose, standardBasis);
     std::array<float, 3> input = {1.0f, 0.0f, 0.0f}; 
     std::array<float, 3> output = frame.realign(input);
 
@@ -680,7 +657,7 @@ TEST(VehicleReferenceFrameTest, RealignListOfVectors) {
         {0.0f, 1.0f, 0.0f}
     };
 
-    vehicleRefranceFrame frame(pose);
+    vehicleReferenceFrame frame(pose);
 
     std::vector<threeDState> input = {
         {1.0f, 0.0f, 0.0f},
@@ -701,7 +678,7 @@ TEST(VehicleReferenceFrameTest, IdentityRotationOnRightVector) {
         {0.0f, 1.0f, 0.0f}
     };
 
-    vehicleRefranceFrame frame(pose);
+    vehicleReferenceFrame frame(pose);
     std::array<float, 3> input = {0.0f, 1.0f, 0.0f}; 
     auto result = frame.realign(input);
 

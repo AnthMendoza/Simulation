@@ -7,15 +7,14 @@
 class PIDController {
 public:
     PIDController() = delete;
-    PIDController(float kp, float ki, float kd, float dt);
+    PIDController(float kp, float ki, float kd);
     PIDController(const PIDController& other);
 
     void setGains(float kp, float ki, float kd);
     void setOutputLimits(float min, float max);
     void reset();
-    void setTimeStep(float timeStep);
     void setTarget(float t);
-    float update(const float& measurement);
+    float update(const float& measurement,const float deltaTime);
 
     inline void clampIntegral(int value = 1){
         clampInt = value;
@@ -24,7 +23,6 @@ public:
     inline float getKp() const { return kp; }
     inline float getKi() const { return ki; }
     inline float getKd() const { return kd; }
-    inline float getDt() const { return dt; }
 
     inline float getTarget() const { return target; }
 
@@ -41,7 +39,6 @@ private:
     float kp;
     float ki;
     float kd;
-    float dt;
 
     float target;
 

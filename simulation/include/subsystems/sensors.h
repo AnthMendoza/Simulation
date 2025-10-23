@@ -5,7 +5,10 @@
 #pragma once
 
 #include <random>
+#include <optional>
 #include "../core/vectorMath.h"
+#include "../core/quaternion.h"
+
 namespace SimCore{
 class Vehicle;
 class sensor{
@@ -44,19 +47,45 @@ class sensor{
     float applyNoise(float realValue , float currentTime);
     void setClamp(float low , float high);
     void setBurst(float busrtStdDeviation , float maxBurstDuration);
-    virtual void sample(Vehicle *vehicle);
-    virtual std::array<float,3> read(); 
+    virtual void sample(Vehicle *vehicle) = 0;
+    virtual std::array<float,3> read() = 0; 
+
+    inline const float getTimeOfSample() const {
+        return lastSample;
+    }
 
 };
 
-
+template<typename sensorPacketType>
 class sensorSuite{
-    protected:
-    std::unique_ptr<std::unordered_map<std::string, std::unique_ptr<sensor>>> sensorMap;
-    public: 
-    sensorSuite();
-    sensorSuite(const sensorSuite& other);
-    void updateSensors(Vehicle *vehicle);
+    private:
+    public:
+    std::unique_ptr<std::unordered_map<std::string, std::shared_ptr<sensor>>> sensorMap;
+
+    sensorSuite(){
+    sensorMap = std::make_unique<std::unordered_map<std::string, std::shared_ptr<sensor>>>();
+    }
+
+    sensorSuite(const sensorSuite& other) {
+        sensorMap = std::make_unique<std::unordered_map<std::string, std::shared_ptr<sensor>>>();
+        for (const auto& [key, sensorPtr] : *other.sensorMap) {
+            if (sensorPtr) {
+                (*sensorMap)[key] = sensorPtr->clone(); 
+            }
+        }   
+    }
+    virtual ~sensorSuite() = default;
+    //Each sensor base class has a limiter. Only allowing for samples if the frequency allows.
+    //Call at simulation frequency or at the frequency of the fastest sensor.
+    //cycles through *sensorMap and calls on sample method of each sensor for potental update of data sample.
+    virtual void updateSensors(Vehicle *vehicle){
+        //keyPtrSensors is a std::pair first is key second is unique_ptr.
+        for (const auto& keyPtrSensors : *sensorMap){
+            keyPtrSensors.second->sample(vehicle);
+        }
+    }
+
+    virtual sensorPacketType getSensorData() = 0;
 };
 
 
@@ -97,7 +126,9 @@ class accelerometer : public sensor{
 
 class gyroscope : public sensor{
     private:
+    //rotation around x y z axis realitve to the drone vehicle. 
     std::array<float,3> rotationVector;
+    poseState lastPose;
     public:
     gyroscope(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
     std::unique_ptr<sensor> clone() const override {
@@ -127,48 +158,6 @@ class gyroscope : public sensor{
 //        
 //};
 
-
-
-class stateEstimation: public sensorSuite{
-    private:
-    std::array<float,3> position;
-    std::array<float,3> velocity;
-    std::array<float,3> rotation;
-    //relative positoin calculated by the most recent GPS position
-    float alpha;
-    bool firstGPSSample = true;
-    float lowPassFilter(float newData,float prevData);
-    protected:
-
-    public:
-    stateEstimation();
-    stateEstimation(const stateEstimation& other);
-    //Update Estimated positions based on the most recent velocity and acceleration.
-    //Update will run at simulation clock speed unlike sensors which are tied to hardware spec sample rates.
-    void gpsUpdate();
-    
-    void updateEstimation(float timeStep);
-
-    void calculateEstimatedRotationRate();
-
-    inline std::array<float,3> getEstimatedPosition() const{
-        return position;
-    }
-    //rotation estimation is returned as a vector pointing in the direction of the vehicles state.
-    //Currently no logic in rotation estimation. this is simply a noisy model of the current vector state.
-    // Simulated drift should be introduced. This also allows us to correct bias.
-    
-    inline std::array<float,3> getEstimatedRotation(){
-        return sensorMap->find("gyro")->second->read();
-    }
-    
-    inline std::array<float,3> getEstimatedVelocity() const{
-        return velocity;
-    }  
-    inline float getAbsEstimatedVelocity() const{
-        return vectorMag(velocity);
-    }  
-};
 
 }
 #endif

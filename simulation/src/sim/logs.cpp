@@ -39,7 +39,7 @@ loggedData::loggedData(int preset){
 
 void loggedData::logRocketPosition(Rocket &rocket ) {
 
-    timeStepVect->push_back(rocket.getIterations() * rocket.getTimeStep());
+    timeStepVect->push_back(rocket.getTime());
     auto pos = rocket.getPositionVector();
     Xposition->push_back(pos[0]);
     Yposition->push_back(pos[1]);
@@ -62,7 +62,8 @@ void loggedData::logRocketPosition(Rocket &rocket ) {
     engineVector0->push_back(rocket.engineState[0]);
     engineVector1->push_back(rocket.engineState[1]);
     engineVector2->push_back(rocket.engineState[2]);
-
+ /*
+ needs to be updated for new estimator location in refactor
     enginePower->push_back(rocket.enginePower); //number from 0 to 1
     stateEstimationVelocityX->push_back(rocket.getEstimatedVelocity()[0]);
     stateEstimationVelocityY->push_back(rocket.getEstimatedVelocity()[1]);
@@ -74,7 +75,7 @@ void loggedData::logRocketPosition(Rocket &rocket ) {
     specificEnergy->push_back(rocket.getSpecificEnergy());
 
     absEstimatedVelocity->push_back(rocket.getAbsEstimatedVelocity());
-
+*/
 }
     
 void loggedData::lowPrecisionData(std::vector<float> &data , std::vector<float> &returnData ,  int desiredResolution){
