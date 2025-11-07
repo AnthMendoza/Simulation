@@ -24,6 +24,11 @@ class stateEstimation : public stateEstimationBase{
     stateEstimation(float timeBetweenUpdates);
     ~stateEstimation() = default;
     stateEstimation(const stateEstimation& other) = default;
+
+    virtual std::unique_ptr<stateEstimationBase> clone() const override{
+        return std::make_unique<stateEstimation>(*this);
+    }
+
     //Update Estimated positions based on the most recent velocity and acceleration.
     //Update will run at simulation clock speed unlike sensors which are tied to hardware spec sample rates.
 

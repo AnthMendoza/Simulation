@@ -1,6 +1,7 @@
 #include "../../include/control/dronePIDControl.h"
 #include "../../include/core/coordinateSystem.h"
 #include "../../include/control/stateInfo.h"
+#include "../../include/utility/utility.h"
 #include <algorithm>
 #include <iostream>
 #include <cmath>
@@ -17,7 +18,7 @@ PIDDroneController::PIDDroneController(const PIDDroneController& other):
     droneControllerBase(other),
     mass(other.mass),
     maxAcceleration(other.maxAcceleration),
-    gravitationalAcceleation(other.gravitationalAcceleation)
+    gravitationalAcceleration(other.gravitationalAcceleration)
     {
     firstPose = true;
     if(other.manager) manager = std::make_unique<timeManager>(*other.manager);
@@ -44,7 +45,7 @@ void PIDDroneController::initController(string droneConfig){
     droneParse.parseConfig(droneConfig,"vehicle");
     float timeStep = droneParse.getFloat("timeStep");
     mass = droneParse.getFloat("mass");
-    gravitationalAcceleation = droneParse.getFloat("gravitationalAcceleration");
+    gravitationalAcceleration = droneParse.getFloat("gravitationalAcceleration");
     toml::tomlParse PIDPrase;
     PIDPrase.parseConfig(droneConfig,"PID");
 
@@ -103,11 +104,16 @@ void PIDDroneController::initController(string droneConfig){
     if (APIDVX == nullptr) APIDVX = std::make_unique<PIDController>(AVkp, AVki, AVkd);
     if (APIDVY == nullptr) APIDVY = std::make_unique<PIDController>(AVkp, AVki, AVkd);
 
-    constexpr float MAX_ROTATIONAL_ANGULAR_VELOCITY = 18.85;//rad/s {18.85 rad/s = 3 rps}
+    float MAX_ROTATIONAL_ACCELERATION = 50; //rad/s^2
 
-    APIDVX->setOutputLimits(-MAX_ROTATIONAL_ANGULAR_VELOCITY,MAX_ROTATIONAL_ANGULAR_VELOCITY);
-    APIDVY->setOutputLimits(-MAX_ROTATIONAL_ANGULAR_VELOCITY,MAX_ROTATIONAL_ANGULAR_VELOCITY);
-    
+    auto MOI = droneParse.getArray("MOI");
+    float MAX_MOMENT = MOI[0] * MAX_ROTATIONAL_ACCELERATION;
+
+    APIDVX->setOutputLimits(-MAX_MOMENT,MAX_MOMENT);
+    APIDVY->setOutputLimits(-MAX_MOMENT,MAX_MOMENT);
+
+    APIDVX->setIntegralClamp(AVki * 10);
+    APIDVX->setIntegralClamp(AVki * 10);
     //position
 
     float Akp = PIDPrase.getFloat("AKp");
@@ -116,7 +122,14 @@ void PIDDroneController::initController(string droneConfig){
 
     if (APIDX == nullptr) APIDX = std::make_unique<PIDController>(Akp, Aki, Akd);
     if (APIDY == nullptr) APIDY = std::make_unique<PIDController>(Akp, Aki, Akd);
+    
+    constexpr float MAX_ROTATIONAL_ANGULAR_VELOCITY = 18.85;//rad/s {18.85 rad/s = 3 rps}
 
+    APIDX->setOutputLimits(-MAX_ROTATIONAL_ANGULAR_VELOCITY,MAX_ROTATIONAL_ANGULAR_VELOCITY);
+    APIDY->setOutputLimits(-MAX_ROTATIONAL_ANGULAR_VELOCITY,MAX_ROTATIONAL_ANGULAR_VELOCITY);
+
+    APIDX->setIntegralClamp(Aki * 10);
+    APIDX->setIntegralClamp(Aki * 10);
 
     APIDX->setOutputLimits(-2.5,2.5);
     APIDY->setOutputLimits(-2.5,2.5);
@@ -132,84 +145,60 @@ void PIDDroneController::updateCalculatedValues(){
     maxAcceleration = 10.0f;
     PIDVX->setOutputLimits(-maxAcceleration,maxAcceleration);
     PIDVY->setOutputLimits(-maxAcceleration,maxAcceleration);
-    PIDVZ->setOutputLimits(gravitationalAcceleation,maxAcceleration + abs(gravitationalAcceleation));
+    PIDVZ->setOutputLimits(gravitationalAcceleration,maxAcceleration + abs(gravitationalAcceleration));
 }
 
-//accelerationFromPose takes the current pose of the vehicle and calculates the required thrust given the CURRENT conditions.
-//if aotFeedForwad calculates the thrust needed at the desired angle of attack for the desired postion and not the current position the motors will generate the thrust required faster than the vehicle can rotate to the position.
-// resulting in over delay from thrust to angle requested
-static float accelerationFromPose(const threeDState accels,poseState& pose){
-    threeDState newAccelVector;
-    auto dir = pose.dirVector;
-    newAccelVector = scaleVectorToZ(dir,accels[2]);
-    
-    return vectorMag(newAccelVector);
-
-}
 
 
 //flight envolope. zaccel is dominate. 
 //NOTE: acceleration includes gravity. Hovering drone is accelerating at G in positive z;
-requestedVehicleState PIDDroneController::aotFeedForward(accelerations& accels, float gravitaionalAcceleration , float mass ,poseState& pose){
-    if(mass <= 0) throw std::runtime_error("mass cannot be <=0 , in aotFeedForward\n");
-    //negative Z acceleration greater than gravity means the vehicle is upsideDown. For now this is not possible.
-    threeDState vectorRepresentation = {accels.xAccel,accels.yAccel,accels.zAccel};
-    
-    if(gravitaionalAcceleration >= 0) throw std::runtime_error("GravitationalAcceleration is not negative in PIDDroneController.\n");
-    vectorRepresentation[2] += -gravitaionalAcceleration;
-    vectorRepresentation[2] = std::clamp(vectorRepresentation[2],gravitaionalAcceleration,std::numeric_limits<float>::max());
-    // FRACTION_OF_GRAVITY ensures some position acceleration is present to resist gravity.
-    //preventing an inverted command.
-    constexpr float FRACTION_OF_GRAVITY = 0.1f;
-    //if(accels.zAccel <= 0) accels.zAccel = -gravitaionalAcceleration * FRACTION_OF_GRAVITY;
 
-    if(mass <= 0) throw std::runtime_error("Mass Cannot be <=0.\n");
-    //limitMagnitudeWithFixedZ is a possible inprovment on limiting accelerationrequest. more devlopment is needed
-    //vectorRepresentation = limitMagnitudeWithFixedZ(vectorRepresentation,maxAcceleration);
-    //resizeVectorIfLarger(vectorRepresentation,maxAcceleration);
-    if(vectorRepresentation[0] == 0 && vectorRepresentation[1] == 0){
-        //vectorRepresentation[2] = std::clamp(vectorRepresentation[2],0.0f,maxAcceleration);
-        vectorRepresentation[2] = std::clamp(vectorRepresentation[2],0.0f,std::numeric_limits<float>::max());
+//request.vehicleState is the desired angle of attack. the force is based on the current pose. The current Pose demands a thrust to satisfy z thrust.
+requestedVehicleState PIDDroneController::aotFeedForward(accelerations& accelerationCommand, float mass ,poseState& pose){
+    if(mass <= 0) throw std::runtime_error("mass cannot be <=0 , in aotFeedForward\n");
+    requestedVehicleState request;
+    threeDState gravitiyCompensationVector = {0,0,-gravitationalAcceleration};
+    auto poseDirVector = normalizeVector(pose.dirVector);
+
+    threeDState accelerationCommandVector = {accelerationCommand.xAccel,accelerationCommand.yAccel,accelerationCommand.zAccel};
+    
+    accelerationCommandVector = addVectors(accelerationCommandVector,gravitiyCompensationVector);
+
+    request.vehicleState = normalizeVector(accelerationCommandVector);
+
+
+    auto adjustedThrustVector = scaleVectorToZ(poseDirVector,accelerationCommandVector[2]);
+
+    for(auto& acceleration:adjustedThrustVector){
+        acceleration *= mass;
     }
-    float magnitudeOfAcceleration = vectorMag(vectorRepresentation);
-    if(magnitudeOfAcceleration == 0){
-        requestedVehicleState request;
+
+    float adjustedThrust = vectorMag(adjustedThrustVector);
+    float EPSILON = 0.01;
+
+    if(NEAR(adjustedThrust,0.0f,EPSILON)){
         request.vehicleState = {0,0,1};
         request.force = 0;
         return request;
     }
 
-    requestedVehicleState request;
-    request.vehicleState = normalizeVector(vectorRepresentation);
-    request.force = accelerationFromPose(vectorRepresentation,pose) * mass;
+
+    request.force = adjustedThrust;
     return request;
 }
 
 static constexpr float MINIMUM_THROTTLE_AT_IDLE = 0.1;
 
 
-// Cascading PID Controller:
-// Implements a multi-layer PID control structure for drone navigation to waypoints.
-// The controller is organized into nested control loops:
-// - Position PID computes desired velocity based on position error
-// - Velocity PID computes desired acceleration or thrust based on velocity error
-// - Attitude and Rate PIDs can follow to control orientation and angular velocity
-// Used in flight control systems like PX4 and ArduPilot.
-controlPacks::forceMoments PIDDroneController::pidControl(const std::array<float,3> pos ,std::array<float,3> velo , poseState& state){
+float PIDDroneController::yawControl(){
+    return 0;
+}
 
-    if(!controlEnabled){
-        controlPacks::forceMoments packet;
-        return packet;
-    }
-    if(firstPose){
-        lastState = state;
-        firstPose = false;
-    }
-    auto actualDeltaTime = manager->getActualDeltaTime();
-    //wayPoint should be set prior to call via setPidControl();
-    if(!manager) std::cerr<<"Drone Contoller manager not found\n";
-    float deltaTime = manager->getActualDeltaTime();
 
+
+
+
+accelerations PIDDroneController::computeAccelerationRequest(const std::array<float,3>& pos ,const std::array<float,3>& velo ,float actualDeltaTime){
     controlOutputVelocity = {   PIDX->update(pos[0],actualDeltaTime),
                                 PIDY->update(pos[1],actualDeltaTime),
                                 PIDZ->update(pos[2],actualDeltaTime)};
@@ -218,68 +207,139 @@ controlPacks::forceMoments PIDDroneController::pidControl(const std::array<float
     PIDVY->setTarget(controlOutputVelocity[1]);
     PIDVZ->setTarget(controlOutputVelocity[2]);
 
-    accelerations accels;
+    accelerations accelerationCommand;
 
-    accels.xAccel = PIDVX->update(velo[0],actualDeltaTime);
-    accels.yAccel = PIDVY->update(velo[1],actualDeltaTime);
-    accels.zAccel = PIDVZ->update(velo[2],actualDeltaTime);
-    
+    accelerationCommand.xAccel = PIDVX->update(velo[0],actualDeltaTime);
+    accelerationCommand.yAccel = PIDVY->update(velo[1],actualDeltaTime);
+    accelerationCommand.zAccel = PIDVZ->update(velo[2],actualDeltaTime);
 
-    requestedVehicleState request = aotFeedForward(accels,gravitationalAcceleation,mass,state);
+    return accelerationCommand;
+}
+
+PIDDroneController::eulerAOT PIDDroneController::computeVehicleBasisAOT(poseState& state , requestedVehicleState& request){
+
+    eulerAOT euler;
 
     poseState basisPose = CoordinateSystem::WORLD_BASIS;
 
-    vehicleReferenceFrame referenceFrame(state , basisPose);
+    vehicleReferenceFrame referenceFrame(state , basisPose);    
     threeDState basisAOT = referenceFrame.realign(request.vehicleState);
 
-    float angleX,angleY;
     float EPSILON = 1e-4;
-    float MAX_Angle = 1.0f;
+    float MAX_Angle = 0.8f;
+
     if(std::fabs(basisAOT[2]) <= EPSILON) basisAOT[2] = EPSILON;
 
     std::array<float,2> vectorX2d = {basisAOT[0], basisAOT[2]};
-    angleX = signedAngle(vectorX2d);
+    euler.angleY = -signedAngle(vectorX2d);
 
     std::array<float,2> vectorY2d = {basisAOT[1], basisAOT[2]};
-    angleY = signedAngle(vectorY2d);
+    euler.angleX = signedAngle(vectorY2d);
+
 
     //Another angle limit can be added if not symetrical
-    ellipsoidalClamp2D(angleX,angleY,MAX_Angle,MAX_Angle);
+    ellipsoidalClamp2D(euler.angleX,euler.angleY,MAX_Angle,MAX_Angle);
+
+    return euler;
+}
+
+
+rotationRate PIDDroneController::computeAngularVelocityFromAOT(eulerAOT euler, float actualDeltaTime) {
+    rotationRate angularVelo;
 
     APIDX->setTarget(0.0f);
     APIDY->setTarget(0.0f);
 
-    float angularVeloX = APIDX->update(angleX,actualDeltaTime);
-    float angularVeloY = -APIDY->update(angleY,actualDeltaTime);
+    angularVelo.rollRate =  APIDX->update(euler.angleX, actualDeltaTime);
+    angularVelo.pitchRate = APIDY->update(euler.angleY, actualDeltaTime);
 
-    threeDState APIDMoments = {0,0,0};
-
-    APIDVX->setTarget(angularVeloX);
-    APIDVY->setTarget(angularVeloY);
+    return angularVelo;
+}
 
 
-    vehicleReferenceFrame rotationFrame(lastState,basisPose);
+
+PIDDroneController::eulerMoments PIDDroneController::computeMomentFromAOT( poseState& state, rotationRate desiredAngularVelo,float actualDeltaTime){
+    eulerMoments moments;
+
+    //std::cout<< desiredAngularVelo.rollRate << " , " << desiredAngularVelo.pitchRate << "\n";
+
+    APIDVX->setTarget(desiredAngularVelo.rollRate);
+    APIDVY->setTarget(desiredAngularVelo.pitchRate);
+
+
+    auto worldBasis = CoordinateSystem::WORLD_BASIS;
+    vehicleReferenceFrame rotationFrame(lastState,worldBasis);
     lastState = state;
     rotationFrame.realignPose(state);
-    poseDifference.setStartPose(basisPose);
+    poseDifference.setStartPose(worldBasis);
     poseDifference.setEndPose(state);
 
-    //poseDifference.setStartPose(lastState);
-    //poseDifference.setEndPose(state);
-    //lastState = state;
 
-    auto angularVelocity = poseDifference.getRotationRate(deltaTime);
+    auto angularVelocity = poseDifference.getRotationRate(actualDeltaTime);
     
-    APIDMoments[1] = -APIDVX->update(angularVelocity.pitchRate,actualDeltaTime);
-    APIDMoments[0] = -APIDVY->update(angularVelocity.rollRate,actualDeltaTime);
-    controlPacks::forceMoments momentsForces;
-    momentsForces.moments = APIDMoments;
-    momentsForces.force[2] = request.force;
+    moments.moments[0] = APIDVX->update(angularVelocity.rollRate,actualDeltaTime);
+    //moments.moments[1] = APIDVY->update(angularVelocity.pitchRate,actualDeltaTime);
+
+    return moments;
+}
+
+
+float PIDDroneController::computeThrustForce(float requestForce){
     auto rotationError = poseDifference.getDifference();
-    float minimumThurst = mass*std::fabs(gravitationalAcceleation) * MINIMUM_THROTTLE_AT_IDLE;
-    if(request.force < minimumThurst){
-        request.force = minimumThurst;
+    float minimumThurst = mass*std::fabs(gravitationalAcceleration) * MINIMUM_THROTTLE_AT_IDLE;
+    if(requestForce < minimumThurst){
+        requestForce = minimumThurst;
     }
+    return requestForce;
+}
+
+
+// Cascading PID Controller: 
+// Implements a multi-layer PID control structure for drone navigation to waypoints.
+// The controller is organized into nested control loops:
+// - Position PID computes desired velocity based on position error
+// - Velocity PID computes desired acceleration or thrust based on velocity error
+// - Attitude and Rate PIDs can follow to control orientation and angular velocity
+// Used in flight control systems like PX4 and ArduPilot.
+controlPacks::forceMoments PIDDroneController::pidControl(const std::array<float,3> pos ,const std::array<float,3> velo , poseState& state){
+
+    if(!controlEnabled){
+        controlPacks::forceMoments packet;
+        return packet;
+    }
+
+    if(firstPose){
+        lastState = state;
+        firstPose = false;
+    }
+
+    if(!manager) std::cerr<<"Drone Contoller manager not found\n";
+    auto actualDeltaTime = manager->getActualDeltaTime();
+    
+    auto accelerationCommand = computeAccelerationRequest(pos,velo,actualDeltaTime);
+
+    requestedVehicleState request = aotFeedForward(accelerationCommand,mass,state);
+
+    auto euler = computeVehicleBasisAOT(state,request);
+
+    auto desiredAngularVelo = computeAngularVelocityFromAOT(euler, actualDeltaTime);
+
+    auto moment  = computeMomentFromAOT(state,desiredAngularVelo,actualDeltaTime);
+
+    controlPacks::forceMoments momentsForces;
+    momentsForces.moments = moment.moments;
+    yawControl();
+
+    momentsForces.force[2] = computeThrustForce(request.force);
+
+
+    //---- logger ----
+
+    logger.requestedAOT = request.vehicleState;
+    logger.reportedAOT = state.dirVector;
+    logger.AOTerror_Rad = vectorAngleBetween(logger.requestedAOT,logger.reportedAOT);
+    logger.requestedMoment = momentsForces.moments;
+
 
     return momentsForces; 
 }
@@ -310,17 +370,12 @@ controlPacks::variantPackets PIDDroneController::update(float time,stateInfo sta
         throw std::runtime_error("Control allocator not initialized in PIDDroneController::update");
     }
     
-    VectorXd desired  = allocator->toVectorXd({request.force[0],request.force[1],request.force[2],request.moments[0],request.moments[1],request.moments[2]});
-    VectorXd thrusts = allocator->allocate(desired);
-    VectorXd output = allocator->computeWrench(thrusts);
-
-
-    //VectorXd to vector<float> can be converted into a method if needed further
-    computedControlPacket.thrust.clear();
-    for (int i = 0; i < thrusts.size(); ++i) {
-        computedControlPacket.thrust.push_back(static_cast<float>(thrusts[i]));
-    }
     
+    auto allocatorPacket = allocator->computeAllocation(request);
+
+
+    computedControlPacket.thrust = allocatorPacket.thrusts;
+
     return computedControlPacket;
 }
 
@@ -366,6 +421,100 @@ std::pair<std::array<float,3>, float> PIDDroneController::aotControl(requestedVe
 void dragEstimation(){
 
 }
+
+float PIDDroneController::yawAngleDifference(const poseState& currentPose, const poseState& desiredPose) {
+    auto currentDirVector = currentPose.dirVector;
+    auto desiredDirVector = desiredPose.dirVector;
+    
+    // Find rotation axis and angle between direction vectors
+    float angleBetween = vectorAngleBetween(currentDirVector, desiredDirVector);
+    threeDState axis;
+    vectorCrossProduct(currentDirVector, desiredDirVector, axis);
+    
+    // Validate rotation direction
+    threeDState validateRotation = currentDirVector;
+    auto quantValidate = fromAxisAngle(axis, angleBetween);
+    rotateVector(quantValidate, validateRotation);
+    if (!similarVector(validateRotation, desiredDirVector)) {
+        angleBetween = -angleBetween;
+    }
+    
+    // Rotate current pose to align direction vectors
+    auto quant = fromAxisAngle(axis, angleBetween);
+    quaternionVehicle quantVehicle;
+    quantVehicle.setVehicleQuaternionState(currentPose.dirVector, currentPose.fwdVector);
+    quantVehicle.rotatePose(quant);
+    auto rotatedPose = quantVehicle.getPose();
+    
+    // Calculate signed yaw angle
+    float yawAngle = vectorAngleBetween(rotatedPose.fwdVector, desiredPose.fwdVector);
+    
+    // Determine yaw direction using cross product with direction vector
+    threeDState yawAxis;
+    vectorCrossProduct(rotatedPose.fwdVector, desiredPose.fwdVector, yawAxis);
+    float yawDirection = vectorDotProduct(yawAxis, desiredDirVector);
+    
+    if (yawDirection < 0) {
+        yawAngle = -yawAngle;
+    }
+    
+    return yawAngle;
+}
+//this method is only used for testing 
+controlPacks::forceMoments PIDDroneController::AOTHold(float actualDeltaTime,poseState state ,poseState requestedPose){
+
+    requestedVehicleState request;
+    request.vehicleState = requestedPose.dirVector;
+
+    //force requested is = to hover thrust indpendent of AOT
+    request.force = mass * gravitationalAcceleration;
+
+    auto euler = computeVehicleBasisAOT(state,request);
+
+    auto desiredAngularVelo = computeAngularVelocityFromAOT(euler, actualDeltaTime);
+
+    auto moment  = computeMomentFromAOT(state,desiredAngularVelo,actualDeltaTime);
+
+    controlPacks::forceMoments momentsForces;
+    momentsForces.moments = moment.moments;
+        
+    yawControl();
+
+    momentsForces.force[2] = computeThrustForce(request.force);
+
+
+
+    //---- logger ----
+
+    logger.requestedAOT = request.vehicleState;
+    logger.reportedAOT = state.dirVector;
+    logger.AOTerror_Rad = vectorAngleBetween(logger.requestedAOT,logger.reportedAOT);
+    logger.requestedMoment = momentsForces.moments;
+
+
+    return momentsForces; 
+}
+
+controlPacks::variantPackets PIDDroneController::updateAOTHold(float time,stateInfo statePacket, poseState requestedPose){
+    if (!manager->shouldTrigger(time)) {
+        return computedControlPacket;
+    }
+
+    if (!allocator) {
+        throw std::runtime_error("Control allocator not initialized in PIDDroneController::update");
+    }
+
+    
+    controlPacks::forceMoments request = AOTHold(manager->getActualDeltaTime(), statePacket.pose,requestedPose);
+
+    auto allocatorPacket = allocator->computeAllocation(request);
+
+
+    computedControlPacket.thrust = allocatorPacket.thrusts;
+
+    return computedControlPacket;
+}
+
 
 
 }

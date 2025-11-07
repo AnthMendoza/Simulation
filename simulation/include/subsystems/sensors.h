@@ -74,6 +74,7 @@ class sensorSuite{
             }
         }   
     }
+    virtual std::unique_ptr<sensorSuite<sensorPacketType>> clone() const = 0;
     virtual ~sensorSuite() = default;
     //Each sensor base class has a limiter. Only allowing for samples if the frequency allows.
     //Call at simulation frequency or at the frequency of the fastest sensor.

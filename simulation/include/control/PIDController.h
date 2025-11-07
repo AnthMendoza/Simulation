@@ -14,11 +14,8 @@ public:
     void setOutputLimits(float min, float max);
     void reset();
     void setTarget(float t);
+    void setIntegralClamp(float clamp);
     float update(const float& measurement,const float deltaTime);
-
-    inline void clampIntegral(int value = 1){
-        clampInt = value;
-    }
 
     inline float getKp() const { return kp; }
     inline float getKi() const { return ki; }
@@ -33,7 +30,6 @@ public:
     inline float getMaxOutput() const { return maxOutput; }
     inline float lastError() const {return target - previousSample;}
     inline float getPreviousSample() const {return previousSample;}
-    
 
 private:
     float kp;

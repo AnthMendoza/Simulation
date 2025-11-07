@@ -49,14 +49,14 @@ public:
 
     T getAverage() const {
         if (count == 0) {
-            throw std::runtime_error("No values added yet");
+            return (0);
         }
         return sum / static_cast<T>(count);
     }
 
     T getVariance() const {
         if (count == 0) {
-            throw std::runtime_error("No values added yet");
+            return (0);
         }
         if (count == 1) {
             return 0;

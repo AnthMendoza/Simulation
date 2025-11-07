@@ -68,7 +68,6 @@ set(DYNAMICS_SRC
 )
 
 set(CONTROL_SRC
-    src/control/control.cpp
     src/control/PIDController.cpp
     src/control/droneControl.cpp
     src/control/dronePIDControl.cpp
@@ -120,9 +119,9 @@ add_executable(drone
     src/sim/droneSim.cpp
 )
 
-#add_executable(dronePIDGains
-#    src/sim/dronePIDGains.cpp
-#)
+add_executable(dronePIDGains
+    src/parameterEstimation/testMain.cpp
+)
 
 
 # Tests
@@ -135,10 +134,13 @@ add_executable(tests
     tests/stateEstimationTest.cpp
     tests/PIDControllerTest.cpp
     tests/momentValidationTest.cpp
+    tests/PIDDroneControllerTest.cpp
+    tests/droneSystemTest.cpp
+    tests/poseRotationTest.cpp
 )
 
 # Link MySim and Python into all executables
-foreach(TARGET  drone tests)
+foreach(TARGET  drone tests dronePIDGains)
     target_link_libraries(${TARGET}
         PRIVATE
         MySim

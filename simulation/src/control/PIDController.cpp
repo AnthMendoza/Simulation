@@ -26,6 +26,14 @@ void PIDController::setGains(float kp, float ki, float kd) {
     this->kd = kd;
 }
 
+void PIDController::setIntegralClamp(float clamp){
+    if(clamp < 0.0f){
+        std::cerr<<"\nWarning IntegralClamp value: "<< clamp <<" < 0 \n";
+        return;
+    }
+    clampInt = clamp;
+}
+
 void PIDController::setOutputLimits(float min, float max) {
     minOutput = min;
     maxOutput = max;

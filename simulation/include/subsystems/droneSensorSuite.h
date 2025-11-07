@@ -23,6 +23,15 @@ class droneSensorSuite : public SimCore::sensorSuite<simpleSensorPacket>{
     public:
     droneSensorSuite(std::string& configFile);
 
+    droneSensorSuite(const droneSensorSuite& other): sensorSuite<simpleSensorPacket>(other)
+
+    { }
+
+
+    std::unique_ptr<sensorSuite<simpleSensorPacket>> clone() const override {
+        return std::make_unique<droneSensorSuite>(*this);
+    }
+
     void updateSensors(SimCore::Vehicle *vehicle) override;
 
     simpleSensorPacket getSensorData() override{

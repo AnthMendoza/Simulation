@@ -1,6 +1,6 @@
 #include "../../include/dynamics/drone.h"
 #include "../../include/subsystems/battery.h"
-#include "../../include/control/control.h"
+
 #include "../../include/sim/toml.h"
 #include "../../include/control/PIDController.h"
 #include "../../include/dynamics/aero.h"
@@ -145,6 +145,8 @@ void droneBody::updateState(float time,std::optional<controlPacks::variantPacket
     float current = 0;
     float density = airDensity(Zposition);
     float totalThrust = 0;
+
+
     for(int i = 0 ; i < motors.size() ; i++){
         if(controllerThrusts.size() != motors.size()) throw runtime_error("Controller error thrust request does not equal motor count \n");
         
@@ -158,7 +160,7 @@ void droneBody::updateState(float time,std::optional<controlPacks::variantPacket
         std::array<float,3> thrustVector = normalizeVector(propellers[i]->directionTransposed);
         float currentThrust = propellers[i]->thrustForce(density,motors[i]->getCurrentAngularVelocity());
 
-        for(int i = 0 ; i < thrustVector.size();i++) thrustVector[i] = thrustVector[i] * currentThrust;
+        for(int j = 0 ; j < thrustVector.size();j++) thrustVector[j] = thrustVector[j] * currentThrust;
         totalThrust += currentThrust;
         addForce(thrustVector);
         auto leverArm = addVectors(cogLocationTranspose , propellers[i]->locationTransposed);

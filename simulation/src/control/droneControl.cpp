@@ -15,9 +15,9 @@ void controlAllocator::buildCASMatrix() {
         const Vector3d& f = thrustDirs[i];   // Thrust direction (usually +Z)
         double t = spinTorque(i);            // Spin torque coefficient
         Vector3d force = f;                    // Force contribution (assumed unit thrust)
-        //linear torque curve. not ideal but somewhat useful
-        Vector3d torque = r.cross(f) + t * f;  // Total torque: position × thrust + spin-induced torque
-        // Assign to CAS matrix: first 3 rows = force, last 3 = torque
+        
+        Vector3d torque = r.cross(f) + t * f;  
+        
         B.block<3,1>(0, i) = force;
         B.block<3,1>(3, i) = torque;
     }
@@ -35,14 +35,12 @@ VectorXd controlAllocator::toVectorXd(std::initializer_list<float> list) {
 
 controlAllocator::controlAllocator(const vector<array<float,3>>& motorPositions,const vector<array<float,3>>& thrustDirections,vector<float> spinTCoefficent){   
     if(motorPositions.empty() || thrustDirections.empty() || spinTCoefficent.empty()) throw runtime_error("Allocator contains no motor positions");
-    //converts native c++ into eigan friendly Vectors.
-    //check if vectors are the same size. Throws runtime error if not.
+
     if(motorPositions.size() != thrustDirections.size() || motorPositions.size() != spinTCoefficent.size()){
         throw runtime_error("Vector values in constructor are not the same size. 4 motors needs 4 thrust directions");
     }
-    //VectorXd is initalized to 0 and the size needs to be set much like a static array.
-    //VectorXd += value does not add slots
-    spinTorque.resize(motorPositions.size());// n = number of motors
+
+    spinTorque.resize(motorPositions.size());
     for(int i = 0 ; i < motorPositions.size();i++){
         const auto& pos = motorPositions[i];
         positions.push_back(Vector3d(static_cast<double>(pos[0]), static_cast<double>(pos[1]), static_cast<double>(pos[2])));
@@ -50,12 +48,64 @@ controlAllocator::controlAllocator(const vector<array<float,3>>& motorPositions,
         const auto& dir = thrustDirections[i];
         thrustDirs.push_back(Vector3d(static_cast<double>(dir[0]), static_cast<double>(dir[1]), static_cast<double>(dir[2])));
 
-        // equivlent to .push_back for a VectorXd
         spinTorque(i) += spinTCoefficent[i];
     }
-    buildCASMatrix();  // Build CAS matrix and precompute pseudo-inverse
+    buildCASMatrix(); 
 }
 
+
+allocatorData controlAllocator::computeAllocation(controlPacks::forceMoments requestPacket) {
+    allocatorData result;
+
+    auto force = requestPacket.force;
+    auto moments = requestPacket.moments;
+
+    auto desired = toVectorXd({force[0],force[1],force[2],moments[0],moments[1],moments[2]});
+
+    auto thrusts = allocate(desired);
+
+    auto output = computeWrench(thrusts);
+    
+
+    
+    for (int i = 0; i < thrusts.size(); ++i) {
+        result.thrusts.push_back(static_cast<float>(thrusts[i]));
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        result.forces[i] = static_cast<float>(output[i]);
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        result.moments[i] = static_cast<float>(output[i + 3]);
+    }
+
+    manageMovingAvg(result);
+
+    return result;
+}
+
+
+void controlAllocator::manageMovingAvg(allocatorData& allocation) {
+    const size_t windowsSize = 3;
+    if (movingAvg.size() < allocation.thrusts.size()) {
+        while (movingAvg.size() < allocation.thrusts.size()) {
+            utility::movingAverage<float> obj(windowsSize);
+            movingAvg.push_back(obj);
+        }
+    }else if (movingAvg.size() > allocation.thrusts.size()) {
+        while (movingAvg.size() > allocation.thrusts.size()) {
+            movingAvg.pop_back();
+        }
+    }
+
+    for(size_t i = 0 ; i < allocation.thrusts.size() ; i++){
+        auto& avg = movingAvg[i];
+        avg.add(allocation.thrusts[i]);
+        allocation.thrusts[i] = avg.getAverage();
+    }
+    
+}
 
 
 } //SimCore

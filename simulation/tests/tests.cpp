@@ -6,7 +6,6 @@
 #include "../include/core/odeIterator.h"
 #include "../include/core/rotationMatrix.h"
 #include "../include/core/getRotation.h"
-#include "../include/control/control.h"
 #include "../include/subsystems/sensors.h"
 #include "../include/dynamics/rocket.h"
 #include "../include/sim/toml.h"
@@ -241,7 +240,7 @@ bool almostEqual(const std::array<float, 3>& a, const std::array<float, 3>& b, f
 
 TEST(QuaternionVehicleTest, Rotate90DegreesAroundX) {
     quaternionVehicle vehicle;
-    vehicle.eularRotation(M_PI / 2, 0, 0);  // 90 degrees around X
+    vehicle.eulerRotation(M_PI / 2, 0, 0);  // 90 degrees around X
 
     std::array<float, 3> expectedDir = {0, -1, 0};
     std::array<float, 3> expectedFwd = {1, 0, 0};
@@ -253,7 +252,7 @@ TEST(QuaternionVehicleTest, Rotate90DegreesAroundX) {
 TEST(QuaternionVehicleTest, Rotate90DegreesAroundY) {
     quaternionVehicle vehicle;
 
-    vehicle.eularRotation(0, M_PI / 2, 0);  // 90 degrees around Y
+    vehicle.eulerRotation(0, M_PI / 2, 0);  // 90 degrees around Y
 
     std::array<float, 3> expectedDir = {1, 0, 0};
     std::array<float, 3> expectedFwd = {0, 0, -1};
@@ -264,7 +263,7 @@ TEST(QuaternionVehicleTest, Rotate90DegreesAroundY) {
 TEST(QuaternionVehicleTest, Rotate90DegreesAroundZ) {
     quaternionVehicle vehicle;
 
-    vehicle.eularRotation(0, 0, M_PI / 2);  // 90 degrees around Z
+    vehicle.eulerRotation(0, 0, M_PI / 2);  // 90 degrees around Z
 
     std::array<float, 3> expectedDir = {0, 0, 1};  
     std::array<float, 3> expectedFwd = {0, 1, 0};     
@@ -276,7 +275,7 @@ TEST(QuaternionVehicleTest, Rotate90DegreesAroundZ) {
 TEST(QuaternionVehicleTest, CombinedRotationXYZ) {
     quaternionVehicle vehicle;
 
-    vehicle.eularRotation(M_PI / 2, M_PI / 2, 0);  // Only once!
+    vehicle.eulerRotation(M_PI / 2, M_PI / 2, 0);  // Only once!
 
     // Build combined rotation manually
     SimCore::Quaternion qx = fromAxisAngle({1, 0, 0}, M_PI / 2);
@@ -685,6 +684,17 @@ TEST(VehicleReferenceFrameTest, IdentityRotationOnRightVector) {
     EXPECT_NEAR(result[0], 0.0f, 1e-5);
     EXPECT_NEAR(result[1], 1.0f, 1e-5);
     EXPECT_NEAR(result[2], 0.0f, 1e-5);
+}
+
+TEST(VectorMathTest,scaleVectorToZTest){
+    threeDState arr = {0,1,1};
+    float scaleFactor = 5;
+    normalizeVectorInPlace(arr);
+    auto vec = scaleVectorToZ(arr,scaleFactor);
+
+    EXPECT_FLOAT_EQ(vec[2], scaleFactor);
+    
+    EXPECT_TRUE(similarVector(normalizeVector(arr),normalizeVector(vec)));
 }
 
 

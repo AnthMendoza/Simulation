@@ -13,7 +13,6 @@
 #include <variant>
 #include "../subsystems/sensors.h"
 #include "../core/vectorMath.h"
-#include "../control/control.h"
 #include "../core/quaternion.h"
 #include "../sim/logs.h"
 #include "windGenerator.h"
@@ -43,15 +42,15 @@ class Vehicle{
     std::unique_ptr<quaternionVehicle> pose;
     std::unique_ptr<timeManager> manager;
    
-    std::array<float,3> wind;
-    std::array<float,3> angularVelocity;
-    std::array<float,3> vehicleState;
-    std::array<float,3> MOI;
-    std::array<float,3> sumOfForces;
-    std::array<float,3> sumOfMoments;
-    std::array<float,3> logSumOfMoments;
+    threeDState wind;
+    threeDState angularVelocity;
+    threeDState vehicleState;
+    threeDState MOI;
+    threeDState sumOfForces;
+    threeDState sumOfMoments;
+    threeDState logSumOfMoments;
     float yawMoment;
-    std::array<float,3> acceleration;
+    threeDState acceleration;
     float gravitationalAcceleration;
 
     virtual void init(string& vehicleConfig);
@@ -65,6 +64,8 @@ class Vehicle{
 
     Vehicle(const Vehicle& other);
 
+    virtual std::unique_ptr<Vehicle> clone() const = 0;
+
     template<typename T>
     void setSensorSuite(std::unique_ptr<T> setSensors){
         static_assert(std::is_base_of_v<sensorSuite<simpleSensorPacket>, T>, "T must derive from sensorSuite");
@@ -74,9 +75,9 @@ class Vehicle{
     virtual Vehicle& operator=(const Vehicle& other);
 
 
-    void addForce(std::array<float,3> forceVector);
+    void addForce(threeDState forceVector);
 
-    void addMoment(std::array<float,3> moments);
+    void addMoment(threeDState moments);
     //Positive moment about the direction vector is a rotation from x to y.
     //Negative from y to x.
     void addYawMoment(float moment);
@@ -101,7 +102,7 @@ class Vehicle{
     std::unique_ptr<turbulence> turbulantY;
     std::unique_ptr<turbulence> turbulantZ;
 
-    void getAccel(std::array<float,3> &accel);
+    void getAccel(threeDState &accel);
 
     float PID(float target , float currentState , float &previousError , float &sumOfError, float timeStep, float Pgain , float Igain , float Dgain);
 
@@ -123,7 +124,7 @@ class Vehicle{
     }
     virtual void setEntitiesPose(const poseState& pose) = 0;
 
-    inline void setStateVector(std::array<float,3> dirVector, std::array<float,3> fwdVector){
+    inline void setStateVector(threeDState dirVector, threeDState fwdVector){
         if(isZeroVector(dirVector)){
             std::cerr<< "\nsetStateVector was given a Zero vector as the new Vehicle State dirVector.\n Command was skipped.\n";
             return;
@@ -138,6 +139,10 @@ class Vehicle{
         setEntitiesPose(pose->getPose());
     }
 
+    inline void setPose(poseState state){
+        setStateVector(state.dirVector,state.fwdVector);
+    }
+
     //#############################################################################
     //GETTERS
 
@@ -149,17 +154,17 @@ class Vehicle{
         return timeStep;
     }
     //Not based off sensor data. Actual Simulation Position
-    inline std::array<float,3> getVelocityVector() const{
+    inline threeDState getVelocityVector() const{
         return {Xvelocity,Yvelocity,Zvelocity};
     }
-    inline std::array<float,3> getMoment() const{
+    inline threeDState getMoment() const{
         return logSumOfMoments;
     }
-    inline std::array<float,3> getPositionVector() const{
+    inline threeDState getPositionVector() const{
         return {Xposition,Yposition,Zposition};
     }
     //Vehicle state is the direction vector of the vehicle. 
-    inline std::array<float,3> getState() const{
+    inline threeDState getState() const{
         return vehicleState;
     }
     inline float getMass() const{
@@ -197,7 +202,7 @@ class Vehicle{
         auto displayPose = getPose();
         buffer << "Orientation (top vector):   (" << displayPose.dirVector[0] << ", " << displayPose.dirVector[1] << ", " << displayPose.dirVector[2] << ")\n";
         buffer << "Orientation (front vector): (" << displayPose.fwdVector[0] << ", " << displayPose.fwdVector[1] << ", " << displayPose.fwdVector[2] << ")\n";
-
+        buffer << std::fixed << std::setprecision(4);
         auto moments = getMoment();
         buffer << "Moments (mx,my,mz): (" << moments[0] << ", " << moments[1] << ", " << moments[2] << ")\n";
         

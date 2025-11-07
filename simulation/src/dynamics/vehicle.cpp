@@ -12,7 +12,6 @@
 #include "../../include/core/RungeKutta.h"
 #include "../../include/core/odeIterator.h"
 #include "../../include/core/getRotation.h"
-#include "../../include/control/control.h"
 #include "../../include/subsystems/sensors.h"
 #include "../../include/sim/toml.h"
 #include "../../include/core/quaternion.h"
@@ -96,6 +95,8 @@ Vehicle::Vehicle(const Vehicle& other)
         turbulantZ = std::make_unique<turbulence>(*other.turbulantZ);
     if (other.pose)
         pose = std::make_unique<quaternionVehicle>(*other.pose);
+    
+    sensors = other.sensors->clone();
 }
 
 
@@ -148,13 +149,10 @@ void Vehicle::init(string& vehicleConfig){
     wind[1] = windVect[1];
     wind[2] = windVect[2];
 
-    sumOfForces[0] = 0;
-    sumOfForces[1] = 0;
-    sumOfForces[2] = 0;
+    sumOfForces = {0,0,0};
 
-    sumOfMoments[0] = 0;
-    sumOfMoments[1] = 0;
-    sumOfMoments[2] = 0;
+    sumOfMoments = {0,0,0};
+
     yawMoment = 0;
 
     acceleration = {0,0,0};
@@ -174,7 +172,7 @@ void Vehicle::init(string& vehicleConfig){
 
 
 float Vehicle::getVelocity(){
-    std::array<float ,3> vector = {Xvelocity , Yvelocity , Zvelocity};
+    threeDState vector = {Xvelocity , Yvelocity , Zvelocity};
     return vectorMag( vector );
 }
 
@@ -182,19 +180,19 @@ float Vehicle::getVelocity(){
 
 float Vehicle::getGForce(){
     
-    std::array<float ,3> vector = {sumOfForces[0]/mass,sumOfForces[1]/mass,sumOfForces[2]/mass};
+    threeDState vector = {sumOfForces[0]/mass,sumOfForces[1]/mass,sumOfForces[2]/mass};
 
     return vectorMag(vector)/9.8;
 }
 
-void Vehicle::getAccel(std::array<float,3> &accel){
+void Vehicle::getAccel(threeDState &accel){
     for(int i = 0 ; i < 3 ; i++) accel[i] = sumOfForces[i] / mass;
 }
 
 
 void Vehicle::drag(float (*aeroArea)(float),float (*coefOfDrag)(float)){
 
-    std::array<float,3> airVelocityVector;
+    threeDState airVelocityVector;
 
     airVelocityVector[0] = Xvelocity +  wind[0];
     airVelocityVector[1] = Yvelocity +  wind[1];
@@ -208,8 +206,8 @@ void Vehicle::drag(float (*aeroArea)(float),float (*coefOfDrag)(float)){
     
     float drag = -.5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition);
 
-    std::array<float,3> dragVector;
-    std::array<float,3> normalVelocityVector = normalizeVector(airVelocityVector);
+    threeDState dragVector;
+    threeDState normalVelocityVector = normalizeVector(airVelocityVector);
     
     dragVector[0] = drag * normalVelocityVector[0];
     dragVector[1] = drag * normalVelocityVector[1];
@@ -225,7 +223,7 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
 
     //lift acting on the center of pressure.
 
-    std::array<float,3> airVelocityVector;
+    threeDState airVelocityVector;
 
     airVelocityVector[0] = Xvelocity +  wind[0];
     airVelocityVector[1] = Yvelocity +  wind[1];
@@ -238,11 +236,11 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
     //using normilzed vectors N • N is removed becuase it equals 1, this may or may not be faster than the equation abouve
 
 
-    std::array<float , 3> normalAirVelocityVector = normalizeVector(airVelocityVector);
+    threeDState normalAirVelocityVector = normalizeVector(airVelocityVector);
 
     float projection = vectorDotProduct( vehicleState , normalAirVelocityVector );
 
-    std::array<float , 3> projectedVector;
+    threeDState projectedVector;
 
 
     for(int i = 0 ; i < 3 ; i++){
@@ -252,7 +250,7 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
     //we normilized this vector so that we can multiply it by a scalar with expected results
     projectedVector = normalizeVector(projectedVector); 
 
-    std::array<float,3> reverseVehicleState;
+    threeDState reverseVehicleState;
 
     for(int i = 0 ; i < 3 ; i++) reverseVehicleState[i] = -vehicleState[i];
 
@@ -263,7 +261,7 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
     
     float lift = -.5 * (absVelocity * absVelocity) * aeroArea(liftAngle) * coefOfLift(liftAngle) * airDensity(Zposition); //calculating abs drag 
     
-    std::array<float,3> liftVector;
+    threeDState liftVector;
 
     liftVector[0] = lift * projectedVector[0];
     liftVector[1] = lift * projectedVector[1];
@@ -282,7 +280,7 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
 }
 
 
-void  Vehicle::addForce(std::array<float,3> forceVector){
+void  Vehicle::addForce(threeDState forceVector){
     sumOfForces[0] += forceVector[0];
     sumOfForces[1] += forceVector[1];
     sumOfForces[2] += forceVector[2];
@@ -290,7 +288,7 @@ void  Vehicle::addForce(std::array<float,3> forceVector){
 
 
 
-void  Vehicle::addMoment(std::array<float,3> moments){
+void  Vehicle::addMoment(threeDState moments){
     sumOfMoments[0] += moments[0];
     sumOfMoments[1] += moments[1];
     sumOfMoments[2] += moments[2];
@@ -321,9 +319,11 @@ void Vehicle::updateState(float time,std::optional<controlPacks::variantPackets>
         RungeKutta4th(sumOfForces[1] , mass ,  timeStep , Yvelocity,Yposition);
         RungeKutta4th(sumOfForces[2] , mass ,  timeStep , Zvelocity,Zposition);
 
-        Quaternion quant = pose->eularRotation(rotationalOde(sumOfMoments[0] , MOI[0],  timeStep ,angularVelocity[0]),
-                            rotationalOde(sumOfMoments[1] , MOI[1],  timeStep ,angularVelocity[1]),
-                            rotationalOde(sumOfMoments[2] , MOI[2],  timeStep ,angularVelocity[2]));
+        logSumOfMoments = sumOfMoments;
+        
+        Quaternion quant = pose->eulerRotation( rotationalOde(sumOfMoments[0] , MOI[0],  timeStep ,angularVelocity[0]),
+                                                rotationalOde(sumOfMoments[1] , MOI[1],  timeStep ,angularVelocity[1]),
+                                                rotationalOde(sumOfMoments[2] , MOI[2],  timeStep ,angularVelocity[2]));
 
         rotateLocalEntities(quant);
 
@@ -337,7 +337,6 @@ void Vehicle::updateState(float time,std::optional<controlPacks::variantPackets>
         sumOfForces[1] = 0;
         sumOfForces[2] = 0;
 
-        logSumOfMoments = sumOfMoments;
         
         sumOfMoments[0] = 0;
         sumOfMoments[1] = 0;
@@ -372,7 +371,7 @@ void Vehicle::turbulantWind(){
     float timeSeconds = getTime();
     wind[0] = turbulantX->getNext(timeSeconds);
     wind[1] = turbulantY->getNext(timeSeconds);
-    wind[2] = turbulantZ->getNext(timeSeconds);
+    //wind[2] = turbulantZ->getNext(timeSeconds);
 }
 
 

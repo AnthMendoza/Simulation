@@ -65,6 +65,11 @@ class droneBody :  public Vehicle{
 
     ~droneBody();
     droneBody(const droneBody& other);
+
+    virtual std::unique_ptr<Vehicle> clone() const override{
+        return std::make_unique<droneBody>(*this);
+    }
+
     string droneConfig;
     //droneBody(const droneBody& drone) = delete;
     void updateState(float time,std::optional<controlPacks::variantPackets> controlInput= nullopt) override; 

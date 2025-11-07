@@ -69,7 +69,7 @@ class quaternionVehicle{
     //Right Vector will be calculated using the right hand rule.
     void setVehicleQuaternionState(threeDState dir, threeDState fwd);
     //update direction and foward vector
-    Quaternion eularRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ);
+    Quaternion eulerRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ);
     //uses the direction vector as the basis for rotation
     void applyYaw(float rotationInRads);
     //Gram-Schmidt orthonormalization
@@ -207,7 +207,7 @@ void getQuaternionRotationState(){
 
     public:
 
-    vehicleReferenceFrame(const poseState& localPose,poseState basisVector = CoordinateSystem::WORLD_BASIS): localPose(localPose) , basis(basisVector){
+    vehicleReferenceFrame(const poseState& localPose,const poseState& basisVector = CoordinateSystem::WORLD_BASIS): localPose(localPose) , basis(basisVector){
         getQuaternionRotationState();
     }
 

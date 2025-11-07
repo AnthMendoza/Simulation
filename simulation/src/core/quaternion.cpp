@@ -104,7 +104,7 @@ void quaternionVehicle::setVehicleQuaternionState(threeDState dir , threeDState 
 
 
 //eular rotaion, rotates around x,y,z axis.
-Quaternion quaternionVehicle::eularRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ){
+Quaternion quaternionVehicle::eulerRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ){
     ++numberOfCalls;
     Quaternion qx = fromAxisAngle({1,0,0}, rotationInRadsX);
     Quaternion qy = fromAxisAngle({0,1,0}, rotationInRadsY);

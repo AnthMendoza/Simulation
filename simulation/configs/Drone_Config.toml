@@ -1,9 +1,9 @@
 [vehicle]
 wind = [0.0,0.0,0.0]
 gravitationalAcceleration = -9.81
-initPosition=[0.0,0.0,20.0]
+initPosition=[-10.0,-10.0,10.0]
 initVehicleState = [0.0,0.0,1.0]
-MOI = [1,1,1]
+MOI = [0.001,0.001,0.001]
 initVelocity = [0.0,0.0,0.0]
 centerOfPressure = 0.0
 maxGAllowedEntry = 4.5
@@ -12,27 +12,28 @@ timeStep = 0.001
 mass = 0.3
 maxCruiseVelocity = 8.0
 [PID]
-ZKp = 0.8
-ZKi = 0.0
-ZKd = 0.0
 
-ZKvp = 1.2
-ZKvi = 0.4
-ZKvd =0.0
+ZKp = 1.8
+ZKi = 0.3
+ZKd = 1.5
+
+ZKvp = 2.2
+ZKvi = 0.2
+ZKvd = 1.0
 
 Kp = 1.0
 Ki = 0.0
-Kd = 0.0
+Kd = 1.0
 
-Kvp = 1.5
+Kvp = 1.0
 Kvi = 0.0
-Kvd = 0.0
+Kvd = 0.3
 
-AKp = 6.0
+AKp = 1.0
 AKi = 0.0
 AKd = 0.0
 
-AVKp = 6.0
+AVKp = 0.002
 AVKi = 0.0
 AVKd = 0.0
 

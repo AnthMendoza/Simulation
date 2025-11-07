@@ -18,9 +18,9 @@ public:
         float timeStep = 0.001f;         //Fixed time step (seconds)
         float maxSimTime = 10.0f;        //Max simulation time, 0 = unlimited
         bool logging = true;             //Enable/disable data logging
-        float logPostInterval = 1.0f;
+        float logPostInterval = 0.25f;
     };
-private:
+protected:
 
     std::thread simThread;
     std::atomic<bool> running{false};
@@ -94,7 +94,6 @@ private:
         }
     }
 
-protected:
 
     configStruct config;
 
@@ -127,11 +126,19 @@ public:
 
     void stop(){
         stopRequested = true;
+        if (std::this_thread::get_id() == simThread.get_id()){
+            return;
+        }
         if(simThread.joinable()){
             simThread.join();
         }
     }
 
+    void wait() {
+        if (simThread.joinable()) {
+            simThread.join();
+        }
+    }
 
 
 };

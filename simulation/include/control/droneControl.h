@@ -4,10 +4,18 @@
 #include "../thirdparty/eigenWrapper.h"
 #include <vector>
 #include "../subsystems/propeller.h"
+#include "controlRequestStructs.h"
+#include "../utility/movingAverage.h"
 
 using namespace Eigen;
 using namespace std;
 namespace SimCore{
+
+struct allocatorData{
+    std::vector<float> thrusts;
+    threeDState forces;
+    threeDState moments;
+};
 
 
 
@@ -17,9 +25,12 @@ private:
     vector<Vector3d> thrustDirs;   
     VectorXd spinTorque;           
     MatrixXd B;         
-    MatrixXd Bpinv;    
+    MatrixXd Bpinv;
+    vector<utility::movingAverage<float>> movingAvg; 
 
     void buildCASMatrix();
+
+    void manageMovingAvg(allocatorData& requestPacket);
 public:
 
     controlAllocator(const vector<std::array<float,3>>& motorPositions,const vector<std::array<float,3>>& thrustDirections,vector<float> spinTCoefficent);
@@ -49,6 +60,8 @@ public:
     }
 
     VectorXd toVectorXd(std::initializer_list<float> list);
+
+    allocatorData computeAllocation(controlPacks::forceMoments requestPacket);
 
 };
 

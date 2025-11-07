@@ -19,6 +19,10 @@ class mochEstimation : public stateEstimationBase{
         statePacket = testGlobals::actualVehicleState::state;
     }
     ~mochEstimation() = default;
+
+    virtual std::unique_ptr<stateEstimationBase> clone() const override{
+        return std::make_unique<mochEstimation>(*this);
+    }
     
     void controllerData(controllerToEstimationVariant controller) override{
 

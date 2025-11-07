@@ -1,7 +1,7 @@
 from skopt import Optimizer
 
 opt = Optimizer([(0.0, 30.0), (0.0, 5.0), (0.0, 5.0)], acq_func="EI", random_state=0)
-optDuel = Optimizer([(0.0, 30.0), (0.0, 5.0), (0.0, 5.0),(0.0, 30.0), (0.0, 5.0), (0.0, 5.0)], acq_func="LCB", random_state=0)
+optDuel = Optimizer([(0.0, 4.0), (0.0, 4.0), (0.0, 4.0),(0.0, 4.0), (0.0, 4.0), (0.0, 4.0)], base_estimator="dummy", random_state=0)
 iterationDuel = 0
 iteration = 0
 def getNext():
@@ -29,7 +29,7 @@ def updateResultDuel(pid, cost):
 
 def resetDuel():
     global optDuel, iterationDuel
-    optDuel = Optimizer([(0.0, 30.0), (0.0, 5.0), (0.0, 5.0),(0.0, 30.0), (0.0, 5.0), (0.0, 5.0)], acq_func="LCB", random_state=0)
+    optDuel = Optimizer([(0.0, 4.0), (0.0, 4.0), (0.0, 4.0),(0.0, 4.0), (0.0, 4.0), (0.0, 4.0)], base_estimator="dummy", random_state=0)
     iterationDuel = 0
 
 

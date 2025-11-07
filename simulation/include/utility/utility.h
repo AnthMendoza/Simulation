@@ -29,7 +29,10 @@ inline void print(const T& value, const char* name) {
 }
 
 template<typename T, std::size_t N>
-inline void print(const std::array<T, N>& arr, const char* name) {
+inline void print(const std::array<T, N>& arr, const char* name, int precision = 5) {
+    std::streamsize oldPrecision = std::cout.precision();
+
+    std::cout << std::fixed << std::setprecision(precision);
     std::cout << name << ": [";
     for (size_t i = 0; i < N; ++i) {
         std::cout << arr[i];
@@ -37,6 +40,7 @@ inline void print(const std::array<T, N>& arr, const char* name) {
             std::cout << ", ";
     }
     std::cout << "]\n";
+    std::cout.precision(oldPrecision);
 }
 
 
@@ -66,4 +70,19 @@ inline void printDynamicDisplay(const std::string& output) {
         std::cout << "\x1b[1A" << "\x1b[2K";
     }
     std::cout << output;
+}
+
+
+enum class direction {
+    positive = 1,
+    negative = -1
+};
+
+
+inline bool validateDirection(float val, direction dir) {
+    if (dir == direction::positive && val > 0)
+        return true;
+    if (dir == direction::negative && val < 0)
+        return true;
+    return false;
 }

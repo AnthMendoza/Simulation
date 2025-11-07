@@ -316,6 +316,12 @@ std::array<T,3> scaleVectorToZ(const std::array<T,3>& v, T w) {
     return { v[0] * s, v[1] * s, w };
 }
 
+
+template<typename T>
+bool NEAR(T val1, T val2, T EPSILON){
+    return std::abs(val1 - val2) < EPSILON;
+}
+
 }
 
 #endif

@@ -9,18 +9,18 @@
 namespace SimCore{
 
 class droneSimulation : public simulation{
-private:
+protected:
     std::unique_ptr<droneControllerBase> controller;
     std::unique_ptr<stateEstimationBase> estimator;
     std::unique_ptr<Vehicle> vehicle;
 
 
-    void step(float time) override{
+
+    virtual void step(float time) override{
         if (!vehicle || !estimator || !controller) {
             return;
-        }
+        }  
         time += config.timeStep;
-        vehicle->addMoment({0,0,0.1});
 
         auto sensorPacket = vehicle->sensors->getSensorData();
         estimator->updateEstimation(time,sensorPacket);
@@ -29,18 +29,19 @@ private:
     }
 
 
-    void startUp() override{
+    virtual void startUp() override{
 
     }
 
     void logs() override{
         std::string vehicleString = vehicle->display();
+        vehicleString += controller->display();
         printDynamicDisplay(vehicleString);
     }
 
-    
-
 public:
+//use default if override start up
+droneSimulation() = default;
 template<typename TVehicle, typename TController, typename TEstimator>
 //(vehicle , controller , estimator)
 droneSimulation(std::unique_ptr<TVehicle> newVehicle,

@@ -55,6 +55,7 @@ public:
     }
 
     virtual std::unique_ptr<droneControllerBase> clone() const = 0;
+
     //call when done values change. exmaple a change in mass.
     virtual void updateCalculatedValues() = 0;
 
@@ -99,6 +100,10 @@ public:
     }
     */
 
+    controlAllocator* getAllocator(){
+        return allocator.get();
+    }
+
     void initAllocator(vector<std::array<float,3>> pos, vector<std::array<float,3>> thrustVect, vector<float >coef){
         propThrustPosition = pos;
         propThrustDirectionVector = thrustVect;
@@ -129,6 +134,12 @@ public:
 
     std::optional<std::vector<std::array<float, 3>>> getPropThrustDirectionVector() const{
         return propThrustDirectionVector;
+    }
+
+
+    virtual std::string display(){
+        std::string buffer;
+        return buffer;
     }
     
 

@@ -39,6 +39,19 @@ struct momentForceRequest{
     threeDState forces = {0,0,0};
 };
 
+
+//accelerationFromPose takes the current pose of the vehicle and calculates the required thrust given the CURRENT conditions.
+//if aotFeedForwad calculates the thrust needed at the desired angle of attack for the desired postion and not the current position the motors will generate the thrust required faster than the vehicle can rotate to the position.
+// resulting in over delay from thrust to angle requested
+static float accelerationFromPose(const threeDState accels,poseState& pose){
+    threeDState newAccelVector;
+    auto dir = pose.dirVector;
+
+    newAccelVector = scaleVectorToZ(dir,accels[2]);
+    
+    return vectorMag(newAccelVector);
+}
+
 class droneControllerBase;
 
 //Gives a high level state request that is handled down stream
@@ -59,7 +72,7 @@ class PIDDroneController : public droneControllerBase{
 
     unique_ptr<PIDController> APIDX;
     unique_ptr<PIDController> APIDY;
-    float gravitationalAcceleation;
+    float gravitationalAcceleration;
     float mass; 
     float maxAcceleration;
 
@@ -68,6 +81,45 @@ class PIDDroneController : public droneControllerBase{
     bool firstPose = true;
 
     controlPacks::motorOnlyPacket computedControlPacket;    
+
+
+    struct logData{
+        threeDState requestedAOT;
+        threeDState reportedAOT;
+        float AOTerror_Rad;
+        threeDState requestedMoment;
+        
+    }logger{};
+
+
+
+    protected:
+
+    struct eulerAOT{
+        float angleX;
+        float angleY;
+        eulerAOT(): angleX(0.0f) , angleY(0.0f) {
+
+        }
+    };
+
+    struct eulerMoments {
+        std::array<float, 3> moments;
+
+        eulerMoments() : moments{0.0f, 0.0f, 0.0f} {
+            
+        }
+    };
+
+    accelerations computeAccelerationRequest(const std::array<float,3>& pos ,const std::array<float,3>& velo ,float actualDeltaTime);
+
+    eulerAOT computeVehicleBasisAOT(poseState& state , requestedVehicleState& request);
+
+    rotationRate computeAngularVelocityFromAOT(eulerAOT euler, float actualDeltaTime);
+
+    eulerMoments computeMomentFromAOT( poseState& state,rotationRate desiredAngularVelo , float actualDeltaTime);
+    
+    float computeThrustForce(float requestForce);
     
     public:
 
@@ -87,16 +139,23 @@ class PIDDroneController : public droneControllerBase{
     /// @param state Direction vector
     /// @param maxAngleAOT rads
     /// @return std::pair first and second is moments about x and y respectivly. Note this is not global, x and y are realtive to the drone.
-    controlPacks::forceMoments pidControl(const std::array<float,3> pos , std::array<float,3> velo  ,poseState& state);
+    controlPacks::forceMoments pidControl(const std::array<float,3> pos ,const std::array<float,3> velo  ,poseState& state);
     void setTargetPosition(float xTarget , float yTarget , float zTarget) override;
     //feedForward function for windprediction and gravity offset.
-    requestedVehicleState aotFeedForward(accelerations& accels,float gravitaionalAcceleration , float mass,poseState& pose);
+    requestedVehicleState aotFeedForward(accelerations& accelerationCommand, float mass,poseState& pose);
     //std::array<float,3> thrustMoment(const propeller& prop ,const motor& mot, std::array<float,3>& cogLocation ,const float& airDensity);
-    /// @brief 
-    /// @param axisOfRotation 
-    /// @param moment n*m
+
 
     controlPacks::variantPackets update(float time,stateInfo statePacket) override;
+    //AOT HOLD neglects any side ways movement cause by the AOT.
+    controlPacks::forceMoments AOTHold(float actualDeltaTime, poseState state , poseState requestedPose);
+
+    controlPacks::variantPackets updateAOTHold(float time,stateInfo statePacket , poseState requestedPose);
+
+    //return Moment
+    float yawControl();
+
+    float yawAngleDifference(const poseState& currentPose ,const poseState& desiredPose);
 
     controlPacks::forceMoments updateWithoutAllocator(float time,stateInfo statePacket) override;
 
@@ -152,6 +211,42 @@ class PIDDroneController : public droneControllerBase{
 
     inline void setAPIDYGains(const std::tuple<float, float, float>& pid) {
         if (APIDY) APIDY->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+
+    inline void setAPIDVXGains(const std::tuple<float, float, float>& pid) {
+        if (APIDVX) APIDVX->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+
+    inline void setAPIDVYGains(const std::tuple<float, float, float>& pid) {
+        if (APIDVY) APIDVY->setGains(std::get<0>(pid), std::get<1>(pid), std::get<2>(pid));
+    }
+
+    virtual std::string display() override{
+        std::ostringstream buffer;
+        buffer << "-----Controller State-----\n";
+        
+        buffer << "Requested AOT: ["
+           << logger.requestedAOT[0] << ", "
+           << logger.requestedAOT[1] << ", "
+           << logger.requestedAOT[2] << "]\n";
+
+        buffer << "Reported AOT: ["
+                << logger.reportedAOT[0] << ", "
+                << logger.reportedAOT[1] << ", "
+                << logger.reportedAOT[2] << "]\n";
+        
+        buffer <<"Error : [" <<logger.AOTerror_Rad << "]\n";
+
+
+        buffer << "Requsted Moment: ["
+                << logger.requestedMoment[0] << ", "
+                << logger.requestedMoment[1] << ", "
+                << logger.requestedMoment[2] << "]\n";
+
+
+        std::string bufferString = buffer.str() + "\n" + droneControllerBase::display();
+        return bufferString;
+
     }
 
 };

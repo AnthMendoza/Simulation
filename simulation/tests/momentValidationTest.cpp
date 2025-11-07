@@ -2,6 +2,7 @@
 #include "../include/dynamics/vehicle.h"
 #include <string>
 #include "../include/core/coordinateSystem.h"
+#include "../include/utility/utility.h"
 
 
 
@@ -15,13 +16,15 @@ protected:
     private:
 
     public:
+        std::unique_ptr<Vehicle> clone() const override{
+            return std::make_unique<testVehicle>(*this);
+        }
 
-
-    void init(string& config){
+    void init(string& config) override{
         Vehicle::init(config);
     }
 
-    void setEntitiesPose(const poseState& pose){
+    void setEntitiesPose(const poseState& pose) override{
 
     }
 
@@ -41,20 +44,6 @@ protected:
         vehicle.reset();
     }
 };
-
-enum class direction {
-    positive = 1,
-    negative = -1
-};
-
-
-static bool validateDirection(float val, direction dir) {
-    if (dir == direction::positive && val > 0)
-        return true;
-    if (dir == direction::negative && val < 0)
-        return true;
-    return false;
-}
 
 static constexpr float EPSILON = 0.0001;
 

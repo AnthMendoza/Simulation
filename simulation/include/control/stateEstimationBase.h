@@ -31,6 +31,8 @@ class stateEstimationBase{
 
     virtual ~stateEstimationBase() = default;
 
+    virtual std::unique_ptr<stateEstimationBase> clone() const = 0;
+
     stateEstimationBase(const stateEstimationBase& other)
         :statePacket(other.statePacket),
         timestamp(other.timestamp){

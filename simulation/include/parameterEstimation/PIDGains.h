@@ -4,12 +4,13 @@
 #include <limits>
 #include <stdexcept>
 #include "../dynamics/drone.h"
-#include "../core/pythonConnector.h"
+#include "pythonConnector.h"
 #include "../utility/utility.h"
 #include "../core/vectorMath.h"
 #include "droneCostFunction.h"
-//#include "PIDTestScenarios.h"
+#include "PIDTestScenarios.h"
 #include "PIDTypes.h"
+#include "../sim/droneSimulation.h"
 
 
 namespace SimCore{
@@ -22,30 +23,24 @@ namespace SimCore{
 /// @param PID tuple of floats with values Kp,ki,kd for testing.
 /// @param constValues Called on every iteration allowing const values to be set for isotlated testing.
 /// @param setUp Called once prior to the simulation run. Use this function to put the drone in the desired state.
-/// @return 
+/// @return cost
 
 template<typename PIDType>
-float simTemplate( droneBody* basisDrone, PIDDroneController* basisController, PIDType PID, PIDFunctionGroup<PIDType>& func){
+float simTemplate( droneAssets asset , PIDType PID, PIDFunctionGroup<PIDType>& func){
     calibratePID calibrate(func.stdThreshold,func.errorThreshold);
     calibrate.setConstants(10.0f,10.0f);
-    auto testController = std::make_shared<PIDDroneController>(*basisController);
-    auto testDrone = std::make_shared<droneBody>(*basisDrone);
-    func.setGains(testController.get(),PID);
-    func.setUp(testDrone.get(),testController.get(),PID);
-    //emplacing testController into testDrone
-    testDrone->setController(std::make_unique<PIDDroneController>(*testController.get()));
-    for(int i = 0 ; i < func.maxDuration/testDrone->getTimeStep() ; i++){
-        bool continueTest = func.iteration(testDrone.get(), &calibrate);
-        if(continueTest == false) break;
+
+    for(){
+
     }
-    float cost = calibrate.evaluate();
+    
 
     return cost;
     
 }
 
 template<typename PIDType>
-PIDType optimize( droneBody* basisDrone, PIDDroneController* basisController, int numberOfRuns,PIDFunctionGroup<PIDType>& func ){
+PIDType optimize( droneAssets asset , int numberOfRuns,PIDFunctionGroup<PIDType>& func ){
     if(numberOfRuns <= 0) throw std::runtime_error("numberOfRuns in optimize cannot be <= 0\n");
     initPython();
     float lowestCost = std::numeric_limits<float>::max();

@@ -48,20 +48,20 @@ rotations getDifference() {
 
     float rollCos = vectorDotProduct(startPose->rightVector, endPose->rightVector);
     std::array<float,3> rollCross;
-    vectorCrossProduct(endPose->rightVector, startPose->rightVector,rollCross);
+    vectorCrossProduct( startPose->rightVector, endPose->rightVector,rollCross);
     float rollSin = vectorDotProduct(rollCross, startPose->fwdVector);
-    result.roll = -std::atan2(rollSin, rollCos);
+    result.roll = std::atan2(rollSin, rollCos);
     
 
     float pitchCos = vectorDotProduct(startPose->dirVector, endPose->dirVector);
     std::array<float,3> pitchCross;
-    vectorCrossProduct(endPose->dirVector, startPose->dirVector,pitchCross);
+    vectorCrossProduct( startPose->dirVector,endPose->dirVector,pitchCross);
     float pitchSin = vectorDotProduct(pitchCross, startPose->rightVector);
     result.pitch = std::atan2(pitchSin, pitchCos);
     
     float yawCos = vectorDotProduct(startPose->fwdVector, endPose->fwdVector);
     std::array<float,3> yawCross;
-    vectorCrossProduct(endPose->fwdVector, startPose->fwdVector,yawCross);
+    vectorCrossProduct(startPose->fwdVector,endPose->fwdVector,yawCross);
     float yawSin = vectorDotProduct(yawCross, startPose->dirVector);
     result.yaw = std::atan2(yawSin, yawCos);
     
@@ -76,7 +76,7 @@ inline rotationRate getRotationRate(float deltaTime){
     rotations posDifference = getDifference();
     rotationRate rate;
     rate.pitchRate = posDifference.pitch / deltaTime;
-    rate.rollRate = -posDifference.roll / deltaTime;
+    rate.rollRate = posDifference.roll / deltaTime;
     rate.yawRate = posDifference.yaw / deltaTime;
     return rate;
 }

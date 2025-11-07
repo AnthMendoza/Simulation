@@ -9,6 +9,7 @@
 #include "../../include/subsystems/motor.h"
 #include "../../include/control/stateEstimation.h"
 #include "../../include/control/mochStateEstimation.h"
+#include "../../include/parameterEstimation/simDronePIDGains.h"
 
 #define CONTROLLER_POLLING_RATE 0.004
 #define ESTIMATOR_POLLING_RATE 0.002
@@ -38,17 +39,17 @@ int main(int argc, char* argv[]){
     drone->addMotorsAndProps(motorProp);
     controller->setTargetPosition(0,0,20);
 
-    SimCore::droneSimulation sim(std::move(drone),std::move(controller),std::move(estimator));
+    parameterEstimation::AOTPIDEstimation sim(std::move(drone),std::move(controller),std::move(estimator));
     
     sim.configure([](SimCore::simulation::configStruct& cfg){
-        cfg.realTime = true;
+        cfg.realTime = false;
         cfg.maxSimTime = 0.0f;
-        cfg.logging = true;
+        cfg.logging = false;
     });
 
 
 
-    sim.run();
+    sim.test();
     while(true){}
 
 
