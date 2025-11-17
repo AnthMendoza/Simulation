@@ -37,7 +37,7 @@ class droneBody :  public Vehicle{
     unique_ptr<battery> droneBattery;
 
     indexCoordinates index;
-
+    
     void dataLog();
 
     //helper Functions

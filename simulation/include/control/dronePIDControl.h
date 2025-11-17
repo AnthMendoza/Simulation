@@ -16,6 +16,7 @@
 #include "../utility/utility.h"
 #include "droneControllerBase.h"
 #include "../core/poseRotation.h"
+#include "../utility/graphing.h"
 
 namespace SimCore{
     
@@ -83,17 +84,36 @@ class PIDDroneController : public droneControllerBase{
     controlPacks::motorOnlyPacket computedControlPacket;    
 
 
+    utility::grapher graph;
+
     struct logData{
         threeDState requestedAOT;
         threeDState reportedAOT;
         float AOTerror_Rad;
         threeDState requestedMoment;
+        float rollDesiredVelo;
+        float pitchDesiredVelo;
+        float rollVelo;
+        float pitchVelo;
         
     }logger{};
 
 
 
     protected:
+
+    //init
+
+    void initVehicleParams(const std::string& droneConfig);
+
+    void initPositionLoop(const std::string& droneConfig);
+
+    void initVelocityLoop(const std::string& droneConfig);
+
+    void initAngularVelocityLoop(const std::string& droneConfig);
+
+    void initAngularPositionLoop(const std::string& droneConfig);
+
 
     struct eulerAOT{
         float angleX;
@@ -164,6 +184,13 @@ class PIDDroneController : public droneControllerBase{
      */
     std::pair<std::array<float,3> , float> aotControl(requestedVehicleState request, std::array<float,3> currentState);
 
+    void generateGraph(){
+        graph.plot();
+    }
+
+    logData getLogs(){
+        return logger;
+    }
 
     inline void reset() {
         if (PIDX) PIDX->reset();

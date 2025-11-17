@@ -3,6 +3,8 @@
 #include <optional>
 #include "quaternion.h"
 #include "vectorMath.h"
+#include <cmath>
+
 
 namespace SimCore{
 //rad
@@ -32,9 +34,11 @@ poseAngleDifference(const poseState& startPose, const poseState& endPose):startP
 
 inline void setStartPose(const poseState& pose){
     startPose = pose;
+    startPose->normalize();
 }
 inline void setEndPose(const poseState& pose){
     endPose = pose;
+    endPose->normalize();
 }
 
 
@@ -69,15 +73,16 @@ rotations getDifference() {
 }
 
 inline rotationRate getRotationRate(float deltaTime){
-    if(deltaTime <= 0 ){
+    if(deltaTime <= 0 || !startPose  || !endPose){
         rotationRate rate{0,0,0};
         return rate;
     }
-    rotations posDifference = getDifference();
+    rotations poseDifference = getDifference();
     rotationRate rate;
-    rate.pitchRate = posDifference.pitch / deltaTime;
-    rate.rollRate = posDifference.roll / deltaTime;
-    rate.yawRate = posDifference.yaw / deltaTime;
+    rate.pitchRate = poseDifference.pitch / deltaTime;
+    rate.rollRate = poseDifference.roll / deltaTime;
+    rate.yawRate = poseDifference.yaw / deltaTime;
+
     return rate;
 }
 

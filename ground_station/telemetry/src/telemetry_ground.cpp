@@ -12,6 +12,8 @@ constexpr auto IP_ADDRESS = "IP";
 
 ground_station::telemetry_ground::telemetry_ground(float packet_rate) : thread_manager(packet_rate){
     m_connected = false;
+    
+    init_packet_struct();
 
     std::string contents = readFileAsString(CONFIG_PATH);
     
@@ -34,11 +36,11 @@ void ground_station::telemetry_ground::call_back(){
                 m_connected = true;
             }
         }
-        std::lock_guard<std::mutex> lock(packet_mutex);
-        if(!valid_packet(message,length)) return;
-        memcpy(&packet, message, sizeof(telemetry_packet));
+        packet_struct->set_packet_raw_data(message,length);
+        auto print_packet = packet_struct->get_packet();
+        auto attitude = print_packet.payload.attitude;
 
-        std::cout << "Packet id: " << packet.payload.position.altitude << ", value: " << packet.header.crc16 << std::endl;
+        std::cout<< attitude.pitch << " , " << attitude.roll << " , " << attitude.yaw<< std::endl;
     };
 }
 

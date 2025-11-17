@@ -137,6 +137,7 @@ void droneBody::updateState(float time,std::optional<controlPacks::variantPacket
         controlPacks::variantPackets& packet = controlInput.value();
         auto* controlPack = std::get_if<controlPacks::motorOnlyPacket>(&packet);
         controllerThrusts = controlPack->thrust;
+        
     }
     
     //turbulantWind();
@@ -145,8 +146,29 @@ void droneBody::updateState(float time,std::optional<controlPacks::variantPacket
     float current = 0;
     float density = airDensity(Zposition);
     float totalThrust = 0;
+    if(false){
+    for(int i = 0 ; i < motors.size() ; i++){
+        if(controllerThrusts.size() != motors.size()) throw runtime_error("Controller error thrust request does not equal motor count \n");
+        
+        float torqueLoad = propellers[i]->dragTorque(density,motors[i]->getCurrentAngularVelocity());
+        float angularVelocityRequest = propellers[i]->desiredAngularVelocity(density,controllerThrusts[i]);
 
+        if(angularVelocityRequest < 0) angularVelocityRequest = 0;
 
+        motors[i]->updateMotorAngularVelocity(timeStep,torqueLoad,*droneBattery,angularVelocityRequest);
+        current += abs(motors[i]->getCurrentCurrent());
+        std::array<float,3> thrustVector = normalizeVector(propellers[i]->directionTransposed);
+        float currentThrust = propellers[i]->thrustForce(density,angularVelocityRequest);
+
+        for(int j = 0 ; j < thrustVector.size();j++) thrustVector[j] = thrustVector[j] * currentThrust;
+        totalThrust += currentThrust;
+        addForce(thrustVector);
+        auto leverArm = addVectors(cogLocationTranspose , propellers[i]->locationTransposed);
+        auto moment = forceToMoment(thrustVector,leverArm);
+
+        addMoment(moment);
+    }
+}else{
     for(int i = 0 ; i < motors.size() ; i++){
         if(controllerThrusts.size() != motors.size()) throw runtime_error("Controller error thrust request does not equal motor count \n");
         
@@ -165,10 +187,11 @@ void droneBody::updateState(float time,std::optional<controlPacks::variantPacket
         addForce(thrustVector);
         auto leverArm = addVectors(cogLocationTranspose , propellers[i]->locationTransposed);
         auto moment = forceToMoment(thrustVector,leverArm);
-
+        
         addMoment(moment);
     }
-
+}
+    
     droneBattery->updateBattery(current,getTime());
     Vehicle::updateState(time);
     //TransposedProps move the transposed cordinates of the props in the prop objects within propellers.

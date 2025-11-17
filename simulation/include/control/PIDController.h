@@ -30,6 +30,7 @@ public:
     inline float getMaxOutput() const { return maxOutput; }
     inline float lastError() const {return target - previousSample;}
     inline float getPreviousSample() const {return previousSample;}
+    inline float getPreviousOutput() const {return previousOutput;}
 
 private:
     float kp;
@@ -42,6 +43,7 @@ private:
     float clampInt;
     float previousError;  
     float previousSample;
+    float previousOutput;
     float minOutput;
     float maxOutput;
 };

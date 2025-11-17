@@ -157,6 +157,10 @@ public:
             PID->reset();
         }
     }
+
+    void setPIDGains(std::tuple<float,float,float> gains){
+        PID->setGains(std::get<0>(gains),std::get<1>(gains),std::get<2>(gains));
+    }
     
     
 };

@@ -12,11 +12,12 @@
 
 
 typedef enum : uint8_t {
-    MSG_ATTITUDE   = 0x01,
-    MSG_POSITION   = 0x02,
-    MSG_VELOCITY   = 0x03,
-    MSG_STATUS     = 0x04,
-    MSG_ERROR      = 0x05
+    MSG_TELEMETRY_PACKET    = 0x00,
+    MSG_ATTITUDE            = 0x01,
+    MSG_POSITION            = 0x02,
+    MSG_VELOCITY            = 0x03,
+    MSG_STATUS              = 0x04,
+    MSG_ERROR               = 0x05
 } telemetry_msg_type;
 
 
@@ -45,9 +46,9 @@ typedef struct __attribute__((packed)) {
 } attitude_data;
 
 typedef struct __attribute__((packed)) {
-    double latitude;
-    double longitude;
-    float altitude;
+    float x;
+    float y;
+    float z;
 } position_data;
 
 typedef struct __attribute__((packed)) {

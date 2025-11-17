@@ -3,7 +3,7 @@ wind = [0.0,0.0,0.0]
 gravitationalAcceleration = -9.81
 initPosition=[-10.0,-10.0,10.0]
 initVehicleState = [0.0,0.0,1.0]
-MOI = [0.001,0.001,0.001]
+MOI = [0.01,0.01,0.01]
 initVelocity = [0.0,0.0,0.0]
 centerOfPressure = 0.0
 maxGAllowedEntry = 4.5
@@ -29,12 +29,12 @@ Kvp = 1.0
 Kvi = 0.0
 Kvd = 0.3
 
-AKp = 1.0
-AKi = 0.0
-AKd = 0.0
+AKp = 0.8
+AKi = 1.1
+AKd = 2.7
 
-AVKp = 0.002
-AVKi = 0.0
+AVKp = 0.3
+AVKi = 2.2
 AVKd = 0.0
 
 

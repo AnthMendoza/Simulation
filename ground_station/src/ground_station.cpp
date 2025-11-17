@@ -1,10 +1,14 @@
 #include "../telemetry/include/telemetry_ground.h"
 #include "../../flight_computer/telemetry/include/telemetry_packet.h"
+#include "gui/include/gui_connector.h"
 #include <iostream>
 #include <string>
 using namespace std;
 int main(){
-    ground_station::telemetry_ground telemetry(500);
+    ground_station::telemetry_ground telemetry(500); 
+    gui_connector::gui_connector gui(50);
+    gui.set_packet_ptr(telemetry.transfer_packet_struct());
+    gui.start();
     telemetry.start();
     string input;
     getline(cin,input);

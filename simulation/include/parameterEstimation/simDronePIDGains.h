@@ -1,6 +1,7 @@
 #pragma once
 #include "../sim/droneSimulation.h"
 #include "PIDTypes.h"
+#include "../utility/graphing.h"
 #include "pythonConnector.h"
 
 
@@ -19,10 +20,17 @@ std::unique_ptr<droneControllerBase> controllerStaticCopy;
 std::unique_ptr<stateEstimationBase> estimatorStaticCopy;
 std::unique_ptr<Vehicle> vehicleStaticCopy;
 
+std::unique_ptr<utility::grapher> bestResultGraph;
+
+std::unique_ptr<utility::grapher> graph;
+
 float timeStep = 0.001;
 float time = 0;
 float testDuration = 0;
 float cost = 0;
+float bestCost = 0;
+poseState desiredPose;
+threeDState bestFinalPosition = {0,0,1};
 protected:
     template<typename PIDType>
     PIDType optimizeHandler(int numberOfRuns){
@@ -36,9 +44,14 @@ protected:
             progressBar(static_cast<float>(i)/static_cast<float>(numberOfRuns));
             reset();
             simulationTest(testPID);
-            if(cost < lowestCost){
+            if(cost < lowestCost && nearResult(desiredPose)){
                 lowestCost = cost;
                 bestPID = testPID;
+                poseState bestPose= vehicle->getPose();
+                threeDState directionVector = bestPose.dirVector;
+                bestFinalPosition = directionVector;
+                bestCost = lowestCost;
+                bestResultGraph = std::move(graph);
             }
             std::cout << "Cost: " << cost << "\n"; 
             costToPython(testPID , static_cast<double>(cost));
@@ -57,6 +70,16 @@ protected:
         cost += error;
     }
 
+    bool nearResult(poseState desired){
+        float angle = vectorAngleBetween(vehicle->getPose().dirVector,desired.dirVector);
+        float EPSILON = 0.1; //rad
+        if(std::abs(angle) > EPSILON){
+            return false;
+        }
+
+        return true;
+    }
+
     //return cost
     void simulationTest(PIDPair pair){
         quaternionVehicle vehiclePose;
@@ -64,14 +87,17 @@ protected:
         float angle = 0.4;
         vehiclePose.eulerRotation(angle,0.0f,0.0f);
 
-        auto desiredPose = vehiclePose.getPose();
+        desiredPose = vehiclePose.getPose();
         
-        PIDDroneController* PIDController = dynamic_cast<PIDDroneController*>(controller.get());
+        PIDDroneController* PIDControllerObj = dynamic_cast<PIDDroneController*>(controller.get());
 
-        PIDController->setAPIDXGains(pair.first);
-        PIDController->setAPIDYGains(pair.first);
-        PIDController->setAPIDVXGains(pair.second);
-        PIDController->setAPIDVYGains(pair.second);
+        PIDControllerObj->setAPIDXGains(pair.first);
+        PIDControllerObj->setAPIDYGains(pair.first);
+        PIDControllerObj->setAPIDVXGains(pair.second);
+        PIDControllerObj->setAPIDVYGains(pair.second);
+
+        graph.reset();
+        graph = std::make_unique<utility::grapher>();
 
 
         while(time < testDuration){
@@ -80,9 +106,13 @@ protected:
             vehicle->setVelocity(0,0,0);
             auto sensorPacket = vehicle->sensors->getSensorData();
             estimator->updateEstimation(time,sensorPacket);
-            auto controlPacket = PIDController->updateAOTHold(time,estimator->getStateInfo(),desiredPose);
+            auto controlPacket = PIDControllerObj->updateAOTHold(time,estimator->getStateInfo(),desiredPose);
             vehicle->updateState(time,controlPacket);
             auto pose = vehicle->getPose();
+
+            auto loggedData = PIDControllerObj->getLogs();
+
+            graph->dataEntry(time,loggedData.pitchDesiredVelo,loggedData.pitchVelo,loggedData.rollDesiredVelo,loggedData.rollVelo);
 
             float error = vectorAngleBetween(pose.dirVector , desiredPose.dirVector);
             costFunction(error);
@@ -107,10 +137,13 @@ public:
         estimatorStaticCopy = estimator->clone();
         vehicleStaticCopy = vehicle->clone();
 
-        testDuration = 5;
-        auto result = optimizeHandler<PIDPair>(2000);
+        testDuration = 4.0;
+        auto result = optimizeHandler<PIDPair>(500);
         std::cout<< "Best PIDs : \n";
         printPIDPair(result);
+        print(bestFinalPosition,"Best Final Vector");
+        print(bestCost,"lowestCost");
+        bestResultGraph->plot();
     }
 
 

@@ -86,6 +86,7 @@ set(SUBSYSTEMS_SRC
 set(UTILITY_SRC
     src/utility/time_manager.cpp
     src/utility/logger.cpp
+    src/utility/graphing.cpp
 )
 
 # Static Library
@@ -120,9 +121,12 @@ add_executable(drone
 )
 
 add_executable(dronePIDGains
-    src/parameterEstimation/testMain.cpp
+    src/parameterEstimation/AOTEstimationMain.cpp
 )
 
+add_executable(motorPIDGains
+    src/parameterEstimation/motorEstimationMain.cpp
+)
 
 # Tests
 enable_testing()
@@ -135,12 +139,12 @@ add_executable(tests
     tests/PIDControllerTest.cpp
     tests/momentValidationTest.cpp
     tests/PIDDroneControllerTest.cpp
-    tests/droneSystemTest.cpp
     tests/poseRotationTest.cpp
+    tests/PIDAOTTest.cpp
 )
 
 # Link MySim and Python into all executables
-foreach(TARGET  drone tests dronePIDGains)
+foreach(TARGET  drone tests dronePIDGains motorPIDGains)
     target_link_libraries(${TARGET}
         PRIVATE
         MySim

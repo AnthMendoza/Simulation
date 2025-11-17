@@ -67,5 +67,8 @@ float PIDController::update(const float& measurement , const float deltaTime) {
     output = std::clamp(output, minOutput, maxOutput);
     previousSample = measurement;
     previousError = error;
+
+    previousOutput = output;
+    
     return output;
 }

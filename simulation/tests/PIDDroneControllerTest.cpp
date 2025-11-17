@@ -167,7 +167,7 @@ TEST_F(PIDDroneControllerFixture, ComputeBasisAOT_YAxisTest) {
     normalizeVectorInPlace(requestedState.vehicleState);
 
     auto result = controller->computeVehicleBasisAOT(originalPose, requestedState);
-
+    std::cout<< angleAroundY << ","<<-result.angleY <<"\n ";
     EXPECT_FLOAT_EQ(angleAroundY, -result.angleY);
 }
 
@@ -252,3 +252,5 @@ TEST_F(PIDDroneControllerFixture, angularVelocityY){
     auto rate = controller->computeAngularVelocityFromAOT(euler,deltaTime);
 
 }
+
+

@@ -55,7 +55,7 @@ void flight_computer::telemetry::call_back(){
 
         memcpy(&packet, message, length);
 
-        std::cout << "Packet id: " << packet.payload.position.altitude << ", value: " << packet.header.crc16 << std::endl;
+        std::cout << "Packet id: " << packet.payload.position.z << std::endl;
     };
 }
 
@@ -85,7 +85,18 @@ void flight_computer::telemetry::thread_proccess(){
 
 void flight_computer::telemetry::thread_startup_proccess(){
     telemetry_packet packet{};
-    packet.payload.position.altitude = 20.0f;
+    auto& attitude = packet.payload.attitude;
+    attitude.pitch = 1;
+    attitude.roll = 2;
+    attitude.yaw = 3;
+
+    auto& pos = packet.payload.position;
+
+    pos.x = 1;
+    pos.y = 2;
+    pos.z = 3;
+    
+    
     set_packet(packet);
 }
 

@@ -12,6 +12,7 @@ add_executable(ground_station
     src/ground_station.cpp
     telemetry/src/telemetry_ground.cpp
     ../simulation/src/sim/toml.cpp
+    src/gui/src/gui_connector.cpp
 )
 
 target_link_libraries(ground_station

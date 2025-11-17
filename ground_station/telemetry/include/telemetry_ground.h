@@ -6,6 +6,7 @@
 #include "../../../flight_computer/telemetry/include/telemetry_packet.h"
 #include "../../../flight_computer/async-sockets/include/udpsocket.hpp"
 #include "../../../flight_computer/include/thread_manager.h"
+#include "packet_threaded.h"
 
 
 namespace ground_station{
@@ -16,12 +17,16 @@ struct start_up_packet{
 };
 #pragma pack(pop)
 
+using packet_mutex = telemetry::packet_with_mutex<telemetry_packet>;
+
+using packet_mutex_ptr = std::shared_ptr<packet_mutex>;
+
+
 class telemetry_ground : public thread_manager{
 
 private:
     std::shared_ptr<UDPSocket<>> udp_bridge;
-    std::mutex packet_mutex;
-    telemetry_packet packet;
+    packet_mutex_ptr packet_struct;
     std::string m_interface;
     start_up_packet start_packet;
     int m_baudrate;
@@ -61,14 +66,23 @@ public:
     }
 
     inline telemetry_packet get_telemetry_packet(){
-        return packet;
+        return packet_struct->get_packet();
     }
 
+    inline void init_packet_struct(){
+        packet_struct = std::make_shared<packet_mutex>();
+        telemetry_packet pack = {};
+        packet_struct->set_packet(pack);
+    }
 
+    inline packet_mutex_ptr transfer_packet_struct(){
+        return packet_struct;
+    }
 
     bool valid_packet(const char* message, int length);
 
     bool validate_start_up(ground_station::start_up_packet& start_packet);
+
 };
 
 

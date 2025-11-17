@@ -37,8 +37,11 @@ public:
 
     Quaternion operator*(const Quaternion& quat) const;
 
-   inline Quaternion normalized(){
+   [[nodiscard]]inline Quaternion normalized() const {
     float norm = std::sqrt(w*w + x*x + y*y + z*z);
+    if(norm < 1e-8f) { 
+        return Quaternion(1, 0, 0, 0);
+    }
     return Quaternion(w / norm, x / norm, y / norm, z / norm);
     }
 
@@ -238,6 +241,11 @@ void getQuaternionRotationState(){
             normalizeVectorInPlace(alignmentPose.rightVector);
 
         }
+        normalizeVectorInPlace(alignmentPose.dirVector);
+        vectorCrossProduct(alignmentPose.dirVector, alignmentPose.fwdVector, alignmentPose.rightVector);
+        normalizeVectorInPlace(alignmentPose.rightVector);
+        vectorCrossProduct(alignmentPose.rightVector, alignmentPose.dirVector, alignmentPose.fwdVector);
+        normalizeVectorInPlace(alignmentPose.fwdVector);
     }
 
 };

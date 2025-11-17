@@ -33,12 +33,17 @@ std::array<float, 3> rotateVector(const Quaternion& q, const std::array<float, 3
 Quaternion fromAxisAngle(const std::array<float, 3> axis, float angle_rad) {
     float half_angle = angle_rad / 2.0f;
     float s = sin(half_angle);
-    return Quaternion{
+    Quaternion quant{
         cos(half_angle),
         axis[0] * s,
         axis[1] * s,
         axis[2] * s
     };
+
+    quant = quant.normalized();
+
+    return quant;
+
 }
 
 static constexpr float EPSILON = 1e-4;

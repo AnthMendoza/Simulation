@@ -5,6 +5,8 @@
 #include <string>
 #include <fstream>
 
+
+
 // percentage: float between 0.0 and 1.0
 inline void progressBar(float percentage) {
     static const int barWidth = 100;
@@ -57,6 +59,11 @@ inline void print(const std::vector<T>& vec, const char* name) {
 
 inline std::string readFileAsString(const std::string& filePath) {
     std::ifstream inFile(filePath);
+    if(!inFile.is_open()){
+        std::cerr<< "Path to File not found : "<< filePath << "\n";
+        std::string nullString = "";
+        return nullString;
+    }
     std::stringstream buffer;
     buffer << inFile.rdbuf();
     return buffer.str();
@@ -86,3 +93,4 @@ inline bool validateDirection(float val, direction dir) {
         return true;
     return false;
 }
+

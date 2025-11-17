@@ -60,11 +60,11 @@ allocatorData controlAllocator::computeAllocation(controlPacks::forceMoments req
     auto force = requestPacket.force;
     auto moments = requestPacket.moments;
 
-    auto desired = toVectorXd({force[0],force[1],force[2],moments[0],moments[1],moments[2]});
+    Eigen::VectorXd desired = toVectorXd({force[0],force[1],force[2],moments[0],moments[1],moments[2]});
 
-    auto thrusts = allocate(desired);
+    Eigen::VectorXd thrusts = allocate(desired);
 
-    auto output = computeWrench(thrusts);
+    Eigen::VectorXd output = computeWrench(thrusts);
     
 
     

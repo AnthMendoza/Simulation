@@ -6,6 +6,7 @@
 #include "../subsystems/propeller.h"
 #include "controlRequestStructs.h"
 #include "../utility/movingAverage.h"
+#include "../utility/utility.h"
 
 using namespace Eigen;
 using namespace std;
@@ -14,7 +15,29 @@ namespace SimCore{
 struct allocatorData{
     std::vector<float> thrusts;
     threeDState forces;
-    threeDState moments;
+    threeDState moments; 
+
+    inline void printAllocatorData() {
+        std::cout << "Allocator Data:\n";
+
+        std::cout << "  Thrusts: [";
+        for (size_t i = 0; i < thrusts.size(); ++i) {
+            std::cout << thrusts[i];
+            if (i < thrusts.size() - 1) std::cout << ", ";
+        }
+        std::cout << "]\n";
+
+        std::cout << "  Forces:  ["
+                  << forces[0] << ", "
+                  << forces[1] << ", "
+                  << forces[2] << "]\n";
+
+
+        std::cout << "  Moments: ["
+                  << moments[0] << ", "
+                  << moments[1] << ", "
+                  << moments[2] << "]\n";
+    }
 };
 
 
