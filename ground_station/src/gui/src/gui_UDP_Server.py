@@ -16,7 +16,7 @@ class server:
 
         self.UDP_callback = UDP_callback
         
-        self.bufferSize = 1024
+        self.bufferSize = 2048
 
     def start(self):
         self.running = True

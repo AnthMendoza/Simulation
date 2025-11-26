@@ -1,134 +1,130 @@
-import struct
-from enum import IntEnum
-import queue
+from ctypes import *
+from threading import Lock
+import time
+from collections import namedtuple
 
-class msg_type(IntEnum):
-    MSG_TELEMETRY_PACKET    = 0x00
-    MSG_ATTITUDE            = 0x01
-    MSG_POSITION            = 0x02
-    MSG_VELOCITY            = 0x03
-    MSG_STATUS              = 0x04
-    MSG_ERROR               = 0x05
-    MSG_ROTOR               = 0x06
+#changed to ctypes as its far more readable. and less confusing to implment
 
+class VehicleState(c_uint8):
+    VEHICLE_INIT    = 0x00
+    VEHICLE_ARMED   = 0x01
+    VEHICLE_FLIGHT  = 0x02
+    VEHICLE_LANDING = 0x03
+    VEHICLE_ERROR   = 0xFF
 
-
-
-class msg_parse:
-
-    def parse_attitude(self, data):
-        roll, pitch, yaw = struct.unpack("<fff", data)
-        return {
-            "roll": roll,
-            "pitch": pitch,
-            "yaw": yaw
-        }
-
-    def parse_position(self, data):
-        lat, lon, alt = struct.unpack("<fff", data)
-        return {
-            "x": lat,
-            "y": lon,
-            "z": alt
-        }
-
-    def parse_velocity(self, data):
-        vx, vy, vz = struct.unpack("<fff", data)
-        return {
-            "vx": vx, "vy": vy, "vz": vz
-        }
-
-    def parse_status(self, data):
-        
-        return {
-
-        }
-
-    def parse_error(self, data):
-        code, msg_raw = struct.unpack("<B32s", data)
-        message = msg_raw.split(b'\x00', 1)[0].decode('utf-8')
-        return {
-            "code": code,
-            "message": message
-        }
-
-    def parse_rotor(self, data):
-        (ang_vel,) = struct.unpack("<f", data)
-        return {
-            "angular_velocity": ang_vel
-        }
-
-    def telemetry_packet(self, data):
-
-        Size_ATT   = 12
-        Size_POS   = 12
-        Size_VEL   = 12
-        Size_STAT  = 6 
-
-        offset_ATT   = 0
-        offset_POS   = offset_ATT + Size_ATT
-        offset_VEL   = offset_POS + Size_POS
-        offset_STAT  = offset_VEL + Size_VEL
-        offset_ROTOR = offset_STAT + Size_STAT
-
-        attitude_raw = data[offset_ATT : offset_POS]
-        position_raw = data[offset_POS : offset_VEL]
-        velocity_raw = data[offset_VEL : offset_STAT]
-        status_raw   = data[offset_STAT: offset_ROTOR]
-
-        return {
-            **self.parse_attitude(attitude_raw),
-            **self.parse_position(position_raw),
-            **self.parse_velocity(velocity_raw),
-            **self.parse_status(status_raw)
-        }
+class TelemetryHeader(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("sync_word", c_uint32),
+        ("version", c_uint8),
+        ("msg_type", c_uint8),
+        ("sequence", c_uint16),
+        ("payload_length", c_uint16),
+    ]
 
 
-
-def parse_header(data):
-    type = struct.unpack('<B' , data[:1])[0]
-    return type
-
-
-def parse_handler(data):
-    type = parse_header(data)
-    size_of_header = 1
-    payload = data[size_of_header:]
-
-    parser = msg_parse()
-    
-    handlers = {
-            msg_type.MSG_ATTITUDE:          parser.parse_attitude,
-            msg_type.MSG_POSITION:          parser.parse_position,
-            msg_type.MSG_VELOCITY:          parser.parse_velocity,
-            msg_type.MSG_STATUS:            parser.parse_status,
-            msg_type.MSG_ERROR:             parser.parse_error,
-            msg_type.MSG_ROTOR:             parser.parse_rotor,
-            msg_type.MSG_TELEMETRY_PACKET:  parser.telemetry_packet
-        }
-
-    
-    return handlers[type](payload)
-    
+class AttitudeData(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("roll", c_float),
+        ("pitch", c_float),
+        ("yaw", c_float),
+    ]
 
 
+class PositionData(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("x", c_float),
+        ("y", c_float),
+        ("z", c_float),
+    ]
 
-class telemetry_queue:
+
+class VelocityData(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("vx", c_float),
+        ("vy", c_float),
+        ("vz", c_float),
+    ]
+
+
+class StatusData(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("state", VehicleState),
+        ("uptime", c_uint32),
+        ("battery_percent", c_uint8),
+    ]
+
+
+class ErrorData(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+
+
+        ("code", c_uint8),
+        ("message", c_char * 32),
+    ]
+
+
+class RotorState(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("angular_velocity", c_float),
+    ]
+
+
+class TelemetryPayload(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("attitude", AttitudeData),
+        ("position", PositionData),
+        ("velocity", VelocityData),
+        ("status", StatusData),
+        ("error", ErrorData),
+        ("crc32", c_uint32),
+    ]
+
+
+class TelemetryPacket(LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("header", TelemetryHeader),
+        ("payload", TelemetryPayload),
+    ]
+
+data_with_time = namedtuple('data_with_time', ['data', 'time'])
+
+class telemetry_latest_packet:
 
     def __init__(self):
-        self.que = queue.Queue()
+        self.packet_lock = Lock()
+        self.latest_parsed_data = None
+        self.last_time_stamp = 0
     
 
     def insert(self,data):
-        parsed_data = parse_handler(data)
-        self.que.put(parsed_data)
+        try:
+            self.packet_lock.acquire()
+
+            if len(data) >= sizeof(TelemetryPacket):
+                self.latest_parsed_data = TelemetryPacket.from_buffer_copy(data)
+
+        except:
+            pass
+        finally:
+            self.packet_lock.release()
 
 
     def get(self):
-        merged_dict = {}
-        while not self.que.empty():
-            data = self.que.get()
-            print("DEBUG: got from queue:", data, type(data))
-            merged_dict.update(data)
-
-        return merged_dict
+        with self.packet_lock:
+            if self.latest_parsed_data is not None:
+                self.last_time_stamp = time.time()
+                packet = data_with_time(self.latest_parsed_data, self.last_time_stamp)
+                self.latest_parsed_data = None
+                return packet
+            else:
+                packet = data_with_time(None, self.last_time_stamp)
+                return packet

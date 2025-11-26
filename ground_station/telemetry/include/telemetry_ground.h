@@ -4,7 +4,7 @@
 #include <mutex>
 #include <string>
 #include "../../../flight_computer/telemetry/include/telemetry_packet.h"
-#include "../../../flight_computer/async-sockets/include/udpsocket.hpp"
+#include "../../../flight_computer/third_party/async-sockets/include/udpsocket.hpp"
 #include "../../../flight_computer/include/thread_manager.h"
 #include "packet_threaded.h"
 
@@ -15,9 +15,15 @@ namespace ground_station{
 struct start_up_packet{
     std::uint32_t magic_number = 0x12345678;
 };
+
+struct ack_packet{
+    std::uint32_t ack = 0xAABBCCDD;
+};
+
+
 #pragma pack(pop)
 
-using packet_mutex = telemetry::packet_with_mutex<telemetry_packet>;
+using packet_mutex = utility::telemetry::packet_with_mutex<telemetry_packet_gui>;
 
 using packet_mutex_ptr = std::shared_ptr<packet_mutex>;
 
@@ -65,13 +71,24 @@ public:
         udp_bridge->Close();
     }
 
-    inline telemetry_packet get_telemetry_packet(){
+    inline telemetry_packet_gui get_telemetry_packet(){
         return packet_struct->get_packet();
     }
 
     inline void init_packet_struct(){
         packet_struct = std::make_shared<packet_mutex>();
-        telemetry_packet pack = {};
+        telemetry_packet_gui pack = {};
+
+        pack.attitude.pitch = 1;
+        pack.attitude.roll = 2;
+        pack.attitude.yaw = 3;
+        pack.position.x = 10;
+        pack.position.y = 20;
+        pack.position.z = 30;
+        pack.velocity.vx = 10;
+        pack.velocity.vy = 0;
+        pack.velocity.vz = 0;
+
         packet_struct->set_packet(pack);
     }
 

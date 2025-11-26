@@ -82,10 +82,20 @@ typedef struct __attribute__((packed)) {
         velocity_data velocity;
         status_data   status;
         error_data    error;
-        uint32_t      crc32;
     } payload;
+    uint32_t      crc32;
 } telemetry_packet;
 
+
+typedef struct __attribute__((packed)) {
+    telemetry_header header;
+    attitude_data attitude;
+    position_data position;
+    velocity_data velocity;
+    status_data   status;
+    error_data    error;
+    uint32_t      crc32;
+} telemetry_packet_gui;
 
                                 
 #define HEALTH_IMU_OK       (1 << 0)

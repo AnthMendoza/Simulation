@@ -8,6 +8,7 @@ import math
 import random
 import gui_UDP_Server
 import packet_handling
+import time
 
 class AttitudeIndicator(QWidget):
     """Custom widget to display drone orientation (pitch/roll)"""
@@ -118,6 +119,36 @@ class CompassWidget(QWidget):
         painter.setFont(QFont('Arial', 14, QFont.Weight.Bold))
         painter.drawText(0, 5, w, 25, Qt.AlignmentFlag.AlignCenter, 
                         f"{int(self.heading)}°")
+        
+
+
+
+class ConnectionWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setMinimumSize(30,40)
+        self.label = QLabel("Disconnected", self)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setStyleSheet("font-size: 24px; color: red;")
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        self.setLayout(layout)
+        
+
+    def check_connection(self,state):
+        if state:
+            self.label.setText("Connected")
+            self.label.setStyleSheet("font-size: 24px; color: green;")
+        else:
+            self.label.setText("Disconnected")
+            self.label.setStyleSheet("font-size: 24px; color: red;")
+
+
+
+
+TIMEOUT_DURATION = 1.5 #seconds
+
+
 
 class DroneGUI(QMainWindow):
     def __init__(self):
@@ -136,8 +167,8 @@ class DroneGUI(QMainWindow):
         self.distance_traveled = 0.0
         self.altitude_agl = 0.0 
 
-        self.que = packet_handling.telemetry_queue()
-        udp = gui_UDP_Server.server(UDP_callback=self.que.insert)
+        self.packet_handler = packet_handling.telemetry_latest_packet()
+        udp = gui_UDP_Server.server(UDP_callback=self.packet_handler.insert)
         udp.start()
         
         self.init_ui()
@@ -146,6 +177,8 @@ class DroneGUI(QMainWindow):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_telemetry)
         self.timer.start(100) 
+
+        self.last_gui_update = 0
 
 
     def init_ui(self):
@@ -172,6 +205,8 @@ class DroneGUI(QMainWindow):
         left_panel.addWidget(compass_group)
         
         left_panel.addStretch()
+
+
         
 
         right_panel = QVBoxLayout()
@@ -193,6 +228,7 @@ class DroneGUI(QMainWindow):
             
         pos_group.setLayout(pos_layout)
         right_panel.addWidget(pos_group)
+
         
     
 
@@ -299,6 +335,9 @@ class DroneGUI(QMainWindow):
         main_layout.addLayout(left_panel, 1)
         main_layout.addLayout(right_panel, 1)
 
+        self.connection = ConnectionWidget()
+        right_panel.addWidget(self.connection)
+
     def battery(self):
         if self.battery > 30:
             color = "#00ff00"
@@ -317,17 +356,65 @@ class DroneGUI(QMainWindow):
             QProgressBar::chunk {{
                 background-color: {color};
             }}""")  
-          
+
+    def set_connection_identifier(self,delta_time):
+        if delta_time > TIMEOUT_DURATION:
+            self.connection.check_connection(False)
+        else:
+            self.connection.check_connection(True)
+
     def update_telemetry(self):
-        data = self.que.get()
-        if not data:
+
+        data_time = self.packet_handler.get()
+
+        dt = time.time() - data_time.time
+
+        self.set_connection_identifier(dt)
+
+        if data_time.data is None:
+            
             return
-        print("has data")
-    
-        for axis in ['vx', 'vy', 'vz']:
-            if axis in data:
-                value = data[axis]
-                self.vel_labels[axis].setText(f"{value:.2f} m/s")
+
+        self.last_gui_update = data_time.time
+
+        data = data_time.data
+
+        self.position['x'] = data.payload.position.x
+        self.position['y'] = data.payload.position.y
+        self.position['z'] = data.payload.position.z
+
+        self.pos_labels['x'].setText(f"{self.position['x']:.2f} m")
+        self.pos_labels['y'].setText(f"{self.position['y']:.2f} m")
+        self.pos_labels['z'].setText(f"{self.position['z']:.2f} m")
+
+
+
+        self.velocity['x'] = data.payload.velocity.vx
+        self.velocity['y'] = data.payload.velocity.vy
+        self.velocity['z'] = data.payload.velocity.vz
+
+        self.vel_labels['vx'].setText(f"{self.velocity['x']:.2f} m/s")
+        self.vel_labels['vy'].setText(f"{self.velocity['y']:.2f} m/s")
+        self.vel_labels['vz'].setText(f"{self.velocity['z']:.2f} m/s")
+
+
+
+        self.attitude['roll'] = data.payload.attitude.roll
+        self.attitude['pitch'] = data.payload.attitude.pitch
+        self.attitude['yaw'] = data.payload.attitude.yaw
+
+        self.orient_labels['roll'].setText(f"{self.attitude['roll']:.1f}°")
+        self.orient_labels['pitch'].setText(f"{self.attitude['pitch']:.1f}°")
+        self.orient_labels['yaw'].setText(f"{self.attitude['yaw']:.1f}°")
+
+
+
+        self.attitude_indicator.set_attitude(pitch=self.attitude['pitch'], roll=self.attitude['roll'])
+        self.compass.set_heading(self.attitude['yaw'])
+
+            
+
+
 
         
         

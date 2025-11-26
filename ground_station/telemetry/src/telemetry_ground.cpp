@@ -27,22 +27,29 @@ ground_station::telemetry_ground::telemetry_ground(float packet_rate) : thread_m
     udp_bridge->Connect(IP,port);
 }
 
+bool validate_acknowledge(ground_station::ack_packet& start_ack){
+    ground_station::ack_packet reference_packet;
+    if(reference_packet.ack == start_ack.ack){
+        return true;
+    }
+    return false;
+}
+
 void ground_station::telemetry_ground::call_back(){
     udp_bridge->onRawMessageReceived = [&](const char* message, int length, std::string ipv4, uint16_t port) {
-        if(!m_connected &&  length == sizeof(ground_station::start_up_packet)){
-            ground_station::start_up_packet reference_packet{0x00000000};
-            memcpy(&reference_packet,message,length);
-            if(validate_start_up(reference_packet)){
+        if(!m_connected && length == sizeof(ground_station::ack_packet)){
+            ground_station::ack_packet reference_packet{0x00000000};
+            memcpy(&reference_packet, message, sizeof(reference_packet));
+
+            if(validate_acknowledge(reference_packet)){
                 m_connected = true;
+                std::cout<<"Flight Computer acknowledge recieved \n";
             }
         }
-        packet_struct->set_packet_raw_data(message,length);
-        auto print_packet = packet_struct->get_packet();
-        auto attitude = print_packet.payload.attitude;
-
-        std::cout<< attitude.pitch << " , " << attitude.roll << " , " << attitude.yaw<< std::endl;
     };
 }
+
+
 
 
 void ground_station::telemetry_ground::start_up(){
@@ -73,9 +80,9 @@ void ground_station::telemetry_ground::thread_startup_proccess(){
 
 void ground_station::telemetry_ground::thread_proccess(){
     if(!is_connected()){
-        start_up_packet start_packet;
-        send(start_packet);
-        std::cout<< "init packet from ground\n";
+        start_up();
+        std::cout<< "init packet sent from ground. \n";
+
         return;
     }
 }

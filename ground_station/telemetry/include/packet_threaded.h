@@ -3,6 +3,8 @@
 #include "../../../flight_computer/telemetry/include/telemetry_packet.h"
 #include <memory>
 
+namespace utility{
+
 namespace telemetry{
 
 template<typename packet_type>
@@ -40,5 +42,7 @@ class packet_with_mutex{
     }
 
 };
+
+}
 
 }

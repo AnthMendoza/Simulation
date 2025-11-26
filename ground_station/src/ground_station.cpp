@@ -6,7 +6,7 @@
 using namespace std;
 int main(){
     ground_station::telemetry_ground telemetry(500); 
-    gui_connector::gui_connector gui(50);
+    gui_connector::gui_connector gui(500);
     gui.set_packet_ptr(telemetry.transfer_packet_struct());
     gui.start();
     telemetry.start();

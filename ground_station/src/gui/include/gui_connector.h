@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../../../../flight_computer/include/thread_manager.h"
-#include "../../../../flight_computer/async-sockets/include/udpsocket.hpp"
+#include "../../../../flight_computer/third_party/async-sockets/include/udpsocket.hpp"
 #include "../../../../flight_computer/telemetry/include/telemetry_packet.h"
 #include "../../../telemetry/include/packet_threaded.h"
 
 namespace gui_connector{
 
-using packet_mutex_ptr = std::shared_ptr<telemetry::packet_with_mutex<telemetry_packet>>;
+using packet_mutex_ptr = std::shared_ptr<telemetry::packet_with_mutex<telemetry_packet_gui>>;
 
 class gui_connector : public thread_manager{
 

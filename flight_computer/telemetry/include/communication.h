@@ -9,8 +9,9 @@
 #include <iostream>
 #include <atomic>
 #include "telemetry_packet.h"
-#include "../../async-sockets/include/udpserver.hpp"
+#include "../../third_party/async-sockets/include/udpserver.hpp"
 #include "../../../ground_station/telemetry/include/telemetry_ground.h"
+#include "../../../ground_station/telemetry/include/packet_threaded.h"
 #include "../../include/thread_manager.h"
 
 namespace flight_computer{
@@ -20,8 +21,7 @@ class telemetry: public thread_manager{
 
 private:
 std::shared_ptr<UDPServer<>> udp_bridge;
-std::mutex packet_mutex;
-telemetry_packet packet;
+utility::telemetry::packet_with_mutex<telemetry_packet> packet_mutex; 
 std::string m_interface;
 std::string ipv4_tel;
 uint16_t port_tel;
@@ -59,13 +59,12 @@ public:
         return m_connected;
     }
  
-    inline void close()const{
+    inline void close()const{ 
         udp_bridge->Close();
     }
 
     inline void set_packet(telemetry_packet& ref_packet){
-        std::lock_guard<std::mutex> lock(packet_mutex);
-        packet = ref_packet;
+        packet_mutex.set_packet(ref_packet);
     }
 
     bool validate_start_up(ground_station::start_up_packet& start_packet);
