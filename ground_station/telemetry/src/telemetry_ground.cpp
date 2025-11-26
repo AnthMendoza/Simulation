@@ -27,25 +27,21 @@ ground_station::telemetry_ground::telemetry_ground(float packet_rate) : thread_m
     udp_bridge->Connect(IP,port);
 }
 
-bool validate_acknowledge(ground_station::ack_packet& start_ack){
-    ground_station::ack_packet reference_packet;
-    if(reference_packet.ack == start_ack.ack){
-        return true;
-    }
-    return false;
-}
+
 
 void ground_station::telemetry_ground::call_back(){
     udp_bridge->onRawMessageReceived = [&](const char* message, int length, std::string ipv4, uint16_t port) {
-        if(!m_connected && length == sizeof(ground_station::ack_packet)){
-            ground_station::ack_packet reference_packet{0x00000000};
-            memcpy(&reference_packet, message, sizeof(reference_packet));
 
-            if(validate_acknowledge(reference_packet)){
-                m_connected = true;
-                std::cout<<"Flight Computer acknowledge recieved \n";
-            }
+        std::optional<telemetry_packet_manager::PayloadVariant> parsed = telemetry_manager.recieved(reinterpret_cast<const uint8_t*>(message),length);
+
+        if(parsed == std::nullopt){
+            return;
         }
+
+        m_connected = true;
+
+        handle_payload_variant(*parsed);
+
     };
 }
 
@@ -87,6 +83,45 @@ void ground_station::telemetry_ground::thread_proccess(){
     }
 }
 
+
+
+void ground_station::telemetry_ground::handle_payload_variant(telemetry_packet_manager::PayloadVariant& payload_variant){
+
+    if (auto p = std::get_if<attitude_data>(&payload_variant)) {
+        attitude_data data = *p;
+        gui_packet->modify([data](telemetry_packet_gui& packet) {
+            packet.attitude = data;
+        });
+        std::cout << "Roll: " << p->roll << ", Pitch: " << p->pitch << ", Yaw: " << p->yaw << std::endl;
+    }else if (auto p = std::get_if<position_data>(&payload_variant)) {
+        position_data data = *p;
+        gui_packet->modify([data](telemetry_packet_gui& packet) {
+            packet.position = data;
+        });
+        std::cout << "X: " << p->x << ", Y: " << p->y << ", Z: " << p->z << std::endl;
+    }else if (auto p = std::get_if<velocity_data>(&payload_variant)) {
+        velocity_data data = *p;
+        gui_packet->modify([data](telemetry_packet_gui& packet) {
+            packet.velocity = data;
+        });
+        std::cout << "VX: " << p->vx << ", VY: " << p->vy << ", VZ: " << p->vz << std::endl;
+    }else if (auto p = std::get_if<status_data>(&payload_variant)) {
+        status_data data = *p;
+        gui_packet->modify([data](telemetry_packet_gui& packet) {
+            packet.status = data;
+        });
+        std::cout << "Status: " << p->state << std::endl;
+    }else if (auto p = std::get_if<error_data>(&payload_variant)) {
+        error_data data = *p;
+        gui_packet->modify([data](telemetry_packet_gui& packet) {
+            packet.error = data;
+        });
+        std::cout << "Error: " << p->code << std::endl;
+    }else {
+        std::cerr << "Unknown payload type!" << std::endl;
+    }
+
+}
 
 
 

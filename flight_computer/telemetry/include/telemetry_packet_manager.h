@@ -1,15 +1,14 @@
 #pragma once
 
-#include "../../ground_station/telemetry/include/packet_threaded.h"
+#include "../../../ground_station/telemetry/include/packet_threaded.h"
 #include "telemetry_packet.h"
-#include "../third_party/CRC.h"
+#include "../../third_party/CRC.h"
 #include <variant>
 #include <optional>
 
 class telemetry_packet_manager : public utility::telemetry::packet_with_mutex<telemetry_packet>{
 
 private: 
-
 
 
     void set_crc32(telemetry_packet& packet){

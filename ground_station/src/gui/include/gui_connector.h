@@ -7,7 +7,7 @@
 
 namespace gui_connector{
 
-using packet_mutex_ptr = std::shared_ptr<telemetry::packet_with_mutex<telemetry_packet_gui>>;
+using packet_mutex_ptr = std::shared_ptr<utility::telemetry::packet_with_mutex<telemetry_packet_gui>>;
 
 class gui_connector : public thread_manager{
 

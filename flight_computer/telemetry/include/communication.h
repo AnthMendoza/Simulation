@@ -13,6 +13,7 @@
 #include "../../../ground_station/telemetry/include/telemetry_ground.h"
 #include "../../../ground_station/telemetry/include/packet_threaded.h"
 #include "../../include/thread_manager.h"
+#include "telemetry_packet_manager.h"
 
 namespace flight_computer{
 
@@ -21,7 +22,7 @@ class telemetry: public thread_manager{
 
 private:
 std::shared_ptr<UDPServer<>> udp_bridge;
-utility::telemetry::packet_with_mutex<telemetry_packet> packet_mutex; 
+telemetry_packet_manager packet_manager;
 std::string m_interface;
 std::string ipv4_tel;
 uint16_t port_tel;
@@ -64,7 +65,7 @@ public:
     }
 
     inline void set_packet(telemetry_packet& ref_packet){
-        packet_mutex.set_packet(ref_packet);
+        packet_manager.set_packet(ref_packet);
     }
 
     bool validate_start_up(ground_station::start_up_packet& start_packet);

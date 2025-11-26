@@ -4,6 +4,7 @@
 #include <mutex>
 #include <string>
 #include "../../../flight_computer/telemetry/include/telemetry_packet.h"
+#include "../../../flight_computer/telemetry/include/telemetry_packet_manager.h"
 #include "../../../flight_computer/third_party/async-sockets/include/udpsocket.hpp"
 #include "../../../flight_computer/include/thread_manager.h"
 #include "packet_threaded.h"
@@ -16,11 +17,6 @@ struct start_up_packet{
     std::uint32_t magic_number = 0x12345678;
 };
 
-struct ack_packet{
-    std::uint32_t ack = 0xAABBCCDD;
-};
-
-
 #pragma pack(pop)
 
 using packet_mutex = utility::telemetry::packet_with_mutex<telemetry_packet_gui>;
@@ -32,7 +28,8 @@ class telemetry_ground : public thread_manager{
 
 private:
     std::shared_ptr<UDPSocket<>> udp_bridge;
-    packet_mutex_ptr packet_struct;
+    packet_mutex_ptr gui_packet;
+    telemetry_packet_manager telemetry_manager;
     std::string m_interface;
     start_up_packet start_packet;
     int m_baudrate;
@@ -72,33 +69,25 @@ public:
     }
 
     inline telemetry_packet_gui get_telemetry_packet(){
-        return packet_struct->get_packet();
+        return gui_packet->get_packet();
     }
 
     inline void init_packet_struct(){
-        packet_struct = std::make_shared<packet_mutex>();
+        gui_packet= std::make_shared<packet_mutex>();
         telemetry_packet_gui pack = {};
 
-        pack.attitude.pitch = 1;
-        pack.attitude.roll = 2;
-        pack.attitude.yaw = 3;
-        pack.position.x = 10;
-        pack.position.y = 20;
-        pack.position.z = 30;
-        pack.velocity.vx = 10;
-        pack.velocity.vy = 0;
-        pack.velocity.vz = 0;
-
-        packet_struct->set_packet(pack);
+        gui_packet->set_packet(pack);
     }
 
     inline packet_mutex_ptr transfer_packet_struct(){
-        return packet_struct;
+        return gui_packet;
     }
 
     bool valid_packet(const char* message, int length);
 
     bool validate_start_up(ground_station::start_up_packet& start_packet);
+
+    void handle_payload_variant(telemetry_packet_manager::PayloadVariant& payload_variant);
 
 };
 

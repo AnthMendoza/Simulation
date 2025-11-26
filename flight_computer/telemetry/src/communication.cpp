@@ -58,7 +58,8 @@ void flight_computer::telemetry::call_back(){
 }
 
 void flight_computer::telemetry::send_packet(){
-    auto packet = packet_mutex.get_packet();
+    auto packet = packet_manager.get_packet();
+
     send(packet);
 }
 
@@ -82,19 +83,8 @@ void flight_computer::telemetry::thread_proccess(){
 }
 
 void flight_computer::telemetry::thread_startup_proccess(){
-    telemetry_packet packet{};
-    auto& attitude = packet.payload.attitude;
-    attitude.pitch = 1;
-    attitude.roll = 2;
-    attitude.yaw = 3;
 
-    auto& pos = packet.payload.position;
+    packet_manager.set_position(1,2,3);
 
-    pos.x = 1;
-    pos.y = 2;
-    pos.z = 3;
-    
-    
-    set_packet(packet);
 }
 

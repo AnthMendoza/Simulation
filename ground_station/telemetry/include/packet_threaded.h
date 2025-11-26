@@ -41,6 +41,12 @@ class packet_with_mutex{
         std::memcpy(packet.get(), data, sizeof(packet_type));
     }
 
+    template<class func>
+    void modify(func&& modifyFunction){
+        std::lock_guard<std::mutex> lock(packet_mutex);
+        modifyFunction(*packet);
+    }
+
 };
 
 }
