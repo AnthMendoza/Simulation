@@ -8,6 +8,8 @@
 #include "stateInfo.h"
 #include <variant>
 #include <optional>
+#include "../../../flight_computer/telemetry/include/communication.h"
+
 
 using namespace std;
 
@@ -32,6 +34,9 @@ protected:
     std::optional<float> time;
 
     controlPacks::forceMoments computedForceMoments;
+    
+
+    virtual void telemetry() = 0;
 
     
 public:

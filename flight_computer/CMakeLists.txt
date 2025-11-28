@@ -8,13 +8,28 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 find_package(Threads REQUIRED)
 
+set(SIM_SRC
+    ../../simulation/src/sim/toml.cpp
+    ../../simulation/src/utility/time_manager.cpp
+)
+
+set(TELEMETRY_SRC
+    telemetry/src/communication.cpp
+)
+
 add_executable(flight_computer
     src/flight_computer.cpp
-    telemetry/src/communication.cpp
-    ../../simulation/src/sim/toml.cpp
+    ${TELEMETRY_SRC}
+    ${SIM_SRC}
+)
+
+add_library(flight_computer_library STATIC
+    ${TELEMETRY_SRC}
+    ${SIM_SRC}
 )
 
 target_link_libraries(flight_computer 
     PRIVATE 
+    flight_computer_library
     Threads::Threads
 )

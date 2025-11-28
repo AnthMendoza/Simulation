@@ -5,11 +5,12 @@
 #include "../../third_party/CRC.h"
 #include <variant>
 #include <optional>
+#include <mutex>
+
 
 class telemetry_packet_manager : public utility::telemetry::packet_with_mutex<telemetry_packet>{
 
 private: 
-
 
     void set_crc32(telemetry_packet& packet){
         
@@ -39,6 +40,7 @@ private:
 
 
 public:
+    packet_with_mutex<flight_controller_telemetry_packet> flight_controller_packet;
 
     using PayloadVariant = std::variant<
         attitude_data,
@@ -73,69 +75,23 @@ public:
     }
 
 
-    void set_atitude(float roll, float pitch, float yaw) {
-        attitude_data data{roll, pitch, yaw};
-        write_packet(data, telemetry_msg_type::MSG_ATTITUDE);
-    }
-    void write_packet(const attitude_data& data, telemetry_msg_type type = telemetry_msg_type::MSG_ATTITUDE) {
-        telemetry_packet packet;
-        packet.header.msg_type = type;
-        packet.payload.attitude = data;
-        set_crc32(packet);
-        set_packet(packet);
+
+    #define DEFINE_PACKET_BUILDER(TYPE, FIELD) \
+    telemetry_packet get_##TYPE##_packet() { \
+        telemetry_packet packet = {}; \
+        packet.header.msg_type = telemetry_msg_type::MSG_##TYPE; \
+        flight_controller_packet.modify([&packet](flight_controller_telemetry_packet& src){ \
+            packet.payload.FIELD = src.FIELD; \
+        }); \
+        set_crc32(packet);\
+        return packet; \
     }
 
-
-    void set_position(float x, float y, float z) {
-        position_data data{x, y, z};
-        write_packet(data, telemetry_msg_type::MSG_POSITION);
-    }
-    void write_packet(const position_data& data, telemetry_msg_type type = telemetry_msg_type::MSG_POSITION) {
-        telemetry_packet packet{};
-        packet.header.msg_type = type;
-        packet.payload.position = data;
-        set_crc32(packet);
-        set_packet(packet);
-    }
-
-
-    void set_velocity(float vx, float vy, float vz) {
-        velocity_data data{vx, vy, vz};
-        write_packet(data, telemetry_msg_type::MSG_VELOCITY);
-    }
-    void write_packet(const velocity_data& data, telemetry_msg_type type = telemetry_msg_type::MSG_VELOCITY) {
-        telemetry_packet packet{};
-        packet.header.msg_type = type;
-        packet.payload.velocity = data;
-        set_crc32(packet);
-        set_packet(packet);
-    }
-
-
-    void set_status(vehicle_state state, uint32_t uptime, uint8_t battery_percent) {
-        status_data data{state, uptime, battery_percent};
-        write_packet(data, telemetry_msg_type::MSG_STATUS);
-    }
-    void write_packet(const status_data& data, telemetry_msg_type type = telemetry_msg_type::MSG_STATUS) {
-        telemetry_packet packet{};
-        packet.header.msg_type = type;
-        packet.payload.status = data;
-        set_crc32(packet);
-        set_packet(packet);
-    }    
-
-
-    void set_error(uint8_t code, const std::string& msg) {
-        error_data data{};
-        data.code = code;
-        strncpy(data.message, msg.c_str(), sizeof(data.message) - 1);
-        write_packet(data, telemetry_msg_type::MSG_ERROR);
-    }
-    void write_packet(const error_data& data, telemetry_msg_type type = telemetry_msg_type::MSG_ERROR) {
-        telemetry_packet packet{};
-        packet.header.msg_type = type;
-        packet.payload.error = data;
-        set_crc32(packet);
-        set_packet(packet);
-    }
+    DEFINE_PACKET_BUILDER(ATTITUDE, attitude)
+    DEFINE_PACKET_BUILDER(POSITION, position)
+    DEFINE_PACKET_BUILDER(VELOCITY, velocity)
+    DEFINE_PACKET_BUILDER(STATUS, status)
+    DEFINE_PACKET_BUILDER(ERROR, error)
+    
+    #undef DEFINE_PACKET_BUILDER
 };

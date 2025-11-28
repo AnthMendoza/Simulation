@@ -97,6 +97,17 @@ typedef struct __attribute__((packed)) {
     uint32_t      crc32;
 } telemetry_packet_gui;
 
+
+
+typedef struct __attribute__((packed)) {
+    telemetry_header header;
+    attitude_data attitude;
+    position_data position;
+    velocity_data velocity;
+    status_data   status;
+    error_data    error;
+} flight_controller_telemetry_packet;
+
                                 
 #define HEALTH_IMU_OK       (1 << 0)
 #define HEALTH_GPS_OK       (1 << 1)

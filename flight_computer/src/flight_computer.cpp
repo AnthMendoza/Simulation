@@ -1,15 +1,13 @@
 #include "../telemetry/include/communication.h"
-#include "../telemetry/include/telemetry_packet.h"
-#include <iostream>
-#include <string>
+
+
 
 using namespace std;
 
-#define RATE_MS 500
 
 int main(){
 
-    flight_computer::telemetry tel(RATE_MS);
+    flight_computer::telemetry tel;
     tel.start();
     string input;
     getline(cin,input);

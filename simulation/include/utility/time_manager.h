@@ -41,6 +41,7 @@ public:
     
 
     float getLastTriggerTime() const;
+    
 };
 }
 #endif

@@ -32,6 +32,10 @@ private:
     telemetry_packet_manager telemetry_manager;
     std::string m_interface;
     start_up_packet start_packet;
+
+    std::string IP;
+    uint16_t port;
+
     int m_baudrate;
     bool m_connected;
 

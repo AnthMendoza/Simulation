@@ -1,6 +1,6 @@
 #include "../include/gui_connector.h"
-#include "../../../../simulation/include/sim/toml.h"
-#include "../../../../simulation/include/utility/utility.h"
+#include "../../../simulation/include/sim/toml.h"
+#include "../../../simulation/include/utility/utility.h"
 
 namespace gui_connector{
 

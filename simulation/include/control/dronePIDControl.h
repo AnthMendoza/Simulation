@@ -77,6 +77,8 @@ class PIDDroneController : public droneControllerBase{
     float mass; 
     float maxAcceleration;
 
+    stateInfo logEstimationPacket;
+
     poseState lastState;
     poseAngleDifference poseDifference;
     bool firstPose = true;
@@ -97,6 +99,10 @@ class PIDDroneController : public droneControllerBase{
         float pitchVelo;
         
     }logger{};
+
+    flight_computer::telemetry telemetry_manager;
+
+    void telemetry() override;
 
 
 
@@ -144,6 +150,7 @@ class PIDDroneController : public droneControllerBase{
     public:
 
     PIDDroneController(float frequency);
+
     PIDDroneController(const PIDDroneController& other);
 
     virtual std::unique_ptr<droneControllerBase> clone() const override {

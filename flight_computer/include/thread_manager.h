@@ -6,13 +6,18 @@
 
 class thread_manager {
 private:
-    void thread_loop() {
-        auto next_time = std::chrono::steady_clock::now();
+    //original did not have a re-sync after initalization
+    virtual void thread_loop() {
+        start_time = std::chrono::steady_clock::now();
         thread_startup_proccess();
+        auto next_time = std::chrono::steady_clock::now();
+
         while (running.load()) {
             thread_proccess();
-            
-            next_time += interval;
+            auto now = std::chrono::steady_clock::now();
+
+            next_time = now + interval;
+
             std::this_thread::sleep_until(next_time);
         }
     }
@@ -21,6 +26,8 @@ protected:
     std::atomic<bool> running{false};
     std::thread worker_thread;
     std::chrono::milliseconds interval{100};
+
+    std::__1::chrono::steady_clock::time_point start_time;
     
     virtual void thread_proccess() = 0;
     virtual void thread_startup_proccess() = 0;

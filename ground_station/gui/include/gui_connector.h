@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../../../flight_computer/include/thread_manager.h"
-#include "../../../../flight_computer/third_party/async-sockets/include/udpsocket.hpp"
-#include "../../../../flight_computer/telemetry/include/telemetry_packet.h"
-#include "../../../telemetry/include/packet_threaded.h"
+#include "../../../flight_computer/include/thread_manager.h"
+#include "../../../flight_computer/third_party/async-sockets/include/udpsocket.hpp"
+#include "../../../flight_computer/telemetry/include/telemetry_packet.h"
+#include "../../telemetry/include/packet_threaded.h"
 
 namespace gui_connector{
 

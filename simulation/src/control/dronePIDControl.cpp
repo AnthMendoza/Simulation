@@ -11,6 +11,7 @@ namespace SimCore{
 
 
 PIDDroneController::PIDDroneController(float frequency):droneControllerBase(frequency){
+    telemetry_manager.start();
 }
 
 
@@ -372,10 +373,14 @@ void PIDDroneController:: setTargetPosition(float xTarget , float yTarget , floa
  * @brief Computes the drone's control output based on state estimation.
  */
 controlPacks::variantPackets PIDDroneController::update(float time,stateInfo statePacket){ 
-
+    
     if (!manager->shouldTrigger(time)) {
         return computedControlPacket;
     }
+
+    logEstimationPacket = statePacket;
+    telemetry();
+
     controlPacks::forceMoments request = pidControl(statePacket.position, statePacket.velocity,statePacket.pose);
 
     if (!allocator) {
@@ -411,6 +416,7 @@ controlPacks::forceMoments PIDDroneController::updateWithoutAllocator(float time
 void dragEstimation(){
 
 }
+
 
 float PIDDroneController::yawAngleDifference(const poseState& currentPose, const poseState& desiredPose) {
     auto currentDirVector = currentPose.dirVector;
@@ -498,6 +504,23 @@ controlPacks::variantPackets PIDDroneController::updateAOTHold(float time,stateI
     graph.dataEntry(time,logger.rollDesiredVelo ,  logger.pitchDesiredVelo,logger.pitchVelo ,logger.rollVelo,vectorAngleBetween(statePacket.pose.dirVector,requestedPose.dirVector));
 
     return computedControlPacket;
+}
+
+
+void PIDDroneController::telemetry(){
+    auto& flight_controller_handler = telemetry_manager.packet_manager.flight_controller_packet;
+
+    flight_controller_handler.modify([this](flight_controller_telemetry_packet& telemetry_translator_packet){
+        
+        telemetry_translator_packet.position.x = this->logEstimationPacket.position[0];
+        telemetry_translator_packet.position.y = this->logEstimationPacket.position[1];
+        telemetry_translator_packet.position.z = this->logEstimationPacket.position[2];
+
+        telemetry_translator_packet.velocity.vx = this->logEstimationPacket.velocity[0];
+        telemetry_translator_packet.velocity.vy = this->logEstimationPacket.velocity[1];
+        telemetry_translator_packet.velocity.vz = this->logEstimationPacket.velocity[2];
+        
+    });
 }
 
 

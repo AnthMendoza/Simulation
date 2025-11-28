@@ -14,6 +14,7 @@
 #include "../../../ground_station/telemetry/include/packet_threaded.h"
 #include "../../include/thread_manager.h"
 #include "telemetry_packet_manager.h"
+#include "scheduler.h"
 
 namespace flight_computer{
 
@@ -21,21 +22,30 @@ namespace flight_computer{
 class telemetry: public thread_manager{
 
 private:
+
+scheduler telemetry_scheduler;
 std::shared_ptr<UDPServer<>> udp_bridge;
-telemetry_packet_manager packet_manager;
 std::string m_interface;
+
 std::string ipv4_tel;
 uint16_t port_tel;
 int m_baudrate;
+
 protected:
+
 bool m_connected;
 bool relay_connected_to_ground;
+
 public:
-    
-    telemetry(float packet_rate);
+    telemetry_packet_manager packet_manager;
+
+    //note baudRate does not define the rate at which packets are sent. 
+    telemetry();
 
 
     ~telemetry() = default;
+
+    void thread_loop() override;
 
     virtual void thread_proccess() override;
 
@@ -74,8 +84,19 @@ public:
         std::cout<<"ipv4:" << ipv4_tel << "port :"<< port_tel <<"\n";
     }
 
-    
+    #define DEFINE_SENDS(TYPE,FIELD)\
+    void send_##TYPE##_packet(){\
+        send(packet_manager.get_##TYPE##_packet());\
+    }
 
+
+    DEFINE_SENDS(ATTITUDE, attitude)
+    DEFINE_SENDS(POSITION, position)
+    DEFINE_SENDS(VELOCITY, velocity)
+    DEFINE_SENDS(STATUS, status)
+    DEFINE_SENDS(ERROR, error)
+
+    #undef DEFINE_SENDS
 
 };
 

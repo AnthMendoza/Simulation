@@ -149,6 +149,7 @@ foreach(TARGET  drone tests dronePIDGains motorPIDGains)
         PRIVATE
         MySim
         pthread
+        flight_computer_library
     )
 endforeach()
 
