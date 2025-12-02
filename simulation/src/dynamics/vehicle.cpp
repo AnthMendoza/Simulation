@@ -371,12 +371,12 @@ void Vehicle::turbulantWind(){
     float timeSeconds = getTime();
     wind[0] = turbulantX->getNext(timeSeconds);
     wind[1] = turbulantY->getNext(timeSeconds);
-    //wind[2] = turbulantZ->getNext(timeSeconds);
+    wind[2] = turbulantZ->getNext(timeSeconds);
 }
 
 
 void Vehicle::rotateLocalEntities(const Quaternion& quant){
-    return;
+    entities.rotate(quant,pose->getPose(),CoordinateSystem::WORLD_BASIS);
 }
 
 

@@ -4,12 +4,15 @@
 #include <cmath>
 #include "../sim/toml.h"
 #include "../core/vectorMath.h"
+#include "../core/transpose.h"
+
+
 namespace SimCore{
-class propeller {
+class propeller{
     public:
     //prop locations in relation to the nominal center of gravity
     std::array<float,3> location;
-    //optional
+
     std::string name;
     
     // Physical dimensions
@@ -65,10 +68,12 @@ class propeller {
         thrustCoefficient = propParse.getFloat("thrustCoefficient");
         powerCoefficient = propParse.getFloat("powerCoefficient");   
     }
+
     /// @brief 
     /// @param airDensity 
     /// @param thrustRequest 
     /// @return if thrust request is negative the returned value will be zero due to a sqrt of the value.
+
     inline float desiredAngularVelocity(float airDensity,float thrustRequest){
         if(diameter <= 0) throw std::runtime_error("Diameter cannot be <= 0");
         float k = M_PI * airDensity * thrustCoefficient * pow(diameter/2,4);

@@ -9,9 +9,25 @@
 #include "../../include/subsystems/motor.h"
 #include "../../include/control/stateEstimation.h"
 #include "../../include/control/mochStateEstimation.h"
+#include "../../include/subsystems/cameraBase.h"
+#include "../../include/core/quaternion.h"
 
 #define CONTROLLER_POLLING_RATE 0.004
 #define ESTIMATOR_POLLING_RATE 0.002
+
+SimCore::cameraBase createCamera(){
+
+    SimCore::quaternionVehicle vQuant;
+
+    vQuant.eulerRotation(M_PI,0,0);
+    
+    std::array<float,3> position{0,0,0};
+
+    SimCore::cameraBase camera(vQuant.getPose(),position);
+
+    return camera;
+}
+
 
 int main(int argc, char* argv[]){
     if (argc < 5) {
@@ -37,6 +53,8 @@ int main(int argc, char* argv[]){
     controller->initAllocatorWithProps(motorProp.second);
     drone->addMotorsAndProps(motorProp);
     controller->setTargetPosition(0,0,20);
+    SimCore::cameraBase camera = createCamera();
+    drone->setCamera(&camera);
 
     SimCore::droneSimulation sim(std::move(drone),std::move(controller),std::move(estimator));
     

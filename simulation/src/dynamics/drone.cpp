@@ -48,7 +48,7 @@ void droneBody::offsetCOG(std::array<float ,3> offset){
 }
 
 //note location is relative to the vehicle center. 
-void droneBody::transposedProps(const Quaternion& quant){
+void droneBody::transposeEntities(const Quaternion& quant){
     //rezero transpose every 100 timeSteps
     if(transposeCalls >= 100){
         for(auto& p:propellers){
@@ -63,7 +63,7 @@ void droneBody::transposedProps(const Quaternion& quant){
         const float EPSILON = 1e-4f;
         if(std::abs(angle - M_PI) < EPSILON){
             resetHelper();
-            float adjust = .1;
+            float adjust = 0.1;
             Quaternion qx = fromAxisAngle({1,0,0}, adjust);
             Quaternion qy = fromAxisAngle({0,1,0}, adjust);
             Quaternion qz = fromAxisAngle({0,0,1}, adjust);
@@ -125,8 +125,10 @@ void droneBody::allocatorHelper(){
 
 
 void droneBody::rotateLocalEntities(const Quaternion& quant){
+    
+    
     Vehicle::rotateLocalEntities(quant);
-    transposedProps(quant);
+    transposeEntities(quant);
 
 }
 
@@ -194,8 +196,6 @@ void droneBody::updateState(float time,std::optional<controlPacks::variantPacket
     
     droneBattery->updateBattery(current,getTime());
     Vehicle::updateState(time);
-    //TransposedProps move the transposed cordinates of the props in the prop objects within propellers.
-
 
 
     dataLog();

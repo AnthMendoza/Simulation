@@ -13,10 +13,13 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include <optional>
 #include "../core/vectorMath.h"
 #include "../utility/utility.h"
 #include "../core/droneState.h"
 #include "../control/droneControllerBase.h"
+#include "../subsystems/cameraBase.h"
+
 #define USE_STATE_ESTIMATED_VALUES
 
 using namespace std;
@@ -54,6 +57,9 @@ class droneBody :  public Vehicle{
     protected:
     //array<float,3>  thrustVector();
     vector<float> thrust();
+
+    std::optional<cameraBase*> camera;
+
     public:
     float totalThrustLimit = 0;
     
@@ -104,7 +110,7 @@ class droneBody :  public Vehicle{
     * @brief Cycles through updating controller, allocator, motors, propellers, battery, and droneBody. 
     * This method is just a connecting bridge for objects within the droneBody.
     */
-    void transposedProps(const Quaternion& quant);
+    void transposeEntities(const Quaternion& quant);
 
     inline battery* getBattery(){
         battery* bat = dynamic_cast<battery*> (droneBattery.get()); 
@@ -176,6 +182,13 @@ class droneBody :  public Vehicle{
         state.velocity = getVelocityVector();
         state.position = getPositionVector();
         state.timestamp = getTime();
+    }
+
+    template<class t>
+    void setCamera(t* insertCamera){
+        if(auto* cameraPtr = dynamic_cast<cameraBase*>(insertCamera)){
+            camera = cameraPtr;
+        }
     }
 };
 

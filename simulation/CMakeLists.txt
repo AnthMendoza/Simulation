@@ -58,6 +58,7 @@ set(CORE_SRC
     src/core/forceApplied.cpp
     src/core/RungeKutta.cpp
     src/core/quaternion.cpp
+    src/core/transpose.cpp
 )
 
 set(DYNAMICS_SRC

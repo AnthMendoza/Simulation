@@ -21,6 +21,7 @@
 #include "../subsystems/droneSensorSuite.h"
 #include "../subsystems/sensorPacket.h"
 #include "../utility/time_manager.h"
+#include "../core/transposeSet.h"
 
 namespace SimCore{
 class stateEstimation;
@@ -54,10 +55,15 @@ class Vehicle{
     float gravitationalAcceleration;
 
     virtual void init(string& vehicleConfig);
+
+    transposeSet entities;
+
     public:
+
     std::unique_ptr<sensorSuite<simpleSensorPacket>> sensors;
     std::string configFile;
     std::string outputFile;
+
     Vehicle();
 
     virtual ~Vehicle() = default;
@@ -210,7 +216,10 @@ class Vehicle{
         return buffer.str();
     }
 
+
 };
+
 }
+
 
 #endif
