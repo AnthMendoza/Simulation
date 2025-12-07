@@ -168,6 +168,14 @@ class droneBody :  public Vehicle{
         buffer << "remaining Capacity(Wh):" << droneBattery->getRemainingEnergyWh() << "\n";
         buffer << "SOC:" << droneBattery->getSOC() << "\n";
 
+        if(camera.has_value()){
+            auto cameraPosition = camera.value()->getTransposePosition();
+            buffer << "Camera position :"<< cameraPosition[0] << "," <<cameraPosition[1] << "," << cameraPosition[2] <<"\n";
+            auto cameraPose = camera.value()->getTransposeState();
+            auto cameraDir = cameraPose.getPose().dirVector;
+            buffer << "Camera position :"<< cameraDir[0] << "," <<cameraDir[1] << "," << cameraDir[2] <<"\n";
+        }
+
         std::string droneString = buffer.str();
         std::string vehicleString = Vehicle::display();
 

@@ -59,9 +59,16 @@ int main(int argc, char* argv[]){
     SimCore::droneSimulation sim(std::move(drone),std::move(controller),std::move(estimator));
     
     sim.configure([](SimCore::simulation::configStruct& cfg){
-        cfg.realTime = true;
+        cfg.mode = SimCore::simulation::SimMode::RealTime;
         cfg.maxSimTime = 0.0f;
         cfg.logging = true;
+    });
+
+    sim.modifyStep([](float t, SimCore::Vehicle& v, SimCore::stateEstimationBase& e, SimCore::droneControllerBase& c){
+
+        v.setPose(CoordinateSystem::WORLD_BASIS);
+        v.setPositionVector(0,0,10);
+
     });
 
 

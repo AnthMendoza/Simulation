@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
     parameterEstimation::AOTPIDEstimation sim(std::move(drone),std::move(controller),std::move(estimator));
     
     sim.configure([](SimCore::simulation::configStruct& cfg){
-        cfg.realTime = false;
+        cfg.mode = SimCore::simulation::SimMode::TimeIndependent;
         cfg.maxSimTime = 0.0f;
         cfg.logging = false;
     });

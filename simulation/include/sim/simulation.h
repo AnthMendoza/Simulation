@@ -13,8 +13,15 @@ namespace SimCore{
 
 class simulation{
 public:
+
+    enum class SimMode {
+    RealTime,
+    TimeIndependent,  
+    ExternalStep //external Step enables simulationByStep which runs until deltaT.
+    };
+
     struct configStruct {
-        bool realTime = true;            //true = simulation plays in real time, false runs simulation without clock timeout
+        SimMode mode = SimMode::RealTime;
         float timeStep = 0.001f;         //Fixed time step (seconds)
         float maxSimTime = 10.0f;        //Max simulation time, 0 = unlimited
         bool logging = true;             //Enable/disable data logging
@@ -78,7 +85,12 @@ protected:
 
         startUp();
 
-        if(config.realTime){
+        if(config.mode == SimMode::ExternalStep){
+            simulationByStep();
+            return;
+        }
+
+        if(config.mode == SimMode::RealTime){
             runLoopRealTime();
             return;
         }
@@ -138,6 +150,69 @@ public:
         if (simThread.joinable()) {
             simThread.join();
         }
+    }
+
+    private:
+
+    std::condition_variable flag;
+    std::atomic<bool> startFlag {false};
+    std::mutex stepMutex;
+    float deltaTime;
+
+    public:
+
+    //calls simulation steps based on an externalClock
+    //defined for unrealEngine use;
+    void simulationByStep(){
+        if(config.mode != SimMode::ExternalStep){
+            std::cout<< "\n Simulation not configured for SimulationByStep()\n";
+            return;
+        }
+
+        float simulationTime = 0;
+        float deltaTime = 0;
+        
+        while(!stopRequested){
+            float localDeltaTime;
+            {
+                std::unique_lock<std::mutex> lock(stepMutex);
+
+                flag.wait(lock,[&]{ return startFlag || stopRequested; });
+
+                startFlag = false;
+                localDeltaTime = deltaTime;
+            } 
+
+            float stopTime = simulationTime + localDeltaTime;
+            while(simulationTime < stopTime ){
+                
+                step(simulationTime);
+
+                if(config.logging && manager->shouldTrigger(simulationTime)){
+                    logs();
+                }
+
+                simulationTime += config.timeStep;
+            }
+
+        }
+
+        running = false;
+        stopRequested = false;
+
+    }
+
+    void manualStep(float _deltaTime){
+
+        {
+            std::lock_guard<std::mutex> lock(stepMutex);
+
+            deltaTime = _deltaTime;
+            startFlag = true;
+        }
+
+        flag.notify_one();
+        
     }
 
 

@@ -14,6 +14,7 @@ protected:
     std::unique_ptr<stateEstimationBase> estimator;
     std::unique_ptr<Vehicle> vehicle;
 
+    std::function<void(float, Vehicle&, stateEstimationBase&, droneControllerBase&)> stepModifier;
 
 
     virtual void step(float time) override{
@@ -22,10 +23,15 @@ protected:
         }  
         time += config.timeStep;
 
+        if(stepModifier){
+            stepModifier(time, *vehicle, *estimator, *controller);
+        }
+
         auto sensorPacket = vehicle->sensors->getSensorData();
         estimator->updateEstimation(time,sensorPacket);
         auto controlPacket = controller->update(time,estimator->getStateInfo());
         vehicle->updateState(time,controlPacket);
+        
     }
 
 
@@ -87,6 +93,10 @@ droneSimulation(std::unique_ptr<TVehicle> newVehicle,
     }
     stateEstimationBase* getEstimator() const{
         return estimator.get();
+    }
+
+    void modifyStep(std::function<void(float, Vehicle&, stateEstimationBase&, droneControllerBase&)> modify){
+        stepModifier = modify;
     }
 
 };

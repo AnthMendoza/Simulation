@@ -30,6 +30,25 @@ class transpose {
 
     void transposeSelf(const Quaternion& quant , poseState poseOfIntrest  , poseState constantReference = CoordinateSystem::WORLD_BASIS );
 
+    const threeDState& getNominalPosition() const {
+        return nominalPosition;
+    }
+
+    const threeDState& getTransposePosition() const {
+        return transposePosition;
+    }
+
+    const poseState& getNominalState() const {
+        return nominalState;
+    }
+
+    const quaternionVehicle& getTransposeState() const {
+        return transposeState;
+    }
+
+
+    
+
 };
 
 }
