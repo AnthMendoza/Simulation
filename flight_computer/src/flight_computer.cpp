@@ -1,19 +1,14 @@
-#include "../telemetry/include/communication.h"
+#include "../include/flight_computer.h"
 
 
+void avionics::flight_computer::initialize(std::vector<avionics::control_tasks> tasks){
 
-using namespace std;
-
-
-int main(){
-
-    flight_computer::telemetry tel;
-    tel.start();
-    string input;
-    getline(cin,input);
-
-    while(input != "exit"){
+    for (auto& task : tasks){
+        controller_scheduler.add_manager(task.interval_s,task.callback);
     }
-    
-    return 0;
+
+}
+
+void avionics::flight_computer::run(){
+
 }

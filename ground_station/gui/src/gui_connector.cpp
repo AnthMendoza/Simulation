@@ -31,8 +31,7 @@ void gui_connector::thread_startup_proccess(){
 
 void gui_connector::send_packet(){
     auto packet = packet_ptr->get_packet();
-         
-        send(packet);
+    send(packet);
 }
 
 void gui_connector::call_back(){

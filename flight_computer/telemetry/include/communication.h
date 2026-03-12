@@ -14,7 +14,7 @@
 #include "../../../ground_station/telemetry/include/packet_threaded.h"
 #include "../../include/thread_manager.h"
 #include "telemetry_packet_manager.h"
-#include "scheduler.h"
+#include "../../include/scheduler.h"
 
 namespace flight_computer{
 

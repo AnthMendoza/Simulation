@@ -108,7 +108,7 @@ class telemetry_latest_packet:
     def insert(self,data):
         try:
             self.packet_lock.acquire()
-
+            print(f"{len(data)} expected length = {sizeof(TelemetryPacket)}")
             if len(data) >= sizeof(TelemetryPacket):
                 self.latest_parsed_data = TelemetryPacket.from_buffer_copy(data)
 

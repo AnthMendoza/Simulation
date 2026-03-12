@@ -32,7 +32,7 @@ SimCore::cameraBase createCamera(){
 int main(int argc, char* argv[]){
     if (argc < 5) {
         std::cout << "Usage: " << argv[0] << " <motor_config> <battery_config> <propeller_config> <drone_config>\n";
-        return 1;
+        return 1; 
     }
     std::string configMotor = readFileAsString(argv[1]);    
     std::string configBattery = readFileAsString(argv[2]);   
@@ -66,8 +66,6 @@ int main(int argc, char* argv[]){
 
     sim.modifyStep([](float t, SimCore::Vehicle& v, SimCore::stateEstimationBase& e, SimCore::droneControllerBase& c){
 
-        v.setPose(CoordinateSystem::WORLD_BASIS);
-        v.setPositionVector(0,0,10);
 
     });
 

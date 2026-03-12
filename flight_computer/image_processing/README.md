@@ -1,0 +1,3 @@
+Basic image processing techniques aimed at enabling optical flow–based state estimation for a drone. The primary objective is to extract motion information from image sequences and use it to estimate relative position and velocity, supporting position hold and stabilization tasks.
+
+Differences in terrain between successive frames are used to calculate translation and rotation error. A similar concept is used in satellites through a system called a star tracker, which uses stars as a fixed datum for orientation and motion estimation. Periodic reference updates help reset drift inherent in relative sensing methods, commonly referred to as integral error.

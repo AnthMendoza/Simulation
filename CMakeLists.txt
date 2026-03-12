@@ -10,4 +10,4 @@ endif()
 
 add_subdirectory(flight_computer)
 add_subdirectory(simulation)
-
+add_subdirectory(ground_station)

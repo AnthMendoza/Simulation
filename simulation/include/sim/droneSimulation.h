@@ -4,8 +4,7 @@
 #include "../control/stateEstimationBase.h"
 #include "simulation.h"
 #include "../utility/utility.h"
-
-
+ 
 namespace SimCore{
 
 class droneSimulation : public simulation{
@@ -98,7 +97,7 @@ droneSimulation(std::unique_ptr<TVehicle> newVehicle,
     void modifyStep(std::function<void(float, Vehicle&, stateEstimationBase&, droneControllerBase&)> modify){
         stepModifier = modify;
     }
-
+    
 };
 
 }
