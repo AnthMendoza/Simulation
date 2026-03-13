@@ -6,6 +6,9 @@
 
 class thread_manager {
 private:
+
+    float total_time_f = 0.0f;
+
     //original did not have a re-sync after initalization
     virtual void thread_loop() {
         start_time = std::chrono::steady_clock::now();
@@ -13,9 +16,12 @@ private:
         auto next_time = std::chrono::steady_clock::now();
 
         while (running.load()) {
-            thread_proccess();
+            
             auto now = std::chrono::steady_clock::now();
-
+            auto total_time = now - start_time;
+            total_time_f = std::chrono::duration<float>(total_time).count();
+            thread_proccess();
+            
             next_time = now + interval;
 
             std::this_thread::sleep_until(next_time);
@@ -57,6 +63,10 @@ public:
 
     void change_rate(int ms) {
         interval = std::chrono::milliseconds(ms);
+    }
+
+    const float start_to_recent_call_time() const{
+        return total_time_f;
     }
 };
 

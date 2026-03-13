@@ -16,9 +16,9 @@ namespace avionics{
     struct desired_state{
 
         std::array<float,3> position;
-        std::array<float,3> velocity;
+        //std::array<float,3> velocity;
 
-        desired_state(): position({0,0,0}),velocity({0,0,0}){
+        desired_state(): position({0,0,0}){
         }
     };
 

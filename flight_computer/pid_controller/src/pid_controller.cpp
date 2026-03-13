@@ -1,5 +1,5 @@
 #include "../include/pid_controller.h"
-
+#include <iostream>
 
 avionics::pid::controller_pid::controller_pid(pid_config& config){
 
@@ -18,16 +18,16 @@ avionics::pid::controller_pid::controller_pid(pid_config& config){
         velocity_pid[i]->setOutputLimits(v_gain.min,v_gain.max);
 
     }
-    
+
 }
 
 std::vector<avionics::control_task> avionics::pid::controller_pid::get_routine(){
 
     std::vector<avionics::control_task> tasks{
-        {"position" ,           1.0f , [this] () {controller_pid::position();}},
-        {"velocity" ,           0.5f , [this] () {controller_pid::velocity();}},
-        {"acceleration" ,       0.01f , [this] () {controller_pid::acceleration();}},
-        {"angle_of_attack" ,    0.001f , [this] () {controller_pid::angle_of_attack();}}
+        {"position" ,           1.0f , [this] (float time) {controller_pid::position(time);}},
+        {"velocity" ,           0.5f , [this] (float time) {controller_pid::velocity(time);}},
+        {"acceleration" ,       0.01f , [this] (float time) {controller_pid::acceleration(time);}},
+        {"angle_of_attack" ,    0.001f , [this] (float time) {controller_pid::angle_of_attack(time);}}
     };
 
     return tasks;
@@ -35,29 +35,50 @@ std::vector<avionics::control_task> avionics::pid::controller_pid::get_routine()
 }
 
 
-void avionics::pid::controller_pid::position(){
-
+void avionics::pid::controller_pid::position(float time){
+    float dt = time - last_call_time.position;
+        std::cout<< "3\n";
     for(int i = 0 ; i < 3 ; i++){
         subroutine.delta_position[i] =  vehicle_desired_state.position[i] - vehicle_state.position[i];
+
+        subroutine.req_velocity[i] = position_pid[i]->update(subroutine.delta_position[i],dt);
+
     }
-    
+
+    last_call_time.position = time;
+
 }
 
 
-void avionics::pid::controller_pid::velocity(){
-
+void avionics::pid::controller_pid::velocity(float time){
+    float dt = time - last_call_time.velocity;
+        std::cout<< "2\n";
     for(int i = 0 ; i < 3 ; i++){
-        subroutine.delta_position[i] =  vehicle_desired_state.position[i] - vehicle_state.position[i];
+        subroutine.delta_velocity[i] = subroutine.req_velocity[i] - vehicle_state.velocity[i];
+
+        subroutine.req_acceleration[i] = velocity_pid[i]->update(subroutine.delta_velocity[i],dt);
     }
 
+    last_call_time.velocity = time;
 }
 
 
-void avionics::pid::controller_pid::acceleration(){
+void avionics::pid::controller_pid::acceleration(float time){
+    float dt = time - last_call_time.acceleration;
+        std::cout<< "1\n";
+    for(int i = 0 ; i < 3 ; i++){
+        subroutine.delta_acceleration[i] =  subroutine.req_acceleration[i] - vehicle_state.velocity[i];
 
+    }
+
+    last_call_time.acceleration = time;
 }
 
 
-void avionics::pid::controller_pid::angle_of_attack(){
+void avionics::pid::controller_pid::angle_of_attack(float time){
+    float dt = time - last_call_time.angle_of_attack;
 
+
+
+    last_call_time.angle_of_attack = time;
 }

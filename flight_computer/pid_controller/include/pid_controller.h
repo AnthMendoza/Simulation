@@ -11,10 +11,10 @@ namespace avionics{
         class controller_pid : public controller_base{
         private:
 
-            void position();
-            void velocity();
-            void acceleration();
-            void angle_of_attack();
+            void position(float time);
+            void velocity(float time);
+            void acceleration(float time);
+            void angle_of_attack(float time);
 
             //used std::optional as a work around for PIDController() = delete
 
@@ -24,11 +24,27 @@ namespace avionics{
             struct subroutine_translation_layer{
 
                 std::array<float,3> delta_position;
+                std::array<float,3> req_velocity;
                 std::array<float,3> delta_velocity;
+                std::array<float,3> req_acceleration;
+                std::array<float,3> delta_acceleration;
 
-                subroutine_translation_layer(): delta_position({0.0f,0.0f,0.0f}),delta_velocity({0.0f,0.0f,0.0f}){
+                subroutine_translation_layer(): delta_position({0.0f,0.0f,0.0f}),delta_velocity({0.0f,0.0f,0.0f}),
+                                                req_velocity({0.0f,0.0f,0.0f}),req_acceleration({0.0f,0.0f,0.0f}){
                 }
+
             }subroutine;
+
+            struct subroutine_last_call_log{
+
+                float position;
+                float velocity;
+                float acceleration;
+                float angle_of_attack;
+
+            }last_call_time;
+
+
 
         public:
 

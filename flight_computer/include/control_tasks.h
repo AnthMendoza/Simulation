@@ -7,7 +7,7 @@ namespace avionics{
     {
         const char* name;
         float interval_s;
-        std::function<void()> callback;
+        std::function<void(float)> callback;
     };
 }
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "../../../simulation/include/utility/time_manager.h"
+#include "../../simulation/include/utility/time_manager.h"
 #include <vector>
 #include <queue>
 #include <unordered_set>
@@ -18,12 +18,18 @@ private:
         std::less<std::pair<float, int>>
     > task_queue;
     
-    std::vector<std::pair<SimCore::timeManager, std::function<void()>>> managers;
+    std::vector<std::pair<SimCore::timeManager, std::function<void(float)>>> managers;
 
 public:
-    void add_manager(float interval, std::function<void()> callback){
+
+    void add_manager(float interval, std::function<void(float)> callback){
         SimCore::timeManager manager(interval);
         managers.emplace_back(manager, callback);
+    }
+
+    void add_manager(float interval, std::function<void()> callback){
+        SimCore::timeManager manager(interval);
+        managers.emplace_back(manager, [callback](float time){callback();});
     }
     
 
@@ -55,8 +61,10 @@ public:
             task_queue.pop();
 
             queued_indices.erase(index);
+                
+            auto& manager = managers[index].first;
             
-            managers[index].second();
+            managers[index].second(time);
             
             managers[index].first.shouldTrigger(time);
         }

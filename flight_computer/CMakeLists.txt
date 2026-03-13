@@ -11,16 +11,23 @@ find_package(Threads REQUIRED)
 set(SIM_SRC
     ../../simulation/src/sim/toml.cpp
     ../../simulation/src/utility/time_manager.cpp
+    ../../simulation/src/control/PIDController.cpp
 )
 
 set(TELEMETRY_SRC
     telemetry/src/communication.cpp
 )
 
+set(PID_CONTROLLER_SRC
+    pid_controller/src/pid_controller.cpp
+)
+
 add_executable(flight_computer
     src/flight_computer.cpp
+    src/flight_computer_main.cpp
     ${TELEMETRY_SRC}
     ${SIM_SRC}
+    ${PID_CONTROLLER_SRC}
 )
 
 add_library(flight_computer_library STATIC
