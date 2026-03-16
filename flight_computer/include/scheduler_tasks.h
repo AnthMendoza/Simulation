@@ -3,7 +3,7 @@
 #include <functional>
 
 namespace avionics{
-    struct control_task
+    struct scheduler_tasks
     {
         const char* name;
         float interval_s;

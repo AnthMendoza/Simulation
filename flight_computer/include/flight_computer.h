@@ -1,8 +1,11 @@
 #include "../../simulation/include/sim/toml.h"
 #include "../../simulation/include/utility/utility.h"
+#include "../telemetry/include/communication_base.h"
+#include "../state_estimation/include/state_estimation_base.h"
 #include "../include/thread_manager.h"
+#include "flight_controller_base.h"
 #include "scheduler.h"
-#include "control_tasks.h"
+#include "scheduler_tasks.h"
 #include <string>
 #include <iostream>
 #include <cstring>
@@ -13,18 +16,46 @@ namespace avionics{
 
 class flight_computer : public thread_manager{
 private:
-    scheduler controller_scheduler;
-    
-    
-public:
-    void initialize(std::vector<control_task> tasks);
+    std::shared_ptr<controller_base> controller;
 
-    flight_computer(float interval_ms = 1);
+    std::shared_ptr<telemetry_base> communication;
+
+    std::shared_ptr<estimation::estimation_base> estimator;
 
     void thread_proccess() override;
 
     void thread_startup_proccess() override;
     
+public:
+
+    template<typename T, typename... Args>
+    void set_controller(Args&&... args){
+
+        static_assert(std::is_base_of_v<controller_base, T>);
+
+        controller = std::make_shared<T>(std::forward<Args>(args)...);
+
+    }
+
+    template<typename T , typename... Args>
+    void set_telemetry(Args&&... args){
+
+        static_assert(std::is_base_of_v<telemetry_base,T>);
+
+        communication = std::make_shared<T>(std::forward<Args>(args)...);
+
+    }
+
+    template<typename T , typename... Args>
+    void set_estimator(Args&&... args){
+
+        static_assert(std::is_base_of_v<estimation::estimation_base,T>);
+
+        estimator = std::make_shared<T>(std::forward<Args>(args)...);
+
+    }
+
+    flight_computer(float interval_ms = 1);    
 
 };
 

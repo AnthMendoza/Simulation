@@ -43,7 +43,12 @@ namespace avionics{
                 float angle_of_attack;
 
             }last_call_time;
+        
+        protected:
 
+            std::vector<scheduler_tasks> get_routine() override; 
+
+            void initialize_implementation() override;
 
 
         public:
@@ -51,7 +56,6 @@ namespace avionics{
             controller_pid() = delete;
             controller_pid(pid_config& config);
             
-            std::vector<control_task> get_routine() override; 
 
         };
     }

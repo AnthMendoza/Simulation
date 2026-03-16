@@ -1,13 +1,17 @@
 #ifndef THREAD_MANGER_H
 #define THREAD_MANGER_H
+#include "scheduler.h"
 #include <thread>
 #include <chrono>
 #include <atomic>
 
+
+
 class thread_manager {
 private:
-
+    std::function<float(float)>  next_time_callback;
     float total_time_f = 0.0f;
+    bool schedule_driven = false;
 
     //original did not have a re-sync after initalization
     virtual void thread_loop() {
@@ -22,8 +26,12 @@ private:
             total_time_f = std::chrono::duration<float>(total_time).count();
             thread_proccess();
             
-            next_time = now + interval;
-
+            if(schedule_driven == true){
+                auto next_by_duration = std::chrono::duration<float>(next_time_callback(total_time_f));
+                next_time = now + std::chrono::duration_cast<std::chrono::steady_clock::duration>(next_by_duration);
+            }else{
+                next_time = now + interval;
+            }
             std::this_thread::sleep_until(next_time);
         }
     }
@@ -37,6 +45,11 @@ protected:
     
     virtual void thread_proccess() = 0;
     virtual void thread_startup_proccess() = 0;
+
+    void set_scheduler(scheduler& schedule){
+        schedule_driven = true;
+        next_time_callback = schedule.get_next_time_callback();
+    }
     
 public:
     thread_manager(int ms = 100): interval(std::chrono::milliseconds(ms)){

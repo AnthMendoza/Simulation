@@ -71,7 +71,7 @@ public:
     }
 
     //if vector manager is empty return value = std::numeric_limits<float>::max() 
-    float time_until_next_packet(float time){
+    float time_until_next_call(float time){
         float minumum_time = std::numeric_limits<float>::max();
         for(auto& manager : managers){
 
@@ -82,6 +82,15 @@ public:
 
         }
         return minumum_time;
+    }
+
+
+
+    auto get_next_time_callback(){
+        auto lambda = [this](float time){
+            return time_until_next_call(time);
+        };
+        return lambda;
     }
     
 

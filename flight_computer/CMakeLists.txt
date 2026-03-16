@@ -16,10 +16,15 @@ set(SIM_SRC
 
 set(TELEMETRY_SRC
     telemetry/src/communication.cpp
+    telemetry/src/communication_base.cpp
 )
 
 set(PID_CONTROLLER_SRC
     pid_controller/src/pid_controller.cpp
+)
+
+set(STATE_ESTIMATION_SRC
+    state_estimation/src/state_estimation_bypass.cpp
 )
 
 add_executable(flight_computer
@@ -28,6 +33,7 @@ add_executable(flight_computer
     ${TELEMETRY_SRC}
     ${SIM_SRC}
     ${PID_CONTROLLER_SRC}
+    ${STATE_ESTIMATION_SRC}
 )
 
 add_library(flight_computer_library STATIC

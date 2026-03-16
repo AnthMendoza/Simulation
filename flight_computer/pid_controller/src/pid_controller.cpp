@@ -21,9 +21,15 @@ avionics::pid::controller_pid::controller_pid(pid_config& config){
 
 }
 
-std::vector<avionics::control_task> avionics::pid::controller_pid::get_routine(){
 
-    std::vector<avionics::control_task> tasks{
+void avionics::pid::controller_pid::initialize_implementation(){
+
+}
+
+
+std::vector<avionics::scheduler_tasks> avionics::pid::controller_pid::get_routine(){
+
+    std::vector<avionics::scheduler_tasks> tasks{
         {"position" ,           1.0f , [this] (float time) {controller_pid::position(time);}},
         {"velocity" ,           0.5f , [this] (float time) {controller_pid::velocity(time);}},
         {"acceleration" ,       0.01f , [this] (float time) {controller_pid::acceleration(time);}},
