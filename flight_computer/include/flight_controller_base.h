@@ -28,6 +28,13 @@ namespace avionics{
 
         virtual void initialize_implementation() = 0;
 
+        virtual void set_telemetry(float time) = 0;
+
+        std::function<void(float)> set_telemetry_callback;
+
+        void set_telemetry_buffer(std::function<void(float)> callback){
+            set_telemetry_callback = callback;
+        }
 
         void thread_startup_proccess() override{
             initialize_base();

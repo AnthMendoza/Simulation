@@ -16,6 +16,10 @@ class estimation_bypass : public estimation_base{
 
     public:
 
+    void get_sensor_data();
+
+    void get_actual_state();
+
     void calculate_state();
 
 };

@@ -15,6 +15,7 @@ namespace avionics{
             void velocity(float time);
             void acceleration(float time);
             void angle_of_attack(float time);
+            void set_telemetry(float time) override;
 
             //used std::optional as a work around for PIDController() = delete
 

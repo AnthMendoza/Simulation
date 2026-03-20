@@ -32,6 +32,10 @@ std::string ipv4_tel;
 uint16_t port_tel;
 int m_baudrate;
 
+void set_packet_from_callback(){
+   
+}
+
 protected:
 
 bool m_connected;
@@ -92,6 +96,14 @@ public:
     inline void print_status(){
         std::cout<<"ipv4:" << ipv4_tel << "port :"<< port_tel <<"\n";
     }
+    using t_packet = avionics::flight_controller_telemetry_packet;
+
+    std::function<t_packet(float)> set_telemetry_callback;
+
+    void set_telemetry_buffer(std::function<t_packet(float)> callback){
+        set_telemetry_callback = callback;
+    }
+    
 
 
 };

@@ -2,7 +2,9 @@
 #include "../include/flight_computer.h"
 #include "../pid_controller/include/pid_controller.h"
 #include "../state_estimation/include/state_estimation_bypass.h"
-
+#include "../include/sim_to_flight.h"
+#include "../sensor/include/actual_state.h"
+#include "../sensor/include/sensor_field.h"
 
 
 
@@ -19,6 +21,10 @@ int main(){
     computer.set_controller<avionics::pid::controller_pid>(config);
     computer.set_telemetry<avionics::telemetry>();
     computer.set_estimator<avionics::estimation::estimation_bypass>();
+
+    avionics::sim_to_flight<avionics::sensor::SensorField,avionics::sensor::actual_state> bridge;
+
+    
 
     computer.start();
     string input;

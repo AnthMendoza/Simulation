@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
+namespace avionics{
 
 
 #define TELEMETRY_SYNC_WORD   0xABCD1234
@@ -117,5 +117,7 @@ typedef struct __attribute__((packed)) {
 #define HEALTH_BATTERY_OK   (1 << 5)
 #define HEALTH_MOTOR_OK     (1 << 6)
 #define HEALTH_CONTROL_OK   (1 << 7)
+
+}
 
 #endif

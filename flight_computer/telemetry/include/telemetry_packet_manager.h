@@ -7,6 +7,9 @@
 #include <optional>
 #include <mutex>
 
+using namespace avionics;
+
+
 
 class telemetry_packet_manager : public utility::telemetry::packet_with_mutex<telemetry_packet>{
 
