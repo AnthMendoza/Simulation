@@ -16,15 +16,19 @@ int main(){
 
     avionics::flight_computer computer;
     avionics::pid::pid_config config;
+
+    avionics::sim_to_flight<avionics::sensor::SensorField,avionics::sensor::actual_state> bridge;
     
 
     computer.set_controller<avionics::pid::controller_pid>(config);
     computer.set_telemetry<avionics::telemetry>();
     computer.set_estimator<avionics::estimation::estimation_bypass>();
 
-    avionics::sim_to_flight<avionics::sensor::SensorField,avionics::sensor::actual_state> bridge;
+    
 
     
+
+
 
     computer.start();
     string input;

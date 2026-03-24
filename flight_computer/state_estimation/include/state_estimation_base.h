@@ -10,6 +10,7 @@ class estimation_base: public thread_manager{
     private:
     scheduler estimator_scheduler;
 
+
     protected:
     
     void initialize_base(){
@@ -30,6 +31,7 @@ class estimation_base: public thread_manager{
 
 
     virtual std::vector<avionics::scheduler_tasks> get_routine() = 0;
+
 
     public:
 

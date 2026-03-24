@@ -11,7 +11,7 @@ namespace SimCore{
 
 
 PIDDroneController::PIDDroneController(float frequency):droneControllerBase(frequency){
-    telemetry_manager.start();
+
 }
 
 
@@ -508,19 +508,7 @@ controlPacks::variantPackets PIDDroneController::updateAOTHold(float time,stateI
 
 
 void PIDDroneController::telemetry(){
-    auto& flight_controller_handler = telemetry_manager.packet_manager.flight_controller_packet;
 
-    flight_controller_handler.modify([this](flight_controller_telemetry_packet& telemetry_translator_packet){
-        
-        telemetry_translator_packet.position.x = this->logEstimationPacket.position[0];
-        telemetry_translator_packet.position.y = this->logEstimationPacket.position[1];
-        telemetry_translator_packet.position.z = this->logEstimationPacket.position[2];
-
-        telemetry_translator_packet.velocity.vx = this->logEstimationPacket.velocity[0];
-        telemetry_translator_packet.velocity.vy = this->logEstimationPacket.velocity[1];
-        telemetry_translator_packet.velocity.vz = this->logEstimationPacket.velocity[2];
-        
-    });
 }
 
 

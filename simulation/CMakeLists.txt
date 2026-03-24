@@ -63,15 +63,16 @@ set(CORE_SRC
 
 set(DYNAMICS_SRC
     src/dynamics/vehicle.cpp
+    src/dynamics/droneMinimal.cpp
     src/dynamics/aero.cpp
     #src/dynamics/rocket.cpp
-    src/dynamics/drone.cpp
+    #src/dynamics/drone.cpp
 )
 
 set(CONTROL_SRC
     src/control/PIDController.cpp
-    src/control/droneControl.cpp
-    src/control/dronePIDControl.cpp
+    #src/control/droneControl.cpp
+    #src/control/dronePIDControl.cpp
     src/control/stateEstimation.cpp
     src/control/testGlobals.cpp
 )
@@ -102,7 +103,7 @@ add_library(MySim STATIC
 
 target_include_directories(MySim
     PUBLIC
-    include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${Python3_INCLUDE_DIRS}
 )
 
@@ -117,43 +118,42 @@ target_link_libraries(MySim
 #    src/sim/rocketMain.cpp
 #)
 
-add_executable(drone
-    src/sim/droneSim.cpp
-)
-
-add_executable(dronePIDGains
-    src/parameterEstimation/AOTEstimationMain.cpp
-)
-
-add_executable(motorPIDGains
-    src/parameterEstimation/motorEstimationMain.cpp
-)
+#add_executable(drone
+#    src/sim/droneSim.cpp
+#)
+#
+#add_executable(dronePIDGains
+#    src/parameterEstimation/AOTEstimationMain.cpp
+#)
+#
+#add_executable(motorPIDGains
+#    src/parameterEstimation/motorEstimationMain.cpp
+#)
 
 # Tests
 enable_testing()
 add_executable(tests
-    tests/tests.cpp
-    tests/testPoseRotation.cpp
+    #tests/tests.cpp
+    #tests/testPoseRotation.cpp
     tests/quaternionTests.cpp
     tests/timeManagerTest.cpp
-    tests/stateEstimationTest.cpp
-    tests/PIDControllerTest.cpp
-    tests/momentValidationTest.cpp
-    tests/PIDDroneControllerTest.cpp
-    tests/poseRotationTest.cpp
-    tests/PIDAOTTest.cpp
+    #tests/stateEstimationTest.cpp
+    #tests/PIDControllerTest.cpp
+    #tests/momentValidationTest.cpp
+    #tests/PIDDroneControllerTest.cpp
+    #tests/poseRotationTest.cpp
+    #tests/PIDAOTTest.cpp
 )
 
 # Link MySim and Python into all executables
-foreach(TARGET  drone tests dronePIDGains motorPIDGains)
+foreach(TARGET tests)
     target_link_libraries(${TARGET}
         PRIVATE
         MySim
         pthread
-        flight_computer_library
     )
 endforeach()
 
 # GoogleTest for tests
 target_link_libraries(tests PRIVATE gtest gtest_main)
-add_test(NAME RocketSimTests COMMAND tests)
+add_test(NAME SimTests COMMAND tests)

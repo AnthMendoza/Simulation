@@ -100,7 +100,6 @@ class PIDDroneController : public droneControllerBase{
         
     }logger{};
 
-    flight_computer::telemetry telemetry_manager;
 
     void telemetry() override;
 
