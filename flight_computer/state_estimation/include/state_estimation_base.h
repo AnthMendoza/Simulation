@@ -1,6 +1,6 @@
 #ifndef STATE_ESTIMATION_BASE_H
 #define STATE_ESTIMATION_BASE_H
-#include "../../include/thread_manager.h"
+#include <util/thread_manager.h>
 #include "../../include/scheduler_tasks.h"
 
 namespace avionics::estimation{

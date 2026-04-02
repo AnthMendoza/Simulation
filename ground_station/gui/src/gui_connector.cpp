@@ -1,7 +1,5 @@
 #include "../include/gui_connector.h"
-#include "../../../simulation/include/sim/toml.h"
-#include "../../../simulation/include/utility/utility.h"
-
+#include <util/util.h>
 namespace gui_connector{
 
 constexpr auto CONFIG_PATH      = "../config/communication.toml";

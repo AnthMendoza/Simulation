@@ -1,6 +1,5 @@
 #pragma once
-#include "../core/transpose.h"
-#include "../core/quaternion.h"
+#include <base/base.h>
 
 namespace SimCore{
 

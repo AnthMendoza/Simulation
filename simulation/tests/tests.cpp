@@ -8,7 +8,7 @@
 #include "../include/core/getRotation.h"
 #include "../include/subsystems/sensors.h"
 #include "../include/dynamics/rocket.h"
-#include "../include/sim/toml.h"
+#include <util/toml.h>
 #include "../include/core/quaternion.h"
 #include "../include/core/linearInterpolation.h"
 #include "../include/control/droneControl.h"

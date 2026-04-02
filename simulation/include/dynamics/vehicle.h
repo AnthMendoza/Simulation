@@ -11,17 +11,17 @@
 #include <string>
 #include <optional>
 #include <variant>
+#include <base/base.h>
 #include "../subsystems/sensors.h"
-#include "../core/vectorMath.h"
-#include "../core/quaternion.h"
+
 #include "../sim/logs.h"
 #include "windGenerator.h"
 #include "../subsystems/sensors.h"
 #include "../control/controlRequestStructs.h"
 #include "../subsystems/droneSensorSuite.h"
 #include "../subsystems/sensorPacket.h"
-#include "../utility/time_manager.h"
-#include "../core/transposeSet.h"
+#include <util/time_manager.h>
+#include <base/transposeSet.h>
 
 namespace SimCore{
 class stateEstimation;

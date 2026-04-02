@@ -4,17 +4,11 @@
 #include <memory>
 #include <cmath>
 #include "../../include/dynamics/rocket.h"
-#include "../../include/core/forceApplied.h"
 #include "../../include/dynamics/vehicle.h"
-#include "../../include/core/vectorMath.h"
 #include "../../include/dynamics/aero.h"
-#include "../../include/core/RungeKutta.h"
-#include "../../include/core/odeIterator.h"
-#include "../../include/core/rotationMatrix.h"
-#include "../../include/core/getRotation.h"
-#include "../../include/control/control.h"
+#include <base/base.h>
 #include "../../include/subsystems/sensors.h"
-#include "../../include/sim/toml.h"
+#include <util/toml.h>
 
 namespace SimCore{
 

@@ -1,5 +1,6 @@
 #pragma once
-#include"../utility/include/double_buffer.h"
+#include <buffer/double_buffer.h>
+
 
 namespace avionics{
 

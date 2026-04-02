@@ -2,7 +2,7 @@
 #define PID_CONTROLLER_H
 
 #include "../../include/flight_controller_base.h"
-#include "../../../simulation/include/control/PIDController.h"
+#include <util/util.h>
 #include "pid_config.h"
 #include <optional>
 
@@ -11,11 +11,14 @@ namespace avionics{
         class controller_pid : public controller_base{
         private:
 
+            
+
             void position(float time);
             void velocity(float time);
             void acceleration(float time);
             void angle_of_attack(float time);
             void set_telemetry(float time) override;
+            void get_hardware();
 
             //used std::optional as a work around for PIDController() = delete
 
@@ -55,7 +58,7 @@ namespace avionics{
         public:
 
             controller_pid() = delete;
-            controller_pid(pid_config& config);
+            controller_pid(const pid_config& config);
             
 
         };

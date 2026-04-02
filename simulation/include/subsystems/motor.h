@@ -1,7 +1,6 @@
 #ifndef MOTOR_H
 #define MOTOR_H
-#include <string>
-#include "../control/PIDController.h"
+#include <util/PIDController.h>
 #include "battery.h"
 
 namespace SimCore{

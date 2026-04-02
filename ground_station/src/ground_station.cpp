@@ -1,5 +1,5 @@
 #include "../telemetry/include/telemetry_ground.h"
-#include "../../flight_computer/telemetry/include/telemetry_packet.h"
+#include <telemetry_packet.h>
 #include "../gui/include/gui_connector.h"
 #include "../include/ground_station_startup.h"
 #include <iostream>

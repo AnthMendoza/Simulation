@@ -1,7 +1,7 @@
 #include "../include/pid_controller.h"
 
 
-avionics::pid::controller_pid::controller_pid(pid_config& config){
+avionics::pid::controller_pid::controller_pid(const pid_config& config){
 
     for(int i = 0; i < 3 ; i++){
 
@@ -93,5 +93,9 @@ void avionics::pid::controller_pid::angle_of_attack(float time){
 
 
 void avionics::pid::controller_pid::set_telemetry(float time){
+    
+}
+
+void avionics::pid::controller_pid::get_hardware(){
     
 }

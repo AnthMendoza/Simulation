@@ -1,7 +1,8 @@
-#include "../../include/core/odeIterator.h"
+#include "../include/base/odeIterator.h"
 #include <cmath>
 #include <assert.h>
 #include <iostream>
+
 //this can be done at all at once by adding the forces. then run this for each component 
 namespace SimCore{
 

@@ -6,7 +6,7 @@
 #include <cmath>
 #include <optional>
 #include "vectorMath.h"
-#include "../utility/utility.h"
+#include "../util/utility.h"
 #include "coordinateSystem.h"
 #include "poseState.h"
 #include "vectorMath.h"

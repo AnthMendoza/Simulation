@@ -1,6 +1,6 @@
 #include "../../include/dynamics/vehicle.h"
 #include "../../include/sim/logs.h"
-#include "../../include/core/vectorMath.h"
+#include <base/base.h>
 
 #include "../../include/subsystems/sensors.h"
 #include "../../include/dynamics/rocket.h"

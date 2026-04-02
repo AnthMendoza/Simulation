@@ -6,8 +6,7 @@
 
 #include <random>
 #include <optional>
-#include "../core/vectorMath.h"
-#include "../core/quaternion.h"
+#include <base/base.h>
 
 namespace SimCore{
 class Vehicle;

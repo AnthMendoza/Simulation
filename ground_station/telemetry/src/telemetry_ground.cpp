@@ -1,6 +1,5 @@
 #include "../include/telemetry_ground.h"
-#include "../../../simulation/include/sim/toml.h"
-#include "../../../simulation/include/utility/utility.h"
+#include <util/util.h>
 #include <iostream>
 
 using namespace std;

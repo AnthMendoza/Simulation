@@ -1,5 +1,5 @@
 #include "../../include/subsystems/motor.h"
-#include "../../include/sim/toml.h"
+#include <util/toml.h>
 #include <vector>
 #include <string>
 #include <iostream>

@@ -6,7 +6,7 @@
 #include "../subsystems/propeller.h"
 #include "controlRequestStructs.h"
 #include "../utility/movingAverage.h"
-#include "../utility/utility.h"
+#include <util/util.h>
 
 using namespace Eigen;
 using namespace std;

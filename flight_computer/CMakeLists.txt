@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.15)
-project(flight_computer CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
@@ -18,6 +16,7 @@ set(PID_CONTROLLER_SRC
 )
 
 set(STATE_ESTIMATION_SRC
+    state_estimation/src/state_estimation_base.cpp
     state_estimation/src/state_estimation_bypass.cpp
 )
 
@@ -36,11 +35,15 @@ target_include_directories(flight_computer_library
     ${CMAKE_CURRENT_SOURCE_DIR}/sensor/include
     ${CMAKE_CURRENT_SOURCE_DIR}/pid_controller/include
     ${CMAKE_CURRENT_SOURCE_DIR}/sensor/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party
+    
 
 )
 
+
 target_link_libraries(flight_computer_library
     PUBLIC
+    core
 )
 
 add_executable(drone 
@@ -49,6 +52,7 @@ add_executable(drone
 
 target_link_libraries(drone
     PUBLIC
+    core
     flight_computer_library
     Threads::Threads
 )

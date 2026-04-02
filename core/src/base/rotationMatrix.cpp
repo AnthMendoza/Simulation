@@ -1,8 +1,8 @@
 #include <cmath>
 #include <array>
 
-#include "../../include/core/rotationMatrix.h"
-#include "../../include/core/vectorMath.h"
+#include "../include/base/rotationMatrix.h"
+#include "../include/base/vectorMath.h"
 
 using namespace std;
 namespace SimCore{

@@ -1,7 +1,7 @@
 #pragma once
 #include <array>
 #include <stdint.h>
-#include "../core/quaternion.h"
+#include <base/base.h>
 
 namespace SimCore{
 //simple due to single IMU and gyro. more complex systems have mulitple sensors.

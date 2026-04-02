@@ -2,9 +2,8 @@
 #include <string>
 #include <array>
 #include <cmath>
-#include "../sim/toml.h"
-#include "../core/vectorMath.h"
-#include "../core/transpose.h"
+#include <util/toml.h>
+#include <base/base.h>
 
 
 namespace SimCore{

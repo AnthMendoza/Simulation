@@ -1,6 +1,6 @@
 #pragma once
 #include <mutex>
-#include "../../../flight_computer/telemetry/include/telemetry_packet.h"
+#include <telemetry_packet.h>
 #include <memory>
 
 namespace utility{

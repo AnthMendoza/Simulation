@@ -1,6 +1,6 @@
 #include "../../include/subsystems/droneSensorSuite.h"
 #include "../../include/subsystems/sensors.h"
-#include "../../include/sim/toml.h"
+#include <util/toml.h>
 using namespace SimCore;
 
 droneSensorSuite::droneSensorSuite(std::string& configFile){

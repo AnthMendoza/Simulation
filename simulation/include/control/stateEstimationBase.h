@@ -1,8 +1,8 @@
 #pragma once
 #include <array>
-#include "../core/quaternion.h"
+#include <base/base.h>
 #include "stateInfo.h"
-#include "../utility/time_manager.h"
+#include <util/util.h>
 #include "../subsystems/sensorPacket.h"
 
 namespace SimCore{

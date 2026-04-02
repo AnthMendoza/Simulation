@@ -1,10 +1,9 @@
 #pragma once
 #include <array>
-#include "../core/vectorMath.h"
 #include "stateEstimationBase.h"
-#include "../core/quaternion.h"
 #include "../subsystems/droneSensorSuite.h"
-#include "../core/filtering.h"
+#include <base/base.h>
+
 namespace SimCore{
 
 class stateEstimation : public stateEstimationBase{

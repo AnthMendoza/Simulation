@@ -3,12 +3,12 @@
 #include <vector>
 #include "../control/droneControl.h"
 #include "../subsystems/propeller.h"
-#include "../utility/time_manager.h"
+#include <core
 #include "controlRequestStructs.h"
 #include "stateInfo.h"
 #include <variant>
 #include <optional>
-#include "../../../flight_computer/telemetry/include/communication.h"
+
 
 
 using namespace std;

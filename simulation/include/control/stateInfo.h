@@ -2,7 +2,8 @@
 
 #include <array>
 #include <variant>
-#include "../core/quaternion.h"
+#include <base/quaternion.h>
+
 namespace SimCore{
 //state Estimation packet to return to controller
 struct stateInfo {

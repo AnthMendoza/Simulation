@@ -3,8 +3,6 @@
 #include "vehicle.h"
 #include "../subsystems/motor.h"
 #include "../subsystems/battery.h"
-#include "../core/quaternion.h"
-#include "../core/indexVectors.h"
 #include "../subsystems/propeller.h"
 #include "aero.h"
 #include <utility>
@@ -14,10 +12,14 @@
 #include <sstream>
 #include <optional>
 #include <utility>
-#include "../core/vectorMath.h"
-#include "../utility/utility.h"
-#include "../core/droneState.h"
+#include <util/utility.h>
+#include <base/base.h>
 #include "../subsystems/cameraBase.h"
+#include "../sim/sim_to_flight.h"
+#include <actual_state.h>
+#include <sensor_field.h>
+
+
 
 #define USE_STATE_ESTIMATED_VALUES
 
@@ -120,6 +122,16 @@ class drone :  public Vehicle{
 
     inline poseState getPose(){
         return pose->getPose();
+    }
+
+    
+
+    using simFlight = avionics::sim_to_flight<avionics::sensor::SensorField,avionics::sensor::actual_state>;
+
+    simFlight* bridge;
+
+    void setSimPublish(simFlight& translationBridge){
+        bridge = &translationBridge;
     }
 
 

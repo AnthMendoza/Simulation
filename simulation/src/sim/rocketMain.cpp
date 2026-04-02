@@ -7,14 +7,12 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "../../include/core/vectorMath.h"
+#include <base/base.h>
 #include "../../include/dynamics/vehicle.h"
-#include "../../include/core/odeIterator.h"
 #include "../../include/sim/logs.h"
 #include "../../include/control/control.h"
 #include "../../include/subsystems/sensors.h"
 #include "../../include/dynamics/rocket.h"
-#include "../../include/core/quaternion.h"
 #include "../../include/dynamics/aero.h"
 #include <string>
 

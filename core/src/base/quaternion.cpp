@@ -1,6 +1,6 @@
-#include "../../include/core/quaternion.h"
-#include "../../include/core/vectorMath.h"
-#include "../../include/core/coordinateSystem.h"
+#include "../include/base/quaternion.h"
+#include "../include/base/vectorMath.h"
+#include "../include/base/coordinateSystem.h"
 #include <cmath>
 #include <iostream>
 #include <assert.h>

@@ -1,7 +1,6 @@
 #ifndef COMMUNICATION_BASE_H
 #define COMMUNICATION_BASE_H 
 
-
 #include <string>
 #include <vector>
 #include <mutex>
@@ -12,9 +11,8 @@
 #include "../../third_party/async-sockets/include/udpserver.hpp"
 #include "../../../ground_station/telemetry/include/telemetry_ground.h"
 #include "../../../ground_station/telemetry/include/packet_threaded.h"
-#include "../../include/thread_manager.h"
+#include <util/util.h>
 #include "telemetry_packet_manager.h"
-#include "../../include/scheduler.h"
 #include "../../include/scheduler_tasks.h"
 
 namespace avionics{

@@ -1,8 +1,11 @@
 #ifndef FLIGHT_CONTROLLER_BASE_H
 #define FLIGHT_CONTROLLER_BASE_H
-#include "thread_manager.h"
+#include <base/base.h>
+#include <util/thread_manager.h>
 #include "avionics_states.h"
 #include "scheduler_tasks.h"
+#include "../sensor/include/sensor_field.h"
+#include <mutex>
 
 namespace avionics{
     class controller_base: public thread_manager{
@@ -23,6 +26,10 @@ namespace avionics{
         estimated_state vehicle_state;
 
         desired_state vehicle_desired_state;
+        
+        sensor::SensorField sensor_field;
+        std::mutex sensor_field_mutex;
+
 
         virtual std::vector<scheduler_tasks> get_routine() = 0;
 
@@ -47,6 +54,10 @@ namespace avionics{
 
     public:
 
+        void set_sensor_field(sensor::SensorField& field){
+            std::lock_guard<std::mutex> lock(sensor_field_mutex);
+            sensor_field = field;
+        }
 
 
 

@@ -5,17 +5,12 @@
 #include <cmath>
 #include <memory>
 #include <iostream>
-#include "../../include/core/forceApplied.h"
+#include <base/base.h>
+#include <util/util.h>
 #include "../../include/dynamics/vehicle.h"
-#include "../../include/core/vectorMath.h"
 #include "../../include/dynamics/aero.h"
-#include "../../include/core/RungeKutta.h"
-#include "../../include/core/odeIterator.h"
-#include "../../include/core/getRotation.h"
 #include "../../include/subsystems/sensors.h"
-#include "../../include/sim/toml.h"
-#include "../../include/core/quaternion.h"
-#include "../../include/utility/utility.h"
+
 
 namespace SimCore{
 void Vehicle::initSensors(){

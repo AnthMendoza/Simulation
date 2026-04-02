@@ -1,18 +1,17 @@
 #include "../../include/dynamics/droneMinimal.h"
 #include "../../include/subsystems/battery.h"
 
-#include "../../include/sim/toml.h"
 #include "../../include/dynamics/aero.h"
 #include "../../include/subsystems/propeller.h"
 #include "../../include/subsystems/motor.h"
-#include "../../include/core/forceApplied.h"
+#include <base/forceApplied.h>
 #include "../../include/subsystems/motorDyno.h"
 #include "../../include/dynamics/aero.h"
-#include "../../include/utility/utility.h"
-#include "../../include/thirdparty/eigenWrapper.h"
-#include "sim/toml.h"
-#include "../../include/utility/logger.h"
-#include "../../include/core/coordinateSystem.h"
+#include <utility>
+#include <thirdparty/eigenWrapper.h>
+#include <util/toml.h>
+#include <util/logger.h>
+#include <base/coordinateSystem.h>
 #include <cassert>
 #include <iostream>
 #include <utility>

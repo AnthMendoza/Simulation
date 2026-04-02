@@ -1,8 +1,7 @@
 #pragma once
 #include <vector>
 #include <array>
-#include "../core/quaternion.h"
-#include "../core/coordinateSystem.h"
+#include <base/base.h>
 
 //different packets can be used for motor + control surfaces
 namespace controlPacks{

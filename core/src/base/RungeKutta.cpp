@@ -1,5 +1,5 @@
 #include <cmath>
-#include "../../include/core/RungeKutta.h"
+#include "../include/base/RungeKutta.h"
 
 namespace SimCore{
 

@@ -1,6 +1,6 @@
 #include <array>
 
-#include "../../include/core/vectorMath.h"
+#include "../include/base/vectorMath.h"
 
 namespace SimCore{
 //origin of lever vector is the center of gravity.

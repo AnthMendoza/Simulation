@@ -3,10 +3,10 @@
 #include <thread>
 #include <mutex>
 #include <string>
-#include "../../../flight_computer/telemetry/include/telemetry_packet.h"
-#include "../../../flight_computer/telemetry/include/telemetry_packet_manager.h"
-#include "../../../flight_computer/third_party/async-sockets/include/udpsocket.hpp"
-#include "../../../flight_computer/include/thread_manager.h"
+#include <telemetry_packet.h>
+#include <telemetry_packet_manager.h>
+#include <async-sockets/include/udpsocket.hpp>
+#include <util/util.h>
 #include "packet_threaded.h"
 
 

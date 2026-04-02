@@ -1,7 +1,7 @@
 #include "../../include/control/stateEstimation.h"
 #include "../../include/control/stateInfo.h"
 #include "../../include/control/stateEstimationBase.h"
-#include "../../include/core/quaternion.h"
+#include <base/quaternion.h>
 
 namespace SimCore{
 

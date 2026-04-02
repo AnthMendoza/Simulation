@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <cmath>
-#include "../include/core/quaternion.h"
+#include <base/base.h>
 
 
 using namespace SimCore;

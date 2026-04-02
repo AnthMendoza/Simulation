@@ -1,4 +1,5 @@
-#include "../../include/utility/time_manager.h"
+#include "../include/util/time_manager.h"
+
 namespace SimCore{
 timeManager::timeManager(float triggerIntervalSeconds) 
     : triggerInterval(triggerIntervalSeconds), 

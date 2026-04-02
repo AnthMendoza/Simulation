@@ -4,8 +4,7 @@
 #include <stdexcept>
 #include <memory>
 #include "../../include/dynamics/vehicle.h"
-#include "../../include/core/vectorMath.h"
-#include "../../include/core/poseRotation.h"
+#include <base/base.h>
 
 namespace SimCore{
 //using the PSD to form a normal distabution 

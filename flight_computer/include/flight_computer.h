@@ -1,13 +1,12 @@
-#include "../../simulation/include/sim/toml.h"
-#include "../../simulation/include/utility/utility.h"
 #include "../telemetry/include/communication_base.h"
 #include "../telemetry/include/telemetry_packet.h"
 #include "../state_estimation/include/state_estimation_base.h"
-#include "../include/thread_manager.h"
+#include "../sensor/include/actual_state.h"
+#include <base/base.h>
+#include <util/util.h>
+#include <buffer/ring_buffer.h>
+#include <buffer/double_buffer.h>
 #include "flight_controller_base.h"
-#include "../utility/include/ring_buffer.h"
-#include "../utility/include/double_buffer.h"
-#include "scheduler.h"
 #include "scheduler_tasks.h"
 #include <string>
 #include <iostream>
@@ -29,8 +28,6 @@ private:
     utility::buffer::ring_buffer<avionics::flight_controller_telemetry_packet,20> controller_to_communication;
         
     utility::buffer::double_buffer<avionics::estimated_state> estimator_to_controller;
-
-    
 
 
     void thread_proccess() override;
@@ -66,7 +63,8 @@ public:
 
     }
 
-    flight_computer(float interval_ms = 1);    
+    flight_computer(float interval_ms = 1);   
+    
 
 };
 

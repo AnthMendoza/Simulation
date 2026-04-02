@@ -1,6 +1,5 @@
 #include "../include/communication_base.h"
-#include "../../../simulation/include/sim/toml.h"
-#include "../../../simulation/include/utility/utility.h"
+#include <util/toml.h>
 #include <string>
 #include <iostream>
 #include <cstring>

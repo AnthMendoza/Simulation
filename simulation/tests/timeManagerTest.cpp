@@ -1,4 +1,4 @@
-#include "../include/utility/time_manager.h"
+#include <util/time_manager.h>
 #include <gtest/gtest.h>
 
 using namespace SimCore;

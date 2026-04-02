@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include "../utility/utility.h"
+#include "../util/utility.h"
 #include "vectorMath.h"
 
 namespace SimCore{
