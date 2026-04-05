@@ -17,7 +17,12 @@ set(PID_CONTROLLER_SRC
 
 set(STATE_ESTIMATION_SRC
     state_estimation/src/state_estimation_base.cpp
-    state_estimation/src/state_estimation_bypass.cpp
+    state_estimation/src/estimation.cpp
+)
+
+set(HARDWARE_SRC
+    hardware/src/hardware_base.cpp
+
 )
 
 add_library(flight_computer_library STATIC
@@ -25,6 +30,7 @@ add_library(flight_computer_library STATIC
     ${TELEMETRY_SRC}
     ${PID_CONTROLLER_SRC}
     ${STATE_ESTIMATION_SRC}
+    ${HARDWARE_SRC}
 )
 
 target_include_directories(flight_computer_library
@@ -35,6 +41,7 @@ target_include_directories(flight_computer_library
     ${CMAKE_CURRENT_SOURCE_DIR}/sensor/include
     ${CMAKE_CURRENT_SOURCE_DIR}/pid_controller/include
     ${CMAKE_CURRENT_SOURCE_DIR}/sensor/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/include
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party
     
 

@@ -1,15 +1,16 @@
 #ifndef COMMUNICATION_H
 #define COMMUNICATION_H
 #include "communication_base.h"
+#include <iostream>
 
 
 namespace avionics{
 
 class telemetry: public telemetry_base{
 
-private:
+    private:
 
-protected:
+    protected:
 
     std::vector<avionics::scheduler_tasks> get_routine() override;
 
@@ -27,7 +28,18 @@ protected:
 
     #undef DEFINE_SENDS
 
-public:
+    public:
+
+    telemetry(telem_ring& tel_buff , std::string config_path) : telemetry_base(tel_buff,config_path){
+
+    }
+
+    void terminal_print(){
+        auto packet_option = tel_buffer.pop();
+        auto packet = packet_option.value();
+        std::cout<< packet.position.x << std::endl;
+    }
+
 
 };
 

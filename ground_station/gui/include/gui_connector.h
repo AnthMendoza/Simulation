@@ -19,9 +19,9 @@ public:
 
     gui_connector(float packet_rate);
 
-    virtual void thread_proccess() override;
+    virtual void thread_process() override;
 
-    virtual void thread_startup_proccess() override;
+    virtual void thread_startup_process() override;
 
     void send_packet();
 

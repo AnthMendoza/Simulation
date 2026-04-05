@@ -4,8 +4,9 @@
 #include <util/thread_manager.h>
 #include "avionics_states.h"
 #include "scheduler_tasks.h"
-#include "../sensor/include/sensor_field.h"
+#include <sensor_field.h>
 #include <mutex>
+#include <buffer_types.h>
 
 namespace avionics{
     class controller_base: public thread_manager{
@@ -27,9 +28,10 @@ namespace avionics{
 
         desired_state vehicle_desired_state;
         
-        sensor::SensorField sensor_field;
-        std::mutex sensor_field_mutex;
+        flight_controller_telemetry_packet telemetry_packet;
 
+        telem_ring& telemetry_buffer;
+        state_dbuf& state_buffer;
 
         virtual std::vector<scheduler_tasks> get_routine() = 0;
 
@@ -43,22 +45,20 @@ namespace avionics{
             set_telemetry_callback = callback;
         }
 
-        void thread_startup_proccess() override{
+        void thread_startup_process() override{
             initialize_base();
             initialize_implementation();
         }
 
-        void thread_proccess() override{
+        void thread_process() override{
             controller_scheduler(start_to_recent_call_time());
         }
 
     public:
 
-        void set_sensor_field(sensor::SensorField& field){
-            std::lock_guard<std::mutex> lock(sensor_field_mutex);
-            sensor_field = field;
-        }
+        controller_base(state_dbuf& state_buff , telem_ring& tel_buff) : state_buffer(state_buff), telemetry_buffer(tel_buff){
 
+        }
 
 
         void set_estimated_state(estimated_state state){

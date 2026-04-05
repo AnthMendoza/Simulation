@@ -2,6 +2,7 @@
 #define STATE_ESTIMATION_BASE_H
 #include <util/thread_manager.h>
 #include "../../include/scheduler_tasks.h"
+#include <buffer_types.h>
 
 namespace avionics::estimation{
 
@@ -10,8 +11,14 @@ class estimation_base: public thread_manager{
     private:
     scheduler estimator_scheduler;
 
+    
 
     protected:
+
+    state_dbuf& state_buffer;
+    estimation_state_packet state_packet;
+
+    sensor_dbuf& sensor_buffer;
     
     void initialize_base(){
         std::vector<scheduler_tasks> tasks = get_routine();
@@ -21,11 +28,11 @@ class estimation_base: public thread_manager{
         set_scheduler(estimator_scheduler);
     }
 
-    void thread_proccess() override{
+    void thread_process() override{
         estimator_scheduler(start_to_recent_call_time());
     }
 
-    void thread_startup_proccess() override{
+    void thread_startup_process() override{
         initialize_base();
     }
 
@@ -35,6 +42,9 @@ class estimation_base: public thread_manager{
 
     public:
 
+    estimation_base(sensor_dbuf& sensor_buff,state_dbuf& state_buff ): sensor_buffer(sensor_buff) ,state_buffer(state_buff){
+
+    }
 
 };
 

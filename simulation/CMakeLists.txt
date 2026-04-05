@@ -17,6 +17,7 @@ FetchContent_MakeAvailable(googletest)
 # Source Groups
 set(SIM_SRC
     src/sim/logs.cpp
+    src/sim/hardware_sim.cpp
     #src/sim/MySim.cpp
 )
 

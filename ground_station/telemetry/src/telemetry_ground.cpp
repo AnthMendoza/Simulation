@@ -72,11 +72,11 @@ bool ground_station::telemetry_ground::validate_start_up(ground_station::start_u
     return false;
 }
 
-void ground_station::telemetry_ground::thread_startup_proccess(){
+void ground_station::telemetry_ground::thread_startup_process(){
 
 }
 
-void ground_station::telemetry_ground::thread_proccess(){
+void ground_station::telemetry_ground::thread_process(){
     if(!m_connected){
         start_up();
         std::cout<< "init packet sent from ground. \n";

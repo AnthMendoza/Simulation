@@ -1,5 +1,5 @@
-#ifndef THREAD_MANGER_H
-#define THREAD_MANGER_H
+#ifndef THREAD_MANAGER_H
+#define THREAD_MANAGER_H
 #include "scheduler.h"
 #include <thread>
 #include <chrono>
@@ -16,7 +16,7 @@ private:
     //original did not have a re-sync after initalization
     virtual void thread_loop() {
         start_time = std::chrono::steady_clock::now();
-        thread_startup_proccess();
+        thread_startup_process();
         auto next_time = std::chrono::steady_clock::now();
 
         while (running.load()) {
@@ -24,7 +24,7 @@ private:
             auto now = std::chrono::steady_clock::now();
             auto total_time = now - start_time;
             total_time_f = std::chrono::duration<float>(total_time).count();
-            thread_proccess();
+            thread_process();
             
             if(schedule_driven == true){
                 auto next_by_duration = std::chrono::duration<float>(next_time_callback(total_time_f));
@@ -41,10 +41,10 @@ protected:
     std::thread worker_thread;
     std::chrono::milliseconds interval{100};
 
-    std::__1::chrono::steady_clock::time_point start_time;
+    std::chrono::steady_clock::time_point start_time;
     
-    virtual void thread_proccess() = 0;
-    virtual void thread_startup_proccess() = 0;
+    virtual void thread_process() = 0;
+    virtual void thread_startup_process() = 0;
 
     void set_scheduler(scheduler& schedule){
         schedule_driven = true;

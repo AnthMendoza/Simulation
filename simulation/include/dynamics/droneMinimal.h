@@ -21,7 +21,6 @@
 
 
 
-#define USE_STATE_ESTIMATED_VALUES
 
 using namespace std;
 namespace SimCore{
@@ -40,6 +39,8 @@ class drone :  public Vehicle{
     unique_ptr<battery> droneBattery;
 
     indexCoordinates index;
+
+    
     
     void dataLog();
 
@@ -127,6 +128,8 @@ class drone :  public Vehicle{
     
 
     using simFlight = avionics::sim_to_flight<avionics::sensor::SensorField,avionics::sensor::actual_state>;
+
+    avionics::sensor::SensorField sensorField;
 
     simFlight* bridge;
 

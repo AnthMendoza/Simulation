@@ -19,11 +19,11 @@ gui_connector::gui_connector(float packet_rate) : thread_manager(packet_rate){
     udp_bridge->Connect(IP,port);
 }
 
-void gui_connector::thread_proccess(){
+void gui_connector::thread_process(){
     send_packet();
 }
 
-void gui_connector::thread_startup_proccess(){
+void gui_connector::thread_startup_process(){
 
 }
 

@@ -14,6 +14,7 @@
 #include <util/util.h>
 #include "telemetry_packet_manager.h"
 #include "../../include/scheduler_tasks.h"
+#include <buffer_types.h>
 
 namespace avionics{
 
@@ -30,6 +31,7 @@ std::string ipv4_tel;
 uint16_t port_tel;
 int m_baudrate;
 
+
 void set_packet_from_callback(){
    
 }
@@ -38,15 +40,20 @@ protected:
 
 bool m_connected;
 bool relay_connected_to_ground;
+std::string CONFIG_PATH;
+
+telem_ring& tel_buffer;
 
 public:
     telemetry_packet_manager packet_manager;
 
     //note baudRate does not define the rate at which packets are sent. 
-    telemetry_base();
+    telemetry_base(telem_ring& tel_buff,std::string config_path);
 
 
     ~telemetry_base() = default;
+
+    void startup_helper();
 
     void initialize_base(){
        std::vector<scheduler_tasks> tasks = get_routine();
@@ -58,9 +65,9 @@ public:
 
     virtual std::vector<scheduler_tasks> get_routine() = 0;
 
-    virtual void thread_proccess() override;
+    virtual void thread_process() override;
 
-    virtual void thread_startup_proccess() override;
+    virtual void thread_startup_process() override;
 
     void call_back();
 

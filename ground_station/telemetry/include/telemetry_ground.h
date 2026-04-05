@@ -45,9 +45,9 @@ public:
 
     ~telemetry_ground() = default;
 
-    virtual void thread_proccess() override;
+    virtual void thread_process() override;
 
-    virtual void thread_startup_proccess() override;
+    virtual void thread_startup_process() override;
 
     void start_up();
 

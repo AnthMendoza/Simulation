@@ -11,7 +11,7 @@ private:
     utility::buffer::double_buffer<SensorField>  sensor_buffer;
     utility::buffer::double_buffer<ActualState>  actual_state_buffer;
 public:
-    void sim_publish(const ActualState& state, const SensorField& field){
+    void sim_publish(const SensorField& field , const ActualState& state){
         actual_state_buffer.writeBuffer() = state;
         actual_state_buffer.publish();
         sensor_buffer.writeBuffer() = field;

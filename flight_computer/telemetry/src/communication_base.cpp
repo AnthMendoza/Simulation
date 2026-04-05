@@ -6,13 +6,16 @@
 
 using namespace std;
 
-constexpr auto CONFIG_PATH      = "../../flight_computer/config/communication.toml";
 constexpr auto TARGET           = "telemetry";
 constexpr auto PORT_ACCESS_NAME = "port";
 
 
 
-avionics::telemetry_base::telemetry_base(): thread_manager(){
+avionics::telemetry_base::telemetry_base(telem_ring& tel_buff,std::string config_path): thread_manager(), tel_buffer(tel_buff) , CONFIG_PATH(config_path){
+
+}
+
+void avionics::telemetry_base::startup_helper(){
     m_connected = false;
     relay_connected_to_ground = false;
     std::string contents = readFileAsString(CONFIG_PATH);
@@ -21,13 +24,11 @@ avionics::telemetry_base::telemetry_base(): thread_manager(){
     coms_toml.parseConfig(contents,TARGET);
 
     udp_bridge = std::make_shared<UDPServer<>>();
-
     auto port = static_cast<uint16_t>(coms_toml.getFloat(PORT_ACCESS_NAME));
     port_tel = port;
     call_back();
     udp_bridge->Bind(port,[](int errorCode, string errorMessage)
     { cout << errorCode << " : " << errorMessage << endl;});
-
 }
 
 void avionics::telemetry_base::call_back(){
@@ -74,18 +75,14 @@ bool avionics::telemetry_base::validate_start_up(ground_station::start_up_packet
 }
 
 
-void avionics::telemetry_base::thread_proccess(){
-
-    if(!is_connected()){
-        return;
-    }
+void avionics::telemetry_base::thread_process(){
+    telemetry_scheduler(start_to_recent_call_time());    
     
-    telemetry_scheduler(start_to_recent_call_time());
-
 }
 
-void avionics::telemetry_base::thread_startup_proccess(){
+void avionics::telemetry_base::thread_startup_process(){
     initialize_base();
+    startup_helper();
     set_scheduler(telemetry_scheduler);
 }
 

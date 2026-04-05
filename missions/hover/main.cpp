@@ -8,8 +8,9 @@
 #include <sensor_field.h>
 #include <flight_computer.h>
 #include <pid_controller.h>
-#include <state_estimation_bypass.h>
+#include <estimation.h>
 #include <communication.h>
+#include <sim/hardware_sim.h>
 
 
 
@@ -38,20 +39,31 @@ int main(){
     drone_m.addMotorsAndProps(motor_prop);
 
     // --------------- Flight Computer ----------------
+
+    auto config_telemetry_path = mission_path + "/configs/telemetry.toml";
     
     avionics::flight_computer computer;
     avionics::pid::pid_config config;
 
     computer.set_controller<avionics::pid::controller_pid>(config);
-    computer.set_telemetry<avionics::telemetry>();
-    computer.set_estimator<avionics::estimation::estimation_bypass>();
+    computer.set_telemetry<avionics::telemetry>(config_telemetry_path);
+    computer.set_estimator<avionics::estimation::estimation>();
 
     // --------------- Sim To Flight ----------------
 
     avionics::sim_to_flight<avionics::sensor::SensorField,avionics::sensor::actual_state> bridge;
     
     drone_m.setSimPublish(bridge);
-    computer.setReadHardware(bridge);
+    computer.set_hardware<avionics::sim::hardware_sim>(bridge);
+
+
+    // --------------- Start ----------------
+
+    computer.start();
+    while(true){
+
+    }
+    computer.stop();
 
     return 0;
 }

@@ -1,16 +1,16 @@
 #include "../telemetry/include/communication_base.h"
 #include "../telemetry/include/telemetry_packet.h"
 #include "../state_estimation/include/state_estimation_base.h"
-#include "../sensor/include/actual_state.h"
 #include <base/base.h>
 #include <util/util.h>
-#include <buffer/ring_buffer.h>
-#include <buffer/double_buffer.h>
+#include <buffer_types.h>
 #include "flight_controller_base.h"
 #include "scheduler_tasks.h"
+#include "../hardware/include/hardware_base.h"
 #include <string>
 #include <iostream>
 #include <cstring>
+
 
 
 #pragma once
@@ -24,24 +24,34 @@ private:
 
     std::shared_ptr<estimation::estimation_base> estimator;
 
-
-    utility::buffer::ring_buffer<avionics::flight_controller_telemetry_packet,20> controller_to_communication;
+    std::shared_ptr<hardware_base> hardware;
+    
+    // ------------- buffers --------------
+    
+    avionics::telem_ring controller_to_communication;
         
-    utility::buffer::double_buffer<avionics::estimated_state> estimator_to_controller;
+    avionics::state_dbuf estimator_to_controller;
+
+    avionics::sensor_dbuf hardware_to_estimator;
 
 
-    void thread_proccess() override;
+    void thread_process() override;
 
-    void thread_startup_proccess() override;
+    void thread_startup_process() override;
     
 public:
+    
 
     template<typename T, typename... Args>
     void set_controller(Args&&... args){
 
         static_assert(std::is_base_of_v<controller_base, T>);
 
-        controller = std::make_shared<T>(std::forward<Args>(args)...);
+        controller = std::make_shared<T>(   
+            estimator_to_controller, 
+            controller_to_communication, 
+            std::forward<Args>(args)...
+        );
 
     }
 
@@ -50,7 +60,10 @@ public:
 
         static_assert(std::is_base_of_v<telemetry_base,T>);
 
-        communication = std::make_shared<T>(std::forward<Args>(args)...);
+        communication = std::make_shared<T>(
+            controller_to_communication,
+            std::forward<Args>(args)...
+        );
 
     }
 
@@ -59,8 +72,21 @@ public:
 
         static_assert(std::is_base_of_v<estimation::estimation_base,T>);
 
-        estimator = std::make_shared<T>(std::forward<Args>(args)...);
+        estimator = std::make_shared<T>(
+            hardware_to_estimator,
+            estimator_to_controller,
+            std::forward<Args>(args)...
+        );
 
+    }
+
+    template<typename T, typename... Args>
+    void set_hardware(Args&&... args){
+        static_assert(std::is_base_of_v<hardware_base, T>);
+        hardware = std::make_shared<T>(
+            hardware_to_estimator,
+            std::forward<Args>(args)...
+        );
     }
 
     flight_computer(float interval_ms = 1);   
