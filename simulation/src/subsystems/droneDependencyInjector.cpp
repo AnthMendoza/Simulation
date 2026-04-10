@@ -15,7 +15,7 @@ propMotorPair setSquare(float x, float y, propeller& prop, motor& mot) {
     
     std::array<int,4> rotationDirection = {-1,1,1,-1};
 
-    std::array<std::array<float, 3>, 4> positions = {{
+    std::array<units::vec3, 4> positions = {{
         { x,  y, 0},
         {-x,  y, 0},
         { x, -y, 0},

@@ -1,6 +1,5 @@
-#include "../../include/control/droneControl.h"
+#include <drone_control.h>
 #include <iostream>
-#include "../../include/thirdparty/eigenWrapper.h"
 #include <vector>
 
 using namespace Eigen;
@@ -26,14 +25,14 @@ void controlAllocator::buildCASMatrix() {
     Bpinv = svd.solve(MatrixXd::Identity(6, 6));
 }
 
-VectorXd controlAllocator::toVectorXd(std::initializer_list<float> list) {
+VectorXd controlAllocator::toVectorXd(std::initializer_list<units::scalar> list) {
     VectorXd vec(list.size());
     int i = 0;
-    for (float  val : list) vec(i++) = val;
+    for (units::scalar  val : list) vec(i++) = val;
     return vec;
 }
 
-controlAllocator::controlAllocator(const vector<array<float,3>>& motorPositions,const vector<array<float,3>>& thrustDirections,vector<float> spinTCoefficent){   
+controlAllocator::controlAllocator(const vector<array<units::scalar,3>>& motorPositions,const vector<array<units::scalar,3>>& thrustDirections,vector<units::scalar> spinTCoefficent){   
     if(motorPositions.empty() || thrustDirections.empty() || spinTCoefficent.empty()) throw runtime_error("Allocator contains no motor positions");
 
     if(motorPositions.size() != thrustDirections.size() || motorPositions.size() != spinTCoefficent.size()){
@@ -69,15 +68,15 @@ allocatorData controlAllocator::computeAllocation(controlPacks::forceMoments req
 
     
     for (int i = 0; i < thrusts.size(); ++i) {
-        result.thrusts.push_back(static_cast<float>(thrusts[i]));
+        result.thrusts.push_back(static_cast<units::scalar>(thrusts[i]));
     }
 
     for (int i = 0; i < 3; ++i) {
-        result.forces[i] = static_cast<float>(output[i]);
+        result.forces[i] = static_cast<units::scalar>(output[i]);
     }
 
     for (int i = 0; i < 3; ++i) {
-        result.moments[i] = static_cast<float>(output[i + 3]);
+        result.moments[i] = static_cast<units::scalar>(output[i + 3]);
     }
 
     manageMovingAvg(result);
@@ -90,7 +89,7 @@ void controlAllocator::manageMovingAvg(allocatorData& allocation) {
     const size_t windowsSize = 3;
     if (movingAvg.size() < allocation.thrusts.size()) {
         while (movingAvg.size() < allocation.thrusts.size()) {
-            utility::movingAverage<float> obj(windowsSize);
+            utility::movingAverage<units::scalar> obj(windowsSize);
             movingAvg.push_back(obj);
         }
     }else if (movingAvg.size() > allocation.thrusts.size()) {

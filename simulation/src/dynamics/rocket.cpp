@@ -207,7 +207,7 @@ void Rocket::applyEngineForce(std::array<float,2> twoDEngineRadians , float thru
     Matrix3x3 rotX = rotationMatrixX(twoDEngineRadians[0]);
     Matrix3x3 rotY = rotationMatrixY(twoDEngineRadians[1]);
 
-    std::array<float,3> engineVector = {0,0,1};
+    units::vec3 engineVector = {0,0,1};
 
     Eigen::Vector3d v1(engineVector[0], engineVector[1], engineVector[2]);
 
@@ -216,7 +216,7 @@ void Rocket::applyEngineForce(std::array<float,2> twoDEngineRadians , float thru
     engineVector = combined.rotate(engineVector);
 
 
-    std::array<float , 3> vehicleStateAntiparallel = vehicleState;
+    units::vec3 vehicleStateAntiparallel = vehicleState;
     // reverses the vector so that we can apply a thrust in the oposite direction
 
     for(int i = 0; i<3 ; i++){
@@ -230,7 +230,7 @@ void Rocket::applyEngineForce(std::array<float,2> twoDEngineRadians , float thru
     Eigen::Vector3d rotation = getRotationAngles(v1, v2);
 
 
-    std::array<float,3> vehicleStateAngles = {static_cast<float>(rotation(0)) , static_cast<float>(rotation(1)) , static_cast<float>(rotation(2))};
+    units::vec3 vehicleStateAngles = {static_cast<float>(rotation(0)) , static_cast<float>(rotation(1)) , static_cast<float>(rotation(2))};
 
     Matrix3x3 rotXVehicle = rotationMatrixX(vehicleStateAngles[0]); 
     Matrix3x3 rotYVehicle = rotationMatrixY(vehicleStateAngles[1]); 
@@ -299,12 +299,12 @@ void Rocket::updateState(){
 
 
 
-std::array<std::array<float , 3> , 2> Rocket::getFinForceVectors(){
+std::array<units::vec3 , 2> Rocket::getFinForceVectors(){
 
 
-    std::array<float,3> Xfin = {1,0,0};
-    std::array<float,3> Yfin = {0,1,0};
-    std::array<float,3> zrefrance = {0,0,1};
+    units::vec3 Xfin = {1,0,0};
+    units::vec3 Yfin = {0,1,0};
+    units::vec3 zrefrance = {0,0,1};
 
     Eigen::Vector3d v1( zrefrance[0],
                         zrefrance[1],
@@ -320,7 +320,7 @@ std::array<std::array<float , 3> , 2> Rocket::getFinForceVectors(){
     //get vehicle rotation relative to a refrance vector then alter our preset force application vectors
 
 
-    std::array<float,3> vehicleStateAngles = {static_cast<float>(rotation(0)) , static_cast<float>(rotation(1)) , static_cast<float>(rotation(2))};
+    units::vec3 vehicleStateAngles = {static_cast<float>(rotation(0)) , static_cast<float>(rotation(1)) , static_cast<float>(rotation(2))};
 
 
     Matrix3x3 rotX = rotationMatrixX(vehicleStateAngles[0]);
@@ -335,7 +335,7 @@ std::array<std::array<float , 3> , 2> Rocket::getFinForceVectors(){
     Yfin = realign.rotate(Yfin);
 
 
-    std::array<std::array<float , 3> , 2> finVectors = {Xfin , Yfin};
+    std::array<units::vec3 , 2> finVectors = {Xfin , Yfin};
 
     return finVectors;
 
@@ -394,8 +394,8 @@ void Rocket::updateFinPosition(std::pair<float,float> commands){
 //No longer in use
 float Rocket::getCurvature(){
     
-    std::array<float ,3> velocity = {Xvelocity , Yvelocity , Zvelocity};
-    std::array<float,3> veloCrossAccel = {0,0,0};
+    units::vec3 velocity = {Xvelocity , Yvelocity , Zvelocity};
+    units::vec3 veloCrossAccel = {0,0,0};
 
     //vectorCrossProduct(velocity , acceleration , veloCrossAccel);
     
@@ -468,7 +468,7 @@ void Rocket::glideToTarget(){
     std::array<float,2> xyDelta = { targetLandingPosition[0] - positionEsitmated[0],
                                     targetLandingPosition[1] - positionEsitmated[1]};
 
-    std::array<float,3> targetVector = {0,0,-1};
+    units::vec3 targetVector = {0,0,-1};
     
     std::array<float,2> headingError = {vectorAngleBetween(vehicleState , targetVector) ,vectorAngleBetween(vehicleState , targetVector)};
 
@@ -492,8 +492,8 @@ void Rocket::landingBurn(){
         applyEngineForce(landingGimbalDirection, landingRequiredThrust);
         return;
     }
-    std::array<float,3> velocity = getEstimatedVelocity();
-    std::array<float,3> rotation = getEstimatedRotation();
+    units::vec3 velocity = getEstimatedVelocity();
+    units::vec3 rotation = getEstimatedRotation();
     
     float landingAccelZ = ((velocity[2] * velocity[2]) / (2 * Zposition)) - gravitationalAcceleration;
     float landingBurnDuration =  velocity[2] / landingAccelZ;
@@ -528,10 +528,10 @@ void Rocket::landingBurn(){
     if(landingRequiredThrust >  maxThrust) landingRequiredThrust =  maxThrust;
     
 
-    std::array<float,3> forceVector = {landingForceX , landingForceY , landingForceZ};
+    units::vec3 forceVector = {landingForceX , landingForceY , landingForceZ};
 
 
-    std::array<float , 3> directionVector = normalizeVector(forceVector);
+    units::vec3 directionVector = normalizeVector(forceVector);
 
     landingGimbalDirection= {0,0};
         

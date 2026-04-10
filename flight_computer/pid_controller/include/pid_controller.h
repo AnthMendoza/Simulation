@@ -27,11 +27,11 @@ namespace avionics{
 
             struct subroutine_translation_layer{
 
-                std::array<float,3> delta_position;
-                std::array<float,3> req_velocity;
-                std::array<float,3> delta_velocity;
-                std::array<float,3> req_acceleration;
-                std::array<float,3> delta_acceleration;
+                fc_units::vec3 delta_position;
+                fc_units::vec3 req_velocity;
+                fc_units::vec3 delta_velocity;
+                fc_units::vec3 req_acceleration;
+                fc_units::vec3 delta_acceleration;
 
                 subroutine_translation_layer(): delta_position({0.0f,0.0f,0.0f}),delta_velocity({0.0f,0.0f,0.0f}),
                                                 req_velocity({0.0f,0.0f,0.0f}),req_acceleration({0.0f,0.0f,0.0f}){

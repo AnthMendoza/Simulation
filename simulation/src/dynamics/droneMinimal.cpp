@@ -10,7 +10,7 @@
 #include <utility>
 #include <thirdparty/eigenWrapper.h>
 #include <util/toml.h>
-#include <util/logger.h>
+#include <util/util.h>
 #include <base/coordinateSystem.h>
 #include <cassert>
 #include <iostream>
@@ -40,7 +40,7 @@ void drone::initDrone(string& droneConfig){
 
 
 //adjust COG at the start of the simulation. Can be adjusted in sim.
-void drone::offsetCOG(std::array<float ,3> offset){
+void drone::offsetCOG(units::vec3 offset){
     cogLocation = offset;
 }
 
@@ -53,7 +53,7 @@ void drone::transposeEntities(const Quaternion& quant){
         }
         transposeCalls = 0;
         //set direction axis to main axis
-        std::array<float,3> quaternionDirectionVector = pose->getdirVector();
+        units::vec3 quaternionDirectionVector = pose->getdirVector();
 
         float angle = vectorAngleBetween(quaternionDirectionVector,index.nominal.dir);
         
@@ -72,7 +72,7 @@ void drone::transposeEntities(const Quaternion& quant){
             angle = vectorAngleBetween(quaternionDirectionVector,index.dirVector);
         
         }
-        std::array<float,3> cross;
+        units::vec3 cross;
         
         vectorCrossProduct(quaternionDirectionVector, index.dirVector, cross);
         Quaternion qcross = fromAxisAngle(cross, angle);
@@ -136,7 +136,7 @@ void drone::updateState(float time,std::optional<controlPacks::variantPackets> c
     float current = 0;
     float density = airDensity(Zposition);
     float totalThrust = 0;
-    if(false){
+    /*
     for(int i = 0 ; i < motors.size() ; i++){
         if(controllerThrusts.size() != motors.size()) throw runtime_error("Controller error thrust request does not equal motor count \n");
         
@@ -147,29 +147,7 @@ void drone::updateState(float time,std::optional<controlPacks::variantPackets> c
 
         motors[i]->updateMotorAngularVelocity(timeStep,torqueLoad,*droneBattery,angularVelocityRequest);
         current += abs(motors[i]->getCurrentCurrent());
-        std::array<float,3> thrustVector = normalizeVector(propellers[i]->directionTransposed);
-        float currentThrust = propellers[i]->thrustForce(density,angularVelocityRequest);
-
-        for(int j = 0 ; j < thrustVector.size();j++) thrustVector[j] = thrustVector[j] * currentThrust;
-        totalThrust += currentThrust;
-        addForce(thrustVector);
-        auto leverArm = addVectors(cogLocationTranspose , propellers[i]->locationTransposed);
-        auto moment = forceToMoment(thrustVector,leverArm);
-
-        addMoment(moment);
-    }
-}else{
-    for(int i = 0 ; i < motors.size() ; i++){
-        if(controllerThrusts.size() != motors.size()) throw runtime_error("Controller error thrust request does not equal motor count \n");
-        
-        float torqueLoad = propellers[i]->dragTorque(density,motors[i]->getCurrentAngularVelocity());
-        float angularVelocityRequest = propellers[i]->desiredAngularVelocity(density,controllerThrusts[i]);
-
-        if(angularVelocityRequest < 0) angularVelocityRequest = 0;
-
-        motors[i]->updateMotorAngularVelocity(timeStep,torqueLoad,*droneBattery,angularVelocityRequest);
-        current += abs(motors[i]->getCurrentCurrent());
-        std::array<float,3> thrustVector = normalizeVector(propellers[i]->directionTransposed);
+        units::vec3 thrustVector = normalizeVector(propellers[i]->directionTransposed);
         float currentThrust = propellers[i]->thrustForce(density,motors[i]->getCurrentAngularVelocity());
 
         for(int j = 0 ; j < thrustVector.size();j++) thrustVector[j] = thrustVector[j] * currentThrust;
@@ -180,11 +158,11 @@ void drone::updateState(float time,std::optional<controlPacks::variantPackets> c
         
         addMoment(moment);
     }
-}
+    */
     
     droneBattery->updateBattery(current,getTime());
     Vehicle::updateState(time);
-
+    publish_simulation();
 
     dataLog();
 
@@ -200,7 +178,7 @@ void drone::updateState(float time,std::optional<controlPacks::variantPackets> c
 std::vector<float> drone::thrust(){
     std::vector <float> thrusts;
     for(int i  = 0 ; i < motors.size(); i++){
-        //std::array<float,3> velo = this->getVelocityVector();
+        //units::vec3 velo = this->getVelocityVector();
         thrusts.push_back(airDensity(getPositionVector()[2]) * pow(motors[i]->getCurrentAngularVelocity(),2) * pow(propellers[i]->diameter,4) * propellers[i]->thrustCoefficient);
     }
     return thrusts;
@@ -264,6 +242,24 @@ void drone::dataLog(){
 }
 
 
+void drone::publish_simulation() {
+    avionics::sensor::SensorField field;
+
+    const auto& sensor_data = sensors->getSensorData();
+
+    if (field.accel.size() > 0) {
+        auto& accel = field.accel[0].emplace();
+
+
+        accel.accel_mss = sensor_data.accelerometer.data;
+    }
+
+    if (field.gps.size() > 0) {
+        auto& gps = field.gps[0].emplace();
+
+    }
+    bridge->hardware_publish(field);
+}
 
 
 

@@ -3,9 +3,9 @@
 
 namespace SimCore{
 
-float airDensity(float Zposition) {  //Zposition in meters, returned in kg/m^3
-    float temp = 0;
-    float pressure = 0;
+units::scalar airDensity(units::scalar Zposition) {  //Zposition in meters, returned in kg/m^3
+    units::scalar temp = 0;
+    units::scalar pressure = 0;
 
     if(Zposition < 11000){                                                      //Troposphere
 
@@ -27,34 +27,34 @@ float airDensity(float Zposition) {  //Zposition in meters, returned in kg/m^3
     return pressure / (.2869f * (temp + 273.15f));
 }
 
-float aeroAreaRocket(float angle){  //cross sectional aera dependent on the orientation of the vehicle. This will be estamited based on a cylindrical body
+units::scalar aeroAreaRocket(units::scalar angle){  //cross sectional aera dependent on the orientation of the vehicle. This will be estamited based on a cylindrical body
     // cross section of a circle when head-on, cross section of a rectangle when in slide slip.
     //coef of drag
     return sin(angle) * 141.687 + 10.75;
 }
 
 
-float coefOfDragRocket(float angle){
+units::scalar coefOfDragRocket(units::scalar angle){
     //coef of drag for a "long" cylinder is .82 with blunt/square ends. 
     // for an infintly long cylinder, the sideways coef drag is 1.095
     return sin(angle) * .7 + .82;
 }
 
-float coefOfLiftRocket(float angle){
+units::scalar coefOfLiftRocket(units::scalar angle){
     // more is needed to properlly estmiate this
     return angle * 2.1;
 }
 
 //Overly Basic for testing. Should adapt to real drone profile
-float aeroAreaDrone(float angle){
+units::scalar aeroAreaDrone(units::scalar angle){
     return .3;
 }
 
-float coefOfDragDrone(float angle){
+units::scalar coefOfDragDrone(units::scalar angle){
     return 0.25;
 }
     
-float coefOfLiftDrone(float angle){
+units::scalar coefOfLiftDrone(units::scalar angle){
     return 0.25;
 }
 

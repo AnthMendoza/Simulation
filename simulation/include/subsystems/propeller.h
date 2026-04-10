@@ -10,7 +10,7 @@ namespace SimCore{
 class propeller{
     public:
     //prop locations in relation to the nominal center of gravity
-    std::array<float,3> location;
+    units::vec3 location;
 
     std::string name;
     
@@ -22,12 +22,12 @@ class propeller{
     float momentOfInertia;   
     //rad/s
     //transpose Locations are rotated with the vehicle. 
-    std::array<float,3> locationTransposed;
+    units::vec3 locationTransposed;
     //size taken from location and used to renormilze locationTransposed
     float locationVectorLength;
     //direction is the force vector
-    std::array<float,3> direction;
-    std::array<float,3> directionTransposed;
+    units::vec3 direction;
+    units::vec3 directionTransposed;
     //min = first  ::  max = second .Thrust dyno program. It is motor and battery dependent.
     std::pair<float,float> thrustLimits;
     float thrustCoefficient;
@@ -82,11 +82,11 @@ class propeller{
         return sqrt(v);
     }
 
-    inline std::array<float,3> getLocation() const{
+    inline units::vec3 getLocation() const{
         return location;
     }
 
-    inline void setLocation(std::array<float,3> loc){
+    inline void setLocation(units::vec3 loc){
         location = loc;
         locationVectorLength = vectorMag(location);
     }

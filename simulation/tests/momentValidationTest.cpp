@@ -49,7 +49,7 @@ static constexpr float EPSILON = 0.0001;
 
 TEST_F(momentValidationFixture,ValidateRotationDirectionXPositive){
     
-    threeDState moments = {1,0,0};
+    units::vec3 moments = {1,0,0};
     float timeStep = 0.01f;
     for(int i = 0 ; i < 10 ; i++){
         vehicle->addMoment(moments);
@@ -77,7 +77,7 @@ TEST_F(momentValidationFixture,ValidateRotationDirectionXPositive){
 
 TEST_F(momentValidationFixture,ValidateRotationDirectionXNegative){
     
-    threeDState moments = {-1,0,0};
+    units::vec3 moments = {-1,0,0};
     float timeStep = 0.01f;
     for(int i = 0 ; i < 10 ; i++){
         vehicle->addMoment(moments);
@@ -105,7 +105,7 @@ TEST_F(momentValidationFixture,ValidateRotationDirectionXNegative){
 
 TEST_F(momentValidationFixture,ValidateRotationDirectionYPositive){
     
-    threeDState moments = {0,1,0};
+    units::vec3 moments = {0,1,0};
     float timeStep = 0.01f;
     for(int i = 0 ; i < 10 ; i++){
         vehicle->addMoment(moments);
@@ -132,7 +132,7 @@ TEST_F(momentValidationFixture,ValidateRotationDirectionYPositive){
 
 TEST_F(momentValidationFixture,ValidateRotationDirectionYNegative){
     
-    threeDState moments = {0,-1,0};
+    units::vec3 moments = {0,-1,0};
     float timeStep = 0.01f;
     for(int i = 0 ; i < 10 ; i++){
         vehicle->addMoment(moments);
@@ -160,7 +160,7 @@ TEST_F(momentValidationFixture,ValidateRotationDirectionYNegative){
 
 TEST_F(momentValidationFixture,ValidateRotationDirectionZPositive){
     
-    threeDState moments = {0,0,1};
+    units::vec3 moments = {0,0,1};
     float timeStep = 0.01f;
     for(int i = 0 ; i < 10 ; i++){
         vehicle->addMoment(moments);
@@ -188,7 +188,7 @@ TEST_F(momentValidationFixture,ValidateRotationDirectionZPositive){
 
 TEST_F(momentValidationFixture,ValidateRotationDirectionZNegative){
     
-    threeDState moments = {0,0,-1};
+    units::vec3 moments = {0,0,-1};
     float timeStep = 0.01f;
     for(int i = 0 ; i < 10 ; i++){
         vehicle->addMoment(moments);

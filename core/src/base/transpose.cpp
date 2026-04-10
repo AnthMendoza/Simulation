@@ -1,7 +1,7 @@
 #include "../include/base/transpose.h"
+#include <base/units.h>
 
-
-SimCore::transpose::transpose(const poseState& _nominalState ,const threeDState _nominalPosition , int _rezeroSteps)
+SimCore::transpose::transpose(const poseState& _nominalState ,const units::vec3 _nominalPosition , int _rezeroSteps)
     : nominalPosition(_nominalPosition) , nominalState(_nominalState)
     , transposePosition(_nominalPosition) , rezeroSteps(_rezeroSteps){
 
@@ -28,7 +28,7 @@ void SimCore::transpose::transposeSelf(const Quaternion& quant , poseState poseO
 
     transposeState.setVehicleQuaternionState(reframePose.dirVector,reframePose.fwdVector);
 
-    threeDState reframePosition = nominalPosition;
+    units::vec3 reframePosition = nominalPosition;
 
     referenceFrame.realign(reframePosition);
 

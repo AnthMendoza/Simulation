@@ -12,44 +12,44 @@ namespace SimCore{
 class Vehicle;
 class sensor{
     private:
-    float mean;
-    float standardDeviation;
-    float lowerBound;
-    float upperBound;
-    float currentBustValue;
+    units::scalar mean;
+    units::scalar standardDeviation;
+    units::scalar lowerBound;
+    units::scalar upperBound;
+    units::scalar currentBustValue;
     bool isClamped = false;
     bool burst = false;
-    float busrtStdDev;
-    float maxBurstDur;
-    float burstDuration;
-    float lastBurst;
-    float currentBurstMagnitude = 0;
+    units::scalar busrtStdDev;
+    units::scalar maxBurstDur;
+    units::scalar burstDuration;
+    units::scalar lastBurst;
+    units::scalar currentBurstMagnitude = 0;
     protected:
-    float sampleFrequency;
+    units::scalar sampleFrequency;
     //Time of last sample
-    float lastSample;
+    units::scalar lastSample;
     //Random are not copyable 
     //thus seed and gen{seed()} delete the constructor 
     std::random_device seed; 
     std::mt19937 gen{seed()};
 
-    float noise();
-    float linearInterpolation();
-    float burstNoise(float currentTime);
-    void clamp(float &input);
+    units::scalar noise();
+    units::scalar linearInterpolation();
+    units::scalar burstNoise(units::scalar currentTime);
+    void clamp(units::scalar &input);
     public:
-    float hz;
-    sensor(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
+    units::scalar hz;
+    sensor(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias);
     sensor(const sensor& other);
     virtual std::unique_ptr<sensor> clone() const = 0;
     virtual ~sensor() =  default;
-    float applyNoise(float realValue , float currentTime);
-    void setClamp(float low , float high);
-    void setBurst(float busrtStdDeviation , float maxBurstDuration);
+    units::scalar applyNoise(units::scalar realValue , units::scalar currentTime);
+    void setClamp(units::scalar low , units::scalar high);
+    void setBurst(units::scalar busrtStdDeviation , units::scalar maxBurstDuration);
     virtual void sample(Vehicle *vehicle) = 0;
-    virtual std::array<float,3> read() = 0; 
+    virtual units::vec3 read() = 0; 
 
-    inline const float getTimeOfSample() const {
+    inline const units::scalar getTimeOfSample() const {
         return lastSample;
     }
 
@@ -91,35 +91,35 @@ class sensorSuite{
 
 class GNSS : public sensor{
     private:
-    std::array<float,3> gpsPosition;
-    std::array<float,3> velocity;
-    std::array<float,3> lastPosition;
+    units::vec3 gpsPosition;
+    units::vec3 velocity;
+    units::vec3 lastPosition;
     public:
-    GNSS(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
+    GNSS(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias);
     std::unique_ptr<sensor> clone() const override {
         return std::make_unique<GNSS>(*this);
     }
 
     void sample(Vehicle *vehicle) override; 
-    std::array<float,3>  read() override;
-    inline std::array<float,3> getVelocity(){
+    units::vec3  read() override;
+    inline units::vec3 getVelocity(){
         return velocity;
     }
-    inline void setGNSSVelocity(std::array<float,3> velo){
+    inline void setGNSSVelocity(units::vec3 velo){
         velocity = velo;
     }
 };
 
 class accelerometer : public sensor{
     private:
-    std::array<float,3> accel;
+    units::vec3 accel;
     public:
-    accelerometer(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
+    accelerometer(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias);
     std::unique_ptr<sensor> clone() const override {
         return std::make_unique<accelerometer>(*this);
     }
     void sample(Vehicle *vehicle) override;
-    std::array<float,3>  read() override;
+    units::vec3  read() override;
 
 };
 
@@ -127,30 +127,30 @@ class accelerometer : public sensor{
 class gyroscope : public sensor{
     private:
     //rotation around x y z axis realitve to the drone vehicle. 
-    std::array<float,3> rotationVector;
+    units::vec3 rotationVector;
     poseState lastPose;
     public:
-    gyroscope(float frequency , float NoisePowerSpectralDensity , float bandwidth, float bias);
+    gyroscope(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias);
     std::unique_ptr<sensor> clone() const override {
         return std::make_unique<gyroscope>(*this);
     }
     void sample(Vehicle *vehicle) override;
-    std::array<float,3>  read() override;
+    units::vec3  read() override;
 
 };
 
 
 //class radar : public sensor{
 //    private:
-//    std::array<float,3> sensorOrigin;
-//    std::vector<std::vector<std::array<float,3>>> points;
-//    std::array<float,3> vehicleVector;
-//    float quantization = .05;
+//    units::vec3 sensorOrigin;
+//    std::vector<std::vector<units::vec3>> points;
+//    units::vec3 vehicleVector;
+//    units::scalar quantization = .05;
 //    const int rows = 16;           // vertical resolution
 //    const int cols = 64;           // horizontal resolution
-//    const float verticalFOV = 20;  // degrees
-//    const float horizontalFOV = 90; // degrees
-//    const float maxRange = 10.0f;   // meters
+//    const units::scalar verticalFOV = 20;  // degrees
+//    const units::scalar horizontalFOV = 90; // degrees
+//    const units::scalar maxRange = 10.0f;   // meters
 //    protected:
 //
 //    public:

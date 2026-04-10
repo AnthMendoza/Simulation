@@ -1,6 +1,5 @@
 #include "../include/pid_controller.h"
 
-
 avionics::pid::controller_pid::controller_pid(state_dbuf& state_buff, telem_ring& tel_buff , const pid_config& config):
     controller_base(state_buff , tel_buff){
 
@@ -45,7 +44,6 @@ std::vector<avionics::scheduler_tasks> avionics::pid::controller_pid::get_routin
 
 void avionics::pid::controller_pid::position(float time){
     float dt = time - last_call_time.position;
-
     for(int i = 0 ; i < 3 ; i++){
         subroutine.delta_position[i] =  vehicle_desired_state.position[i] - vehicle_state.position[i];
 
@@ -94,9 +92,7 @@ void avionics::pid::controller_pid::angle_of_attack(float time){
 
 
 void avionics::pid::controller_pid::set_telemetry(float time){
-    flight_controller_telemetry_packet packet;
-    packet.position.x = 5;
-    telemetry_buffer.push(packet);
+
 }
 
 void avionics::pid::controller_pid::get_hardware(){

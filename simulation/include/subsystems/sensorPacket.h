@@ -8,23 +8,23 @@ namespace SimCore{
 struct simpleSensorPacket{
     struct IMUAccelerometer{
         std::string identifier = "accelerometer";
-        SimCore::threeDState data;
+        units::vec3 data;
         float temperature;
         float timestamp; //S
     } accelerometer;
     struct IMUGyro{
         std::string identifier = "gyro";
-        SimCore::threeDState rotationRate;
+        units::vec3 rotationRate;
         float temperature;
         float timestamp; //S
     } gyro;
     struct GPS {
         std::string identifier = "GNSS";
-        SimCore::threeDState relativePosition;
+        units::vec3 relativePosition;
         double latitude;
         double longitude;
         float altitude;
-        SimCore::threeDState velocity;
+        units::vec3 velocity;
         float hdop;
         float vdop;
         uint8_t satellites;

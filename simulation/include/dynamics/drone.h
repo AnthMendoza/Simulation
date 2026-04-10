@@ -30,9 +30,9 @@ class droneBody :  public Vehicle{
     vector<float> thrustRequestVect;
     int transposeCalls;
     //index vectors
-    std::array<float,3> cogLocation;
+    units::vec3 cogLocation;
     //transpose Locations are rotated with the vehicle. 
-    std::array<float,3> cogLocationTranspose;
+    units::vec3 cogLocationTranspose;
     //location of motor is logged via its index in vector and the propLocatiion vector
     vector<unique_ptr<motor>> motors;
     vector<unique_ptr<propeller>> propellers;
@@ -55,7 +55,7 @@ class droneBody :  public Vehicle{
 
     void dynoSystem();
     protected:
-    //array<float,3>  thrustVector();
+    //units::vec3  thrustVector();
     vector<float> thrust();
 
     std::optional<cameraBase*> camera;
@@ -82,7 +82,7 @@ class droneBody :  public Vehicle{
     void initDrone(string& droneBody);
     //sets center of gravity as an offset relative to the center defined by propLocations
     //positive x = front , positive y = right, positive Z = top
-    void offsetCOG(std::array<float,3> offset);
+    void offsetCOG(units::vec3 offset);
 
     void rotateLocalEntities(const Quaternion& quant) override;
 

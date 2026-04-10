@@ -30,7 +30,7 @@ float testDuration = 0;
 float cost = 0;
 float bestCost = 0;
 poseState desiredPose;
-threeDState bestFinalPosition = {0,0,1};
+units::vec3 bestFinalPosition = {0,0,1};
 protected:
     template<typename PIDType>
     PIDType optimizeHandler(int numberOfRuns){
@@ -48,7 +48,7 @@ protected:
                 lowestCost = cost;
                 bestPID = testPID;
                 poseState bestPose= vehicle->getPose();
-                threeDState directionVector = bestPose.dirVector;
+                units::vec3 directionVector = bestPose.dirVector;
                 bestFinalPosition = directionVector;
                 bestCost = lowestCost;
                 bestResultGraph = std::move(graph);

@@ -5,10 +5,11 @@
 #include <iostream>
 #include <assert.h>
 #include <iostream>
+#include <base/units.h>
 
 namespace SimCore{
 //w is just a scaler of vector x,y,z
-Quaternion::Quaternion(float w, float x, float y, float z): w(w), x(x), y(y), z(z) {} 
+Quaternion::Quaternion(units::scalar w, units::scalar x, units::scalar y, units::scalar z): w(w), x(x), y(y), z(z) {} 
 
 Quaternion Quaternion::conjugate() const {
     return Quaternion(w, -x, -y, -z);
@@ -23,16 +24,16 @@ Quaternion Quaternion::operator*(const Quaternion& quat) const {
     };
 }
 
-std::array<float, 3> rotateVector(const Quaternion& q, const std::array<float, 3>& v) {
+units::vec3 rotateVector(const Quaternion& q, const units::vec3& v) {
     Quaternion v_q(0.0f, v[0], v[1], v[2]);
     Quaternion q_conj = q.conjugate();
     Quaternion rotated_q = q * v_q * q_conj;
     return {rotated_q.x, rotated_q.y, rotated_q.z};
 }
 
-Quaternion fromAxisAngle(const std::array<float, 3> axis, float angle_rad) {
-    float half_angle = angle_rad / 2.0f;
-    float s = sin(half_angle);
+Quaternion fromAxisAngle(const units::vec3 axis, units::scalar angle_rad) {
+    units::scalar half_angle = angle_rad / 2.0f;
+    units::scalar s = sin(half_angle);
     Quaternion quant{
         cos(half_angle),
         axis[0] * s,
@@ -46,31 +47,31 @@ Quaternion fromAxisAngle(const std::array<float, 3> axis, float angle_rad) {
 
 }
 
-static constexpr float EPSILON = 1e-4;
+static constexpr units::scalar EPSILON = 1e-4;
 quaternionVehicle::quaternionVehicle(): localPose{CoordinateSystem::WORLD_BASIS}, numberOfCalls(0){
     
 
     //std::cerr<<"Warning inital state is not valid as the forward and direction vector are not orthogonal. Setting Default values.";
 }
 
-void quaternionVehicle::setVehicleQuaternionState(threeDState dir , threeDState fwd){
+void quaternionVehicle::setVehicleQuaternionState(units::vec3 dir , units::vec3 fwd){
 
     localPose.dirVector = normalizeVector(dir);
     localPose.fwdVector = normalizeVector(fwd);
 
-    float dotProduct = vectorDotProduct(dir,fwd);
+    units::scalar dotProduct = vectorDotProduct(dir,fwd);
 
     if (std::fabs(dotProduct) >= 1.0f - EPSILON) {
         std::cerr << "Warning: fwdVector is parallel or antiparallel to dirVector. Generating arbitrary orthogonal fwdVector.\n";
 
         
-        std::array<float, 3> arbitrary = {1.0f, 0.0f, 0.0f};
+        units::vec3 arbitrary = {1.0f, 0.0f, 0.0f};
         if (std::fabs(vectorDotProduct(dir, arbitrary)) > 0.99f) {
             arbitrary = {0.0f, 1.0f, 0.0f}; 
         }
 
         
-        std::array<float, 3> orthogonalFwd = {
+        units::vec3 orthogonalFwd = {
             dir[1] * arbitrary[2] - dir[2] * arbitrary[1],
             dir[2] * arbitrary[0] - dir[0] * arbitrary[2],
             dir[0] * arbitrary[1] - dir[1] * arbitrary[0]
@@ -85,14 +86,14 @@ void quaternionVehicle::setVehicleQuaternionState(threeDState dir , threeDState 
         std::cerr << "Warning: dirVector and fwdVector were not orthogonal when attempting to set in QuaternionVehicle.\n";
 
         
-        float projection = vectorDotProduct(fwd, dir);
-        std::array<float, 3> projectedComponent = {
+        units::scalar projection = vectorDotProduct(fwd, dir);
+        units::vec3 projectedComponent = {
             projection * dir[0],
             projection * dir[1],
             projection * dir[2]
         };
 
-        std::array<float, 3> orthogonalFwd = {
+        units::vec3 orthogonalFwd = {
             fwd[0] - projectedComponent[0],
             fwd[1] - projectedComponent[1],
             fwd[2] - projectedComponent[2]
@@ -109,7 +110,7 @@ void quaternionVehicle::setVehicleQuaternionState(threeDState dir , threeDState 
 
 
 //eular rotaion, rotates around x,y,z axis.
-Quaternion quaternionVehicle::eulerRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ){
+Quaternion quaternionVehicle::eulerRotation(units::scalar rotationInRadsX , units::scalar rotationInRadsY ,units::scalar rotationInRadsZ){
     ++numberOfCalls;
     Quaternion qx = fromAxisAngle({1,0,0}, rotationInRadsX);
     Quaternion qy = fromAxisAngle({0,1,0}, rotationInRadsY);
@@ -128,18 +129,18 @@ Quaternion quaternionVehicle::eulerRotation(float rotationInRadsX , float rotati
     return combined;
 }
 
-void quaternionVehicle::applyYaw(float rotationInRads){
+void quaternionVehicle::applyYaw(units::scalar rotationInRads){
     Quaternion rotationQuat = fromAxisAngle(normalizeVector(localPose.dirVector),rotationInRads);
     localPose.fwdVector = rotateVector(rotationQuat,localPose.fwdVector);
 } 
 
-void quaternionVehicle::orthogonalize(std::array<float,3>& vector1 , std::array<float,3>& vector2){
+void quaternionVehicle::orthogonalize(units::vec3& vector1 , units::vec3& vector2){
     // Normalize v1
     vector1 = normalizeVector(vector1);
 
     // Project v2 onto v1 and subtract to make v2 perpendicular to v1
-    float dotProd = vectorDotProduct(vector1, vector2);
-    std::array<float, 3> proj = {
+    units::scalar dotProd = vectorDotProduct(vector1, vector2);
+    units::vec3 proj = {
         dotProd * vector1[0],
         dotProd * vector1[1],
         dotProd * vector1[2]

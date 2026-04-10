@@ -1,15 +1,16 @@
 #include <array>
 
 #include "../include/base/vectorMath.h"
+#include <base/units.h>
 
 namespace SimCore{
 //origin of lever vector is the center of gravity.
 //***NOT the absolute cordinates.***
-std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array<float,3> leverVector , float appliedForceDistanceToCg){
+units::vec3 forceToMoment(units::vec3 forceVector , units::vec3 leverVector , float appliedForceDistanceToCg){
     
-    std::array<float,3> normalMomentArm = normalizeVector(leverVector);
-    std::array<float,3> moments;
-    std::array<float,3> momentArm;
+    units::vec3 normalMomentArm = normalizeVector(leverVector);
+    units::vec3 moments;
+    units::vec3 momentArm;
 
     for(int i = 0 ; i<3 ; i++){
         momentArm[i] = normalMomentArm[i] * appliedForceDistanceToCg;
@@ -21,9 +22,9 @@ std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array
 
 }
 
-std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array<float,3> leverVector ){
+units::vec3 forceToMoment(units::vec3 forceVector , units::vec3 leverVector ){
     
-    std::array<float,3> moments;
+    units::vec3 moments;
 
     vectorCrossProduct(leverVector,forceVector,moments);
    

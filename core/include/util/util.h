@@ -1,7 +1,7 @@
 #pragma once
 
 #include "graphing.h"
-#include "logger.h"
+#include "valueLogging.h"
 #include "movingAverage.h"
 #include "time_manager.h"
 #include "utility.h"

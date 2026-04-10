@@ -50,15 +50,15 @@ unrealDataRocket* unrealRocket::simFrameRequest(float deltaTime){
 unrealRocket::~unrealRocket() = default;
 
 void unrealRocket::setPacket(){
-    std::array<float,3> pos = unrealVehicle->getPositionVector();
+    units::vec3 pos = unrealVehicle->getPositionVector();
     packet.position[0] = pos[0];
     packet.position[1] = pos[1];
     packet.position[2] = pos[2];
-    std::array<float,3> velo = unrealVehicle->getVelocityVector();
+    units::vec3 velo = unrealVehicle->getVelocityVector();
     packet.velocity[0] = velo[0];
     packet.velocity[1] = velo[1];
     packet.velocity[2] = velo[2];
-    std::array<float,3> state = unrealVehicle->getState();
+    units::vec3 state = unrealVehicle->getState();
     packet.rotation[0] = state[0];
     packet.rotation[1] = state[1];
     packet.rotation[2] = state[2];
@@ -106,11 +106,11 @@ void unrealDrone::iterator(float totalTime){
 }
 
 void unrealDrone::setPacket(){
-    std::array<float,3> pos = drone->getPositionVector();
+    units::vec3 pos = drone->getPositionVector();
     packet.position[0] = pos[0];
     packet.position[1] = pos[1];
     packet.position[2] = pos[2];
-    std::array<float,3> velo = drone->getVelocityVector();
+    units::vec3 velo = drone->getVelocityVector();
     packet.velocity[0] = velo[0];
     packet.velocity[1] = velo[1];
     packet.velocity[2] = velo[2];

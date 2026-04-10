@@ -47,14 +47,14 @@ class stateEstimationBase{
         
     }
 
-    inline std::array<float,3> getEstimatedPosition() const {
+    inline units::vec3 getEstimatedPosition() const {
         return statePacket.position;
     }
     inline poseState getEstimatedPose() const {
         return statePacket.pose;
     }
     
-    inline std::array<float,3> getEstimatedVelocity() const {
+    inline units::vec3 getEstimatedVelocity() const {
         return statePacket.velocity;
     }  
     inline float getAbsEstimatedVelocity() const {

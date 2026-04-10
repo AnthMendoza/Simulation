@@ -29,9 +29,9 @@ class drone :  public Vehicle{
     private:
     int transposeCalls;
     //index vectors
-    std::array<float,3> cogLocation;
+    units::vec3 cogLocation;
     //transpose Locations are rotated with the vehicle. 
-    std::array<float,3> cogLocationTranspose;
+    units::vec3 cogLocationTranspose;
     //location of motor is logged via its index in vector and the propLocatiion vector
     vector<unique_ptr<motor>> motors;
     vector<unique_ptr<propeller>> propellers;
@@ -54,8 +54,8 @@ class drone :  public Vehicle{
     */
 
     protected:
-    //array<float,3>  thrustVector();
-    vector<float> thrust();
+    //array<units::scalar,3>  thrustVector();
+    vector<units::scalar> thrust();
 
     std::optional<cameraBase*> camera;
 
@@ -82,11 +82,11 @@ class drone :  public Vehicle{
 
     string droneConfig;
     //drone(const drone& drone) = delete;
-    void updateState(float time,std::optional<controlPacks::variantPackets> controlInput= nullopt) override; 
+    void updateState(units::scalar time,std::optional<controlPacks::variantPackets> controlInput= nullopt) override; 
     void initDrone(string& drone);
     //sets center of gravity as an offset relative to the center defined by propLocations
     //positive x = front , positive y = right, positive Z = top
-    void offsetCOG(std::array<float,3> offset);
+    void offsetCOG(units::vec3 offset);
 
     void rotateLocalEntities(const Quaternion& quant) override;
 
@@ -105,9 +105,9 @@ class drone :  public Vehicle{
         }
     }
 
-    vector<float> thrustRequestVect;
+    vector<units::scalar> thrustRequestVect;
 
-    inline void thrustRequest(vector<float>& thrust){
+    inline void thrustRequest(vector<units::scalar>& thrust){
         thrustRequestVect = thrust;
     }
     /**
@@ -140,6 +140,7 @@ class drone :  public Vehicle{
 
     void setEntitiesPose(const poseState& pose) override;
 
+    void publish_simulation() override;
 
     std::string display() const override{
         std::ostringstream buffer;
@@ -159,7 +160,7 @@ class drone :  public Vehicle{
         }
 
         buffer << "\nThrusts :";
-        float density = airDensity(Zposition);
+        units::scalar density = airDensity(Zposition);
         for (size_t i = 0; i < motors.size(); ++i) {
             buffer << std::fixed << std::setprecision(2) 
                    << propellers[i]->thrustForce(density, motors[i]->getCurrentAngularVelocity()) << ",";

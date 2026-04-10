@@ -84,6 +84,7 @@ void avionics::telemetry_base::thread_startup_process(){
     initialize_base();
     startup_helper();
     set_scheduler(telemetry_scheduler);
+    SPDLOG_LOGGER_INFO(logger,"Telemetry started.");
 }
 
 

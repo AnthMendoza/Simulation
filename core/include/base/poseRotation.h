@@ -4,20 +4,21 @@
 #include "quaternion.h"
 #include "vectorMath.h"
 #include <cmath>
+#include <base/units.h>
 
 
 namespace SimCore{
 //rad
 struct rotations{
-    float roll;
-    float pitch;
-    float yaw;
+    units::scalar roll;
+    units::scalar pitch;
+    units::scalar yaw;
 };
 //rad/s
 struct rotationRate{
-    float rollRate; 
-    float pitchRate;
-    float yawRate;
+    units::scalar rollRate; 
+    units::scalar pitchRate;
+    units::scalar yawRate;
 };
 
 
@@ -50,29 +51,29 @@ rotations getDifference() {
 
     rotations result;
 
-    float rollCos = vectorDotProduct(startPose->rightVector, endPose->rightVector);
-    std::array<float,3> rollCross;
+    units::scalar rollCos = vectorDotProduct(startPose->rightVector, endPose->rightVector);
+    std::array<units::scalar,3> rollCross;
     vectorCrossProduct( startPose->rightVector, endPose->rightVector,rollCross);
-    float rollSin = vectorDotProduct(rollCross, startPose->fwdVector);
+    units::scalar rollSin = vectorDotProduct(rollCross, startPose->fwdVector);
     result.roll = std::atan2(rollSin, rollCos);
     
 
-    float pitchCos = vectorDotProduct(startPose->dirVector, endPose->dirVector);
-    std::array<float,3> pitchCross;
+    units::scalar pitchCos = vectorDotProduct(startPose->dirVector, endPose->dirVector);
+    std::array<units::scalar,3> pitchCross;
     vectorCrossProduct( startPose->dirVector,endPose->dirVector,pitchCross);
-    float pitchSin = vectorDotProduct(pitchCross, startPose->rightVector);
+    units::scalar pitchSin = vectorDotProduct(pitchCross, startPose->rightVector);
     result.pitch = std::atan2(pitchSin, pitchCos);
     
-    float yawCos = vectorDotProduct(startPose->fwdVector, endPose->fwdVector);
-    std::array<float,3> yawCross;
+    units::scalar yawCos = vectorDotProduct(startPose->fwdVector, endPose->fwdVector);
+    std::array<units::scalar,3> yawCross;
     vectorCrossProduct(startPose->fwdVector,endPose->fwdVector,yawCross);
-    float yawSin = vectorDotProduct(yawCross, startPose->dirVector);
+    units::scalar yawSin = vectorDotProduct(yawCross, startPose->dirVector);
     result.yaw = std::atan2(yawSin, yawCos);
     
     return result;
 }
 
-inline rotationRate getRotationRate(float deltaTime){
+inline rotationRate getRotationRate(units::scalar deltaTime){
     if(deltaTime <= 0 || !startPose  || !endPose){
         rotationRate rate{0,0,0};
         return rate;

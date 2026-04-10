@@ -31,21 +31,21 @@ struct accelerations{
     zAccel(0.0f) {}
 };
 struct requestedVehicleState{
-    threeDState vehicleState;
+    units::vec3 vehicleState;
     float force;
 };
 
 struct momentForceRequest{
-    threeDState moments = {0,0,0};
-    threeDState forces = {0,0,0};
+    units::vec3 moments = {0,0,0};
+    units::vec3 forces = {0,0,0};
 };
 
 
 //accelerationFromPose takes the current pose of the vehicle and calculates the required thrust given the CURRENT conditions.
 //if aotFeedForwad calculates the thrust needed at the desired angle of attack for the desired postion and not the current position the motors will generate the thrust required faster than the vehicle can rotate to the position.
 // resulting in over delay from thrust to angle requested
-static float accelerationFromPose(const threeDState accels,poseState& pose){
-    threeDState newAccelVector;
+static float accelerationFromPose(const units::vec3 accels,poseState& pose){
+    units::vec3 newAccelVector;
     auto dir = pose.dirVector;
 
     newAccelVector = scaleVectorToZ(dir,accels[2]);
@@ -89,10 +89,10 @@ class PIDDroneController : public droneControllerBase{
     utility::grapher graph;
 
     struct logData{
-        threeDState requestedAOT;
-        threeDState reportedAOT;
+        units::vec3 requestedAOT;
+        units::vec3 reportedAOT;
         float AOTerror_Rad;
-        threeDState requestedMoment;
+        units::vec3 requestedMoment;
         float rollDesiredVelo;
         float pitchDesiredVelo;
         float rollVelo;
@@ -129,14 +129,14 @@ class PIDDroneController : public droneControllerBase{
     };
 
     struct eulerMoments {
-        std::array<float, 3> moments;
+        units::vec3 moments;
 
         eulerMoments() : moments{0.0f, 0.0f, 0.0f} {
             
         }
     };
 
-    accelerations computeAccelerationRequest(const std::array<float,3>& pos ,const std::array<float,3>& velo ,float actualDeltaTime);
+    accelerations computeAccelerationRequest(const units::vec3& pos ,const units::vec3& velo ,float actualDeltaTime);
 
     eulerAOT computeVehicleBasisAOT(poseState& state , requestedVehicleState& request);
 
@@ -165,11 +165,11 @@ class PIDDroneController : public droneControllerBase{
     /// @param state Direction vector
     /// @param maxAngleAOT rads
     /// @return std::pair first and second is moments about x and y respectivly. Note this is not global, x and y are realtive to the drone.
-    controlPacks::forceMoments pidControl(const std::array<float,3> pos ,const std::array<float,3> velo  ,poseState& state);
+    controlPacks::forceMoments pidControl(const units::vec3 pos ,const units::vec3 velo  ,poseState& state);
     void setTargetPosition(float xTarget , float yTarget , float zTarget) override;
     //feedForward function for windprediction and gravity offset.
     requestedVehicleState aotFeedForward(accelerations& accelerationCommand, float mass,poseState& pose);
-    //std::array<float,3> thrustMoment(const propeller& prop ,const motor& mot, std::array<float,3>& cogLocation ,const float& airDensity);
+    //units::vec3 thrustMoment(const propeller& prop ,const motor& mot, units::vec3& cogLocation ,const float& airDensity);
 
 
     controlPacks::variantPackets update(float time,stateInfo statePacket) override;
@@ -188,7 +188,7 @@ class PIDDroneController : public droneControllerBase{
     /**
      * @return pair first is the axis of rotation the second is the pid return clamped 1 to -1.The output should be converted into a deired moment.
      */
-    std::pair<std::array<float,3> , float> aotControl(requestedVehicleState request, std::array<float,3> currentState);
+    std::pair<units::vec3 , float> aotControl(requestedVehicleState request, units::vec3 currentState);
 
     void generateGraph(){
         graph.plot();
@@ -288,7 +288,7 @@ class PIDDroneController : public droneControllerBase{
 /// @param axisOfRotation unitless
 /// @param moment n*m
 /// @return array where x,y,z represet moments around the axis {1,0,0},{0,1,0},and {0,0,1}.
-inline std::array<float,3> axisMomentToEulerMoment(std::array<float,3> axisOfRotation, float moment ){
+inline units::vec3 axisMomentToEulerMoment(units::vec3 axisOfRotation, float moment ){
 
     axisOfRotation = normalizeVector(axisOfRotation);
     for(int i = 0 ; i < axisOfRotation.size() ; i++){
@@ -297,7 +297,7 @@ inline std::array<float,3> axisMomentToEulerMoment(std::array<float,3> axisOfRot
     return axisOfRotation;
 }
 
-inline std::array<float, 3> limitMagnitudeWithFixedZ(std::array<float, 3> vect, float magLimit) {
+inline units::vec3 limitMagnitudeWithFixedZ(units::vec3 vect, float magLimit) {
     float currentMag = vectorMag(vect);
     if (currentMag <= magLimit) return vect;
     

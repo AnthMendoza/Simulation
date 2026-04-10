@@ -35,9 +35,7 @@ class telemetry: public telemetry_base{
     }
 
     void terminal_print(){
-        auto packet_option = tel_buffer.pop();
-        auto packet = packet_option.value();
-        std::cout<< packet.position.x << std::endl;
+
     }
 
 

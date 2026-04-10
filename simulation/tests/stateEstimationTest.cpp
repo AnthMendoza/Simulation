@@ -42,23 +42,23 @@ protected:
 
 
 TEST_F(stateEstimationTestFixture, GravityVectorEstimation){
-    threeDState accel{0.0f, 0.0f, -9.81f};
+    units::vec3 accel{0.0f, 0.0f, -9.81f};
     float time = 0.1f;
     onlyThrustAccel thrust;
     estimator->setControl(thrust);
-    threeDState gravityVec = estimator->gravityVectorEstimation(accel, time);
+    units::vec3 gravityVec = estimator->gravityVectorEstimation(accel, time);
 
     bool ans = similarVector(accel,gravityVec,0.1f);
     EXPECT_TRUE(ans);
 }
 
 TEST_F(stateEstimationTestFixture, GravityVectorEstimationSideAccel){
-    threeDState accel{0.0f, 4.0f, -9.81f}; 
+    units::vec3 accel{0.0f, 4.0f, -9.81f}; 
     float time = 0.1f;
     onlyThrustAccel thrust;
     thrust.thrustAccelerationVector[1] = 4.0;
     estimator->setControl(thrust);
-    threeDState gravityVec = estimator->gravityVectorEstimation(accel, time);
+    units::vec3 gravityVec = estimator->gravityVectorEstimation(accel, time);
 
     bool ans = similarVector({0,0,-9.8},gravityVec,0.1f);
     EXPECT_TRUE(ans);

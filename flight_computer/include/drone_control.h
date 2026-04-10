@@ -1,21 +1,20 @@
 #ifndef DRONECONTROL_H
 #define DRONECONTROL_H 
 #include <iostream>
-#include "../thirdparty/eigenWrapper.h"
+#include <thirdparty/eigenWrapper.h>
 #include <vector>
-#include "../subsystems/propeller.h"
-#include "controlRequestStructs.h"
-#include "../utility/movingAverage.h"
+#include <controlRequestStructs.h>
 #include <util/util.h>
+#include <fc_units.h>
 
 using namespace Eigen;
 using namespace std;
 namespace SimCore{
 
 struct allocatorData{
-    std::vector<float> thrusts;
-    threeDState forces;
-    threeDState moments; 
+    std::vector<units::scalar> thrusts;
+    fc_units::vec3 forces;
+    fc_units::vec3 moments; 
 
     inline void printAllocatorData() {
         std::cout << "Allocator Data:\n";
@@ -49,14 +48,14 @@ private:
     VectorXd spinTorque;           
     MatrixXd B;         
     MatrixXd Bpinv;
-    vector<utility::movingAverage<float>> movingAvg; 
+    vector<utility::movingAverage<units::scalar>> movingAvg; 
 
     void buildCASMatrix();
 
     void manageMovingAvg(allocatorData& requestPacket);
 public:
 
-    controlAllocator(const vector<std::array<float,3>>& motorPositions,const vector<std::array<float,3>>& thrustDirections,vector<float> spinTCoefficent);
+    controlAllocator(const vector<std::array<units::scalar,3>>& motorPositions,const vector<std::array<units::scalar,3>>& thrustDirections,vector<units::scalar> spinTCoefficent);
     controlAllocator(const controlAllocator& other) = default;
     /**
      * @brief Solves for the rotor thrusts required to produce the given wrench (force and torque).
@@ -82,7 +81,7 @@ public:
         return B * thrusts;
     }
 
-    VectorXd toVectorXd(std::initializer_list<float> list);
+    VectorXd toVectorXd(std::initializer_list<units::scalar> list);
 
     allocatorData computeAllocation(controlPacks::forceMoments requestPacket);
 

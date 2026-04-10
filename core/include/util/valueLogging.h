@@ -1,5 +1,5 @@
-#ifndef DRONELOGGING_H
-#define DRONELOGGING_H
+#ifndef VALUE_LOGGGING_H
+#define VALUE_LOGGGING_H
 #include <cstdint>
 #include <string>
 #include <vector>

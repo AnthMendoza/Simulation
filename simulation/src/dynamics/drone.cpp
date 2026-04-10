@@ -39,7 +39,7 @@ void droneBody::initDrone(string& droneConfig){
 
 
 //adjust COG at the start of the simulation. Can be adjusted in sim.
-void droneBody::offsetCOG(std::array<float ,3> offset){
+void droneBody::offsetCOG(units::vec3 offset){
     cogLocation = offset;
 }
 
@@ -52,7 +52,7 @@ void droneBody::transposeEntities(const Quaternion& quant){
         }
         transposeCalls = 0;
         //set direction axis to main axis
-        std::array<float,3> quaternionDirectionVector = pose->getdirVector();
+        units::vec3 quaternionDirectionVector = pose->getdirVector();
 
         float angle = vectorAngleBetween(quaternionDirectionVector,index.nominal.dir);
         
@@ -71,7 +71,7 @@ void droneBody::transposeEntities(const Quaternion& quant){
             angle = vectorAngleBetween(quaternionDirectionVector,index.dirVector);
         
         }
-        std::array<float,3> cross;
+        units::vec3 cross;
         
         vectorCrossProduct(quaternionDirectionVector, index.dirVector, cross);
         Quaternion qcross = fromAxisAngle(cross, angle);
@@ -109,8 +109,8 @@ void droneBody::resetHelper(){
 }
 
 void droneBody::allocatorHelper(){ 
-    vector<array<float,3>> pos;
-    vector<array<float,3>> thrustVect;
+    vector<units::vec3> pos;
+    vector<units::vec3> thrustVect;
     vector<float> coef;
     for(int i = 0 ; i < propellers.size();i++){
         pos.push_back(propellers[i]->getLocation());
@@ -155,7 +155,7 @@ void droneBody::updateState(float time,std::optional<controlPacks::variantPacket
 
         motors[i]->updateMotorAngularVelocity(timeStep,torqueLoad,*droneBattery,angularVelocityRequest);
         current += abs(motors[i]->getCurrentCurrent());
-        std::array<float,3> thrustVector = normalizeVector(propellers[i]->directionTransposed);
+        units::vec3 thrustVector = normalizeVector(propellers[i]->directionTransposed);
         float currentThrust = propellers[i]->thrustForce(density,angularVelocityRequest);
 
         for(int j = 0 ; j < thrustVector.size();j++) thrustVector[j] = thrustVector[j] * currentThrust;
@@ -177,7 +177,7 @@ void droneBody::updateState(float time,std::optional<controlPacks::variantPacket
 
         motors[i]->updateMotorAngularVelocity(timeStep,torqueLoad,*droneBattery,angularVelocityRequest);
         current += abs(motors[i]->getCurrentCurrent());
-        std::array<float,3> thrustVector = normalizeVector(propellers[i]->directionTransposed);
+        units::vec3 thrustVector = normalizeVector(propellers[i]->directionTransposed);
         float currentThrust = propellers[i]->thrustForce(density,motors[i]->getCurrentAngularVelocity());
 
         for(int j = 0 ; j < thrustVector.size();j++) thrustVector[j] = thrustVector[j] * currentThrust;
@@ -209,7 +209,7 @@ void droneBody::updateState(float time,std::optional<controlPacks::variantPacket
 std::vector<float> droneBody::thrust(){
     std::vector <float> thrusts;
     for(int i  = 0 ; i < motors.size(); i++){
-        //std::array<float,3> velo = this->getVelocityVector();
+        //units::vec3 velo = this->getVelocityVector();
         thrusts.push_back(airDensity(getPositionVector()[2]) * pow(motors[i]->getCurrentAngularVelocity(),2) * pow(propellers[i]->diameter,4) * propellers[i]->thrustCoefficient);
     }
     return thrusts;

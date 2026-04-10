@@ -80,14 +80,14 @@ class Rocket : public Vehicle{
     float landingThrust;
     float maxGAllowedEntry;
 
-    std::array<float , 3> appliedVector;
+    units::vec3 appliedVector;
 
 
-    std::array<std::array<float,3> , 2> finVectors;
+    std::array<units::vec3 , 2> finVectors;
 
-    std::array<float,3> targetLandingPosition;
-    std::array<float,3> logEngineVector;
-    std::array<float,3> logMoment;
+    units::vec3 targetLandingPosition;
+    units::vec3 logEngineVector;
+    units::vec3 logMoment;
     
     std::unique_ptr<StanleyController> Stanley;
     public:
@@ -95,7 +95,7 @@ class Rocket : public Vehicle{
     float gimbalY;
     float dryMass , fuel , LOX , fuelConsumptionRate , LOXConsumptionRate ;
 
-    std::array<float,3> engineState;
+    units::vec3 engineState;
     float engineForce;
     //used to send data to simulation for fire animation, no physics is done
     float enginePower;
@@ -116,7 +116,7 @@ class Rocket : public Vehicle{
 
         void updateState(float time,std::optional<controlPacks::variantPackets> controlInput) override;
 
-        std::array<std::array<float , 3> , 2> getFinForceVectors();
+        std::array<units::vec3 , 2> getFinForceVectors();
 
         void applyFinForce(float xForce , float yForce);
 
@@ -136,20 +136,20 @@ class Rocket : public Vehicle{
 
         float coefOfLift(float angle);
 
-        inline std::array<float,3> getRadarPosition(){
-            std::array<float,3> radar = {0,0,0};
+        inline units::vec3 getRadarPosition(){
+            units::vec3 radar = {0,0,0};
             return radar;
         }
         
         ////kenetic + potential energy per unit mass
         //inline float getSpecificEnergy(){
-        //    std::array<float,3> estimatedVelo =getEstimatedVelocity();
+        //    units::vec3 estimatedVelo =getEstimatedVelocity();
         //    float velo = vectorMag(estimatedVelo);
         //    return  (velo * velo)/2 + std::abs(gravitationalAcceleration * Zposition);
         //}
         //// kenetic + potential energy per unit mass in vector form {x,y,z}
-        //inline std::array<float,3> getVectorizedEnergy(){
-        //    std::array<float,3> estimatedVelo = getEstimatedVelocity();
+        //inline units::vec3 getVectorizedEnergy(){
+        //    units::vec3 estimatedVelo = getEstimatedVelocity();
         //    return {estimatedVelo[0]*estimatedVelo[0]/2 , estimatedVelo[1]*estimatedVelo[1]/2 , (estimatedVelo[2]*estimatedVelo[2] / 2) + std::abs(gravitationalAcceleration * getEstimatedPosition()[2])};
         //}
 

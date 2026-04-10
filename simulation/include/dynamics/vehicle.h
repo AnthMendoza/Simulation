@@ -12,12 +12,12 @@
 #include <optional>
 #include <variant>
 #include <base/base.h>
+#include <util/thread_manager.h>
 #include "../subsystems/sensors.h"
-
 #include "../sim/logs.h"
 #include "windGenerator.h"
 #include "../subsystems/sensors.h"
-#include "../control/controlRequestStructs.h"
+#include <controlRequestStructs.h>
 #include "../subsystems/droneSensorSuite.h"
 #include "../subsystems/sensorPacket.h"
 #include <util/time_manager.h>
@@ -28,7 +28,7 @@ class stateEstimation;
 class StanleyController;
  
 
-class Vehicle{
+class Vehicle : public thread_manager{
     private:
     protected:
     float Xposition , Yposition , Zposition;     // position 
@@ -43,15 +43,15 @@ class Vehicle{
     std::unique_ptr<quaternionVehicle> pose;
     std::unique_ptr<timeManager> manager;
    
-    threeDState wind;
-    threeDState angularVelocity;
-    threeDState vehicleState;
-    threeDState MOI;
-    threeDState sumOfForces;
-    threeDState sumOfMoments;
-    threeDState logSumOfMoments;
+    units::vec3 wind;
+    units::vec3 angularVelocity;
+    units::vec3 vehicleState;
+    units::vec3 MOI;
+    units::vec3 sumOfForces;
+    units::vec3 sumOfMoments;
+    units::vec3 logSumOfMoments;
     float yawMoment;
-    threeDState acceleration;
+    units::vec3 acceleration;
     float gravitationalAcceleration;
 
     virtual void init(string& vehicleConfig);
@@ -81,9 +81,9 @@ class Vehicle{
     virtual Vehicle& operator=(const Vehicle& other);
 
 
-    void addForce(threeDState forceVector);
+    void addForce(units::vec3 forceVector);
 
-    void addMoment(threeDState moments);
+    void addMoment(units::vec3 moments);
     //Positive moment about the direction vector is a rotation from x to y.
     //Negative from y to x.
     void addYawMoment(float moment);
@@ -98,6 +98,8 @@ class Vehicle{
 
     virtual void initSensors();
 
+    units::vec3 getAcceleration();
+
     float getVelocity();
 
     float getGForce();
@@ -108,13 +110,15 @@ class Vehicle{
     std::unique_ptr<turbulence> turbulantY;
     std::unique_ptr<turbulence> turbulantZ;
 
-    void getAccel(threeDState &accel);
+    void getAccel(units::vec3 &accel);
 
     float PID(float target , float currentState , float &previousError , float &sumOfError, float timeStep, float Pgain , float Igain , float Dgain);
 
     inline void updateAcceleration(){
         acceleration = {sumOfForces[0]/mass , sumOfForces[1]/mass , sumOfForces[2]/mass};
     }
+
+    virtual void publish_simulation() = 0;
 
     //#############################################################################
     //SETTERS
@@ -130,7 +134,7 @@ class Vehicle{
     }
     virtual void setEntitiesPose(const poseState& pose) = 0;
 
-    inline void setStateVector(threeDState dirVector, threeDState fwdVector){
+    inline void setStateVector(units::vec3 dirVector, units::vec3 fwdVector){
         if(isZeroVector(dirVector)){
             std::cerr<< "\nsetStateVector was given a Zero vector as the new Vehicle State dirVector.\n Command was skipped.\n";
             return;
@@ -160,17 +164,17 @@ class Vehicle{
         return timeStep;
     }
     //Not based off sensor data. Actual Simulation Position
-    inline threeDState getVelocityVector() const{
+    inline units::vec3 getVelocityVector() const{
         return {Xvelocity,Yvelocity,Zvelocity};
     }
-    inline threeDState getMoment() const{
+    inline units::vec3 getMoment() const{
         return logSumOfMoments;
     }
-    inline threeDState getPositionVector() const{
+    inline units::vec3 getPositionVector() const{
         return {Xposition,Yposition,Zposition};
     }
     //Vehicle state is the direction vector of the vehicle. 
-    inline threeDState getState() const{
+    inline units::vec3 getState() const{
         return vehicleState;
     }
     inline float getMass() const{
@@ -185,6 +189,14 @@ class Vehicle{
     inline float getGravitationalAcceleration() const{
         return gravitationalAcceleration;
     }
+
+
+    //#############################################################################
+
+    void thread_process() override;
+
+    void thread_startup_process() override;
+
 
     
     //#############################################################################

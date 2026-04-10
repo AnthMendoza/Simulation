@@ -1,14 +1,16 @@
 #pragma once
 #include <array>
+#include <fc_units.h>
+
 namespace avionics::sensor{
 
 struct actual_state{
 
-    std::array<float,3> position;
+    fc_units::vec3 position;
 
     std::array<float,4> quaternion;
 
-    std::array<float,3> velocity;
+    fc_units::vec3 velocity;
 
 };
 

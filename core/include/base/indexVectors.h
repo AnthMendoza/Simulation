@@ -3,17 +3,17 @@
 #include <array>
 namespace SimCore{
 struct nominalVectors {
-    const std::array<float, 3> dir = {0, 0, 1};
-    const std::array<float, 3> fwd = {1, 0, 0};
-    const std::array<float, 3> right = {0, 1, 0};
+    const units::vec3 dir = {0, 0, 1};
+    const units::vec3 fwd = {1, 0, 0};
+    const units::vec3 right = {0, 1, 0};
 };
 //each struct has has a refrance
 struct indexCoordinates {
     nominalVectors nominal;
 
-    std::array<float, 3> dirVector;
-    std::array<float, 3> fwdVector;
-    std::array<float, 3> rightVector;
+    units::vec3 dirVector;
+    units::vec3 fwdVector;
+    units::vec3 rightVector;
 
     indexCoordinates()
         : dirVector(nominal.dir),

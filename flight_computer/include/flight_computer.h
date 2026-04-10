@@ -10,7 +10,7 @@
 #include <string>
 #include <iostream>
 #include <cstring>
-
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 
 #pragma once
@@ -52,6 +52,7 @@ public:
             controller_to_communication, 
             std::forward<Args>(args)...
         );
+        controller->set_logger(logger);
 
     }
 
@@ -64,6 +65,7 @@ public:
             controller_to_communication,
             std::forward<Args>(args)...
         );
+        communication->set_logger(logger);
 
     }
 
@@ -77,6 +79,7 @@ public:
             estimator_to_controller,
             std::forward<Args>(args)...
         );
+        estimator->set_logger(logger);
 
     }
 
@@ -87,9 +90,12 @@ public:
             hardware_to_estimator,
             std::forward<Args>(args)...
         );
+        hardware->set_logger(logger);
     }
 
-    flight_computer(float interval_ms = 1);   
+    flight_computer(float interval_ms = 10);   
+
+    void set_logger(std::shared_ptr<spdlog::logger> shared_logger) override;
     
 
 };

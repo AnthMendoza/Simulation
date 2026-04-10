@@ -4,15 +4,15 @@
 #include "quaternion.h"
 #include "vectorMath.h"
 #include "coordinateSystem.h"
-
+#include <base/units.h>
 
 namespace SimCore {
 
 class transpose {
     private:
 
-    threeDState nominalPosition;
-    threeDState transposePosition;
+    units::vec3 nominalPosition;
+    units::vec3 transposePosition;
 
     poseState nominalState;
     quaternionVehicle transposeState;
@@ -25,16 +25,16 @@ class transpose {
 
     public:
     
-    transpose(const poseState& _nominalState ,const threeDState _nominalPosition , int _rezeroSteps = 100);
+    transpose(const poseState& _nominalState ,const units::vec3 _nominalPosition , int _rezeroSteps = 100);
 
 
     void transposeSelf(const Quaternion& quant , poseState poseOfIntrest  , poseState constantReference = CoordinateSystem::WORLD_BASIS );
 
-    const threeDState& getNominalPosition() const {
+    const units::vec3& getNominalPosition() const {
         return nominalPosition;
     }
 
-    const threeDState& getTransposePosition() const {
+    const units::vec3& getTransposePosition() const {
         return transposePosition;
     }
 

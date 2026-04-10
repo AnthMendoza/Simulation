@@ -2,19 +2,20 @@
 #include <cmath>
 #include <assert.h>
 #include <iostream>
+#include <base/units.h>
 
 //this can be done at all at once by adding the forces. then run this for each component 
 namespace SimCore{
 
-void Ode(float force , float mass , float timeStep ,float &velocity ,float &position){
+void Ode(units::scalar force , units::scalar mass , units::scalar timeStep ,units::scalar &velocity ,units::scalar &position){
 
-    float acceleration = force / mass;
+    units::scalar acceleration = force / mass;
 
-    float deltaVelocity = acceleration * timeStep;
+    units::scalar deltaVelocity = acceleration * timeStep;
 
     velocity += deltaVelocity;
 
-    float deltaPosition = velocity * timeStep;
+    units::scalar deltaPosition = velocity * timeStep;
 
     position += deltaPosition;
 
@@ -27,15 +28,15 @@ void Ode(float force , float mass , float timeStep ,float &velocity ,float &posi
 //take the sum of moments 
 
 
-float rotationalOde(float moment , float MOI , float timeStep ,float &angularVelocity){
+units::scalar rotationalOde(units::scalar moment , units::scalar MOI , units::scalar timeStep ,units::scalar &angularVelocity){
     if (MOI <= 0.0f) throw std::runtime_error("MOI must be > 0 in rotationalOde()\n");
-    float AngularAcceleration = moment / MOI;
+    units::scalar AngularAcceleration = moment / MOI;
     
-    float deltaAngularVelocity = AngularAcceleration;
+    units::scalar deltaAngularVelocity = AngularAcceleration;
 
     angularVelocity = angularVelocity + deltaAngularVelocity;
 
-    float deltaAngularPosition = deltaAngularVelocity * timeStep;
+    units::scalar deltaAngularPosition = deltaAngularVelocity * timeStep;
 
     return deltaAngularPosition;
 }

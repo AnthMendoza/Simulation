@@ -34,6 +34,7 @@ class estimation_base: public thread_manager{
 
     void thread_startup_process() override{
         initialize_base();
+        SPDLOG_LOGGER_INFO(logger,"Estimation started.");
     }
 
 

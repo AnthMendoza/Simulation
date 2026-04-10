@@ -6,6 +6,17 @@ find_package(Threads REQUIRED)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include(FetchContent)
+
+FetchContent_Declare(
+  GeographicLib
+  GIT_REPOSITORY https://github.com/geographiclib/geographiclib.git
+  GIT_TAG        v2.3
+)
+
+FetchContent_MakeAvailable(GeographicLib)
+
+
 set(TELEMETRY_SRC
     telemetry/src/communication.cpp
     telemetry/src/communication_base.cpp
@@ -22,11 +33,13 @@ set(STATE_ESTIMATION_SRC
 
 set(HARDWARE_SRC
     hardware/src/hardware_base.cpp
+    hardware/src/gps.cpp
 
 )
 
 add_library(flight_computer_library STATIC
     src/flight_computer.cpp
+    src/drone_control.cpp
     ${TELEMETRY_SRC}
     ${PID_CONTROLLER_SRC}
     ${STATE_ESTIMATION_SRC}
@@ -43,14 +56,14 @@ target_include_directories(flight_computer_library
     ${CMAKE_CURRENT_SOURCE_DIR}/sensor/include
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/include
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party
-    
-
 )
+
 
 
 target_link_libraries(flight_computer_library
     PUBLIC
     core
+    GeographicLib::GeographicLib
 )
 
 add_executable(drone 

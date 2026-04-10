@@ -1,19 +1,22 @@
 #ifndef AERO_H
 #define AERO_H
+
+#include <base/units.h>
+
 namespace SimCore{
-    float airDensity(float Zposition);
+    units::scalar airDensity(units::scalar Zposition);
 
-    float aeroAreaRocket(float angle);
+    units::scalar aeroAreaRocket(units::scalar angle);
 
-    float coefOfDragRocket(float angle);
+    units::scalar coefOfDragRocket(units::scalar angle);
     
-    float coefOfLiftRocket(float angle);
+    units::scalar coefOfLiftRocket(units::scalar angle);
 
-    float aeroAreaDrone(float angle);
+    units::scalar aeroAreaDrone(units::scalar angle);
 
-    float coefOfDragDrone(float angle);
+    units::scalar coefOfDragDrone(units::scalar angle);
     
-    float coefOfLiftDrone(float angle);
+    units::scalar coefOfLiftDrone(units::scalar angle);
 
 }
     

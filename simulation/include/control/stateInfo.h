@@ -7,10 +7,10 @@
 namespace SimCore{
 //state Estimation packet to return to controller
 struct stateInfo {
-    std::array<float, 3> position; //x, y, z position
+    units::vec3 position; //x, y, z position
     poseState pose;     
-    std::array<float, 3> velocity; //vx, vy, vz velocity
-    std::array<float , 3> rotationalAcceleration;
+    units::vec3 velocity; //vx, vy, vz velocity
+    units::vec3 rotationalAcceleration;
     float absVelocity;             //absolute/magnitude of velocity
     float timestamp;               //time when state was captured
     
@@ -26,7 +26,7 @@ struct stateInfo {
 };
 
 struct onlyThrustAccel{
-    threeDState thrustAccelerationVector;
+    units::vec3 thrustAccelerationVector;
     
     onlyThrustAccel():
     thrustAccelerationVector{0.0f, 0.0f, 0.0f}{

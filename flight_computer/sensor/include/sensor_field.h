@@ -5,12 +5,13 @@
 #include <cstdint>
 #include <array>
 #include <optional>
+#include <fc_units.h>
 
 namespace avionics::sensor{
 
 // ─── Coordinate frame / mounting metadata ────────────────────────────────────
 struct SensorMount {
-    std::array<float, 3> position_m;        // offset from body CoM [x, y, z] in meters
+    fc_units::vec3 position_m;        // offset from body CoM [x, y, z] in meters
     std::array<float, 4> orientation_q;     // quaternion [w, x, y, z] relative to body frame
 };
 
@@ -26,11 +27,11 @@ struct SensorStatus {
 // ─── IMU / Accelerometer ─────────────────────────────────────────────────────
 struct AccelData {
     // --- raw output ---
-    std::array<float, 3> accel_mss;         // [ax, ay, az] m/s²
+    fc_units::vec3 accel_mss;         // [ax, ay, az] m/s²
     float temperature_c;                    // on-die temperature
 
     // --- state-estimation metadata ---
-    std::array<float, 3> bias_mss;          // estimated bias [ax, ay, az]
+    fc_units::vec3 bias_mss;          // estimated bias [ax, ay, az]
     std::array<float, 9> noise_cov;         // 3×3 measurement noise covariance (row-major)
     float scale_factor;                     // gain calibration scalar
     uint64_t timestamp_us;                  // capture time (µs, monotonic clock)
@@ -43,10 +44,10 @@ struct AccelData {
 // ─── Gyroscope ───────────────────────────────────────────────────────────────
 struct GyroData {
     // --- raw output ---
-    std::array<float, 3> gyro_rads;         // [p, q, r] rad/s
+    fc_units::vec3 gyro_rads;         // [p, q, r] rad/s
 
     // --- state-estimation metadata ---
-    std::array<float, 3> bias_rads;
+    fc_units::vec3 bias_rads;
     std::array<float, 9> noise_cov;
     float scale_factor;
     uint64_t timestamp_us;
@@ -76,11 +77,11 @@ struct BaroData {
 // ─── Magnetometer ────────────────────────────────────────────────────────────
 struct MagData {
     // --- raw output ---
-    std::array<float, 3> mag_gauss;         // [mx, my, mz] Gauss
+    fc_units::vec3 mag_gauss;         // [mx, my, mz] Gauss
 
     // --- state-estimation metadata ---
     std::array<float, 9> soft_iron;         // 3×3 soft-iron correction (row-major)
-    std::array<float, 3> hard_iron_bias;    // hard-iron offset
+    fc_units::vec3 hard_iron_bias;    // hard-iron offset
     std::array<float, 9> noise_cov;
     uint64_t timestamp_us;
     uint32_t sample_rate_hz;
@@ -95,7 +96,7 @@ struct GpsData {
     double  latitude_deg;
     double  longitude_deg;
     float   altitude_msl_m;
-    std::array<float, 3> velocity_ned_ms;   // North-East-Down velocity
+    fc_units::vec3 velocity_ned_ms;   // North-East-Down velocity
 
     // --- state-estimation metadata ---
     std::array<float, 9> pos_cov_m2;        // 3×3 position covariance [m²]

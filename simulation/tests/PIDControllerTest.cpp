@@ -35,7 +35,7 @@ protected:
 
 TEST_F(PIDControllerFixture, controlOutputDirection ) {
     state.position = {0,0,10};
-    threeDState position = state.position;
+    units::vec3 position = state.position;
     controller->setTargetPosition(position[0],position[1],position[2]);
     controlPacks::forceMoments packet = controller->updateWithoutAllocator(0.0f,state);
     float EPSILON = 0.0001;
@@ -48,7 +48,7 @@ TEST_F(PIDControllerFixture, controlOutputDirection ) {
 
 TEST_F(PIDControllerFixture, controlOutputDirectionXOffsetPositive ) {
     state.position = {0,10,10};
-    threeDState position = state.position;
+    units::vec3 position = state.position;
     controller->setTargetPosition(position[0],position[1],position[2]);
     state.position = {0,0,10};
     controlPacks::forceMoments packet = controller->updateWithoutAllocator(0.0f,state);
@@ -63,7 +63,7 @@ TEST_F(PIDControllerFixture, controlOutputDirectionXOffsetPositive ) {
 
 TEST_F(PIDControllerFixture, controlOutputDirectionXOffsetNegative ) {
     state.position = {0,-10,10};
-    threeDState position = state.position;
+    units::vec3 position = state.position;
     controller->setTargetPosition(position[0],position[1],position[2]);
     state.position = {0,0,10};
     controlPacks::forceMoments packet = controller->updateWithoutAllocator(0.0f,state);
@@ -77,7 +77,7 @@ TEST_F(PIDControllerFixture, controlOutputDirectionXOffsetNegative ) {
 
 TEST_F(PIDControllerFixture, controlOutputDirectionYOffsetPositive) {
     state.position = {10, 0, 10};
-    threeDState position = state.position;
+    units::vec3 position = state.position;
     controller->setTargetPosition(position[0], position[1], position[2]);
     state.position = {0,0,10};
     controlPacks::forceMoments packet = controller->updateWithoutAllocator(0.0f, state);
@@ -91,7 +91,7 @@ TEST_F(PIDControllerFixture, controlOutputDirectionYOffsetPositive) {
 
 TEST_F(PIDControllerFixture, controlOutputDirectionYOffsetNegative) {
     state.position = {-10, 0, 10};
-    threeDState position = state.position;
+    units::vec3 position = state.position;
     controller->setTargetPosition(position[0], position[1], position[2]);
     state.position = {0,0,10};
     controlPacks::forceMoments packet = controller->updateWithoutAllocator(0.0f, state);
@@ -105,7 +105,7 @@ TEST_F(PIDControllerFixture, controlOutputDirectionYOffsetNegative) {
 
 TEST_F(PIDControllerFixture, rotatedControlOutputDirectionXOffsetPositive ) {
     state.position = {0,10,10};
-    threeDState position = state.position;
+    units::vec3 position = state.position;
     controller->setTargetPosition(position[0],position[1],position[2]);
     quaternionVehicle vehicleState;
     vehicleState.eulerRotation(0,0,M_PI_2);
@@ -125,7 +125,7 @@ TEST_F(PIDControllerFixture, rotatedControlOutputDirectionXOffsetPositive ) {
 
 TEST_F(PIDControllerFixture, rotatedControlOutputDirectionXOffsetNegative ) {
     state.position = {0,-10,10};
-    threeDState position = state.position;
+    units::vec3 position = state.position;
     controller->setTargetPosition(position[0],position[1],position[2]);
     quaternionVehicle vehicleState;
     vehicleState.eulerRotation(0,0,M_PI_2);
@@ -142,7 +142,7 @@ TEST_F(PIDControllerFixture, rotatedControlOutputDirectionXOffsetNegative ) {
 
 TEST_F(PIDControllerFixture, rotatedControlOutputDirectionYOffsetPositive ) {
     state.position = {10,0,10};
-    threeDState position = state.position;
+    units::vec3 position = state.position;
     controller->setTargetPosition(position[0],position[1],position[2]);
     quaternionVehicle vehicleState;
     vehicleState.eulerRotation(0,0,M_PI_2);
@@ -159,7 +159,7 @@ TEST_F(PIDControllerFixture, rotatedControlOutputDirectionYOffsetPositive ) {
 
 TEST_F(PIDControllerFixture, rotatedControlOutputDirectionYOffsetNegative ) {
     state.position = {-10,0,10};
-    threeDState position = state.position;
+    units::vec3 position = state.position;
     controller->setTargetPosition(position[0],position[1],position[2]);
     quaternionVehicle vehicleState;
     vehicleState.eulerRotation(0,0,M_PI_2);
@@ -223,7 +223,7 @@ TEST_F(PIDControllerFixture,yawAngleDifference){
     auto yawRotation = fromAxisAngle(current.dirVector,angle);
     quantVehicle.rotatePose(yawRotation);
 
-    threeDState axis ={1,0,0};
+    units::vec3 axis ={1,0,0};
     auto randomRotation = fromAxisAngle(axis,0.5f);
     axis ={0,1,0};
     randomRotation = fromAxisAngle(axis,0.2f) * randomRotation;

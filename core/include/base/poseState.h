@@ -3,12 +3,13 @@
 #include <array>
 #include "../util/utility.h"
 #include "vectorMath.h"
+#include <base/units.h>
 
 namespace SimCore{
 struct poseState{
-    std::array<float,3> dirVector;
-    std::array<float,3> fwdVector;
-    std::array<float,3> rightVector;
+    units::vec3 dirVector;
+    units::vec3 fwdVector;
+    units::vec3 rightVector;
     void printPose(){
         std::cout << "poseState {\n";
         print(dirVector,"  dirVector");

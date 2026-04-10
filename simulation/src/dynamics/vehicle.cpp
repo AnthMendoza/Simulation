@@ -13,6 +13,8 @@
 
 
 namespace SimCore{
+#define SIMULATION_INTERVAL_MS 1
+
 void Vehicle::initSensors(){
 
 }
@@ -163,11 +165,13 @@ void Vehicle::init(string& vehicleConfig){
 }
 
 
-
+units::vec3 Vehicle::getAcceleration(){
+    return acceleration;
+}
 
 
 float Vehicle::getVelocity(){
-    threeDState vector = {Xvelocity , Yvelocity , Zvelocity};
+    units::vec3 vector = {Xvelocity , Yvelocity , Zvelocity};
     return vectorMag( vector );
 }
 
@@ -175,19 +179,15 @@ float Vehicle::getVelocity(){
 
 float Vehicle::getGForce(){
     
-    threeDState vector = {sumOfForces[0]/mass,sumOfForces[1]/mass,sumOfForces[2]/mass};
+    units::vec3 vector = {sumOfForces[0]/mass,sumOfForces[1]/mass,sumOfForces[2]/mass};
 
     return vectorMag(vector)/9.8;
-}
-
-void Vehicle::getAccel(threeDState &accel){
-    for(int i = 0 ; i < 3 ; i++) accel[i] = sumOfForces[i] / mass;
 }
 
 
 void Vehicle::drag(float (*aeroArea)(float),float (*coefOfDrag)(float)){
 
-    threeDState airVelocityVector;
+    units::vec3 airVelocityVector;
 
     airVelocityVector[0] = Xvelocity +  wind[0];
     airVelocityVector[1] = Yvelocity +  wind[1];
@@ -201,8 +201,8 @@ void Vehicle::drag(float (*aeroArea)(float),float (*coefOfDrag)(float)){
     
     float drag = -.5 * (absVelocity * absVelocity) * aeroArea(dragAngle) * coefOfDrag(dragAngle) * airDensity(Zposition);
 
-    threeDState dragVector;
-    threeDState normalVelocityVector = normalizeVector(airVelocityVector);
+    units::vec3 dragVector;
+    units::vec3 normalVelocityVector = normalizeVector(airVelocityVector);
     
     dragVector[0] = drag * normalVelocityVector[0];
     dragVector[1] = drag * normalVelocityVector[1];
@@ -218,7 +218,7 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
 
     //lift acting on the center of pressure.
 
-    threeDState airVelocityVector;
+    units::vec3 airVelocityVector;
 
     airVelocityVector[0] = Xvelocity +  wind[0];
     airVelocityVector[1] = Yvelocity +  wind[1];
@@ -231,11 +231,11 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
     //using normilzed vectors N • N is removed becuase it equals 1, this may or may not be faster than the equation abouve
 
 
-    threeDState normalAirVelocityVector = normalizeVector(airVelocityVector);
+    units::vec3 normalAirVelocityVector = normalizeVector(airVelocityVector);
 
     float projection = vectorDotProduct( vehicleState , normalAirVelocityVector );
 
-    threeDState projectedVector;
+    units::vec3 projectedVector;
 
 
     for(int i = 0 ; i < 3 ; i++){
@@ -245,7 +245,7 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
     //we normilized this vector so that we can multiply it by a scalar with expected results
     projectedVector = normalizeVector(projectedVector); 
 
-    threeDState reverseVehicleState;
+    units::vec3 reverseVehicleState;
 
     for(int i = 0 ; i < 3 ; i++) reverseVehicleState[i] = -vehicleState[i];
 
@@ -256,7 +256,7 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
     
     float lift = -.5 * (absVelocity * absVelocity) * aeroArea(liftAngle) * coefOfLift(liftAngle) * airDensity(Zposition); //calculating abs drag 
     
-    threeDState liftVector;
+    units::vec3 liftVector;
 
     liftVector[0] = lift * projectedVector[0];
     liftVector[1] = lift * projectedVector[1];
@@ -275,7 +275,7 @@ void Vehicle::lift(float (*aeroArea)(float),float (*coefOfLift)(float)){
 }
 
 
-void  Vehicle::addForce(threeDState forceVector){
+void  Vehicle::addForce(units::vec3 forceVector){
     sumOfForces[0] += forceVector[0];
     sumOfForces[1] += forceVector[1];
     sumOfForces[2] += forceVector[2];
@@ -283,7 +283,7 @@ void  Vehicle::addForce(threeDState forceVector){
 
 
 
-void  Vehicle::addMoment(threeDState moments){
+void  Vehicle::addMoment(units::vec3 moments){
     sumOfMoments[0] += moments[0];
     sumOfMoments[1] += moments[1];
     sumOfMoments[2] += moments[2];
@@ -326,7 +326,9 @@ void Vehicle::updateState(float time,std::optional<controlPacks::variantPackets>
     
         gForce = getGForce();
     
-        getAccel(acceleration);
+        for(int i = 0 ; i < 3 ; i++){
+            acceleration[i] = sumOfForces[i] / mass;
+        } 
     
         sumOfForces[0] = 0; //reset forces to zero for next iteration
         sumOfForces[1] = 0;
@@ -374,6 +376,16 @@ void Vehicle::rotateLocalEntities(const Quaternion& quant){
     entities.rotate(quant,pose->getPose(),CoordinateSystem::WORLD_BASIS);
 }
 
+
+void Vehicle::thread_process() { 
+
+    updateState(start_to_recent_call_time(), std::nullopt);
+
+}
+
+void Vehicle::thread_startup_process(){
+    change_rate(SIMULATION_INTERVAL_MS);
+}
 
 
 

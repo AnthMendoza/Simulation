@@ -48,6 +48,7 @@ namespace avionics{
         void thread_startup_process() override{
             initialize_base();
             initialize_implementation();
+            SPDLOG_LOGGER_INFO(logger,"Controller started.");
         }
 
         void thread_process() override{

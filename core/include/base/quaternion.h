@@ -5,6 +5,7 @@
 #include <array>
 #include <cmath>
 #include <optional>
+#include <base/units.h>
 #include "vectorMath.h"
 #include "../util/utility.h"
 #include "coordinateSystem.h"
@@ -17,7 +18,6 @@ using namespace std;
 
 namespace SimCore{
 
-using threeDState = std::array<float,3>;
 
 // https://en.wikipedia.org/wiki/Quaternion
 //https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
@@ -29,16 +29,16 @@ using threeDState = std::array<float,3>;
 
 class Quaternion {
 public:
-    float w, x, y, z;
+    units::scalar w, x, y, z;
 
-    Quaternion(float w, float x, float y, float z);
+    Quaternion(units::scalar w, units::scalar x, units::scalar y, units::scalar z);
 
     Quaternion conjugate() const;
 
     Quaternion operator*(const Quaternion& quat) const;
 
    [[nodiscard]]inline Quaternion normalized() const {
-    float norm = std::sqrt(w*w + x*x + y*y + z*z);
+    units::scalar norm = std::sqrt(w*w + x*x + y*y + z*z);
     if(norm < 1e-8f) { 
         return Quaternion(1, 0, 0, 0);
     }
@@ -48,17 +48,17 @@ public:
 };
 
 //const Quaternion to make it immutable so that it can be used multiple times one more than 1 vectors.
-std::array<float, 3> rotateVector(const Quaternion& q, const std::array<float, 3>& v);
+std::array<units::scalar, 3> rotateVector(const Quaternion& q, const std::array<units::scalar, 3>& v);
 
 //rotate an array(vector) full of vectors.
-inline void rotateMultiVectors(const Quaternion& q, vector<std::array<float, 3>>& v){
+inline void rotateMultiVectors(const Quaternion& q, vector<std::array<units::scalar, 3>>& v){
     for(int i = 0 ; i < v.size() ; i++){
         v[i] = rotateVector(q,v[i]);
     }
 }
 
 
-Quaternion fromAxisAngle(const std::array<float, 3> axis, float angle_rad);
+Quaternion fromAxisAngle(const std::array<units::scalar, 3> axis, units::scalar angle_rad);
 
 
 
@@ -70,20 +70,20 @@ class quaternionVehicle{
     //start direction
     quaternionVehicle();
     //Right Vector will be calculated using the right hand rule.
-    void setVehicleQuaternionState(threeDState dir, threeDState fwd);
+    void setVehicleQuaternionState(units::vec3 dir, units::vec3 fwd);
     //update direction and foward vector
-    Quaternion eulerRotation(float rotationInRadsX , float rotationInRadsY ,float rotationInRadsZ);
+    Quaternion eulerRotation(units::scalar rotationInRadsX , units::scalar rotationInRadsY ,units::scalar rotationInRadsZ);
     //uses the direction vector as the basis for rotation
-    void applyYaw(float rotationInRads);
+    void applyYaw(units::scalar rotationInRads);
     //Gram-Schmidt orthonormalization
-    void orthogonalize(std::array<float,3>& vector1 , std::array<float,3>& vector2);
+    void orthogonalize(std::array<units::scalar,3>& vector1 , std::array<units::scalar,3>& vector2);
 
     void rotatePose(const Quaternion& quant);
     
-    inline std::array<float,3> getdirVector(){
+    inline std::array<units::scalar,3> getdirVector(){
         return localPose.dirVector;
     }
-    inline std::array<float,3> getfwdVector(){
+    inline std::array<units::scalar,3> getfwdVector(){
         return localPose.fwdVector;
     }
     //direction(top) Vector , fwdVector , rightVector
@@ -97,11 +97,11 @@ class quaternionVehicle{
 };
 
 struct rotation{
-    threeDState axisOfRotation;
-    float angle;
+    units::vec3 axisOfRotation;
+    units::scalar angle;
 };
 
-static bool similarVector(const threeDState& vec1 , const threeDState& vec2 ,float EPSILON = 1e-4){
+static bool similarVector(const units::vec3& vec1 , const units::vec3& vec2 ,units::scalar EPSILON = 1e-4){
     if(vec1.size() != vec2.size()) return false;
     for(int i = 0; i < vec1.size();  i++){
         if(std::fabs(vec1[i] - vec2[i]) > EPSILON){
@@ -124,7 +124,7 @@ class vehicleReferenceFrame{
     std::optional<poseState> localPose;
     std::optional<poseState> basis;
     std::vector<rotation> rotations;
-    static constexpr float EPSILON = 1e-4;
+    static constexpr units::scalar EPSILON = 1e-4;
 
 void getQuaternionRotationState(){
     if(!localPose){
@@ -146,7 +146,7 @@ void getQuaternionRotationState(){
 
     poseState progressPose = *localPose;
     
-    float dotProduct = vectorDotProduct(localPose->dirVector, basis->dirVector);
+    units::scalar dotProduct = vectorDotProduct(localPose->dirVector, basis->dirVector);
     if(std::fabs(dotProduct + 1) < EPSILON){
         rotation rot;
         rot.angle = M_PI;
@@ -155,12 +155,12 @@ void getQuaternionRotationState(){
     }
     //rotation.size() == 0 is just checking if the previous if statement added a rotation alread. if it did. the next step is covered.
     if(std::fabs(dotProduct - 1) > EPSILON && rotations.size() == 0){
-        threeDState rotationAxis;
+        units::vec3 rotationAxis;
         vectorCrossProduct(localPose->dirVector,basis->dirVector,rotationAxis);
         normalizeVectorInPlace(rotationAxis);
-        float angle = vectorAngleBetween(localPose->dirVector,basis->dirVector);
+        units::scalar angle = vectorAngleBetween(localPose->dirVector,basis->dirVector);
         Quaternion quant = fromAxisAngle(rotationAxis,angle);
-        threeDState rotateTest = rotateVector(quant,localPose->dirVector);
+        units::vec3 rotateTest = rotateVector(quant,localPose->dirVector);
 
         if(!similarVector(rotateTest,basis->dirVector,EPSILON)){
             angle = -angle;
@@ -182,9 +182,9 @@ void getQuaternionRotationState(){
     
     dotProduct = vectorDotProduct(progressPose.fwdVector,basis->fwdVector);
     if(std::fabs(dotProduct - 1) > EPSILON){
-        float angle = vectorAngleBetween(progressPose.fwdVector,basis->fwdVector);
+        units::scalar angle = vectorAngleBetween(progressPose.fwdVector,basis->fwdVector);
         Quaternion quant = fromAxisAngle(basis->dirVector,angle);
-        threeDState rotateTest = rotateVector(quant,progressPose.fwdVector);
+        units::vec3 rotateTest = rotateVector(quant,progressPose.fwdVector);
         if(!similarVector(rotateTest,basis->fwdVector,EPSILON)){
             angle = -angle;
         }
@@ -199,8 +199,8 @@ void getQuaternionRotationState(){
 }
 
 
-    threeDState realignHandler(const threeDState& vec){
-        threeDState realigned = vec; 
+    units::vec3 realignHandler(const units::vec3& vec){
+        units::vec3 realigned = vec; 
         for(auto& rotatePack : rotations){
             Quaternion quant = fromAxisAngle(rotatePack.axisOfRotation, rotatePack.angle);
             realigned = rotateVector(quant, realigned);
@@ -214,15 +214,15 @@ void getQuaternionRotationState(){
         getQuaternionRotationState();
     }
 
-    inline std::vector<threeDState> realign(const std::vector<threeDState>& vecs){
-        std::vector<threeDState> realigned;
+    inline std::vector<units::vec3> realign(const std::vector<units::vec3>& vecs){
+        std::vector<units::vec3> realigned;
         for(auto& vec:vecs){
             realigned.push_back(realignHandler(vec));
         }
         return realigned;
     }
 
-    inline threeDState realign(const threeDState& vec){
+    inline units::vec3 realign(const units::vec3& vec){
         return realignHandler(vec);
     }
 

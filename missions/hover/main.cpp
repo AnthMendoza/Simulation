@@ -60,6 +60,8 @@ int main(){
     // --------------- Start ----------------
 
     computer.start();
+    drone_m.start();
+    
     while(true){
 
     }

@@ -285,15 +285,15 @@ void resizeVectorInPlace(std::array<T,3>& vector1, T newLength) {
     }
 }
 
-
+template<typename T>
 //project a onto b
-inline std::array<float,3> projectVector(const std::array<float,3>& a, const std::array<float,3>& b) {
-    float bMagSq = vectorDotProduct(a,b);
+inline std::array<T,3> projectVector(const std::array<T,3>& a, const std::array<T,3>& b) {
+    T bMagSq = vectorDotProduct(a,b);
     if (bMagSq == 0.0f){
         return {0,0,0};
     }
 
-    float scale = vectorDotProduct(a, b) / bMagSq;
+    T scale = vectorDotProduct(a, b) / bMagSq;
     return { b[0] * scale, b[1] * scale, b[2] * scale };
 }
 

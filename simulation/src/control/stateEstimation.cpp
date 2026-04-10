@@ -19,7 +19,7 @@ void stateEstimation::predictionState(float time ,simpleSensorPacket& packet) {
     float dt = time - statePacket.timestamp;
     if (dt <= 0.0f) return; 
     stateInfo predictionOnly;
-    threeDState accel = packet.accelerometer.data;
+    units::vec3 accel = packet.accelerometer.data;
     
     for(int i = 0; i < 3; ++i) {
         predictionOnly.position[i] += statePacket.velocity[i] * dt + 0.5f * accel[i] * dt * dt;
@@ -52,11 +52,11 @@ void stateEstimation::calculateEstimatedRotationRate(){
 static constexpr float gravitationalAcceleration = -9.8f;
 static constexpr float threshold = 0.4f;
 
-threeDState stateEstimation::gravityVectorEstimation(threeDState accel,float time){
+units::vec3 stateEstimation::gravityVectorEstimation(units::vec3 accel,float time){
 
     auto controllerPacket = std::get<onlyThrustAccel>(control);
-    threeDState thrustAccel = controllerPacket.thrustAccelerationVector;
-    threeDState resultantAcceleration = subtractVectors(accel,thrustAccel);
+    units::vec3 thrustAccel = controllerPacket.thrustAccelerationVector;
+    units::vec3 resultantAcceleration = subtractVectors(accel,thrustAccel);
     if(vectorMag(resultantAcceleration) > std::fabs(gravitationalAcceleration) * threshold){
         if(!lastGravityVectorFilter){
             resultantAcceleration = gravityVectorFilter.filter(resultantAcceleration,0.0f);

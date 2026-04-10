@@ -64,6 +64,7 @@ droneSensorSuite::droneSensorSuite(std::string& configFile){
 void droneSensorSuite::updateAccelPacket() {
     auto accelShared = accelPtr.lock();
     if (!accelShared) {
+        //cache location to prevent recall of find()
         std::string identifier = packet.accelerometer.identifier;
         auto iterator = sensorMap->find(identifier);
         if (iterator == sensorMap->end()) return;

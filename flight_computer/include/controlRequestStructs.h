@@ -2,6 +2,7 @@
 #include <vector>
 #include <array>
 #include <base/base.h>
+#include <fc_units.h>
 
 //different packets can be used for motor + control surfaces
 namespace controlPacks{
@@ -16,8 +17,8 @@ using variantPackets = std::variant<motorOnlyPacket>;
 
 
 struct forceMoments{
-    SimCore::threeDState force;
-    SimCore::threeDState moments;   
+    fc_units::vec3 force;
+    fc_units::vec3 moments;   
     SimCore::poseState referencePose;
 
     forceMoments(): force({0,0,0}),

@@ -54,8 +54,8 @@ protected:
 
 
 TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationXPositive) {
-    threeDState position = { 10.0f, 5.0f, 2.0f };
-    threeDState velocity = { 0.0f, 0.0f, 0.0f };
+    units::vec3 position = { 10.0f, 5.0f, 2.0f };
+    units::vec3 velocity = { 0.0f, 0.0f, 0.0f };
     float deltaTime = 0.1f;
     controller->setTargetPosition(position[0] + 5, position[1], position[2]);
     auto result = controller->computeAccelerationRequest(position, velocity, deltaTime);
@@ -64,8 +64,8 @@ TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationXPositive) {
 }
 
 TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationXNegative) {
-    threeDState position = { 10.0f, 5.0f, 2.0f };
-    threeDState velocity = { 0.0f, 0.0f, 0.0f };
+    units::vec3 position = { 10.0f, 5.0f, 2.0f };
+    units::vec3 velocity = { 0.0f, 0.0f, 0.0f };
     float deltaTime = 0.1f;
     controller->setTargetPosition(position[0] - 5, position[1], position[2]);
     auto result = controller->computeAccelerationRequest(position, velocity, deltaTime);
@@ -74,8 +74,8 @@ TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationXNegative) {
 }
 
 TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationYPositive) {
-    threeDState position = { 10.0f, 5.0f, 2.0f };
-    threeDState velocity = { 0.0f, 0.0f, 0.0f };
+    units::vec3 position = { 10.0f, 5.0f, 2.0f };
+    units::vec3 velocity = { 0.0f, 0.0f, 0.0f };
     float deltaTime = 0.1f;
     controller->setTargetPosition(position[0], position[1] + 5, position[2]);
     auto result = controller->computeAccelerationRequest(position, velocity, deltaTime);
@@ -84,8 +84,8 @@ TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationYPositive) {
 }
 
 TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationYNegative) {
-    threeDState position = { 10.0f, 5.0f, 2.0f };
-    threeDState velocity = { 0.0f, 0.0f, 0.0f };
+    units::vec3 position = { 10.0f, 5.0f, 2.0f };
+    units::vec3 velocity = { 0.0f, 0.0f, 0.0f };
     float deltaTime = 0.1f;
     controller->setTargetPosition(position[0], position[1] - 5, position[2]);
     auto result = controller->computeAccelerationRequest(position, velocity, deltaTime);
@@ -94,8 +94,8 @@ TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationYNegative) {
 }
 
 TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationZPositive) {
-    threeDState position = { 10.0f, 5.0f, 2.0f };
-    threeDState velocity = { 0.0f, 0.0f, 0.0f };
+    units::vec3 position = { 10.0f, 5.0f, 2.0f };
+    units::vec3 velocity = { 0.0f, 0.0f, 0.0f };
     float deltaTime = 0.1f;
     controller->setTargetPosition(position[0], position[1], position[2] + 5);
     auto result = controller->computeAccelerationRequest(position, velocity, deltaTime);
@@ -104,8 +104,8 @@ TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationZPositive) {
 }
 
 TEST_F(PIDDroneControllerFixture, ComputesExpectedAccelerationZNegative) {
-    threeDState position = { 10.0f, 5.0f, 2.0f };
-    threeDState velocity = { 0.0f, 0.0f, 0.0f };
+    units::vec3 position = { 10.0f, 5.0f, 2.0f };
+    units::vec3 velocity = { 0.0f, 0.0f, 0.0f };
     float deltaTime = 0.1f;
     controller->setTargetPosition(position[0], position[1], position[2] - 5);
     auto result = controller->computeAccelerationRequest(position, velocity, deltaTime);
@@ -219,7 +219,7 @@ TEST_F(PIDDroneControllerFixture, ComputeBasisAOT_XAxisTest_InvertedNegative) {
 }
 
 TEST_F(PIDDroneControllerFixture, ComputesExpectedMoments) {
-    threeDState position = { 10.0f, 5.0f, 2.0f };
+    units::vec3 position = { 10.0f, 5.0f, 2.0f };
     auto state = CoordinateSystem::WORLD_BASIS;
      controller->setTargetPosition(position[0]-5, position[1], position[2]);
     float deltaTime = 0.1f;

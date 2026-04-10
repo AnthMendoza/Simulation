@@ -4,8 +4,8 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
-
-
+#include <memory>
+#include <spdlog/spdlog.h>
 
 class thread_manager {
 private:
@@ -40,6 +40,7 @@ protected:
     std::atomic<bool> running{false};
     std::thread worker_thread;
     std::chrono::milliseconds interval{100};
+    std::shared_ptr<spdlog::logger> logger;
 
     std::chrono::steady_clock::time_point start_time;
     
@@ -54,6 +55,14 @@ protected:
 public:
     thread_manager(int ms = 100): interval(std::chrono::milliseconds(ms)){
 
+    }
+
+    virtual void set_logger(std::shared_ptr<spdlog::logger> shared_logger){
+        logger = std::move(shared_logger);
+    }
+
+    std::shared_ptr<spdlog::logger> get_logger()const{
+        return logger;
     }
 
     void start() {

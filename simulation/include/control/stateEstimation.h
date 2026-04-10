@@ -9,7 +9,7 @@ namespace SimCore{
 class stateEstimation : public stateEstimationBase{
 
     protected:
-    threeDState gravityVector;
+    units::vec3 gravityVector;
     controllerToEstimationVariant control;
     float maxTimeGap; //seconds
     float timeConstant;
@@ -33,7 +33,7 @@ class stateEstimation : public stateEstimationBase{
 
     void updateEstimation(float time, simpleSensorPacket packet) override;
 
-    threeDState gravityVectorEstimation(threeDState accel , float time);
+    units::vec3 gravityVectorEstimation(units::vec3 accel , float time);
 
     void calculateEstimatedRotationRate();
 

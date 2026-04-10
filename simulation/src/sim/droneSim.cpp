@@ -21,7 +21,7 @@ SimCore::cameraBase createCamera(){
 
     vQuant.eulerRotation(M_PI,0,0);
     
-    std::array<float,3> position{0,0,0};
+    units::vec3 position{0,0,0};
 
     SimCore::cameraBase camera(vQuant.getPose(),position);
 

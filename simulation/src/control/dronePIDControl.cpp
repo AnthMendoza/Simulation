@@ -164,10 +164,10 @@ static constexpr float MINIMUM_ACCELERATION_Z = 0.3;
 requestedVehicleState PIDDroneController::aotFeedForward(accelerations& accelerationCommand, float mass ,poseState& pose){
     if(mass <= 0) throw std::runtime_error("mass cannot be <=0 , in aotFeedForward\n");
     requestedVehicleState request;
-    threeDState gravityCompensationVector = {0,0,-gravitationalAcceleration};
+    units::vec3 gravityCompensationVector = {0,0,-gravitationalAcceleration};
     auto poseDirVector = normalizeVector(pose.dirVector);
 
-    threeDState accelerationCommandVector = {accelerationCommand.xAccel,accelerationCommand.yAccel,accelerationCommand.zAccel};
+    units::vec3 accelerationCommandVector = {accelerationCommand.xAccel,accelerationCommand.yAccel,accelerationCommand.zAccel};
 
     accelerationCommandVector[2] = std::max(accelerationCommandVector[2],MINIMUM_ACCELERATION_Z * -gravityCompensationVector[2]);
 
@@ -208,7 +208,7 @@ float PIDDroneController::yawControl(){
 
 
 
-accelerations PIDDroneController::computeAccelerationRequest(const std::array<float,3>& pos ,const std::array<float,3>& velo ,float actualDeltaTime){
+accelerations PIDDroneController::computeAccelerationRequest(const units::vec3& pos ,const units::vec3& velo ,float actualDeltaTime){
     controlOutputVelocity = {   PIDX->update(pos[0],actualDeltaTime),
                                 PIDY->update(pos[1],actualDeltaTime),
                                 PIDZ->update(pos[2],actualDeltaTime)};
@@ -231,7 +231,7 @@ PIDDroneController::eulerAOT PIDDroneController::computeVehicleBasisAOT(poseStat
 
     poseState basisPose = CoordinateSystem::WORLD_BASIS;
     vehicleReferenceFrame referenceFrame(state, basisPose);    
-    threeDState basisAOT = referenceFrame.realign(request.vehicleState);
+    units::vec3 basisAOT = referenceFrame.realign(request.vehicleState);
 
 
     std::array<float,2> vectorX2d = {basisAOT[0], basisAOT[2]};
@@ -314,7 +314,7 @@ float PIDDroneController::computeThrustForce(float requestForce){
 // - Velocity PID computes desired acceleration or thrust based on velocity error
 // - Attitude and Rate PIDs can follow to control orientation and angular velocity
 // Used in flight control systems like PX4 and ArduPilot.
-controlPacks::forceMoments PIDDroneController::pidControl(const std::array<float,3> pos ,const std::array<float,3> velo , poseState& state){
+controlPacks::forceMoments PIDDroneController::pidControl(const units::vec3 pos ,const units::vec3 velo , poseState& state){
 
     if(!controlEnabled){
         controlPacks::forceMoments packet;
@@ -424,11 +424,11 @@ float PIDDroneController::yawAngleDifference(const poseState& currentPose, const
     
     // Find rotation axis and angle between direction vectors
     float angleBetween = vectorAngleBetween(currentDirVector, desiredDirVector);
-    threeDState axis;
+    units::vec3 axis;
     vectorCrossProduct(currentDirVector, desiredDirVector, axis);
     
     // Validate rotation direction
-    threeDState validateRotation = currentDirVector;
+    units::vec3 validateRotation = currentDirVector;
     auto quantValidate = fromAxisAngle(axis, angleBetween);
     rotateVector(quantValidate, validateRotation);
     if (!similarVector(validateRotation, desiredDirVector)) {
@@ -446,7 +446,7 @@ float PIDDroneController::yawAngleDifference(const poseState& currentPose, const
     float yawAngle = vectorAngleBetween(rotatedPose.fwdVector, desiredPose.fwdVector);
     
     // Determine yaw direction using cross product with direction vector
-    threeDState yawAxis;
+    units::vec3 yawAxis;
     vectorCrossProduct(rotatedPose.fwdVector, desiredPose.fwdVector, yawAxis);
     float yawDirection = vectorDotProduct(yawAxis, desiredDirVector);
     

@@ -658,7 +658,7 @@ TEST(VehicleReferenceFrameTest, RealignListOfVectors) {
 
     vehicleReferenceFrame frame(pose);
 
-    std::vector<threeDState> input = {
+    std::vector<units::vec3> input = {
         {1.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f}
     };
@@ -687,7 +687,7 @@ TEST(VehicleReferenceFrameTest, IdentityRotationOnRightVector) {
 }
 
 TEST(VectorMathTest,scaleVectorToZTest){
-    threeDState arr = {0,1,1};
+    units::vec3 arr = {0,1,1};
     float scaleFactor = 5;
     normalizeVectorInPlace(arr);
     auto vec = scaleVectorToZ(arr,scaleFactor);

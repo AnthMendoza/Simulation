@@ -20,8 +20,6 @@ class hardware_sim:public avionics::hardware_base{
     
     void set_field() override;
 
-    void set_field_sim(avionics::sensor::SensorField sim_field);
-
     void thread_process() override;
 
     void thread_startup_process() override;

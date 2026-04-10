@@ -20,16 +20,16 @@ private:
 protected:
     
     std::unique_ptr<timeManager> manager;
-    std::array<float,3> controlOutput;
-    std::array<float,3> controlOutputVelocity;
-    std::array<float,3> desiredNormal;
-    std::array<float,3> currentFlightTargetNormal;
-    std::array<float,3> aotVect;
-    std::array<float,3> logRequestedMoments = {0,0,0};
+    units::vec3 controlOutput;
+    units::vec3 controlOutputVelocity;
+    units::vec3 desiredNormal;
+    units::vec3 currentFlightTargetNormal;
+    units::vec3 aotVect;
+    units::vec3 logRequestedMoments = {0,0,0};
     std::unique_ptr<controlAllocator> allocator;
 
-    std::optional<std::vector<std::array<float,3>>> propThrustPosition;
-    std::optional<std::vector<std::array<float,3>>> propThrustDirectionVector;
+    std::optional<std::vector<units::vec3>> propThrustPosition;
+    std::optional<std::vector<units::vec3>> propThrustDirectionVector;
 
     std::optional<float> time;
 
@@ -78,9 +78,9 @@ public:
 
     
     /*
-    std::array<float,3> thrustMoment(const propeller& prop ,const motor& mot, std::array<float,3> &cogLocation ,const float& airDensity){
-        std::array<float,3> calculatedMoments;
-        std::array<float,3> torqueVector;
+    units::vec3 thrustMoment(const propeller& prop ,const motor& mot, units::vec3 &cogLocation ,const float& airDensity){
+        units::vec3 calculatedMoments;
+        units::vec3 torqueVector;
         auto propLocation = prop.getLocation();
         torqueVector[0] = propLocation[0] - cogLocation[0];
         torqueVector[1] = propLocation[1] - cogLocation[1];
@@ -89,10 +89,10 @@ public:
         float  thrust = prop.thrustForce(airDensity,mot.getCurrentAngularVelocity());
 
         if(isZeroVector(prop.direction)) throw runtime_error("Prop Direction is a zero vector. In thrustMoment \n");
-        std::array<float,3> direction = normalizeVector(prop.direction);
+        units::vec3 direction = normalizeVector(prop.direction);
 
 
-        std::array<float,3> thrustVector;
+        units::vec3 thrustVector;
         thrustVector[0] = direction[0] * thrust;
         thrustVector[1] = direction[1] * thrust;
         thrustVector[2] = direction[2] * thrust;
@@ -109,7 +109,7 @@ public:
         return allocator.get();
     }
 
-    void initAllocator(vector<std::array<float,3>> pos, vector<std::array<float,3>> thrustVect, vector<float >coef){
+    void initAllocator(vector<units::vec3> pos, vector<units::vec3> thrustVect, vector<float >coef){
         propThrustPosition = pos;
         propThrustDirectionVector = thrustVect;
         allocator = std::make_unique<controlAllocator>(pos,thrustVect,coef);
@@ -117,8 +117,8 @@ public:
     }
 
     void initAllocatorWithProps(std::vector<std::unique_ptr<propeller>>& propellers){
-        vector<array<float,3>> pos; 
-        vector<array<float,3>> thrustVect;
+        vector<units::vec3> pos; 
+        vector<units::vec3> thrustVect;
         vector<float> coef;
         for(int i = 0 ; i < propellers.size();i++){
             pos.push_back(propellers[i]->location);
@@ -129,15 +129,15 @@ public:
 
     }
 
-    std::array<float,3> getLoggedRequestedMoments(){
+    units::vec3 getLoggedRequestedMoments(){
         return logRequestedMoments;
     }
 
-    std::optional<std::vector<std::array<float, 3>>> getPropThrustPosition() const{
+    std::optional<std::vector<units::vec3>> getPropThrustPosition() const{
         return propThrustPosition;
     }
 
-    std::optional<std::vector<std::array<float, 3>>> getPropThrustDirectionVector() const{
+    std::optional<std::vector<units::vec3>> getPropThrustDirectionVector() const{
         return propThrustDirectionVector;
     }
 

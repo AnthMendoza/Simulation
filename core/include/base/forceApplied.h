@@ -5,9 +5,9 @@
 
 namespace SimCore{
 
-std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array<float,3> vehicleState , float appliedForceDistanceToCg);
+units::vec3 forceToMoment(units::vec3 forceVector , units::vec3 vehicleState , float appliedForceDistanceToCg);
 
-std::array<float , 3> forceToMoment(std::array<float,3> forceVector , std::array<float,3> leverVector );
+units::vec3 forceToMoment(units::vec3 forceVector , units::vec3 leverVector );
 
 
 void finForce();
