@@ -18,7 +18,7 @@ avionics::telemetry_base::telemetry_base(telem_ring& tel_buff,std::string config
 void avionics::telemetry_base::startup_helper(){
     m_connected = false;
     relay_connected_to_ground = false;
-    std::string contents = readFileAsString(CONFIG_PATH);
+    std::string contents = utility::readFileAsString(CONFIG_PATH);
 
     toml::tomlParse coms_toml;
     coms_toml.parseConfig(contents,TARGET);

@@ -6,36 +6,35 @@
 #include <controlRequestStructs.h>
 #include <util/util.h>
 #include <fc_units.h>
+#include <spdlog/spdlog.h>
 
 using namespace Eigen;
 using namespace std;
-namespace SimCore{
+namespace avionics{
 
 struct allocatorData{
     std::vector<units::scalar> thrusts;
     fc_units::vec3 forces;
     fc_units::vec3 moments; 
 
-    inline void printAllocatorData() {
-        std::cout << "Allocator Data:\n";
+    inline void printAllocatorData(const std::shared_ptr<spdlog::logger>& logger) {
+        SPDLOG_LOGGER_INFO(logger, "Allocator Data:");
 
-        std::cout << "  Thrusts: [";
+        std::ostringstream thrusts_ss;
+        thrusts_ss << "[";
         for (size_t i = 0; i < thrusts.size(); ++i) {
-            std::cout << thrusts[i];
-            if (i < thrusts.size() - 1) std::cout << ", ";
+            thrusts_ss << thrusts[i];
+            if (i < thrusts.size() - 1) thrusts_ss << ", ";
         }
-        std::cout << "]\n";
+        thrusts_ss << "]";
+        
+        SPDLOG_LOGGER_INFO(logger, "  Thrusts: {}", thrusts_ss.str());
 
-        std::cout << "  Forces:  ["
-                  << forces[0] << ", "
-                  << forces[1] << ", "
-                  << forces[2] << "]\n";
+        SPDLOG_LOGGER_INFO(logger, "  Forces:  [{}, {}, {}]",
+            forces[0], forces[1], forces[2]);
 
-
-        std::cout << "  Moments: ["
-                  << moments[0] << ", "
-                  << moments[1] << ", "
-                  << moments[2] << "]\n";
+        SPDLOG_LOGGER_INFO(logger, "  Moments: [{}, {}, {}]",
+            moments[0], moments[1], moments[2]);
     }
 };
 
@@ -55,7 +54,7 @@ private:
     void manageMovingAvg(allocatorData& requestPacket);
 public:
 
-    controlAllocator(const vector<std::array<units::scalar,3>>& motorPositions,const vector<std::array<units::scalar,3>>& thrustDirections,vector<units::scalar> spinTCoefficent);
+    controlAllocator(const vector<std::array<units::scalar,3>>& motorPositions,const vector<std::array<units::scalar,3>>& thrustDirections,vector<units::scalar> spinTCoefficient);
     controlAllocator(const controlAllocator& other) = default;
     /**
      * @brief Solves for the rotor thrusts required to produce the given wrench (force and torque).

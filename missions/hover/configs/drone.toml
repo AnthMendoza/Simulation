@@ -63,3 +63,31 @@ bias = 0.0
 burst = true
 burstStdDeviation = 0.5
 maxBurstDuration = 0.4
+
+[component_library]
+motor = "motor.toml"
+propeller = "propeller.toml"
+
+[[actuator]]
+name = "front_right"
+position = [0.15, 0.15, 0.0]
+thrustDirection = [0.0, 0.0, 1.0]
+rotationDirection = -1
+
+[[actuator]]
+name = "front_left"
+position = [0.15, -0.15, 0.0]
+thrustDirection = [0.0, 0.0, 1.0]
+rotationDirection = 1
+
+[[actuator]]
+name = "rear_left"
+position = [-0.15, -0.15, 0.0]
+thrustDirection = [0.0, 0.0, 1.0]
+rotationDirection = -1
+
+[[actuator]]
+name = "rear_right"
+position = [-0.15, 0.15, 0.0]
+thrustDirection = [0.0, 0.0, 1.0]
+rotationDirection = 1

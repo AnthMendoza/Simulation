@@ -14,7 +14,7 @@ ground_station::telemetry_ground::telemetry_ground(float packet_rate) : thread_m
     
     init_packet_struct();
 
-    std::string contents = readFileAsString(CONFIG_PATH);
+    std::string contents = utility::readFileAsString(CONFIG_PATH);
     
     toml::tomlParse telemetry_toml;
     telemetry_toml.parseConfig(contents,TARGET);

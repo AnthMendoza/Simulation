@@ -36,6 +36,17 @@ public:
         read_index.store(next_index(read), std::memory_order_release);
         return value;
     }
+    
+    //Retrieves latest non-nullopt value.
+    //If all values in ring are nullopt, nullopt is returned.
+    std::optional<T> pop_latest(){
+        std::optional<T> val = std::nullopt;
+        std::optional<T> latest = val;
+        while( (val = pop()) != std::nullopt){
+            latest = val;
+        }
+        return latest;
+    }
 };
 
 } 

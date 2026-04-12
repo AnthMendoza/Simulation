@@ -1,11 +1,13 @@
 #include "../../include/util/PIDController.h"
 #include <algorithm>
 #include <iostream>
+
 PIDController::PIDController(float kp, float ki, float kd)
     : kp(kp), ki(ki), kd(kd),
       integral(0.0f), previousError(0.0f),
       minOutput(-1e10f), maxOutput(1e10f),target(0), clampInt(2.0f),previousSample(0) {
-    if (this->kp == 0.0f && this->ki == 0.0f && this->kd == 0.0f) {
+    if (kp == 0.0f && ki == 0.0f && kd == 0.0f) {
+        
         std::cout << "Warning: all gains in PID loop within motor are 0. Setting to default values. kp=0.5 ki=0.2 kd=0.0\n";
         this->kp = 0.5f;
         this->ki = 0.2f;
@@ -57,7 +59,7 @@ float PIDController::update(const float& measurement , const float deltaTime) {
     float derivative = 0;
     
     if(deltaTime <= 0){
-        std::cout<<"Warning bypassing derivvative in PID. delta time <= 0 "<< deltaTime<<"\n";
+        std::cout<<"Warning bypassing derivative in PID. delta time <= 0 "<< deltaTime<<"\n";
     }
     else{
         derivative = -(measurement - previousSample) / deltaTime;

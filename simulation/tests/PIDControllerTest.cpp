@@ -22,7 +22,7 @@ protected:
 
     void SetUp() override {
         controller = std::make_unique<PIDDroneController>(0.01f);
-        droneConfig = readFileAsString(droneConfig);
+        droneConfig = utility::readFileAsString(droneConfig);
         controller->initController(droneConfig);
         state.pose = CoordinateSystem::WORLD_BASIS;
     }

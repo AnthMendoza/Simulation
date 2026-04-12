@@ -12,16 +12,16 @@ struct poseState{
     units::vec3 rightVector;
     void printPose(){
         std::cout << "poseState {\n";
-        print(dirVector,"  dirVector");
-        print(fwdVector , "  fwdVector");
-        print(rightVector, "  rightVector");
+        utility::print(dirVector,"  dirVector");
+        utility::print(fwdVector , "  fwdVector");
+        utility::print(rightVector, "  rightVector");
         std::cout << "}\n";
     }
     void printPose(std::string comment){
         std::cout << "poseState " << comment << " {\n";
-        print(dirVector,"  dirVector");
-        print(fwdVector , "  fwdVector");
-        print(rightVector, "  rightVector");
+        utility::print(dirVector,"  dirVector");
+        utility::print(fwdVector , "  fwdVector");
+        utility::print(rightVector, "  rightVector");
         std::cout << "}\n";
     }
     void normalize(){

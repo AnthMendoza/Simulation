@@ -14,7 +14,23 @@ public:
     std::unordered_map<std::string, bool> boolValues;
     std::unordered_map<std::string, std::vector<float>> arrayValues;
     std::unordered_map<std::string,std::string> mapOfStrings;
+    // Example:
+    // [vehicle]
+    // mass = 0.3
+    // initPosition = [0.0, 0.0, 1.0]
+    // parseConfig(configText, "vehicle");
     void parseConfig(const std::string& config, const std::string& targetSection);
+    // Example:
+    // [[actuator]]
+    // name = "front_right"
+    // position = [0.15, 0.15, 0.0]
+    //
+    // [[actuator]]
+    // name = "front_left"
+    // position = [0.15, -0.15, 0.0]
+    //
+    // auto actuators = parseArrayOfTables(configText, "actuator");
+    std::vector<tomlParse> parseArrayOfTables(const std::string& config, const std::string& targetSection);
     inline float getFloat(const std::string& key) const {
         auto value = floatValues.find(key);
         if (value == floatValues.end()) {
@@ -49,4 +65,3 @@ public:
 };
 }
 #endif
-

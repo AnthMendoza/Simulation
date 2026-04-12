@@ -12,6 +12,7 @@
 
 
 using namespace std;
+using namespace avionics;
 
 namespace SimCore{
 class controlAllocator;

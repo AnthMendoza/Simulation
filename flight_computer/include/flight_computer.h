@@ -7,6 +7,8 @@
 #include "flight_controller_base.h"
 #include "scheduler_tasks.h"
 #include "../hardware/include/hardware_base.h"
+#include "../hardware/include/airframe_config.h"
+#include "fc_units.h"
 #include <string>
 #include <iostream>
 #include <cstring>
@@ -34,10 +36,15 @@ private:
 
     avionics::sensor_dbuf hardware_to_estimator;
 
+    avionics::nav_ring navigation_to_controller;
+
+    airframe_config configuration;
 
     void thread_process() override;
 
     void thread_startup_process() override;
+
+    airframe_config config_startup(const std::string& airframeConfigPath);
     
 public:
     
@@ -49,7 +56,9 @@ public:
 
         controller = std::make_shared<T>(   
             estimator_to_controller, 
-            controller_to_communication, 
+            controller_to_communication,
+            navigation_to_controller, 
+            configuration,
             std::forward<Args>(args)...
         );
         controller->set_logger(logger);
@@ -93,9 +102,12 @@ public:
         hardware->set_logger(logger);
     }
 
-    flight_computer(float interval_ms = 10);   
-
+    flight_computer(float interval_ms = 10, std::string airframeConfigPath = "");   
     void set_logger(std::shared_ptr<spdlog::logger> shared_logger) override;
+
+    const airframe_config& get_config() const {
+        return configuration;
+    }    
     
 
 };

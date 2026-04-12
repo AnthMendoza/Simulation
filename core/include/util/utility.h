@@ -4,8 +4,9 @@
 #include <iomanip>
 #include <string>
 #include <fstream>
+#include <spdlog/spdlog.h>
 
-
+namespace utility{
 
 // percentage: float between 0.0 and 1.0
 inline void progressBar(float percentage) {
@@ -29,6 +30,27 @@ inline void print(const T& value, const char* name) {
     std::cout << name << ": ["<<value;
     std::cout << "]\n";
 }
+
+template<typename T , std::size_t N>
+inline void print(const std::shared_ptr<spdlog::logger>& logger,const std::array<T, N>& arr, const char* name){
+    std::ostringstream oss;
+    oss << name << ": [";
+
+    for (std::size_t i = 0; i < N; ++i) {
+        oss << arr[i];
+        if (i < N - 1) oss << ", ";
+    }
+
+    oss << "]";
+    SPDLOG_LOGGER_INFO(logger, "{}", oss.str());
+}
+
+
+template<typename T>
+inline void print(const std::shared_ptr<spdlog::logger>& logger,const T& value, const char* name) {
+    SPDLOG_LOGGER_INFO(logger, "{}: {}", name, value);
+}
+
 
 template<typename T, std::size_t N>
 inline void print(const std::array<T, N>& arr, const char* name, int precision = 5) {
@@ -94,3 +116,4 @@ inline bool validateDirection(float val, direction dir) {
     return false;
 }
 
+}

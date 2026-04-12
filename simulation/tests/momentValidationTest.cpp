@@ -34,7 +34,7 @@ protected:
 
     void SetUp() override {
         vehicle = std::make_unique<testVehicle>();
-        droneConfig = readFileAsString(droneConfig);
+        droneConfig = utility::readFileAsString(droneConfig);
         vehicle->init(droneConfig);
         auto basisPose = CoordinateSystem::WORLD_BASIS;
         vehicle->setStateVector(basisPose.dirVector,basisPose.fwdVector);

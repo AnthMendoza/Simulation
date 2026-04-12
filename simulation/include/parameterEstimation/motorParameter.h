@@ -126,15 +126,15 @@ public:
     
     motorEstimation(const std::string& motorConfigPath , const std::string& batteryConfigPath,const std::string& propellerConfigPath): simulation(){
 
-        std::string configMotor = readFileAsString(motorConfigPath);
+        std::string configMotor = utility::readFileAsString(motorConfigPath);
         staticMotorCopy = std::make_unique<motor>(configMotor);
         motor_ = std::make_unique<motor>(*staticMotorCopy);
 
-        std::string configBattery = readFileAsString(batteryConfigPath);
+        std::string configBattery = utility::readFileAsString(batteryConfigPath);
         staticBatteryCopy = std::make_unique<battery>(configBattery);
         battery_ = std::make_unique<battery>(*staticBatteryCopy);
 
-        std::string configPropeller = readFileAsString(propellerConfigPath);
+        std::string configPropeller = utility::readFileAsString(propellerConfigPath);
         staticPropellerCopy = std::make_unique<propeller>(configPropeller);
         propeller_ = std::make_unique<propeller>(*staticPropellerCopy);
     }

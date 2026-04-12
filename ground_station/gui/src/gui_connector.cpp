@@ -9,7 +9,7 @@ constexpr auto IP_ADDRESS = "IP";
 
 gui_connector::gui_connector(float packet_rate) : thread_manager(packet_rate){
     toml::tomlParse gui_toml;
-    std::string contents = readFileAsString(CONFIG_PATH);
+    std::string contents = utility::readFileAsString(CONFIG_PATH);
     gui_toml.parseConfig(contents,TARGET);
     auto port = static_cast<uint16_t>(gui_toml.getFloat(PORT_ACCESS_NAME));
     std::string IP = gui_toml.getString(IP_ADDRESS);

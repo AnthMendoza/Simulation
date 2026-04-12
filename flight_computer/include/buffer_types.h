@@ -28,4 +28,10 @@ using sensor_field_packet = avionics::sensor::SensorField;
 
 using sensor_dbuf = utility::buffer::double_buffer<sensor_field_packet>;
 
+// ------------- navigation --> controller --------------
+
+using desired = desired_state;
+
+using nav_ring = utility::buffer::ring_buffer<desired,20>;
+
 }

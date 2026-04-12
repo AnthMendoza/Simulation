@@ -53,7 +53,7 @@ add_library(core STATIC
 
 target_compile_definitions(core
     PUBLIC
-    SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO
+    SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG
 )
 
 

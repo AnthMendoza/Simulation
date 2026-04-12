@@ -14,10 +14,8 @@ struct pid_gains{
 
     float min;
     float max;
-
-    pid_gains(): kp(0), ki(0) , kd(0) , min(0) , max(0) {
-
-    }
+    
+    pid_gains(): kp(0), ki(0), kd(0), min(-1e10f), max(1e10f) {}
 };
 
 struct pid_config{

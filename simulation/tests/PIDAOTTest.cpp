@@ -60,10 +60,10 @@ protected:
 
 
     void SetUp() override {
-        configMotor = readFileAsString(configMotor);    
-        configBattery = readFileAsString(configBattery);   
-        configPropeller = readFileAsString(configPropeller);
-        configDrone = readFileAsString(configDrone);
+        configMotor = utility::readFileAsString(configMotor);    
+        configBattery = utility::readFileAsString(configBattery);   
+        configPropeller = utility::readFileAsString(configPropeller);
+        configDrone = utility::readFileAsString(configDrone);
         controller = std::make_unique<SimCore::PIDDroneController>(static_cast<float> (CONTROLLER_POLLING_RATE));
         controller->initController(configDrone);
         estimator = std::make_unique<SimCore::mochEstimation>(static_cast<float> (ESTIMATOR_POLLING_RATE));

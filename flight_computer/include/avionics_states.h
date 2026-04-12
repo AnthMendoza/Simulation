@@ -25,6 +25,7 @@ namespace avionics{
 
     struct controller_feedback{
 
+        fc_units::vec3 thrust_request;
 
 
     };

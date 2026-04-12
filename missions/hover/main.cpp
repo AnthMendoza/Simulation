@@ -23,14 +23,14 @@ int main(){
 
     std::string mission_path = std::string(HOVER_DIR);
 
-    auto config_battery = readFileAsString(mission_path + "/configs/battery.toml");
+    auto config_battery = utility::readFileAsString(mission_path + "/configs/battery.toml");
     drone_m.set_battery<SimCore::battery>(config_battery);
 
-    auto config_drone = readFileAsString(mission_path + "/configs/drone.toml");
+    auto config_drone = utility::readFileAsString(mission_path + "/configs/drone.toml");
     drone_m.initDrone(config_drone);
 
-    auto config_propeller = readFileAsString(mission_path + "/configs/propeller.toml");
-    auto config_motor = readFileAsString(mission_path + "/configs/motor.toml");
+    auto config_propeller = utility::readFileAsString(mission_path + "/configs/propeller.toml");
+    auto config_motor = utility::readFileAsString(mission_path + "/configs/motor.toml");
 
     SimCore::propeller prop(config_propeller);
     SimCore::motor mot(config_motor);
@@ -42,7 +42,7 @@ int main(){
 
     auto config_telemetry_path = mission_path + "/configs/telemetry.toml";
     
-    avionics::flight_computer computer;
+    avionics::flight_computer computer(10, mission_path + "/configs/drone.toml");
     avionics::pid::pid_config config;
 
     computer.set_controller<avionics::pid::controller_pid>(config);

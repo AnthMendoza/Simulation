@@ -34,10 +34,10 @@ int main(int argc, char* argv[]){
         std::cout << "Usage: " << argv[0] << " <motor_config> <battery_config> <propeller_config> <drone_config>\n";
         return 1; 
     }
-    std::string configMotor = readFileAsString(argv[1]);    
-    std::string configBattery = readFileAsString(argv[2]);   
-    std::string configPropeller = readFileAsString(argv[3]);
-    std::string configDrone = readFileAsString(argv[4]);
+    std::string configMotor = utility::readFileAsString(argv[1]);    
+    std::string configBattery = utility::readFileAsString(argv[2]);   
+    std::string configPropeller = utility::readFileAsString(argv[3]);
+    std::string configDrone = utility::readFileAsString(argv[4]);
     auto controller = std::make_unique<SimCore::PIDDroneController>(static_cast<float> (CONTROLLER_POLLING_RATE));
     controller->initController(configDrone);
     auto estimator = std::make_unique<SimCore::mochEstimation>(static_cast<float> (ESTIMATOR_POLLING_RATE));

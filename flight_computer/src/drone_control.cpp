@@ -1,10 +1,9 @@
 #include <drone_control.h>
-#include <iostream>
 #include <vector>
 
 using namespace Eigen;
 using namespace std;
-namespace SimCore{
+namespace avionics{
 
 void controlAllocator::buildCASMatrix() {
     int n = positions.size();  // Number of motors
@@ -32,11 +31,13 @@ VectorXd controlAllocator::toVectorXd(std::initializer_list<units::scalar> list)
     return vec;
 }
 
-controlAllocator::controlAllocator(const vector<array<units::scalar,3>>& motorPositions,const vector<array<units::scalar,3>>& thrustDirections,vector<units::scalar> spinTCoefficent){   
-    if(motorPositions.empty() || thrustDirections.empty() || spinTCoefficent.empty()) throw runtime_error("Allocator contains no motor positions");
+controlAllocator::controlAllocator(const vector<array<units::scalar,3>>& motorPositions,const vector<array<units::scalar,3>>& thrustDirections,vector<units::scalar> spinTCoefficient){   
+    if(motorPositions.empty() || thrustDirections.empty() || spinTCoefficient.empty()){
+        spdlog::critical("Allocator contains no actuators.");
+    }
 
-    if(motorPositions.size() != thrustDirections.size() || motorPositions.size() != spinTCoefficent.size()){
-        throw runtime_error("Vector values in constructor are not the same size. 4 motors needs 4 thrust directions");
+    if(motorPositions.size() != thrustDirections.size() || motorPositions.size() != spinTCoefficient.size()){
+        spdlog::critical("Vector values in constructor are not the same size. 4 motors needs 4 thrust directions");
     }
 
     spinTorque.resize(motorPositions.size());
@@ -47,7 +48,7 @@ controlAllocator::controlAllocator(const vector<array<units::scalar,3>>& motorPo
         const auto& dir = thrustDirections[i];
         thrustDirs.push_back(Vector3d(static_cast<double>(dir[0]), static_cast<double>(dir[1]), static_cast<double>(dir[2])));
 
-        spinTorque(i) += spinTCoefficent[i];
+        spinTorque(i) += spinTCoefficient[i];
     }
     buildCASMatrix(); 
 }

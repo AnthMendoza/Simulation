@@ -4,9 +4,11 @@
 #include "../../include/flight_controller_base.h"
 #include <util/util.h>
 #include "pid_config.h"
+#include <airframe_config.h>
 #include <optional>
 
 namespace avionics{
+    class controlAllocator;
     namespace pid{
         class controller_pid : public controller_base{
         private:
@@ -19,11 +21,14 @@ namespace avionics{
             void angle_of_attack(float time);
             void set_telemetry(float time) override;
             void get_hardware();
+            controller_feedback allocate();
 
             //used std::optional as a work around for PIDController() = delete
 
             std::array<std::optional<PIDController>,3> position_pid;
             std::array<std::optional<PIDController>,3> velocity_pid;
+
+            std::shared_ptr<controlAllocator> allocate_thrust;
 
             struct subroutine_translation_layer{
 
@@ -37,16 +42,24 @@ namespace avionics{
                                                 req_velocity({0.0f,0.0f,0.0f}),req_acceleration({0.0f,0.0f,0.0f}){
                 }
 
+                void print(const std::shared_ptr<spdlog::logger>& logger) const {
+                    SPDLOG_LOGGER_INFO(logger, "Subroutine Translation Layer:");
+
+                    utility::print(logger, delta_position,"delta_position");
+                    utility::print(logger,req_velocity,"req_velocity");
+                    utility::print(logger,delta_velocity,"delta_velocity");
+                    utility::print(logger, req_acceleration,"req_acceleration");
+                    utility::print(logger, delta_acceleration,"delta_acceleration");
+                }
+
             }subroutine;
 
             struct subroutine_last_call_log{
-
-                float position;
-                float velocity;
-                float acceleration;
-                float angle_of_attack;
-
-            }last_call_time;
+                float position = 0.f;
+                float velocity = 0.f;
+                float acceleration = 0.f;
+                float angle_of_attack = 0.f;
+            } last_call_time{};
         
         protected:
 
@@ -58,7 +71,8 @@ namespace avionics{
         public:
 
             controller_pid() = delete;
-            controller_pid(state_dbuf& state_buff, telem_ring& tel_buff , const pid_config& config);
+            controller_pid(state_dbuf& state_buff, telem_ring& tel_buff , nav_ring& nav_buff ,const airframe_config& air_config , const pid_config& config);
+
             
 
         };

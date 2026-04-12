@@ -77,6 +77,7 @@ add_executable(tests
     #tests/testPoseRotation.cpp
     tests/quaternionTests.cpp
     tests/timeManagerTest.cpp
+    tests/airframeConfigParserTest.cpp
     #tests/stateEstimationTest.cpp
     #tests/PIDControllerTest.cpp
     #tests/momentValidationTest.cpp

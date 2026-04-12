@@ -17,10 +17,10 @@ int main(int argc, char* argv[]){
         return 1;
     }
     
-    std::string configMotor = readFileAsString(argv[1]);    
-    std::string configBattery = readFileAsString(argv[2]);   
-    std::string configPropeller = readFileAsString(argv[3]);
-    std::string configDrone = readFileAsString(argv[4]);
+    std::string configMotor = utility::readFileAsString(argv[1]);    
+    std::string configBattery = utility::readFileAsString(argv[2]);   
+    std::string configPropeller = utility::readFileAsString(argv[3]);
+    std::string configDrone = utility::readFileAsString(argv[4]);
 
 
     unrealDrone drone(configMotor,configBattery,configDrone,configPropeller);

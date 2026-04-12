@@ -16,6 +16,18 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(GeographicLib)
 
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.12.1
+)
+
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+
+
 
 set(TELEMETRY_SRC
     telemetry/src/communication.cpp
@@ -34,6 +46,7 @@ set(STATE_ESTIMATION_SRC
 set(HARDWARE_SRC
     hardware/src/hardware_base.cpp
     hardware/src/gps.cpp
+    hardware/src/airframe_config.cpp
 
 )
 
@@ -64,6 +77,7 @@ target_link_libraries(flight_computer_library
     PUBLIC
     core
     GeographicLib::GeographicLib
+    Threads::Threads
 )
 
 add_executable(drone 
@@ -72,7 +86,20 @@ add_executable(drone
 
 target_link_libraries(drone
     PUBLIC
-    core
     flight_computer_library
-    Threads::Threads
+)
+
+add_executable(flight_tests
+    tests/test.cpp
+)
+
+target_link_libraries(flight_tests
+    PUBLIC
+    flight_computer_library
+)
+
+target_link_libraries(flight_tests
+    PRIVATE
+    GTest::gtest
+    GTest::gtest_main
 )
