@@ -1,5 +1,6 @@
 #include "../include/pid_controller.h"
 #include <drone_control.h>
+#include <yaml-cpp/yaml.h>
 
 avionics::pid::controller_pid::controller_pid(
     state_dbuf& state_buff,
@@ -9,27 +10,22 @@ avionics::pid::controller_pid::controller_pid(
     const pid_config& config
 ): controller_base(state_buff , tel_buff, nav_buff, air_config) {
     
+    config_ = config;
+
     allocate_thrust = std::make_shared<controlAllocator>(
         configuration.motorPositions(),
         configuration.thrustDirections(),
         configuration.rotationDirections()
     );
-    
-    for(int i = 0; i < 3 ; i++){
 
-        auto p_gain = config.position[i];
-        position_pid[i] = PIDController(p_gain.kp,p_gain.ki,p_gain.kd); 
-        position_pid[i]->setOutputLimits(p_gain.min,p_gain.max);
+    auto pid_helper = [](const pid_con& con){
+        return PIDController(con.kp, con.ki, con.kd, -con.output_limit, con.output_limit, con.i_limit);
+    };
 
-    }
+    velocity_pid[0] = pid_helper(config_.velocity.x);
+    velocity_pid[1] = pid_helper(config_.velocity.y);
+    velocity_pid[2] = pid_helper(config_.velocity.z);
 
-    for(int i = 0 ; i < 3 ; i++){
-
-        auto v_gain = config.velocity[i];
-        velocity_pid[i] = PIDController(v_gain.kp,v_gain.ki,v_gain.kd);
-        velocity_pid[i]->setOutputLimits(v_gain.min,v_gain.max);
-
-    }
 
 }
 
@@ -53,6 +49,11 @@ std::vector<avionics::scheduler_tasks> avionics::pid::controller_pid::get_routin
 
 }
 
+void avionics::pid::controller_pid::parse_gains(const std::string path){
+    YAML::Node gain_con = YAML::LoadFile(path);
+    
+}
+
 
 void avionics::pid::controller_pid::position(float time){
 
@@ -67,10 +68,8 @@ void avionics::pid::controller_pid::position(float time){
 
     for(int i = 0 ; i < 3 ; i++){
         subroutine.delta_position[i] =  nav.position[i] - vehicle_state.position[i];
-
-        position_pid[i]->setTarget(nav.position[i]);
-        subroutine.req_velocity[i] = position_pid[i]->update(vehicle_state.position[i],dt);
-
+        
+        subroutine.req_velocity[i] =  config_.position.x.kp * subroutine.delta_position[i];
     }
 
     last_call_time.position = time;

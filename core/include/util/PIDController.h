@@ -2,12 +2,21 @@
 #define PIDCONTROLLER_H
 
 
+struct pid_con {
+    float kp{0.0f};
+    float ki{0.0f};
+    float kd{0.0f};       
+    float i_limit{0.0f};     
+    float output_limit{0.0f};
+};
 
 
 class PIDController {
 public:
     PIDController() = delete;
     PIDController(float kp, float ki, float kd);
+    PIDController(float kp, float ki, float kd, float min, float max, float i_limit);
+    PIDController(const pid_con& config);
     PIDController(const PIDController& other);
 
     void setGains(float kp, float ki, float kd);

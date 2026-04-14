@@ -9,6 +9,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(FetchContent)
 
 FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG yaml-cpp-0.9.0
+)
+
+FetchContent_MakeAvailable(yaml-cpp)
+
+
+FetchContent_Declare(
   GeographicLib
   GIT_REPOSITORY https://github.com/geographiclib/geographiclib.git
   GIT_TAG        v2.3
@@ -36,6 +45,7 @@ set(TELEMETRY_SRC
 
 set(PID_CONTROLLER_SRC
     pid_controller/src/pid_controller.cpp
+    pid_controller/src/pid_config_parse.cpp
 )
 
 set(STATE_ESTIMATION_SRC
@@ -77,6 +87,7 @@ target_link_libraries(flight_computer_library
     PUBLIC
     core
     GeographicLib::GeographicLib
+    yaml-cpp::yaml-cpp
     Threads::Threads
 )
 

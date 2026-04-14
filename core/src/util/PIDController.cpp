@@ -15,9 +15,25 @@ PIDController::PIDController(float kp, float ki, float kd)
     }
 }
 
+PIDController::PIDController(float kp, float ki, float kd, float min, float max, float i_limit)
+    : kp(kp), ki(ki), kd(kd), minOutput(min), maxOutput(max), clampInt(i_limit){
+
+}
+
+PIDController::PIDController(const pid_con& config)
+    :kp(config.kp), ki(config.ki), kd(config.kd), clampInt(config.i_limit){
+
+        float limit = std::abs(config.output_limit);
+        
+        minOutput = -limit;
+        maxOutput = limit;
+
+}
+
 PIDController::PIDController(const PIDController& other): kp(other.kp), ki(other.ki), kd(other.kd),
       target(other.target), integral(other.integral), previousError(other.previousError),
       minOutput(other.minOutput), maxOutput(other.maxOutput), previousSample(other.previousSample),clampInt(other.clampInt) {}
+
 
 
 

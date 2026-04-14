@@ -12,7 +12,7 @@ namespace avionics{
     namespace pid{
         class controller_pid : public controller_base{
         private:
-
+            pid_config config_;
             
 
             void position(float time);
@@ -22,6 +22,7 @@ namespace avionics{
             void set_telemetry(float time) override;
             void get_hardware();
             controller_feedback allocate();
+            void parse_gains(const std::string path);
 
             //used std::optional as a work around for PIDController() = delete
 

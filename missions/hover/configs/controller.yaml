@@ -1,0 +1,109 @@
+# ============================================================
+#  Quadrotor Cascade PID + Feedforward Controller Gains
+#  Loops: Position → Velocity → Attitude → Rate (inner)
+# ============================================================
+
+controller:
+  type: cascade_pid_feedforward
+  update_rates_hz:
+    position:  50
+    velocity:  100
+    attitude:  250
+    rate:      500
+
+# ------------------------------------------------------------
+# LOOP 1 — POSITION (outer)
+#   Input:  position setpoint [m]
+#   Output: velocity setpoint [m/s]
+# ------------------------------------------------------------
+position:
+  x:
+    kp: 1.0
+    i_limit: 1.0          # anti-windup clamp [m/s]
+    output_limit: 5.0     # max velocity command [m/s]
+  y:
+    kp: 1.0
+    i_limit: 1.0
+    output_limit: 5.0
+  z:
+    kp: 1.0
+    i_limit: 0.5
+    output_limit: 3.0     # max vertical velocity command [m/s]
+
+# ------------------------------------------------------------
+# LOOP 2 — VELOCITY
+#   Input:  velocity setpoint [m/s]
+#   Output: attitude setpoint [rad] (x/y) & thrust [N] (z)
+# ------------------------------------------------------------
+velocity:
+  x:
+    kp: 0.15
+    ki: 0.02
+    kd: 0.005
+    i_limit: 0.2          # [rad]
+    output_limit: 0.35    # max tilt angle [rad] (~20 deg)
+  y:
+    kp: 0.15
+    ki: 0.02
+    kd: 0.005
+    i_limit: 0.2
+    output_limit: 0.35
+  z:
+    kp: 0.5
+    ki: 0.1
+    kd: 0.02
+    i_limit: 0.3
+    output_limit: 1.0     # normalised collective thrust (0–1)
+
+# ------------------------------------------------------------
+# LOOP 3 — ATTITUDE / ANGLE
+#   Input:  attitude setpoint [rad]
+#   Output: angular rate setpoint [rad/s]
+# ------------------------------------------------------------
+attitude:
+  roll:
+    kp: 6.5
+    i_limit: 0.0
+    output_limit: 8.0     # max roll rate command [rad/s]
+  pitch:
+    kp: 6.5
+    i_limit: 0.0
+    output_limit: 8.0
+  yaw:
+    kp: 3.0
+    i_limit: 0.2
+    output_limit: 3.14    # max yaw rate command [rad/s]
+
+# ------------------------------------------------------------
+# LOOP 4 — ANGULAR RATE (inner)
+#   Input:  angular rate setpoint [rad/s]
+#   Output: normalized motor torque commands [-1, 1]
+# ------------------------------------------------------------
+rate:
+  roll:
+    kp: 0.08
+    ki: 0.02
+    kd: 0.003
+    i_limit: 0.15
+    output_limit: 1.0
+  pitch:
+    kp: 0.08
+    ki: 0.02
+    kd: 0.003
+    i_limit: 0.15
+    output_limit: 1.0
+  yaw:
+    kp: 0.15
+    ki: 0.05
+    kd: 0.0
+    i_limit: 0.1
+    output_limit: 1.0
+
+limits:
+  max_tilt_angle_deg:   35.0
+  max_ascent_rate_ms:    3.0
+  max_descent_rate_ms:   2.0
+  max_horizontal_vel_ms: 8.0
+  motor_idle_throttle:   0.05 
+  motor_max_throttle:    0.95
+
