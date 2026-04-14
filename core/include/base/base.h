@@ -17,3 +17,4 @@
 #include "transposeSet.h"
 #include "vectorMath.h"
 #include "units.h"
+#include "conversions.h"

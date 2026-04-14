@@ -39,13 +39,13 @@ int main(){
     drone_m.addMotorsAndProps(motor_prop);
 
     // --------------- Flight Computer ----------------
-
-    auto config_telemetry_path = mission_path + "/configs/telemetry.toml";
     
     avionics::flight_computer computer(10, mission_path + "/configs/drone.toml");
-    avionics::pid::pid_config config;
 
-    computer.set_controller<avionics::pid::controller_pid>(config);
+    auto config_telemetry_path = mission_path + "/configs/telemetry.toml";
+    auto config_pid_path = mission_path + "/configs/controller.yaml";
+
+    computer.set_controller<avionics::pid::controller_pid>(config_pid_path);
     computer.set_telemetry<avionics::telemetry>(config_telemetry_path);
     computer.set_estimator<avionics::estimation::estimation>();
 

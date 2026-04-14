@@ -44,12 +44,16 @@ pid_config load_pid_config(const std::string& filepath){
     if (!rates) throw std::runtime_error("Missing section: controller.update_rates_hz");
     if (!rates["position"]) throw std::runtime_error("Missing field: controller.update_rates_hz.position");
     if (!rates["velocity"]) throw std::runtime_error("Missing field: controller.update_rates_hz.velocity");
+    if (!rates["acceleration"]) throw std::runtime_error("Missing field: controller.update_rates_hz.acceleration");
     if (!rates["attitude"]) throw std::runtime_error("Missing field: controller.update_rates_hz.attitude");
     if (!rates["rate"])     throw std::runtime_error("Missing field: controller.update_rates_hz.rate");
+    if (!rates["telemetry"])     throw std::runtime_error("Missing field: controller.update_rates_hz.telemetry");
     config.controller.update_rates_hz.position = rates["position"].as<float>();
     config.controller.update_rates_hz.velocity = rates["velocity"].as<float>();
+    config.controller.update_rates_hz.acceleration = rates["acceleration"].as<float>();
     config.controller.update_rates_hz.attitude = rates["attitude"].as<float>();
     config.controller.update_rates_hz.rate     = rates["rate"].as<float>();
+    config.controller.update_rates_hz.telemetry     = rates["telemetry"].as<float>();
 
     
     const auto& pos = root["position"];

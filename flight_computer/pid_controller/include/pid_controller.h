@@ -72,7 +72,8 @@ namespace avionics{
         public:
 
             controller_pid() = delete;
-            controller_pid(state_dbuf& state_buff, telem_ring& tel_buff , nav_ring& nav_buff ,const airframe_config& air_config , const pid_config& config);
+            controller_pid( state_dbuf& state_buff, telem_ring& tel_buff , nav_ring& nav_buff
+                            ,const airframe_config& air_config ,const std::string path);
 
             
 

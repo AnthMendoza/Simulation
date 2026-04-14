@@ -1,15 +1,17 @@
 # ============================================================
-#  Quadrotor Cascade PID + Feedforward Controller Gains
+#  Cascade PID + Feedforward Controller Gains
 #  Loops: Position → Velocity → Attitude → Rate (inner)
 # ============================================================
 
 controller:
   type: cascade_pid_feedforward
   update_rates_hz:
-    position:  50
-    velocity:  100
+    position:  5
+    velocity:  20
+    acceleration: 100
     attitude:  250
-    rate:      500
+    rate:      1000
+    telemetry: 10
 
 # ------------------------------------------------------------
 # LOOP 1 — POSITION (outer)

@@ -1,17 +1,19 @@
 #include "../include/pid_controller.h"
 #include <drone_control.h>
 #include <yaml-cpp/yaml.h>
+#include "../include/pid_config_parse.hpp"
+#include <base/conversions.h>
 
 avionics::pid::controller_pid::controller_pid(
     state_dbuf& state_buff,
     telem_ring& tel_buff,
     nav_ring& nav_buff,
     const airframe_config& air_config,
-    const pid_config& config
+    const std::string path
 ): controller_base(state_buff , tel_buff, nav_buff, air_config) {
     
-    config_ = config;
-
+    config_ = pid::load_pid_config(path);
+    
     allocate_thrust = std::make_shared<controlAllocator>(
         configuration.motorPositions(),
         configuration.thrustDirections(),
@@ -36,13 +38,14 @@ void avionics::pid::controller_pid::initialize_implementation(){
 
 
 std::vector<avionics::scheduler_tasks> avionics::pid::controller_pid::get_routine(){
+    auto rates = config_.controller.update_rates_hz;
 
     std::vector<avionics::scheduler_tasks> tasks{
-        {"position" ,           1.0f , [this] (float time) {controller_pid::position(time);}},
-        {"velocity" ,           0.5f , [this] (float time) {controller_pid::velocity(time);}},
-        {"acceleration" ,       0.01f , [this] (float time) {controller_pid::acceleration(time);}},
-        {"angle_of_attack" ,    0.001f , [this] (float time) {controller_pid::angle_of_attack(time);}},
-        {"telemetry" ,    0.1f , [this] (float time) {controller_pid::set_telemetry(time);}}
+        {"position" ,           utility::hz_sec(rates.position), [this] (float time) {controller_pid::position(time);}},
+        {"velocity" ,           utility::hz_sec(rates.velocity), [this] (float time) {controller_pid::velocity(time);}},
+        {"acceleration" ,       utility::hz_sec(rates.acceleration), [this] (float time) {controller_pid::acceleration(time);}},
+        {"angle_of_attack" ,    utility::hz_sec(rates.attitude), [this] (float time) {controller_pid::angle_of_attack(time);}},
+        {"telemetry" ,          utility::hz_sec(rates.telemetry), [this] (float time) {controller_pid::set_telemetry(time);}}
     };
 
     return tasks;
