@@ -34,9 +34,6 @@ class telemetry: public telemetry_base{
 
     }
 
-    void terminal_print(){
-
-    }
 
 
 };

@@ -39,3 +39,7 @@ __pycache__/
 mongo.txt
 build/
 pyvenv.cfg
+
+.ds_store
+.DS_Store
+
