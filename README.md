@@ -102,7 +102,7 @@ Typical flow:
 
 ## License
 
-> [MIT](/LICENSE)
+> [MIT](LICENSE)
 
 ---
 
