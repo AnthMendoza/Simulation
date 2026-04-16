@@ -11,33 +11,6 @@ cogToEngine = -8.0
 timeStep = 0.001
 mass = 0.3
 maxCruiseVelocity = 8.0
-[PID]
-
-ZKp = 1.8
-ZKi = 0.3
-ZKd = 1.5
-
-ZKvp = 2.2
-ZKvi = 0.2
-ZKvd = 1.0
-
-Kp = 1.0
-Ki = 0.0
-Kd = 1.0
-
-Kvp = 1.0
-Kvi = 0.0
-Kvd = 0.3
-
-AKp = 0.8
-AKi = 1.1
-AKd = 2.7
-
-AVKp = 0.3
-AVKi = 2.2
-AVKd = 0.0
-
-
 
 [accelerometer]
 frequency = 1000.0
@@ -55,6 +28,9 @@ bias = 0.0
 burst = true
 burstStdDeviation = 0.01
 maxBurstDuration = 1.0
+lat_deg = 34.27264233926578
+long_deg = -118.45680680950842
+alt_m = 0.0
 [gyro]
 frequency = 10.0
 NoisePowerSpectralDensity = 3.0

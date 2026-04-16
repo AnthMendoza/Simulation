@@ -19,4 +19,5 @@ add_subdirectory(missions/hover)
 
 # flight_computer's PID wrapper depends on the PID implementation in MySim.
 # Link after both subdirectories are added so both targets exist.
+# *note PID wrapper is only used in the flight computer tests, so this doesn't create a dependency for the flight computer library itself.
 target_link_libraries(drone PUBLIC MySim)

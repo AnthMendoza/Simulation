@@ -10,24 +10,25 @@
 #include <memory>
 #include <iostream>
 
-namespace SimCore{
+namespace utility{
 namespace log{
-//#define DRONE_LOGGING
 
-#ifdef DRONE_LOGGING
+
+#ifdef VALUE_LOGGING_ENABLED
     #define LOG_SCALAR(channel, time, value) \
-        if (SimCore::log::logger) { \
-            SimCore::log::logger->logData(channel, time, value); \
+        if (utility::log::logger) { \
+            utility::log::logger->logData(channel, time, value); \
         }
     #define LOG_VEC3(channel, time, x, y, z) \
-        if (SimCore::log::logger) { \
-            SimCore::log::logger->logData(channel, time, std::array<float, 3>{x, y, z}); \
+        if (utility::log::logger) { \
+            utility::log::logger->logData(channel, time, std::array<float, 3>{x, y, z}); \
         }
 #else
-    //avoids warnings if called when disabled. prvents the need for more #ifdef
+    //avoids warnings if called when disabled. Prevents the need for more #ifdef
     #define LOG_SCALAR(channel, time, value) ((void)0)
     #define LOG_VEC3(channel, time, x, y, z) ((void)0)
 #endif
+
 
 
 
@@ -38,6 +39,7 @@ using LogData = std::variant<
     std::vector<std::array<float, 3>>,
     std::vector<std::array<double, 3>>
 >;
+
 
 struct LogChannel {
     std::vector<double> timestamps;
@@ -176,8 +178,6 @@ void printSummary() const {
     }
 }
 };
-
-extern std::unique_ptr<dataLogger> logger;
 
 }
 }
