@@ -5,13 +5,15 @@
 ## Overview
 This project implements a modular **flight computer**, **ground station**, and **simulation**. **Missions** characterize high level behaviors. It is designed with performance and flexibility in mind, using modern C++ patterns for real-time or near-real-time systems.
 
+A key focus of this project is high-fidelity simulation, including realistic sensor noise modeling, enabling more accurate testing of estimation and control systems before deployment.
+
 ---
 
 ## Features
 
 * Control system (PID + feedforward / cascaded controllers)
 * State estimation, Kalman Filter (work in progress, [Kalman source documentation](https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python))
-* Simulation environment for testing 
+* Simulation environment for testing with realistic sensor noise injection
 * Telemetry via UDP viewable from a PyQt6 GUI
 * Logging (spdlog integration)
 * Configurable parameters (Transitioning from TOML to [YAML-cpp](https://github.com/jbeder/yaml-cpp))
@@ -83,7 +85,7 @@ update_rates_hz:
 
 Typical flow:
 
-1. Sensor input / simulated data
+1. Sensor input / simulated data (with noise modeling)
 2. State estimation (EKF)
 3. Control (PID / cascaded loops)
 4. Allocation (mapping control to actuators)
@@ -102,7 +104,7 @@ Typical flow:
 
 ## License
 
-> [MIT](LICENSE)
+> [MIT]()
 
 ---
 
