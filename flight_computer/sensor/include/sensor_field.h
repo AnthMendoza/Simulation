@@ -95,7 +95,7 @@ struct GpsData {
     // --- raw output ---
     double  latitude_deg;
     double  longitude_deg;
-    float   altitude_msl_m;
+    double   altitude_msl_m;
     fc_units::vec3 velocity_ned_ms;   // North-East-Down velocity
 
     // --- state-estimation metadata ---

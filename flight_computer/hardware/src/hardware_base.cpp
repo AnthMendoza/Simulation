@@ -3,5 +3,5 @@
 
 
 avionics::sensor::SensorField avionics::hardware_base::get_field(){
-
+    return field;
 }

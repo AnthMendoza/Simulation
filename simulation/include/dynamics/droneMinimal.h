@@ -18,6 +18,7 @@
 #include "../sim/sim_to_flight.h"
 #include <actual_state.h>
 #include <sensor_field.h>
+#include <GeographicLib/LocalCartesian.hpp>
 
 
 
@@ -39,7 +40,6 @@ class drone :  public Vehicle{
     unique_ptr<battery> droneBattery;
 
     indexCoordinates index;
-
     
     
     void dataLog();

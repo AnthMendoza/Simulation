@@ -2,6 +2,8 @@
 
 #include <GeographicLib/LocalCartesian.hpp>
 
+namespace avionics::sensor{
+
 struct gps_coordinate {
     double latitude;
     double longitude;
@@ -77,3 +79,5 @@ public:
         };
     }
 };
+
+}

@@ -2,6 +2,7 @@
 #include <array>
 #include <stdint.h>
 #include <base/base.h>
+#include <gps.h>
 
 namespace SimCore{
 //simple due to single IMU and gyro. more complex systems have mulitple sensors.
@@ -21,9 +22,7 @@ struct simpleSensorPacket{
     struct GPS {
         std::string identifier = "GNSS";
         units::vec3 relativePosition;
-        double latitude;
-        double longitude;
-        float altitude;
+        avionics::sensor::gps_coordinate coordinate;
         units::vec3 velocity;
         float hdop;
         float vdop;

@@ -71,23 +71,13 @@ target_include_directories(MySim
 
 
 # Tests
-enable_testing()
-add_executable(tests
-    #tests/tests.cpp
-    #tests/testPoseRotation.cpp
-    tests/quaternionTests.cpp
-    tests/timeManagerTest.cpp
-    tests/airframeConfigParserTest.cpp
-    #tests/stateEstimationTest.cpp
-    #tests/PIDControllerTest.cpp
-    #tests/momentValidationTest.cpp
-    #tests/PIDDroneControllerTest.cpp
-    #tests/poseRotationTest.cpp
-    #tests/PIDAOTTest.cpp
-)
+#enable_testing()
+#add_executable(tests
+#
+#)
 
 # Link MySim and Python into all executables
-foreach(TARGET tests)
+foreach(TARGET )
     target_link_libraries(${TARGET}
         PUBLIC
         MySim
@@ -97,5 +87,5 @@ foreach(TARGET tests)
 endforeach()
 
 # GoogleTest for tests
-target_link_libraries(tests PUBLIC gtest gtest_main)
-add_test(NAME SimTests COMMAND tests)
+#target_link_libraries(tests PUBLIC gtest gtest_main)
+#add_test(NAME SimTests COMMAND tests)

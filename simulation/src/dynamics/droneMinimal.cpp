@@ -248,15 +248,19 @@ void drone::publish_simulation() {
     const auto& sensor_data = sensors->getSensorData();
 
     if (field.accel.size() > 0) {
-        auto& accel = field.accel[0].emplace();
+        auto& accel = field.accel[0];
 
 
-        accel.accel_mss = sensor_data.accelerometer.data;
+        accel->accel_mss = sensor_data.accelerometer.data;
     }
 
     if (field.gps.size() > 0) {
-        auto& gps = field.gps[0].emplace();
-
+        auto& gps = field.gps[0];
+        
+        auto& cord = sensor_data.gps.coordinate;
+        gps->latitude_deg = cord.latitude;
+        gps->longitude_deg = cord.longitude;
+        gps->altitude_msl_m = cord.altitude;
     }
     bridge->hardware_publish(field);
 }

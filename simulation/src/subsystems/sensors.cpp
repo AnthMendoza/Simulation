@@ -81,9 +81,13 @@ units::scalar sensor::burstNoise(units::scalar currentTime){
 
 
 
-GNSS::GNSS(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias):sensor(frequency , NoisePowerSpectralDensity , bandwidth , bias){
+GNSS::GNSS(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias , avionics::sensor::gps_coordinate gps)
+    :sensor(frequency , NoisePowerSpectralDensity , bandwidth , bias),
+    gpsCordOrigin(gps)
+    {
     lastPosition = {0,0,0};
     lastSample = 0;
+    geographicCartesian = std::make_shared<GeographicLib::LocalCartesian>(gpsCordOrigin.latitude,gpsCordOrigin.longitude,gpsCordOrigin.altitude);
 }
 
 void GNSS::sample(Vehicle *vehicle ) {
@@ -98,6 +102,9 @@ void GNSS::sample(Vehicle *vehicle ) {
         }
         lastSample = time;
         for (int i = 0; i < 3; i++) lastPosition[i] = gpsPosition[i];
+        gpsCordCurrent = gpsCordOrigin;
+        geographicCartesian->Reverse(gpsPosition[0],gpsPosition[1],gpsPosition[2],
+            gpsCordCurrent.latitude,gpsCordCurrent.longitude,gpsCordCurrent.altitude);
     }
 }
 
@@ -105,6 +112,9 @@ units::vec3 GNSS::read(){
     return gpsPosition;
 }
 
+avionics::sensor::gps_coordinate GNSS::readGNSS(){
+    return gpsCordCurrent;
+}
 
 gyroscope::gyroscope(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias):sensor(frequency , NoisePowerSpectralDensity , bandwidth , bias){
     

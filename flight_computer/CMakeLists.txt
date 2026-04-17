@@ -1,6 +1,3 @@
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_VERBOSE_MAKEFILE ON)
 find_package(Threads REQUIRED)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -99,8 +96,10 @@ target_link_libraries(drone
     flight_computer_library
 )
 
+enable_testing()
 add_executable(flight_tests
-    tests/test.cpp
+    tests/flight_computer_test.cpp
+    tests/airframe_config_parser_test.cpp
 )
 
 target_link_libraries(flight_tests
@@ -110,6 +109,7 @@ target_link_libraries(flight_tests
 
 target_link_libraries(flight_tests
     PRIVATE
-    GTest::gtest
-    GTest::gtest_main
+    gtest
+    gtest_main
 )
+add_test(NAME flight_tests COMMAND flight_tests)

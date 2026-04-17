@@ -1,15 +1,29 @@
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+find_package(Eigen3 3.4 QUIET CONFIG)
 include(FetchContent)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 FetchContent_Declare(
-    eigen
-    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-    GIT_TAG 3.4.0
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.12.1
 )
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
-FetchContent_MakeAvailable(eigen)
+
+
+
+if(NOT TARGET Eigen3::Eigen)
+    FetchContent_Declare(
+        eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG 3.4.0
+    )
+    FetchContent_Populate(eigen)
+endif()
 
 
 FetchContent_Declare(
@@ -46,7 +60,8 @@ set(BASE_SRC
     src/base/transpose.cpp
 )
 
-add_library(core STATIC
+add_library(core
+    STATIC
     ${UTIL_SRC}
     ${BASE_SRC}
 )
@@ -69,3 +84,21 @@ target_include_directories(core
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         ${Python3_INCLUDE_DIRS}
 )
+
+enable_testing()
+add_executable(core_tests
+    tests/test_main.cpp
+    tests/time_manager_test.cpp
+    tests/matrix_test.cpp
+    tests/pose_rotation_test.cpp
+    tests/quaternion_test.cpp
+)
+
+target_link_libraries(core_tests
+    PUBLIC
+    core
+    gtest
+    gtest_main
+)
+
+add_test(NAME core_tests COMMAND core_tests)

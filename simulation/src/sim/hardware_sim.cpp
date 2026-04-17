@@ -12,11 +12,6 @@ void hardware_sim::set_field(){
 
 void hardware_sim::thread_process(){
     set_field();
-
-    const auto published_field = sensor_buffer.read();
-    if (published_field.accel[0].has_value()) {
-        const auto& accel = published_field.accel[0].value().accel_mss;
-    }
 }
 
 void hardware_sim::thread_startup_process(){

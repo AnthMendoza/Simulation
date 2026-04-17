@@ -1,6 +1,8 @@
 #include "../../include/subsystems/droneSensorSuite.h"
 #include "../../include/subsystems/sensors.h"
 #include <util/toml.h>
+#include <gps.h>
+
 using namespace SimCore;
 
 droneSensorSuite::droneSensorSuite(std::string& configFile){
@@ -26,11 +28,17 @@ droneSensorSuite::droneSensorSuite(std::string& configFile){
     toml::tomlParse gpsParse;
     gpsParse.parseConfig( configFile,packet.gps.identifier);
 
+    avionics::sensor::gps_coordinate gpsCord{
+        gpsParse.getFloat("lat_deg"),
+        gpsParse.getFloat("long_deg"),
+        gpsParse.getFloat("alt_m")};
+
     std::shared_ptr<SimCore::GNSS> gps = std::make_shared<SimCore::GNSS>(
         gpsParse.getFloat("frequency"),
         gpsParse.getFloat("NoisePowerSpectralDensity"),
         gpsParse.getFloat("bandwidth"),
-        gpsParse.getFloat("bias")
+        gpsParse.getFloat("bias"),
+        gpsCord
     );
 
     if (gpsParse.getBool("burst") == true) {
@@ -89,7 +97,8 @@ void droneSensorSuite::updateGPSPacket() {
 
         gpsPtr = gpsShared;
     }
-    packet.gps.relativePosition = gpsShared->read();
+
+    packet.gps.coordinate = gpsShared->readGNSS();
     packet.gps.timestamp = gpsShared->getTimeOfSample();
 }
 

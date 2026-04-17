@@ -7,6 +7,7 @@
 #include <random>
 #include <optional>
 #include <base/base.h>
+#include <gps.h>
 
 namespace SimCore{
 class Vehicle;
@@ -89,13 +90,18 @@ class sensorSuite{
 };
 
 
+#include <GeographicLib/LocalCartesian.hpp>
+
 class GNSS : public sensor{
     private:
     units::vec3 gpsPosition;
     units::vec3 velocity;
     units::vec3 lastPosition;
+    avionics::sensor::gps_coordinate gpsCordOrigin;
+    avionics::sensor::gps_coordinate gpsCordCurrent;
+    std::shared_ptr<GeographicLib::LocalCartesian> geographicCartesian;
     public:
-    GNSS(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias);
+    GNSS(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias ,avionics::sensor::gps_coordinate gps);
     std::unique_ptr<sensor> clone() const override {
         return std::make_unique<GNSS>(*this);
     }
@@ -108,6 +114,7 @@ class GNSS : public sensor{
     inline void setGNSSVelocity(units::vec3 velo){
         velocity = velo;
     }
+    avionics::sensor::gps_coordinate readGNSS();
 };
 
 class accelerometer : public sensor{
