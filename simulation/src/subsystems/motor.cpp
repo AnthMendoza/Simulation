@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <assert.h>
+#include <util/yaml.h>
 
 namespace SimCore{
 motor::motor(std::string& config){
@@ -45,22 +46,26 @@ motor::~motor() {
 }
 
 void motor::init(std::string& config){
-    toml::tomlParse mParse;
-    mParse.parseConfig(config ,"motor");
-    freeSpeedAngularVelocity   = mParse.getFloat("freeSpeedAngularVelocity");
-    stallTorque    = mParse.getFloat("stallTorque");          
-    currentLimit   = mParse.getFloat("currentLimit");      
-    noLoadCurrent  = mParse.getFloat("noLoadCurrent");   
-    coilResistance = mParse.getFloat("coilResistance");
-    voltage        = mParse.getFloat("voltage");           
-    kv             = mParse.getFloat("kv");                  ;
-    dampingCoeff   = mParse.getFloat("dampingCoeff");
-    maxVoltage     = mParse.getFloat("maxVoltage");
-    inertia        = mParse.getFloat("inertia");
+    YAML::Node node = YAML::LoadFile(config);
+    const auto& motor = node["motor"];
+    const auto& pid   = motor["pid"];
 
-    PID = std::make_unique<PIDController>(  mParse.getFloat("kp"),
-                                            mParse.getFloat("ki"),
-                                            mParse.getFloat("kd"));
+    freeSpeedAngularVelocity = utility::getRequired<float>(motor, "freeSpeedAngularVelocity", "motor");
+    stallTorque              = utility::getRequired<float>(motor, "stallTorque", "motor");
+    currentLimit             = utility::getRequired<float>(motor, "currentLimit", "motor");
+    noLoadCurrent            = utility::getRequired<float>(motor, "noLoadCurrent", "motor");
+    coilResistance           = utility::getRequired<float>(motor, "coilResistance", "motor");
+    voltage                  = utility::getRequired<float>(motor, "voltage", "motor");
+    kv                       = utility::getRequired<float>(motor, "kv", "motor");
+    dampingCoeff             = utility::getRequired<float>(motor, "dampingCoeff", "motor");
+    maxVoltage               = utility::getRequired<float>(motor, "maxVoltage", "motor");
+    inertia                  = utility::getRequired<float>(motor, "inertia", "motor");
+
+    PID = std::make_unique<PIDController>(
+        utility::getRequired<float>(pid, "kp", "motor.pid"),
+        utility::getRequired<float>(pid, "ki", "motor.pid"),
+        utility::getRequired<float>(pid, "kd", "motor.pid")
+    );
 
 
     PID->setOutputLimits(-1,1);

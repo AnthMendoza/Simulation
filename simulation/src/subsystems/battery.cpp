@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#include <util/yaml.h>
+
 namespace SimCore{
 
     battery::battery(std::string& config){
@@ -38,15 +40,18 @@ namespace SimCore{
     }
 
     void battery::init(std::string& config){
-        toml::tomlParse bParse;
-        bParse.parseConfig( config,"battery");
-        nominalInternalResistance   = bParse.getFloat("nominalInternalResistance");
-        capacityAh                  = bParse.getFloat("capacityAh");
-        nominalVoltage              = bParse.getFloat("nominalVoltage");
-        cellCount                   = bParse.getFloat("cellCount");
-        currentCapacity             = bParse.getFloat("currentCapacity");
-        soc                         = bParse.getFloat("soc");
-        safetyTerminationLevel      = bParse.getFloat("safteyTerminationLevel");
+        YAML::Node configNode = YAML::LoadFile(config);
+
+        const auto& battery = configNode["battery"];
+
+        nominalInternalResistance = utility::getRequired<float>(battery,"nominalInternalResistance","battery");
+        capacityAh                = utility::getRequired<float>(battery,"capacityAh","battery");
+        nominalVoltage            = utility::getRequired<float>(battery,"nominalVoltage","battery");
+        cellCount                 = utility::getRequired<float>(battery,"cellCount","battery");
+        currentCapacity           = utility::getRequired<float>(battery,"currentCapacity","battery");
+        soc                       = utility::getRequired<float>(battery,"soc","battery");
+        safetyTerminationLevel    = utility::getRequired<float>(battery,"safetyTerminationLevel","battery");
+
         voltage = nominalVoltage;
         socVoltage = voltage;
         wattHours = capacityAh * nominalVoltage;

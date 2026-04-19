@@ -99,32 +99,31 @@ Vehicle::Vehicle(const Vehicle& other)
 
 
 void Vehicle::init(string& vehicleConfig){
-    outputFile = "../output.csv";
-    toml::tomlParse vParse;
-    vParse.parseConfig(vehicleConfig,"vehicle");
+    YAML::Node node = YAML::LoadFile(vehicleConfig);
+    const auto& v_node = node["vehicle"];
 
+    outputFile = "../output.csv";
     lastTime = 0.0f;
     // Read initPosition
-    auto pos = vParse.getArray("initPosition");
+    auto pos =  utility::getRequiredArr<units::scalar,3>(v_node,"initPosition","Vehicle init");
     Xposition = pos[0];
     Yposition = pos[1];
     Zposition = pos[2];
 
 
     // MOI
-    auto moiArray = vParse.getArray("MOI");
+    auto moiArray = utility::getRequiredArr<units::scalar,3>(v_node,"MOI","Vehicle init");
     MOI[0] = moiArray[0];
     MOI[1] = moiArray[1];
     MOI[2] = moiArray[2];
 
-    // Mass is deinfed by dryMass + fuel for some vehicles. If mass > 0 it by passes a normal Mass check.
-    if(mass <= 0) mass = vParse.getFloat("mass");
+    mass = utility::getRequired<units::scalar>(v_node,"mass","Vehicle init");
 
     gForce = 0;
     angularVelocity = {0, 0, 0};
 
     // Read initVehicleState
-    auto state = vParse.getArray("initVehicleState");
+    auto state = utility::getRequiredArr<units::scalar,3>(v_node,"initVehicleState","Vehicle init");
 
     vehicleState[0] = state[0];
     vehicleState[1] = state[1];
@@ -132,16 +131,16 @@ void Vehicle::init(string& vehicleConfig){
 
 
     // Read initVelocity
-    auto velo = vParse.getArray("initVelocity");
+    auto velo = utility::getRequiredArr<units::scalar,3>(v_node,"initVelocity","Vehicle init");
     Xvelocity = velo[0];
     Yvelocity = velo[1];
     Zvelocity = velo[2];
 
 
-    gravitationalAcceleration = vParse.getFloat("gravitationalAcceleration"); 
+    gravitationalAcceleration = utility::getRequired<units::scalar>(v_node,"gravitationalAcceleration","Vehicle init");
 
     //Turblant wind Set windvect to mean of turbalant object
-    auto windVect = vParse.getArray("wind");
+    auto windVect = utility::getRequiredArr<units::scalar,3>(v_node,"wind","Vehicle init");
     wind[0] = windVect[0];
     wind[1] = windVect[1];
     wind[2] = windVect[2];
@@ -154,7 +153,6 @@ void Vehicle::init(string& vehicleConfig){
 
     acceleration = {0,0,0};
     
-    timeStep = vParse.getFloat("timeStep");
     // todo 
     //change init vectors to match setup in config file. need computation to ensure init vectors are valid.
 

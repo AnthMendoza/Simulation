@@ -2,7 +2,7 @@
 #include <string>
 #include <array>
 #include <cmath>
-#include <util/toml.h>
+#include <util/yaml.h>
 #include <base/base.h>
 
 
@@ -57,15 +57,16 @@ class propeller{
         return k_f * angularVelocity * angularVelocity;
     }
     //Sets prop attributes to config presets
-    inline void initPropeller(std::string& propellerConfig){
-        toml::tomlParse propParse;
-        propParse.parseConfig(propellerConfig,"propeller");
-        diameter = propParse.getFloat("diameter");
-        massKg = propParse.getFloat("massKg");
-        momentOfInertia = propParse.getFloat("MOI");
-        pitchMeters = propParse.getFloat("pitch");
-        thrustCoefficient = propParse.getFloat("thrustCoefficient");
-        powerCoefficient = propParse.getFloat("powerCoefficient");   
+    void initPropeller(std::string& propellerConfig){
+        YAML::Node node = YAML::LoadFile(propellerConfig);
+        const auto& propeller = node["propeller"];
+
+        diameter          = utility::getRequired<float>(propeller, "diameter", "propeller");
+        massKg            = utility::getRequired<float>(propeller, "massKg", "propeller");
+        momentOfInertia   = utility::getRequired<float>(propeller, "MOI", "propeller");
+        pitchMeters       = utility::getRequired<float>(propeller, "pitch", "propeller");
+        thrustCoefficient = utility::getRequired<float>(propeller, "thrustCoefficient", "propeller");
+        powerCoefficient  = utility::getRequired<float>(propeller, "powerCoefficient", "propeller");
     }
 
     /// @brief 

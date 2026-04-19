@@ -25,6 +25,12 @@ if(NOT TARGET Eigen3::Eigen)
     FetchContent_Populate(eigen)
 endif()
 
+if(NOT TARGET Eigen3::Eigen)
+    add_library(Eigen3::Eigen INTERFACE IMPORTED)
+    target_include_directories(Eigen3::Eigen INTERFACE ${eigen_SOURCE_DIR})
+endif()
+
+
 
 FetchContent_Declare(
   spdlog
@@ -35,11 +41,15 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(spdlog)
 
 
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG yaml-cpp-0.9.0
+)
 
-if(NOT TARGET Eigen3::Eigen)
-    add_library(Eigen3::Eigen INTERFACE IMPORTED)
-    target_include_directories(Eigen3::Eigen INTERFACE ${eigen_SOURCE_DIR})
-endif()
+FetchContent_MakeAvailable(yaml-cpp)
+
+
 
 
 
@@ -92,6 +102,7 @@ add_executable(core_tests
     tests/matrix_test.cpp
     tests/pose_rotation_test.cpp
     tests/quaternion_test.cpp
+    tests/yaml_h_test.cpp
 )
 
 target_link_libraries(core_tests
@@ -99,6 +110,7 @@ target_link_libraries(core_tests
     core
     gtest
     gtest_main
+    yaml-cpp::yaml-cpp
 )
 
 add_test(NAME core_tests COMMAND core_tests)

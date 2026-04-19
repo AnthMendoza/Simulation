@@ -59,12 +59,9 @@ struct airframe_config {
 
 class airframe_config_parser{
 public:
-    static airframe_config fromToml(
-        const std::string& configText,
-        const std::filesystem::path& baseDirectory = {}
-    );
 
     static airframe_config fromFile(const std::string& filePath);
+    
 };
 
 }

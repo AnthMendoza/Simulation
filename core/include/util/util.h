@@ -9,3 +9,4 @@
 #include "scheduler.h"
 #include "thread_manager.h"
 #include "PIDController.h"
+#include "yaml.h"

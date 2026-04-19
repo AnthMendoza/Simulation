@@ -21,29 +21,28 @@ int main(){
 
     SimCore::drone drone_m;
 
-    std::string mission_path = std::string(HOVER_DIR);
+    std::string mission_path = std::string(HOVER_DIR) + "/configs/";
 
-    auto config_battery = utility::readFileAsString(mission_path + "/configs/battery.toml");
-    drone_m.set_battery<SimCore::battery>(config_battery);
+    auto battery_path = mission_path + "battery.yaml";
+    drone_m.set_battery<SimCore::battery>(battery_path);
 
-    auto config_drone = utility::readFileAsString(mission_path + "/configs/drone.toml");
+    auto config_drone = mission_path + "drone.yaml";
     drone_m.initDrone(config_drone);
 
-    auto config_propeller = utility::readFileAsString(mission_path + "/configs/propeller.toml");
-    auto config_motor = utility::readFileAsString(mission_path + "/configs/motor.toml");
-
-    SimCore::propeller prop(config_propeller);
-    SimCore::motor mot(config_motor);
+    auto propeller_path = mission_path + "propeller.yaml";
+    auto motor_path = mission_path + "motor.yaml";
+    SimCore::propeller prop(propeller_path);
+    SimCore::motor mot(motor_path);
 
     auto motor_prop = SimCore::setSquare(0.3f,0.3f,prop,mot);
     drone_m.addMotorsAndProps(motor_prop);
 
     // --------------- Flight Computer ----------------
     
-    avionics::flight_computer computer(10, mission_path + "/configs/drone.toml");
+    avionics::flight_computer computer(10, mission_path + "drone.yaml");
 
-    auto config_telemetry_path = mission_path + "/configs/telemetry.toml";
-    auto config_pid_path = mission_path + "/configs/controller.yaml";
+    auto config_telemetry_path = mission_path + "telemetry.toml";
+    auto config_pid_path = mission_path + "controller.yaml";
 
     computer.set_controller<avionics::pid::controller_pid>(config_pid_path);
     computer.set_telemetry<avionics::telemetry>(config_telemetry_path);
