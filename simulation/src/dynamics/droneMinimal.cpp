@@ -247,22 +247,25 @@ void drone::publish_simulation() {
 
     const auto& sensor_data = sensors->getSensorData();
 
-    if (field.accel.size() > 0) {
-        auto& accel = field.accel[0];
+    // --------- IMU ---------
 
+    auto& accel = field.accel[0].emplace();
+    accel.accel_mss = sensor_data.accelerometer.data;
 
-        accel->accel_mss = sensor_data.accelerometer.data;
-    }
+    // --------- gps ---------
 
-    if (field.gps.size() > 0) {
-        auto& gps = field.gps[0];
-        
-        auto& cord = sensor_data.gps.coordinate;
-        gps->latitude_deg = cord.latitude;
-        gps->longitude_deg = cord.longitude;
-        gps->altitude_msl_m = cord.altitude;
-    }
+    auto& gps = field.gps[0].emplace(); // emplace defaults constructs the underlying struct wrapped in std::optional
+    auto& cord = sensor_data.gps.coordinate;
+    gps.latitude_deg   = cord.latitude;
+    gps.longitude_deg  = cord.longitude;
+    gps.altitude_msl_m = cord.altitude;
+
+    gps.velocity_ned_ms =  sensor_data.gps.velocity;
+
     bridge->hardware_publish(field);
+
+
+
 }
 
 

@@ -60,8 +60,9 @@ void avionics::pid::controller_pid::parse_gains(const std::string path){
 
 void avionics::pid::controller_pid::position(float time){
 
-    if(last_call_time.position == 0){
+    if(!initialized_position) [[unlikely]] {
         last_call_time.position = time;
+        initialized_position = true;
         return;
     }
 
@@ -82,8 +83,9 @@ void avionics::pid::controller_pid::position(float time){
 
 void avionics::pid::controller_pid::velocity(float time){
 
-    if(last_call_time.velocity == 0){
+    if(!initialized_velocity) [[unlikely]] {
         last_call_time.velocity = time;
+        initialized_velocity = true;
         return;
     }
 
@@ -102,7 +104,10 @@ void avionics::pid::controller_pid::velocity(float time){
 
 
 void avionics::pid::controller_pid::acceleration(float time){
-    float dt = time - last_call_time.acceleration;
+    if(!initialized_acceleration) [[unlikely]]{
+        float dt = time - last_call_time.acceleration;
+        initialized_acceleration = true;
+    }
 
     for(int i = 0 ; i < 3 ; i++){
         subroutine.delta_acceleration[i] =  subroutine.req_acceleration[i] - vehicle_state.velocity[i];
@@ -114,8 +119,10 @@ void avionics::pid::controller_pid::acceleration(float time){
 
 
 void avionics::pid::controller_pid::angle_of_attack(float time){
-    float dt = time - last_call_time.angle_of_attack;
-
+    if(!initialized_aot) [[unlikely]]{
+        float dt = time - last_call_time.angle_of_attack;
+        initialized_aot = true;
+    }
 
 
     last_call_time.angle_of_attack = time;
@@ -123,7 +130,7 @@ void avionics::pid::controller_pid::angle_of_attack(float time){
 
 
 void avionics::pid::controller_pid::set_telemetry(float time){
-    subroutine.print(logger);
+
 }
 
 void avionics::pid::controller_pid::get_hardware(){

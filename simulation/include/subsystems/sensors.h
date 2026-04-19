@@ -95,26 +95,52 @@ class sensorSuite{
 class GNSS : public sensor{
     private:
     units::vec3 gpsPosition;
-    units::vec3 velocity;
     units::vec3 lastPosition;
     avionics::sensor::gps_coordinate gpsCordOrigin;
     avionics::sensor::gps_coordinate gpsCordCurrent;
-    std::shared_ptr<GeographicLib::LocalCartesian> geographicCartesian;
+    GeographicLib::LocalCartesian geographicCartesian;
+
+    class GNSSVelocity: public sensor{
+        units::vec3 gpsVelocity;
+        public:
+        GNSSVelocity(
+            units::scalar frequency,
+            units::scalar NoisePowerSpectralDensity,
+            units::scalar bandwidth,
+            units::scalar bias
+        );
+
+        std::unique_ptr<sensor> clone() const override {
+            return std::make_unique<GNSSVelocity>(*this);
+        }
+        void sample(Vehicle *vehicle) override; 
+
+        units::vec3 read() override;
+    };
+    std::unique_ptr<GNSSVelocity> velocitySensor;
+
     public:
-    GNSS(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias ,avionics::sensor::gps_coordinate gps);
+    GNSS(units::scalar frequency,
+        units::scalar NoisePowerSpectralDensity,
+        units::scalar bandwidth,
+        units::scalar bias,
+        units::scalar velocityNoisePowerSpectralDensity,
+        units::scalar velocityBandwidth,
+        units::scalar velocityBias,
+        avionics::sensor::gps_coordinate gps
+    );
+
+    GNSS(const GNSS& other);
+
     std::unique_ptr<sensor> clone() const override {
-        return std::make_unique<GNSS>(*this);
+
+        return std::make_unique<GNSS>(GNSS(*this));
     }
 
     void sample(Vehicle *vehicle) override; 
-    units::vec3  read() override;
-    inline units::vec3 getVelocity(){
-        return velocity;
-    }
-    inline void setGNSSVelocity(units::vec3 velo){
-        velocity = velo;
-    }
+    units::vec3 read() override;
     avionics::sensor::gps_coordinate readGNSS();
+    units::vec3 readGNSSVelocity();
 };
 
 class accelerometer : public sensor{

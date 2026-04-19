@@ -38,6 +38,9 @@ droneSensorSuite::droneSensorSuite(std::string& configFile){
         gpsParse.getFloat("NoisePowerSpectralDensity"),
         gpsParse.getFloat("bandwidth"),
         gpsParse.getFloat("bias"),
+        gpsParse.getFloat("velocityNoisePowerSpectralDensity"),
+        gpsParse.getFloat("velocityBandwidth"),
+        gpsParse.getFloat("velocityBias"),
         gpsCord
     );
 
@@ -100,6 +103,7 @@ void droneSensorSuite::updateGPSPacket() {
 
     packet.gps.coordinate = gpsShared->readGNSS();
     packet.gps.timestamp = gpsShared->getTimeOfSample();
+    packet.gps.velocity = gpsShared->readGNSSVelocity();
 }
 
 

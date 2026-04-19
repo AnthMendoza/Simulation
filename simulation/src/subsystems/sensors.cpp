@@ -81,13 +81,41 @@ units::scalar sensor::burstNoise(units::scalar currentTime){
 
 
 
-GNSS::GNSS(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias , avionics::sensor::gps_coordinate gps)
+GNSS::GNSS(units::scalar frequency,
+        units::scalar NoisePowerSpectralDensity,
+        units::scalar bandwidth,
+        units::scalar bias,
+        units::scalar velocityNoisePowerSpectralDensity,
+        units::scalar velocityBandwidth,
+        units::scalar velocityBias,
+        avionics::sensor::gps_coordinate gps)
     :sensor(frequency , NoisePowerSpectralDensity , bandwidth , bias),
     gpsCordOrigin(gps)
     {
     lastPosition = {0,0,0};
     lastSample = 0;
-    geographicCartesian = std::make_shared<GeographicLib::LocalCartesian>(gpsCordOrigin.latitude,gpsCordOrigin.longitude,gpsCordOrigin.altitude);
+    geographicCartesian = GeographicLib::LocalCartesian(gpsCordOrigin.latitude,gpsCordOrigin.longitude,gpsCordOrigin.altitude);
+
+    velocitySensor = std::make_unique<GNSSVelocity>(
+        frequency,
+        velocityNoisePowerSpectralDensity,
+        velocityBandwidth,
+        velocityBias
+    );
+}
+
+GNSS::GNSS(const GNSS& other)
+    : sensor(other)
+    , gpsPosition(other.gpsPosition)
+    , lastPosition(other.lastPosition)
+    , gpsCordOrigin(other.gpsCordOrigin)
+    , gpsCordCurrent(other.gpsCordCurrent)
+    , geographicCartesian(other.geographicCartesian)
+    , velocitySensor(nullptr){
+    auto clone = other.velocitySensor->clone();
+    velocitySensor = std::unique_ptr<GNSSVelocity>(static_cast<GNSSVelocity*>(clone.release()));
+
+
 }
 
 void GNSS::sample(Vehicle *vehicle ) {
@@ -97,14 +125,16 @@ void GNSS::sample(Vehicle *vehicle ) {
         gpsPosition[0] = applyNoise(pos[0], time );
         gpsPosition[1] = applyNoise(pos[1], time );
         gpsPosition[2] = applyNoise(pos[2], time );
-        if(lastSample > 0 ){
-            for(int i = 0 ; i < 3 ; i++) velocity[i] = (gpsPosition[i] - lastPosition[i])/ (time-lastSample);
-        }
-        lastSample = time;
+        
         for (int i = 0; i < 3; i++) lastPosition[i] = gpsPosition[i];
         gpsCordCurrent = gpsCordOrigin;
-        geographicCartesian->Reverse(gpsPosition[0],gpsPosition[1],gpsPosition[2],
+        geographicCartesian.Reverse(gpsPosition[0],gpsPosition[1],gpsPosition[2],
             gpsCordCurrent.latitude,gpsCordCurrent.longitude,gpsCordCurrent.altitude);
+
+
+        velocitySensor->sample(vehicle);
+
+        lastSample = time;
     }
 }
 
@@ -115,6 +145,32 @@ units::vec3 GNSS::read(){
 avionics::sensor::gps_coordinate GNSS::readGNSS(){
     return gpsCordCurrent;
 }
+
+units::vec3 GNSS::readGNSSVelocity(){
+    return velocitySensor->read();
+}
+
+
+GNSS::GNSSVelocity::GNSSVelocity(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias)
+:sensor(frequency , NoisePowerSpectralDensity , bandwidth , bias){
+
+}
+
+void GNSS::GNSSVelocity::sample(Vehicle* vehicle){
+    units::scalar time = vehicle->getTime();
+    if(time - lastSample >= hz){
+        auto velo = vehicle->getVelocityVector();
+        gpsVelocity[0] = applyNoise(velo[0], time );
+        gpsVelocity[1] = applyNoise(velo[1], time );
+        gpsVelocity[2] = applyNoise(velo[2], time );
+        lastSample = time;
+    }
+}
+
+units::vec3 GNSS::GNSSVelocity::read(){
+    return gpsVelocity; 
+}
+
 
 gyroscope::gyroscope(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias):sensor(frequency , NoisePowerSpectralDensity , bandwidth , bias){
     

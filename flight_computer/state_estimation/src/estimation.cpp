@@ -19,11 +19,6 @@ void avionics::estimation::estimation::calculate_state(){
     sensor_field_packet sensor_pack = sensor_buffer.read();
 
     const auto& gps_data = sensor_pack.gps[0];
-    if (!gps_data.has_value()) {
-        SPDLOG_LOGGER_WARN(logger, "No GPS sample available in sensor buffer");
-        return;
-    }
-
     SPDLOG_LOGGER_INFO(
         logger,
         "GPS LAT: {}, LONG: {}, ALT: {}",
@@ -31,6 +26,24 @@ void avionics::estimation::estimation::calculate_state(){
         gps_data->longitude_deg,
         gps_data->altitude_msl_m
     );
+
+    const auto& accel = sensor_pack.accel[0];
+    SPDLOG_LOGGER_INFO(
+        logger,
+        "accel : {}, {}, {}",
+        accel->accel_mss[0],
+        accel->accel_mss[1],
+        accel->accel_mss[2]
+    );
+
+    SPDLOG_LOGGER_INFO(
+        logger,
+        "Velocity : {}, {}, {}",
+        gps_data->velocity_ned_ms[0],
+        gps_data->velocity_ned_ms[1],
+        gps_data->velocity_ned_ms[2]
+    );
+
 
 }
 

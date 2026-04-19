@@ -31,6 +31,11 @@ maxBurstDuration = 1.0
 lat_deg = 34.27264233926578
 long_deg = -118.45680680950842
 alt_m = 0.0
+
+velocityNoisePowerSpectralDensity = 0.01
+velocityBandwidth = 100.0
+velocityBias = 0.0
+
 [gyro]
 frequency = 10.0
 NoisePowerSpectralDensity = 3.0

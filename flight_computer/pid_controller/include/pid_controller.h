@@ -31,6 +31,11 @@ namespace avionics{
 
             std::shared_ptr<controlAllocator> allocate_thrust;
 
+            bool initialized_position = false;
+            bool initialized_velocity = false;
+            bool initialized_acceleration = false;
+            bool initialized_aot = false;
+
             struct subroutine_translation_layer{
 
                 fc_units::vec3 delta_position;
