@@ -1,9 +1,9 @@
-#include "../../include/subsystems/battery.h"
-#include <util/toml.h>
+#include <battery.h>
 #include <algorithm>
 #include <vector>
 #include <iostream>
 #include <util/yaml.h>
+#include <battery_modeling.h>
 
 namespace SimCore{
 
@@ -49,8 +49,8 @@ namespace SimCore{
         nominalVoltage            = utility::getRequired<float>(battery,"nominalVoltage","battery");
         cellCount                 = utility::getRequired<float>(battery,"cellCount","battery");
         currentCapacity           = utility::getRequired<float>(battery,"currentCapacity","battery");
-        soc                       = utility::getRequired<float>(battery,"soc","battery");
         safetyTerminationLevel    = utility::getRequired<float>(battery,"safetyTerminationLevel","battery");
+
 
         voltage = nominalVoltage;
         socVoltage = voltage;
@@ -70,6 +70,13 @@ namespace SimCore{
             float dt = currentTimeSeconds - lastTimeSeconds;
             deltaAh = (currentDraw * dt) / 3600.0f;
         }
+
+        if(firstSample){
+            //big assumption, no major current draw on startup
+            auto calcSoc = mv_to_soc(static_cast<uint16_t>(voltage*1000));
+
+        }
+
         firstSample = false;
         lastTimeSeconds = currentTimeSeconds;
 
@@ -77,7 +84,8 @@ namespace SimCore{
             capacityAh = .01;
             std::cout<<"Battery is dead";
         }
-        soc -= deltaAh / capacityAh;
+        
+
 
         updateVoltage(current);
     }
@@ -86,7 +94,7 @@ namespace SimCore{
     float battery::getRemainingCapacityAh() const{
         return soc * capacityAh;
     }
-    //reduce voltage based on current demand. All batteries have voltage sag associated with the inetal Resistance
+    //reduce voltage based on current demand. All batteries have voltage sag associated with the internal Resistance
     void battery::updateVoltage(float current){
         current = abs(current);
         currentDraw = current;
@@ -96,5 +104,9 @@ namespace SimCore{
         }
 
         voltage = socVoltage - (currentDraw * nominalInternalResistance);
+    }
+
+    float battery::calculateInternalVoltageDrop(float current) const{
+
     }
 }

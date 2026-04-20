@@ -54,6 +54,10 @@ class sensor{
         return lastSample;
     }
 
+    inline const uint64_t getTimeOfSampleUS() const{
+        return core::time::s_to_us<units::scalar,uint64_t>(lastSample);
+    }
+
 };
 
 template<typename sensorPacketType>

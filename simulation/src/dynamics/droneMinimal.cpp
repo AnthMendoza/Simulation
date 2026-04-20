@@ -1,6 +1,4 @@
 #include "../../include/dynamics/droneMinimal.h"
-#include "../../include/subsystems/battery.h"
-
 #include "../../include/dynamics/aero.h"
 #include "../../include/subsystems/propeller.h"
 #include "../../include/subsystems/motor.h"
@@ -251,6 +249,7 @@ void drone::publish_simulation() {
 
     auto& accel = field.accel[0].emplace();
     accel.accel_mss = sensor_data.accelerometer.data;
+    accel.timestamp_us = sensor_data.accelerometer.timestamp;
 
     // --------- gps ---------
 
@@ -261,10 +260,16 @@ void drone::publish_simulation() {
     gps.altitude_msl_m = cord.altitude;
 
     gps.velocity_ned_ms =  sensor_data.gps.velocity;
+    gps.timestamp_us = sensor_data.gps.timestamp;
+
+    // --------- gyro ---------
+
+    auto& gyro = field.gyro[0].emplace();
+
+    gyro.gyro_rads = sensor_data.gyro.rotationRate;
+    gyro.timestamp_us = sensor_data.gyro.timestamp;
 
     bridge->hardware_publish(field);
-
-
 
 }
 

@@ -53,7 +53,7 @@ set(HARDWARE_SRC
     hardware/src/hardware_base.cpp
     hardware/src/gps.cpp
     hardware/src/airframe_config.cpp
-
+    hardware/src/battery.cpp
 )
 
 add_library(flight_computer_library STATIC
@@ -100,6 +100,7 @@ enable_testing()
 add_executable(flight_tests
     tests/flight_computer_test.cpp
     tests/airframe_config_parser_test.cpp
+    tests/battery_model_test.cpp
 )
 
 target_link_libraries(flight_tests

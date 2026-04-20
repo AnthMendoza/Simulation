@@ -23,6 +23,7 @@ private:
     float currentDraw;                   // Current draw/charge rate (A)
     float cycleCount;                    // Number of charge/discharge cycles
     float socVoltage;
+    float initalVoltage;
     
     // Safety and limits
     float safetyTerminationLevel;        // SOC where battery is no longer usable
@@ -40,6 +41,7 @@ private:
     // Internal methods
     float calculateVoltageFromSOC(float soc) const;
     float calculateInternalVoltageDrop(float current) const;
+    // need a thermal model.
     void updateTemperature(float current, float deltaTime);
     bool checkSafetyLimits() const;
     void updateVoltage(float current);
@@ -83,8 +85,12 @@ public:
     }                    // Current draw/charge rate
     
     // Capacity and specifications
-    inline float getTotalCapacityAh() const;
-    inline float getTotalEnergyWh() const;
+    inline float getTotalCapacityAh() const{
+        return capacityAh;
+    }
+    inline float getTotalEnergyWh() const{
+        return wattHours;
+    }
 
     //Nominal Cell voltage is 3.7
     inline float getNominalVoltage() const{

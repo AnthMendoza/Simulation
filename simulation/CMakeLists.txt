@@ -40,7 +40,6 @@ set(CONTROL_SRC
 
 set(SUBSYSTEMS_SRC
     src/subsystems/sensors.cpp
-    src/subsystems/battery.cpp
     src/subsystems/motor.cpp
     src/subsystems/droneDependencyInjector.cpp
     src/subsystems/droneSensorSuite.cpp

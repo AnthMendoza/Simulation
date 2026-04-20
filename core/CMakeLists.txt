@@ -103,6 +103,7 @@ add_executable(core_tests
     tests/pose_rotation_test.cpp
     tests/quaternion_test.cpp
     tests/yaml_h_test.cpp
+    tests/time.cpp
 )
 
 target_link_libraries(core_tests

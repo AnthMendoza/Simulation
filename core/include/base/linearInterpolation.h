@@ -6,8 +6,9 @@
 template<typename type>
 
 type linearInterpolate(const std::vector<type>& xData,const std::vector<type>& yData,type xQuery) {
-    if (xData.size() != yData.size() || xData.size() < 2)
-        throw std::invalid_argument("Invalid lookup table size.");
+    if (xData.size() != yData.size() || xData.size() < 2){
+        return type{};
+    }
 
 
     if (xQuery <= xData.front()) return yData.front();
@@ -24,8 +25,7 @@ type linearInterpolate(const std::vector<type>& xData,const std::vector<type>& y
             return y0 + t * (y1 - y0);
         }
     }
-
-    throw std::runtime_error("Interpolation failed.");
+    return type{};
 }
 
 #endif

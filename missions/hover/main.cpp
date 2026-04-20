@@ -1,5 +1,5 @@
 #include <dynamics/droneMinimal.h>
-#include <subsystems/battery.h>
+#include <battery.h>
 #include <subsystems/propeller.h>
 #include <subsystems/motor.h>
 #include <subsystems/droneDependencyInjector.h>

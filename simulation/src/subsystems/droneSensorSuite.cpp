@@ -87,7 +87,7 @@ void droneSensorSuite::updateAccelPacket() {
         accelPtr = accelShared; 
     }
     packet.accelerometer.data = accelShared->read();
-    packet.accelerometer.timestamp = accelShared->getTimeOfSample();
+    packet.accelerometer.timestamp = accelShared->getTimeOfSampleUS();
 }
 
 void droneSensorSuite::updateGPSPacket() {
@@ -104,7 +104,7 @@ void droneSensorSuite::updateGPSPacket() {
     }
 
     packet.gps.coordinate = gpsShared->readGNSS();
-    packet.gps.timestamp = gpsShared->getTimeOfSample();
+    packet.gps.timestamp = gpsShared->getTimeOfSampleUS();
     packet.gps.velocity = gpsShared->readGNSSVelocity();
 }
 
@@ -122,7 +122,7 @@ void droneSensorSuite::updateGyroPacket() {
         gyroPtr = gyroShared;
     }
     packet.gyro.rotationRate = gyroShared->read();
-    packet.gyro.timestamp = gyroShared->getTimeOfSample();
+    packet.gyro.timestamp = gyroShared->getTimeOfSampleUS();
 }
 
 

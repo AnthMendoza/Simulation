@@ -94,7 +94,7 @@ Typical flow:
 ---
 
 ## Roadmap
-
+* [ ] 
 * [ ] Integrate EKF into flight stack
 * [ ] Improve Schedular(transition from std::function to ID dispatch for deterministic behavior)
 * [ ] Test waypoint flight

@@ -2,7 +2,7 @@
 #define DRONEMINIMAL_H
 #include "vehicle.h"
 #include "../subsystems/motor.h"
-#include "../subsystems/battery.h"
+#include <battery.h>
 #include "../subsystems/propeller.h"
 #include "aero.h"
 #include <utility>

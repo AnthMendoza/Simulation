@@ -5,7 +5,7 @@
 
 std::vector<avionics::scheduler_tasks> avionics::estimation::estimation::get_routine(){
     std::vector<avionics::scheduler_tasks> tasks{
-        {"update estimation",  0.03f, [this](float) {calculate_state();}},
+        {"update estimation",  0.1f, [this](float) {calculate_state();}},
         {"get sensor data",  0.03f, [this](float) { get_sensor_data();}}
     };
 
@@ -42,6 +42,22 @@ void avionics::estimation::estimation::calculate_state(){
         gps_data->velocity_ned_ms[0],
         gps_data->velocity_ned_ms[1],
         gps_data->velocity_ned_ms[2]
+    );
+    auto& gyro = sensor_pack.gyro[0];
+    SPDLOG_LOGGER_INFO(
+        logger,
+        "rotation rate : {}, {}, {}",
+        gyro->gyro_rads[0],
+        gyro->gyro_rads[1],
+        gyro->gyro_rads[2]
+    );
+
+    SPDLOG_LOGGER_INFO(
+        logger,
+        "TimeStamps : {}, {}, {}",
+        accel->timestamp_us,
+        gps_data->timestamp_us,
+        gyro->timestamp_us
     );
 
 
