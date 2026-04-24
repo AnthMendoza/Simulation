@@ -3,27 +3,27 @@
 #include <vector>
 #include <memory>
 #include <string>
-namespace SimCore{
+namespace hardware{
 class battery {
 private:
     std::string configBattery;
     // Battery specifications
-    float capacityAh;                    // Battery capacity in Amp-hours
+    float totalCapacityAh,currentCapacityAh;                   // Battery capacity in Amp-hours
     float nominalVoltage;                // Nominal voltage per cell (V)
-    int cellCount;                       // Number of cells in series
+    uint8_t cellCount;                       // Number of cells in series
     float maxVoltagePerCell;             // Maximum voltage per cell (V)
     float minVoltagePerCell;             // Minimum voltage per cell (V)
     float internalResistance;            // Internal resistance (Ohms)
     float nominalInternalResistance;
     float wattHours;                     // Energy capacity in Watt-hours
-    float currentCapacity;
+
     // Battery state
-    float soc;                           // State of charge (0 to 1)
+    uint16_t soc;                        //state of charge percentage soc = 50; => .50 on 0-1 scale
     float voltage;                       // Current voltage (V)
     float currentDraw;                   // Current draw/charge rate (A)
     float cycleCount;                    // Number of charge/discharge cycles
     float socVoltage;
-    float initalVoltage;
+    
     
     // Safety and limits
     float safetyTerminationLevel;        // SOC where battery is no longer usable
@@ -38,18 +38,14 @@ private:
     float totalEnergyCharged;            // Total energy charged (Wh)
     float peakDischargeCurrent;          // Peak discharge current recorded
     
-    // Internal methods
-    float calculateVoltageFromSOC(float soc) const;
     float calculateInternalVoltageDrop(float current) const;
     // need a thermal model.
     void updateTemperature(float current, float deltaTime);
-    bool checkSafetyLimits() const;
     void updateVoltage(float current);
     
 public:
     // Constructors
     battery(std::string& config);
-    battery(const battery& other);
     //battery(float capacityAh, float nominalVoltage, int cellCount, float initialSoc = 1.0f);
     void init(std::string& config);
 
@@ -62,13 +58,18 @@ public:
     inline void setSOC(float level){
         soc = level;
     }
-    void setBatterySpecs(float capacityAh, float nominalVoltage, int cellCount);
+    void setBatterySpecs(float capacityAh, float voltage, int cellCount);
     void setInternalResistance(float resistance);
-    void setSafetyLimits(float terminationLevel, float maxDischargeCurrent, 
-                        float maxChargeCurrent, float maxTemp, float minTemp);
+    void setSafetyLimits(float terminationLevel, float maxDischargeCurrent,float maxChargeCurrent = 10.0f, float maxTemp = 100.0f, float minTemp = 0.0f);
     
     // Battery state update
-    void updateBattery(float current , float currentTimeSeconds);           // Update SOC based on current draw
+    void updateBattery(float current , float currentTimeSeconds); // Update SOC based on current draw
+
+    //voltage in volts
+    void voltageSensorInput(float sensorVoltageV){
+        voltage = sensorVoltageV;
+    }
+
     // State getters
     float getSOC() const{
         return soc;
@@ -78,7 +79,7 @@ public:
     }                        // Current terminal voltage
     float getRemainingCapacityAh() const;            // Remaining capacity
     float getRemainingEnergyWh() const{
-        return capacityAh * getNominalVoltage();
+        return totalCapacityAh* getNominalVoltage();
     }              // Remaining energy
     inline float getCurrentDraw() const{
         return currentDraw;
@@ -86,7 +87,7 @@ public:
     
     // Capacity and specifications
     inline float getTotalCapacityAh() const{
-        return capacityAh;
+        return totalCapacityAh;
     }
     inline float getTotalEnergyWh() const{
         return wattHours;
@@ -95,6 +96,10 @@ public:
     //Nominal Cell voltage is 3.7
     inline float getNominalVoltage() const{
         return 3.7 * cellCount;
+    }
+
+    inline float getVoltage() const{
+        return voltage;
     }
 
     inline int getCellCount() const{
@@ -106,9 +111,15 @@ public:
     
     float getPowerCapability() const;  
 
-    inline bool isCharged() const{                   // Is battery charged
+    inline bool isCharged() const{// Is battery charged
         return charged;
     }
+
+    inline float getSafetyTerminationLevel(){
+        return safetyTerminationLevel;
+    }
+
+    bool manuallySetInitVoltage(float voltageV);
 
     
 };

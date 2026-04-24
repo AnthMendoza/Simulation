@@ -24,7 +24,7 @@ int main(){
     std::string mission_path = std::string(HOVER_DIR) + "/configs/";
 
     auto battery_path = mission_path + "battery.yaml";
-    drone_m.set_battery<SimCore::battery>(battery_path);
+    drone_m.set_battery<hardware::battery>(battery_path);
 
     auto config_drone = mission_path + "drone.yaml";
     drone_m.initDrone(config_drone);

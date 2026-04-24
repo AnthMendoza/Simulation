@@ -12,7 +12,7 @@ namespace SimCore{
 /// @param prop 
 /// @param bat 
 /// @return return in pair. first is the lower limit second is the upper limit of thrust.
-std::pair<float,float> thrustLimits(motor mot, propeller prop, battery bat , float timeStep){
+std::pair<float,float> thrustLimits(motor mot, propeller prop, hardware::battery bat , float timeStep){
     if(timeStep <= 0) throw std::runtime_error("timeStep in thrustLimits cannot be <= 0");
     //air Density at sea level.
     float density = SimCore::airDensity(0);

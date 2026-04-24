@@ -113,7 +113,7 @@ void motor::updateMotor(float timeStep, float loadTorque, float voltage) {
     efficiency = (electricalPower > 0.01f) ? (mechanicalPower / electricalPower): 0.0f;
 }
 
-void motor::updateMotorAngularVelocity(float timeStep , float loadTorque, battery& bat, float rad_sec){
+void motor::updateMotorAngularVelocity(float timeStep , float loadTorque, hardware::battery& bat, float rad_sec){
     PID->setTarget(rad_sec);
     PID->setGains(.5,.2,0); 
     angularVeloRequest = rad_sec;

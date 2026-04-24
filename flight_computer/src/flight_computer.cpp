@@ -19,11 +19,12 @@ avionics::flight_computer::flight_computer(float interval_ms, std::string airfra
     configuration = config_startup(airframeConfigPath);
     logger->set_level(spdlog::level::debug);
     configuration.print_debug(logger);
-    
-    
+
 }
 
+
 avionics::airframe_config avionics::flight_computer::config_startup(const std::string& airframeConfigPath) {
+    
     return make_flight_controller_config(airframeConfigPath);
 }
 

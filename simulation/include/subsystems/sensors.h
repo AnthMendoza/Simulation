@@ -28,7 +28,7 @@ class sensor{
     protected:
     units::scalar sampleFrequency;
     //Time of last sample
-    units::scalar lastSample;
+    units::scalar lastSample = 0;
     //Random are not copyable 
     //thus seed and gen{seed()} delete the constructor 
     std::random_device seed; 

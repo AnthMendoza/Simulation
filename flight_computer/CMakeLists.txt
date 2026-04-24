@@ -101,6 +101,12 @@ add_executable(flight_tests
     tests/flight_computer_test.cpp
     tests/airframe_config_parser_test.cpp
     tests/battery_model_test.cpp
+    tests/battery_test.cpp
+)
+
+target_compile_definitions(flight_tests
+    PUBLIC
+    TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
 target_link_libraries(flight_tests

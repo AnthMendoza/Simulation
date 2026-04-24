@@ -5,38 +5,10 @@
 #include <util/yaml.h>
 #include <battery_modeling.h>
 
-namespace SimCore{
+namespace hardware{
 
     battery::battery(std::string& config){
         init(config);
-    }
-
-    battery::battery(const battery& other) 
-    :   configBattery(other.configBattery),
-        capacityAh(other.capacityAh),
-        nominalVoltage(other.nominalVoltage),
-        cellCount(other.cellCount),
-        maxVoltagePerCell(other.maxVoltagePerCell),
-        minVoltagePerCell(other.minVoltagePerCell),
-        internalResistance(other.internalResistance),
-        nominalInternalResistance(other.nominalInternalResistance),
-        wattHours(other.wattHours),
-        currentCapacity(other.currentCapacity),
-        soc(other.soc),
-        voltage(other.voltage),
-        currentDraw(other.currentDraw),
-        cycleCount(other.cycleCount),
-        socVoltage(other.socVoltage),
-        safetyTerminationLevel(other.safetyTerminationLevel),
-        maxDischargeCurrent(other.maxDischargeCurrent),
-        charged(other.charged),
-        totalEnergyDelivered(other.totalEnergyDelivered),
-        totalEnergyCharged(other.totalEnergyCharged),
-        peakDischargeCurrent(other.peakDischargeCurrent),
-        lastTimeSeconds(0),
-        firstSample(true)
-    {
-        
     }
 
     void battery::init(std::string& config){
@@ -45,17 +17,16 @@ namespace SimCore{
         const auto& battery = configNode["battery"];
 
         nominalInternalResistance = utility::getRequired<float>(battery,"nominalInternalResistance","battery");
-        capacityAh                = utility::getRequired<float>(battery,"capacityAh","battery");
-        nominalVoltage            = utility::getRequired<float>(battery,"nominalVoltage","battery");
+        totalCapacityAh             = utility::getRequired<float>(battery,"totalCapacityAh","battery");
         cellCount                 = utility::getRequired<float>(battery,"cellCount","battery");
-        currentCapacity           = utility::getRequired<float>(battery,"currentCapacity","battery");
+        currentCapacityAh           = utility::getRequired<float>(battery,"currentCapacityAh","battery");
         safetyTerminationLevel    = utility::getRequired<float>(battery,"safetyTerminationLevel","battery");
+        nominalVoltage = cellCount * static_cast<float>(soc_to_mv((uint16_t)100))/1000;
+    }
 
-
-        voltage = nominalVoltage;
-        socVoltage = voltage;
-        wattHours = capacityAh * nominalVoltage;
-
+    static uint16_t calculateSOC(float voltage , uint8_t cellCount){
+        auto adjustedVoltageToCell = voltage * 1000 / static_cast<float>(cellCount);
+        return mv_to_soc(static_cast<uint16_t>(adjustedVoltageToCell));
     }
 
     // Update soc based on current draw. negative means discharge
@@ -67,46 +38,75 @@ namespace SimCore{
     
         float deltaAh = 0;
         if(!firstSample){
-            float dt = currentTimeSeconds - lastTimeSeconds;
+            float dt = std::max(0.0f, currentTimeSeconds - lastTimeSeconds);
+            
             deltaAh = (currentDraw * dt) / 3600.0f;
         }
+        currentCapacityAh -= deltaAh;
 
         if(firstSample){
             //big assumption, no major current draw on startup
-            auto calcSoc = mv_to_soc(static_cast<uint16_t>(voltage*1000));
-
+            soc = calculateSOC(voltage , cellCount);
+            //linear maping from sco to remaining charge 
+            currentCapacityAh = (static_cast<float>(soc)/100) * totalCapacityAh;
+            
         }
 
         firstSample = false;
         lastTimeSeconds = currentTimeSeconds;
 
-        if(capacityAh <= 0 ){
-            capacityAh = .01;
-            std::cout<<"Battery is dead";
+        if(currentCapacityAh <= 0 ){
+            currentCapacityAh = .01;
         }
-        
-
 
         updateVoltage(current);
     }
 
 
     float battery::getRemainingCapacityAh() const{
-        return soc * capacityAh;
+        return currentCapacityAh;
     }
     //reduce voltage based on current demand. All batteries have voltage sag associated with the internal Resistance
     void battery::updateVoltage(float current){
-        current = abs(current);
-        currentDraw = current;
+        currentDraw = abs(current);
         if(currentDraw * nominalInternalResistance > socVoltage){
             voltage = 0;
             return;
         }
-
-        voltage = socVoltage - (currentDraw * nominalInternalResistance);
+        //socVoltage is nominal no current voltage. state of charge defines its nominal current;
+        socVoltage = static_cast<float>(soc_to_mv(soc)/1000) * cellCount; 
+        voltage = socVoltage - calculateInternalVoltageDrop(currentDraw);
     }
 
+    
+    // more complex modeling would include a thermal model for internalResistance.
+    // Leaving this as a standalone method for future implementations.
     float battery::calculateInternalVoltageDrop(float current) const{
-
+        return (current * nominalInternalResistance);
     }
+
+    bool battery::manuallySetInitVoltage(float voltageV){
+        voltage = voltageV;
+        soc = calculateSOC(voltage,cellCount);
+        
+    }
+
+    void battery::setBatterySpecs(float _totalCapacityAh, float _voltage, int _cellCount){
+        totalCapacityAh = _totalCapacityAh;
+        if(_voltage >= soc_to_mv((uint16_t)0) && _voltage <= soc_to_mv((uint16_t)100)){
+            manuallySetInitVoltage(nominalVoltage);
+        }
+        cellCount = _cellCount;
+    }
+
+    void battery::setInternalResistance(float resistance){
+        internalResistance = std::max(0.0f,resistance);
+    }
+
+    void battery::setSafetyLimits(float terminationLevel, float _maxDischargeCurrent,float maxChargeCurrent, float maxTemp, float minTemp){
+        safetyTerminationLevel = terminationLevel;
+        maxDischargeCurrent = _maxDischargeCurrent;
+    }
+
+    
 }

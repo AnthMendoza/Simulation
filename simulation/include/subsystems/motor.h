@@ -51,7 +51,7 @@ public:
      * @param coilResistance The electrical resistance of the motor coils (in ohms).
      */
     void updateMotor(float timeStep , float loadTorque , float voltage);
-    void updateMotorAngularVelocity(float timeStep , float loadTroque , battery& bat, float rad_sec);
+    void updateMotorAngularVelocity(float timeStep , float loadTroque , hardware::battery& bat, float rad_sec);
     /// @brief voltage applied to motor  = state * batteryVoltage.
     /// @param state value -1 to 1;
     // Constructors

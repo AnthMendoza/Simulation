@@ -37,7 +37,7 @@ class drone :  public Vehicle{
     vector<unique_ptr<motor>> motors;
     vector<unique_ptr<propeller>> propellers;
     //droneBattery
-    unique_ptr<battery> droneBattery;
+    unique_ptr<hardware::battery> droneBattery;
 
     indexCoordinates index;
     
@@ -71,7 +71,7 @@ class drone :  public Vehicle{
 
     template<typename T, typename... Args>
     void set_battery(Args&&... args){
-        static_assert(std::is_base_of_v<battery,T>);
+        static_assert(std::is_base_of_v<hardware::battery,T>);
  
         droneBattery = std::make_unique<T>(std::forward<Args>(args)...);
     }
@@ -116,8 +116,8 @@ class drone :  public Vehicle{
     */
     void transposeEntities(const Quaternion& quant);
 
-    inline battery* getBattery(){
-        battery* bat = dynamic_cast<battery*> (droneBattery.get()); 
+    inline hardware::battery* getBattery(){
+        hardware::battery* bat = dynamic_cast<hardware::battery*> (droneBattery.get()); 
         return bat;
     }
 

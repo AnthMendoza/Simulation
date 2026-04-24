@@ -1,8 +1,6 @@
 battery:
   nominalInternalResistance: 0.005
   totalCapacityAh: 2.0
-  nominalVoltage: 22.2
   cellCount: 3.0
   currentCapacityAh: 100.0
-  soc: 1.0
   safetyTerminationLevel: 0.2

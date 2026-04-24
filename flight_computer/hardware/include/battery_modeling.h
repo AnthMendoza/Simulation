@@ -10,14 +10,13 @@
  *   - Temperature, aging, and C-rate will shift these values.
  */
 
-#pragma once
 
 #include <stdint.h>
 #include <cstddef>
 #include <array>
 
 struct lipo_soc_v_point {
-    uint8_t  soc_pct;   //State of charge (%)
+    uint16_t  soc_pct;   //State of charge (%)
     uint16_t ocv_mv;    //Open circuit voltage (millivolts)
 };
 
@@ -48,25 +47,25 @@ static constexpr lipo_soc_v_point lipo_soc_v_set[] = {
 
 constexpr size_t lipo_soc_v_size = std::size(lipo_soc_v_set);
 
-constexpr auto make_soc_array() {
-    std::array<uint8_t, lipo_soc_v_size> arr{};
+static constexpr auto make_soc_array() {
+    std::array<uint16_t, lipo_soc_v_size> arr{};
     for (size_t i = 0; i < lipo_soc_v_size; i++)
         arr[i] = lipo_soc_v_set[i].soc_pct;
     return arr;
 }
 
-constexpr auto make_mv_array() {
+static constexpr auto make_mv_array() {
     std::array<uint16_t, lipo_soc_v_size> arr{};
     for (size_t i = 0; i < lipo_soc_v_size; i++)
         arr[i] = lipo_soc_v_set[i].ocv_mv;
     return arr;
 }
 // values are set in array on compile 
-static constexpr auto lipo_soc_v_x = make_soc_array();
-static constexpr auto lipo_soc_v_y = make_mv_array();
+constexpr auto lipo_soc_v_x = make_soc_array();
+constexpr auto lipo_soc_v_y = make_mv_array();
 
 //linear interpolation
-uint16_t soc_to_mv(uint8_t soc) {
+inline uint16_t soc_to_mv(uint16_t soc) {
     //clamp
     if (soc <= lipo_soc_v_x[0]) return lipo_soc_v_y[0];
     if (soc >= lipo_soc_v_x[lipo_soc_v_size - 1]) return lipo_soc_v_y[lipo_soc_v_size - 1];
@@ -82,7 +81,7 @@ uint16_t soc_to_mv(uint8_t soc) {
     return 0;
 }
 
-uint8_t mv_to_soc(uint16_t mv) {
+inline uint16_t mv_to_soc(uint16_t mv) {
     //clamp
     if (mv <= lipo_soc_v_y[0]) return lipo_soc_v_x[0];
     if (mv >= lipo_soc_v_y[lipo_soc_v_size - 1]) return lipo_soc_v_x[lipo_soc_v_size - 1];
@@ -90,7 +89,7 @@ uint8_t mv_to_soc(uint16_t mv) {
     for (size_t i = 0; i < lipo_soc_v_size - 1; i++) {
         if (mv >= lipo_soc_v_y[i] && mv <= lipo_soc_v_y[i + 1]) {
             float t = (float)(mv - lipo_soc_v_y[i]) / (lipo_soc_v_y[i + 1] - lipo_soc_v_y[i]);
-            uint8_t soc = (lipo_soc_v_x[i] + t * (lipo_soc_v_x[i + 1] - lipo_soc_v_x[i]));
+            uint16_t soc = (lipo_soc_v_x[i] + t * (lipo_soc_v_x[i + 1] - lipo_soc_v_x[i]));
             return soc;
         }
     }

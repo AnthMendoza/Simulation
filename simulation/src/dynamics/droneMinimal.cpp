@@ -206,7 +206,7 @@ drone::drone(const drone& other)
     }
 
     if (other.droneBattery) {
-        droneBattery = std::make_unique<battery>(*other.droneBattery);
+        droneBattery = std::make_unique<hardware::battery>(*other.droneBattery);
     }
 
     if (other.pose) {

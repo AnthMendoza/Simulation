@@ -17,6 +17,8 @@ airframe_config airframe_config_parser::fromFile(const std::string& filePath){
     YAML::Node node = YAML::LoadFile(filePath);
     airframe_config config;
 
+    v_path(config , node);
+
     const auto& actuators = node["actuator"];
 
     if(!actuators.IsSequence()){
@@ -40,6 +42,12 @@ airframe_config airframe_config_parser::fromFile(const std::string& filePath){
 
     return config;
 
+}
+    
+
+void airframe_config_parser::v_path(airframe_config& config , YAML::Node& node){
+    const auto& v_node = node["vehicle"];
+    config.env.gravitationalAcceleration = utility::getRequired<float>(v_node,"gravitationalAcceleration","Controller vehicle");
 }
 
 

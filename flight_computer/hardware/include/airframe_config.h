@@ -7,6 +7,7 @@
 #include <vector>
 #include <spdlog/spdlog.h>
 #include <base/units.h>
+#include <yaml-cpp/yaml.h>
 
 namespace avionics{
 
@@ -32,11 +33,17 @@ struct actuator_config {
     }
 };
 
+struct environment{    
+    units::scalar gravitationalAcceleration = 9.8067f;
+};
+
+
 struct airframe_config {
     std::filesystem::path sourcePath;
     std::string defaultMotorConfigPath;
     std::string defaultPropellerConfigPath;
     std::vector<actuator_config> actuators;
+    environment env;
 
     std::vector<units::vec3> motorPositions()const;
     std::vector<units::vec3> thrustDirections()const;
@@ -58,10 +65,15 @@ struct airframe_config {
 };
 
 class airframe_config_parser{
+private:
+    
+    static void v_path(airframe_config& config , YAML::Node& node);
+
 public:
 
     static airframe_config fromFile(const std::string& filePath);
-    
+
+
 };
 
 }

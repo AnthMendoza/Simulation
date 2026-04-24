@@ -9,11 +9,6 @@ namespace avionics{
 
 namespace pid{
 
-
-static p_con load_p_con(const YAML::Node& node);
-
-static pid_con load_pid_con(const YAML::Node& node);
-
 pid_config load_pid_config(const std::string& filepath);
 
 }

@@ -1,12 +1,11 @@
 vehicle:
   wind: [0.0, 0.0, 0.0]
-  gravitationalAcceleration: -9.81
+  gravitationalAcceleration: -9.8067	
   initPosition: [-10.0, -10.0, 10.0]
   initVehicleState: [0.0, 0.0, 1.0]
   MOI: [0.01, 0.01, 0.01]
   initVelocity: [0.0, 0.0, 0.0]
   centerOfPressure: 0.0
-  maxGAllowedEntry: 4.5
   cogToEngine: -8.0
   timeStep: 0.001
   mass: 0.3
