@@ -59,6 +59,7 @@ set(HARDWARE_SRC
 add_library(flight_computer_library STATIC
     src/flight_computer.cpp
     src/drone_control.cpp
+    src/subsystem_monitor.cpp
     ${TELEMETRY_SRC}
     ${PID_CONTROLLER_SRC}
     ${STATE_ESTIMATION_SRC}

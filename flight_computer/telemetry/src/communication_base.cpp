@@ -11,7 +11,7 @@ constexpr auto PORT_ACCESS_NAME = "port";
 
 
 
-avionics::telemetry_base::telemetry_base(telem_ring& tel_buff,std::string config_path): thread_manager(), tel_buffer(tel_buff) , CONFIG_PATH(config_path){
+avionics::telemetry_base::telemetry_base(flight_health& health_buff, telem_ring& tel_buff,std::string config_path): thread_manager(), health_buffer(health_buff) , tel_buffer(tel_buff) , CONFIG_PATH(config_path) , subsystem<&flight_computer_health::communication>(health_buff){
 
 }
 

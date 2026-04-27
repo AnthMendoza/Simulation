@@ -6,21 +6,22 @@
 #include <mutex>
 #include <buffer_types.h>
 #include <iostream>
+#include <subsystem_monitor.h>
 
 namespace avionics{
 
 
-class hardware_base : public thread_manager{
+class hardware_base : public thread_manager , subsystem<&flight_computer_health::hardware>{
     protected:
     sensor::SensorField field;
     sensor_dbuf& sensor_buffer;
-
+    flight_health& health_buffer;
 
     public:
     
     //hard code polling change to schedule driven dependent on sensor rates
     
-    hardware_base(sensor_dbuf& sensor_buff): sensor_buffer(sensor_buff) , thread_manager(10){
+    hardware_base(flight_health& flight_health,sensor_dbuf& sensor_buff): health_buffer(flight_health) , sensor_buffer(sensor_buff) , thread_manager(10) , subsystem<&flight_computer_health::hardware>(flight_health){
 
     }
 

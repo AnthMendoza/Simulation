@@ -3,10 +3,11 @@
 #include <util/thread_manager.h>
 #include "../../include/scheduler_tasks.h"
 #include <buffer_types.h>
+#include <subsystem_monitor.h>
 
 namespace avionics::estimation{
 
-class estimation_base: public thread_manager{
+class estimation_base: public thread_manager , subsystem<&flight_computer_health::estimator>{
 
     private:
     scheduler estimator_scheduler;
@@ -19,6 +20,7 @@ class estimation_base: public thread_manager{
     estimation_state_packet state_packet;
 
     sensor_dbuf& sensor_buffer;
+    flight_health& health_buffer;
     
     void initialize_base(){
         std::vector<scheduler_tasks> tasks = get_routine();
@@ -43,7 +45,7 @@ class estimation_base: public thread_manager{
 
     public:
 
-    estimation_base(sensor_dbuf& sensor_buff,state_dbuf& state_buff ): sensor_buffer(sensor_buff) ,state_buffer(state_buff){
+    estimation_base(flight_health& health_buff, sensor_dbuf& sensor_buff,state_dbuf& state_buff ): health_buffer(health_buff), sensor_buffer(sensor_buff) ,state_buffer(state_buff) , subsystem<&flight_computer_health::estimator>(health_buff){
 
     }
 

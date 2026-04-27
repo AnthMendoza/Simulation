@@ -5,12 +5,13 @@
 #include <base/conversions.h>
 
 avionics::pid::controller_pid::controller_pid(
+    flight_health& health_buff,
     state_dbuf& state_buff,
     telem_ring& tel_buff,
     nav_ring& nav_buff,
     const airframe_config& air_config,
     const std::string path
-): controller_base(state_buff , tel_buff, nav_buff, air_config) {
+): controller_base(health_buff,state_buff , tel_buff, nav_buff, air_config) {
     
     config_ = pid::load_pid_config(path);
     

@@ -24,7 +24,7 @@ avionics::flight_computer::flight_computer(float interval_ms, std::string airfra
 
 
 avionics::airframe_config avionics::flight_computer::config_startup(const std::string& airframeConfigPath) {
-    
+
     return make_flight_controller_config(airframeConfigPath);
 }
 
@@ -51,6 +51,8 @@ void avionics::flight_computer::set_logger(std::shared_ptr<spdlog::logger> share
 }
 
 void avionics::flight_computer::thread_process(){
+    manager_health();
+
     auto& nav_buffer = controller->get_nav_buffer();
     desired test_state;
     test_state.position = {1,0,1};
@@ -59,29 +61,37 @@ void avionics::flight_computer::thread_process(){
 
 void avionics::flight_computer::thread_startup_process(){
 
-    if(hardware){
-        hardware->start();
-    }else{
-        std::cerr<< "\nFlight Computer contains no hardware\n";
-    }
+    auto safeStart = [](auto& component, const char* name){
+        if (!component) {
+            std::cerr << "\nFlight Computer contains no " << name << "\n";
+            return false;
+        }
 
-    if(estimator){
-        estimator->start();
-    }else{
-        std::cerr<< "\nFlight Computer contains no estimator\n";
-    }
+        try{
+            component->start();
+            return true;
+        } catch (const std::exception& error){
+            std::cerr << "\nFailed to start " << name << ": " << error.what() << "\n";
+            return false;
+        }
+    };
 
-    if(controller){
-        controller->start();
-    }else{
-        std::cerr<< "\nFlight Computer contains no controller\n";
-    }
+    bool safe =
+        safeStart(hardware, "hardware") &&
+        safeStart(estimator, "estimator") &&
+        safeStart(controller, "controller") &&
+        safeStart(communication, "communication");
 
-    if(communication){
-        communication->start();
-    }else{
-        std::cerr<< "\nFlight Computer contains no communication\n";
-    }
+    if (!safe){
+        //set controller flag to prevent motor torque commands
 
+        throw std::runtime_error("Abort");
+    }
     
+}
+
+
+
+void avionics::flight_computer::manager_health(){
+
 }

@@ -15,7 +15,7 @@ class hardware_sim:public avionics::hardware_base{
 
     public:
 
-    hardware_sim(sensor_dbuf& sensor_buff , bus_type& bus_): hardware_base(sensor_buff) , bus(bus_){
+    hardware_sim(flight_health& health_buff ,sensor_dbuf& sensor_buff , bus_type& bus_): hardware_base(health_buff,sensor_buff) , bus(bus_){
     }
     
     void set_field() override;

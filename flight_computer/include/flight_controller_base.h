@@ -8,9 +8,10 @@
 #include <mutex>
 #include <buffer_types.h>
 #include <airframe_config.h>
+#include <subsystem_monitor.h>
 
 namespace avionics{
-    class controller_base: public thread_manager{
+    class controller_base: public thread_manager , subsystem<&flight_computer_health::controller> {
     private:
         void initialize_base(){
            std::vector<scheduler_tasks> tasks = get_routine();
@@ -59,7 +60,7 @@ namespace avionics{
         void thread_startup_process() override{
             initialize_base();
             initialize_implementation();
-            SPDLOG_LOGGER_INFO(logger,"Controller started.");
+            set_running();
         }
 
         void thread_process() override{
@@ -69,8 +70,8 @@ namespace avionics{
 
     public:
 
-        controller_base(state_dbuf& state_buff , telem_ring& tel_buff, nav_ring& nav_buff  ,const airframe_config& config) : 
-            state_buffer(state_buff), telemetry_buffer(tel_buff) , navigation_buffer(nav_buff) , configuration(config){
+        controller_base(flight_health& health, state_dbuf& state_buff , telem_ring& tel_buff, nav_ring& nav_buff  ,const airframe_config& config) : 
+            state_buffer(state_buff), telemetry_buffer(tel_buff) , navigation_buffer(nav_buff) , configuration(config), subsystem<&flight_computer_health::controller>(health){
 
         }
 

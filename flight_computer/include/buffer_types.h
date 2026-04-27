@@ -7,6 +7,7 @@
 #include <telemetry_packet.h>
 #include <avionics_states.h>
 #include <sensor_field.h>
+#include <computer_state.h>
 
 namespace avionics{
 
@@ -33,5 +34,9 @@ using sensor_dbuf = utility::buffer::double_buffer<sensor_field_packet>;
 using desired = desired_state;
 
 using nav_ring = utility::buffer::ring_buffer<desired,20>;
+
+// ------------- flight_computer_global_flags --------------
+
+using flight_health = avionics::flight_computer_health;
 
 }

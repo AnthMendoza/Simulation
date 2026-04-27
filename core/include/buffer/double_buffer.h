@@ -12,6 +12,12 @@ class double_buffer{
     std::atomic<int> read_index{0};
 
     public:
+    double_buffer() = default;
+    //optional constructor to fill buffers
+    double_buffer(const T& init_value){
+        buffers[0] = init_value;
+        buffers[1] = init_value;
+    }
 
     T& writeBuffer(){
         int current = read_index.load(std::memory_order_relaxed);

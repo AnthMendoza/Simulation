@@ -15,11 +15,12 @@
 #include "telemetry_packet_manager.h"
 #include "../../include/scheduler_tasks.h"
 #include <buffer_types.h>
+#include <subsystem_monitor.h>
 
 namespace avionics{
 
 
-class telemetry_base: public thread_manager{
+class telemetry_base: public thread_manager , subsystem<&flight_computer_health::communication>{
 
 private:
 
@@ -43,12 +44,13 @@ bool relay_connected_to_ground;
 std::string CONFIG_PATH;
 
 telem_ring& tel_buffer;
+flight_health& health_buffer;
 
 public:
     telemetry_packet_manager packet_manager;
 
     //note baudRate does not define the rate at which packets are sent. 
-    telemetry_base(telem_ring& tel_buff,std::string config_path);
+    telemetry_base(flight_health& health_buff, telem_ring& tel_buff,std::string config_path);
 
 
     ~telemetry_base() = default;

@@ -30,7 +30,7 @@ class telemetry: public telemetry_base{
 
     public:
 
-    telemetry(telem_ring& tel_buff , std::string config_path) : telemetry_base(tel_buff,config_path){
+    telemetry(flight_health& health_buff ,telem_ring& tel_buff , std::string config_path) : telemetry_base(health_buff,tel_buff,config_path){
 
     }
 

@@ -38,6 +38,8 @@ private:
 
     avionics::nav_ring navigation_to_controller;
 
+    avionics::flight_health health_buffer;
+
     airframe_config configuration;
 
     void thread_process() override;
@@ -54,7 +56,8 @@ public:
 
         static_assert(std::is_base_of_v<controller_base, T>);
 
-        controller = std::make_shared<T>(   
+        controller = std::make_shared<T>(
+            health_buffer,   
             estimator_to_controller, 
             controller_to_communication,
             navigation_to_controller, 
@@ -71,6 +74,7 @@ public:
         static_assert(std::is_base_of_v<telemetry_base,T>);
 
         communication = std::make_shared<T>(
+            health_buffer,
             controller_to_communication,
             std::forward<Args>(args)...
         );
@@ -84,6 +88,7 @@ public:
         static_assert(std::is_base_of_v<estimation::estimation_base,T>);
 
         estimator = std::make_shared<T>(
+            health_buffer,
             hardware_to_estimator,
             estimator_to_controller,
             std::forward<Args>(args)...
@@ -96,6 +101,7 @@ public:
     void set_hardware(Args&&... args){
         static_assert(std::is_base_of_v<hardware_base, T>);
         hardware = std::make_shared<T>(
+            health_buffer,
             hardware_to_estimator,
             std::forward<Args>(args)...
         );
@@ -104,6 +110,7 @@ public:
 
     flight_computer(float interval_ms = 10, std::string airframeConfigPath = "");   
     void set_logger(std::shared_ptr<spdlog::logger> shared_logger) override;
+    void manager_health();
 
     const airframe_config& get_config() const {
         return configuration;

@@ -17,7 +17,7 @@ class estimation : public estimation_base{
     public:
 
 
-    estimation( sensor_dbuf& sensor_buff,state_dbuf& state_buff ) : estimation_base(sensor_buff,state_buff){
+    estimation(flight_health& health_buff, sensor_dbuf& sensor_buff,state_dbuf& state_buff ) : estimation_base(health_buff,sensor_buff,state_buff){
 
     }
 
