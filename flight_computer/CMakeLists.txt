@@ -103,19 +103,18 @@ add_executable(flight_tests
     tests/airframe_config_parser_test.cpp
     tests/battery_model_test.cpp
     tests/battery_test.cpp
+    tests/subsystem_monitor_test.cpp
 )
 
 target_compile_definitions(flight_tests
-    PUBLIC
+    PRIVATE
     TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+    TESTING
 )
 
 target_link_libraries(flight_tests
     PUBLIC
     flight_computer_library
-)
-
-target_link_libraries(flight_tests
     PRIVATE
     gtest
     gtest_main

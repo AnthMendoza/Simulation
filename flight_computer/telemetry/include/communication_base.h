@@ -20,7 +20,7 @@
 namespace avionics{
 
 
-class telemetry_base: public thread_manager , subsystem<&flight_computer_health::communication>{
+class telemetry_base: public thread_manager , subsystem<&flight_health::communication>{
 
 private:
 

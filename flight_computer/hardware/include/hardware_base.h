@@ -11,7 +11,7 @@
 namespace avionics{
 
 
-class hardware_base : public thread_manager , subsystem<&flight_computer_health::hardware>{
+class hardware_base : public thread_manager , subsystem<&flight_health::hardware>{
     protected:
     sensor::SensorField field;
     sensor_dbuf& sensor_buffer;
@@ -21,7 +21,7 @@ class hardware_base : public thread_manager , subsystem<&flight_computer_health:
     
     //hard code polling change to schedule driven dependent on sensor rates
     
-    hardware_base(flight_health& flight_health,sensor_dbuf& sensor_buff): health_buffer(flight_health) , sensor_buffer(sensor_buff) , thread_manager(10) , subsystem<&flight_computer_health::hardware>(flight_health){
+    hardware_base(flight_health& flight_health,sensor_dbuf& sensor_buff): health_buffer(flight_health) , sensor_buffer(sensor_buff) , thread_manager(10) , subsystem<&flight_health::hardware>(flight_health){
 
     }
 

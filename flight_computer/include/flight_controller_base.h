@@ -11,7 +11,7 @@
 #include <subsystem_monitor.h>
 
 namespace avionics{
-    class controller_base: public thread_manager , subsystem<&flight_computer_health::controller> {
+    class controller_base: public thread_manager , subsystem<&flight_health::controller> {
     private:
         void initialize_base(){
            std::vector<scheduler_tasks> tasks = get_routine();
@@ -71,7 +71,7 @@ namespace avionics{
     public:
 
         controller_base(flight_health& health, state_dbuf& state_buff , telem_ring& tel_buff, nav_ring& nav_buff  ,const airframe_config& config) : 
-            state_buffer(state_buff), telemetry_buffer(tel_buff) , navigation_buffer(nav_buff) , configuration(config), subsystem<&flight_computer_health::controller>(health){
+            state_buffer(state_buff), telemetry_buffer(tel_buff) , navigation_buffer(nav_buff) , configuration(config), subsystem<&flight_health::controller>(health){
 
         }
 

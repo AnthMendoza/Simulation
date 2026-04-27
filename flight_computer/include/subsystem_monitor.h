@@ -5,15 +5,26 @@
 #include <atomic>
 #include <buffer_types.h>
 
+#ifdef TESTING
+#include <gtest/gtest_prod.h>
+#endif
+
 //***Not a type template***
-//pointer to a member of flight_computer_health
+//pointer to a member of flight_health
 //that is of type subsystem_health
 template<avionics::subsystem_health avionics::flight_health::* member>
 
 class subsystem{
+    #ifdef TESTING
+    FRIEND_TEST(subsystemFixture, raiseFaultFlag);
+    FRIEND_TEST(subsystemFixture, raiseRunningFlag);
+    FRIEND_TEST(subsystemFixture, multipleFlags);
+    FRIEND_TEST(subsystemFixture, multipleCallsToRaiseFlag);
+    FRIEND_TEST(subsystemFixture, multipleCallsToLowerFlag);
+    #endif
     private:
 
-    avionics::flight_computer_health& comp_health;
+    avionics::flight_health& comp_health;
 
     void set_lifecycle_flag(avionics::subsystem_lifecycle state){
         auto& subsystem_member = comp_health.*member;

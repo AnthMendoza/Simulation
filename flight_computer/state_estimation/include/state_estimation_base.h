@@ -7,7 +7,7 @@
 
 namespace avionics::estimation{
 
-class estimation_base: public thread_manager , subsystem<&flight_computer_health::estimator>{
+class estimation_base: public thread_manager , subsystem<&flight_health::estimator>{
 
     private:
     scheduler estimator_scheduler;
@@ -45,7 +45,7 @@ class estimation_base: public thread_manager , subsystem<&flight_computer_health
 
     public:
 
-    estimation_base(flight_health& health_buff, sensor_dbuf& sensor_buff,state_dbuf& state_buff ): health_buffer(health_buff), sensor_buffer(sensor_buff) ,state_buffer(state_buff) , subsystem<&flight_computer_health::estimator>(health_buff){
+    estimation_base(flight_health& health_buff, sensor_dbuf& sensor_buff,state_dbuf& state_buff ): health_buffer(health_buff), sensor_buffer(sensor_buff) ,state_buffer(state_buff) , subsystem<&flight_health::estimator>(health_buff){
 
     }
 
