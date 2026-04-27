@@ -15,7 +15,7 @@ enum class flight_mode : uint8_t{
 
 using lc_type = uint8_t;
 
-enum subsystem_lifecycle : lc_type {
+enum class subsystem_lifecycle : lc_type {
     lifecycle_none        = 0,
     lifecycle_boot        = 1 << 0,
     lifecycle_initialized = 1 << 1,
@@ -28,21 +28,21 @@ enum subsystem_lifecycle : lc_type {
 
 using h_type = uint8_t;
 
-enum health_status : h_type {
+enum class health_status : h_type {
     health_nominal  = 1 << 0,
     health_warning  = 1 << 1,
     health_critical = 1 << 2
 };
 
 struct subsystem_health {
-    std::atomic<lc_type> lifecycle {subsystem_lifecycle::lifecycle_boot};
-    std::atomic<h_type> status {health_status::health_nominal};
+    std::atomic<lc_type> lifecycle {static_cast<lc_type>(subsystem_lifecycle::lifecycle_boot)};
+    std::atomic<h_type> status {static_cast<h_type>(health_status::health_nominal)};
 
     std::atomic<uint64_t> last_update_us {0};
     std::atomic<uint32_t> error_count {0};
 };
 
-enum fault_flags : uint32_t{
+enum class fault_flags : uint32_t{
     hardware_failure      = 1 << 0,
     estimator_failure     = 1 << 1,
     controller_failure    = 1 << 2,

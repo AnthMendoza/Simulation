@@ -7,7 +7,7 @@
 #include <base/base.h>
 
 namespace SimCore{
-//using the PSD to form a normal distabution 
+//using the PSD to form a normal distribution 
 sensor::sensor(units::scalar frequency , units::scalar NoisePowerSpectralDensity , units::scalar bandwidth, units::scalar bias){
     hz = 1/frequency;
     sampleFrequency = frequency;
@@ -47,27 +47,27 @@ void sensor::setClamp(units::scalar low , units::scalar high){
 
 
 //enable burst. by default turned off
-void sensor::setBurst(units::scalar busrtStdDeviation , units::scalar maxBurstDuration){
+void sensor::setBurst(units::scalar burstStdDeviation , units::scalar maxBurstDuration){
     if(standardDeviation < 0 ) return;
     if(maxBurstDuration > 0.0f )burst = true;
     else return;
     
-    busrtStdDev =  busrtStdDeviation;
+    burstStdDev = burstStdDeviation;
     maxBurstDur = maxBurstDuration;
     burstDuration = 0;
     currentBurstMagnitude = 0;
 
 }
 
-// burst noise | is low frequency noise that can not be mathamaticlly predicted.
-// An implmentation will be introduced to give a non-realistic simulation of burst noise
+// burst noise | is low frequency noise that can not be mathematically predicted.
+// An implementation will be introduced to give a non-realistic simulation of burst noise
 units::scalar sensor::burstNoise(units::scalar currentTime){
     if(burst == false) return 0.0f;
     if(currentTime - lastBurst >= burstDuration){
         lastBurst = currentTime;
         std::uniform_real_distribution<units::scalar> dis(0.0f, 1.0f);
         burstDuration =  dis(gen) * maxBurstDur;
-        std::normal_distribution<units::scalar> normalDistribution{0,busrtStdDev};
+        std::normal_distribution<units::scalar> normalDistribution{0,burstStdDev};
         currentBurstMagnitude = normalDistribution(gen);
     }
     return currentBurstMagnitude;
@@ -234,7 +234,7 @@ sensor::sensor(const sensor& other)
       currentBustValue(other.currentBustValue),
       isClamped(other.isClamped),
       burst(other.burst),
-      busrtStdDev(other.busrtStdDev),
+      burstStdDev(other.burstStdDev),
       maxBurstDur(other.maxBurstDur),
       burstDuration(other.burstDuration),
       lastBurst(other.lastBurst),
@@ -247,7 +247,7 @@ sensor::sensor(const sensor& other)
 }
 
 
-//gps cordiante and add IMU data from zero
+//gps coordinate and add IMU data from zero
 //use a filtering system to blend imu data and gps
 
 //void radar::sample(Vehicle *vehicle){

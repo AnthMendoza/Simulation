@@ -20,7 +20,7 @@ class sensor{
     units::scalar currentBustValue;
     bool isClamped = false;
     bool burst = false;
-    units::scalar busrtStdDev;
+    units::scalar burstStdDev;
     units::scalar maxBurstDur;
     units::scalar burstDuration;
     units::scalar lastBurst;
@@ -46,7 +46,7 @@ class sensor{
     virtual ~sensor() =  default;
     units::scalar applyNoise(units::scalar realValue , units::scalar currentTime);
     void setClamp(units::scalar low , units::scalar high);
-    void setBurst(units::scalar busrtStdDeviation , units::scalar maxBurstDuration);
+    void setBurst(units::scalar burstStdDeviation , units::scalar maxBurstDuration);
     virtual void sample(Vehicle *vehicle) = 0;
     virtual units::vec3 read() = 0; 
 
@@ -82,7 +82,7 @@ class sensorSuite{
     virtual ~sensorSuite() = default;
     //Each sensor base class has a limiter. Only allowing for samples if the frequency allows.
     //Call at simulation frequency or at the frequency of the fastest sensor.
-    //cycles through *sensorMap and calls on sample method of each sensor for potental update of data sample.
+    //cycles through *sensorMap and calls on sample method of each sensor for potential update of data sample.
     virtual void updateSensors(Vehicle *vehicle){
         //keyPtrSensors is a std::pair first is key second is unique_ptr.
         for (const auto& keyPtrSensors : *sensorMap){
@@ -163,7 +163,7 @@ class accelerometer : public sensor{
 
 class gyroscope : public sensor{
     private:
-    //rotation around x y z axis realitve to the drone vehicle. 
+    //rotation around x y z axis relative to the drone vehicle. 
     units::vec3 rotationVector;
     poseState lastPose;
     public:
